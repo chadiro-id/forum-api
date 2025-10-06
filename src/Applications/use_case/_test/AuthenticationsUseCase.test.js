@@ -78,5 +78,18 @@ describe('AuthenticationsUseCase', () => {
         .rejects
         .toThrow('AUTHENTICATIONS_USE_CASE.PAYLOAD_NOT_CONTAIN_REFRESH_TOKEN');
     });
+
+    it('should throw error if refresh token not a string', async () => {
+      // Arrange
+      const payload = {
+        refreshToken: 1,
+      };
+      const useCase = new AuthenticationsUseCase({});
+
+      // Action & Assert
+      await expect(useCase.refreshAuthentication(payload))
+        .rejects
+        .toThrow('AUTHENTICATIONS_USE_CASE.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
+    });
   });
 });
