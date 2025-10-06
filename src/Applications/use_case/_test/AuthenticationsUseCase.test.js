@@ -66,4 +66,17 @@ describe('AuthenticationsUseCase', () => {
         .toHaveBeenCalledWith(mockedAuthentication.refreshToken);
     });
   });
+
+  describe('refreshAuthentication method', () => {
+    it('should throw error if payload not contain refresh token', async () => {
+      // Arrange
+      const payload = {};
+      const useCase = new AuthenticationsUseCase({});
+
+      // Action & Assert
+      await expect(useCase.refreshAuthentication(payload))
+        .rejects
+        .toThrow('AUTHENTICATIONS_USE_CASE.PAYLOAD_NOT_CONTAIN_REFRESH_TOKEN');
+    });
+  });
 });
