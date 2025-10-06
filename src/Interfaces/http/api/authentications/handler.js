@@ -3,6 +3,8 @@ const AuthenticationsUseCase = require('../../../../Applications/use_case/Authen
 class AuthenticationsHandler {
   constructor(container) {
     this._container = container;
+
+    this.postAuthenticationHandler = this.postAuthenticationHandler.bind(this);
   }
 
   async postAuthenticationHandler(request, h) {
