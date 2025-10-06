@@ -12,6 +12,10 @@ class AuthenticateUserEntity {
     if (!username || !password) {
       throw new Error('AUTHENTICATE_USER_ENTITY.NOT_CONTAIN_NEEDED_PROPERTY');
     }
+
+    if (typeof username !== 'string' || typeof password !== 'string') {
+      throw new Error('AUTHENTICATE_USER_ENTITY.NOT_MEET_DATA_TYPE_SPECIFICATION');
+    }
   }
 }
 
