@@ -42,6 +42,13 @@ class AuthenticationsUseCase {
     return this._authenticationTokenManager.createAccessToken({ username, id });
   }
 
+  async deauthenticate(payload) {
+    const token = this._verifyRefreshToken(payload);
+
+    await this._authenticationRepository.checkAvailabilityToken(token);
+    await this._authenticationRepository.deleteToken(token);
+  }
+
   _verifyRefreshToken(payload) {
     const { refreshToken } = payload;
 
