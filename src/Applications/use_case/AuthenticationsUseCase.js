@@ -49,6 +49,10 @@ class AuthenticationsUseCase {
       throw new Error('AUTHENTICATIONS_USE_CASE.PAYLOAD_NOT_CONTAIN_REFRESH_TOKEN');
     }
 
+    if (typeof refreshToken !== 'string') {
+      throw new Error('AUTHENTICATIONS_USE_CASE.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
+    }
+
     return refreshToken;
   }
 }
