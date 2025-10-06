@@ -141,5 +141,43 @@ describe('AuthenticationsUseCase', () => {
         .rejects
         .toThrow('AUTHENTICATIONS_USE_CASE.PAYLOAD_NOT_CONTAIN_REFRESH_TOKEN');
     });
+
+    it('should throw error if refresh token not string', async () => {
+      // Arrange
+      const payload = {
+        refreshToken: 123,
+      };
+      const useCase = new AuthenticationsUseCase({});
+
+      // Action & Assert
+      await expect(useCase.deauthenticate(payload))
+        .rejects
+        .toThrow('AUTHENTICATIONS_USE_CASE.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
+    });
+
+    it('should orchestrating the deauthenticate action correctly', async () => {
+      // Arrange
+      const payload = {
+        refreshToken: 'refreshToken',
+      };
+      const mockAuthenticationRepository = new AuthenticationRepository();
+      mockAuthenticationRepository.checkAvailabilityToken = jest.fn()
+        .mockImplementation(() => Promise.resolve());
+      mockAuthenticationRepository.deleteToken = jest.fn()
+        .mockImplementation(() => Promise.resolve());
+
+      const useCase = new AuthenticationsUseCase({
+        authenticationRepository: mockAuthenticationRepository,
+      });
+
+      // Act
+      await useCase.deauthenticate(payload);
+
+      // Assert
+      expect(mockAuthenticationRepository.checkAvailabilityToken)
+        .toHaveBeenCalledWith(payload.refreshToken);
+      expect(mockAuthenticationRepository.deleteToken)
+        .toHaveBeenCalledWith(payload.refreshToken);
+    });
   });
 });
