@@ -50,4 +50,20 @@ describe('AuthenticationRepositoryPostgres', () => {
         .resolves.not.toThrow(InvariantError);
     });
   });
+
+  describe('deleteToken method', () => {
+    it('should delete token from database', async () => {
+      // Arrange
+      const authenticationRepository = new AuthenticationRepositoryPostgres(pool);
+      const token = 'token';
+      await AuthenticationsTestHelper.addToken(token);
+
+      // Action
+      await authenticationRepository.deleteToken(token);
+
+      // Assert
+      const tokens = await AuthenticationsTestHelper.findToken(token);
+      expect(tokens).toHaveLength(0);
+    });
+  });
 });
