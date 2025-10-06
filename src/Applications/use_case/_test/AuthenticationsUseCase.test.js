@@ -7,7 +7,7 @@ const NewAuthEntity = require('../../../Domains/authentications/entities/NewAuth
 
 describe('AuthenticationsUseCase', () => {
   describe('authenticateUser method', () => {
-    it('should orchestrating the authentications correctly', async () => {
+    it('should orchestrating the user authentications correctly', async () => {
       // Arrange
       const useCasePayload = {
         username: 'forumapi',
@@ -90,6 +90,43 @@ describe('AuthenticationsUseCase', () => {
       await expect(useCase.refreshAuthentication(payload))
         .rejects
         .toThrow('AUTHENTICATIONS_USE_CASE.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
+    });
+
+    it('should orchestrating the refresh authentication action correctly', async () => {
+      // Arrange
+      const useCasePayload = {
+        refreshToken: 'some_refresh_token',
+      };
+      const mockAuthenticationRepository = new AuthenticationRepository();
+      const mockAuthenticationTokenManager = new AuthenticationTokenManager();
+      // Mocking
+      mockAuthenticationRepository.checkAvailabilityToken = jest.fn()
+        .mockImplementation(() => Promise.resolve());
+      mockAuthenticationTokenManager.verifyRefreshToken = jest.fn()
+        .mockImplementation(() => Promise.resolve());
+      mockAuthenticationTokenManager.decodePayload = jest.fn()
+        .mockImplementation(() => Promise.resolve({ username: 'forumapi', id: 'user-123' }));
+      mockAuthenticationTokenManager.createAccessToken = jest.fn()
+        .mockImplementation(() => Promise.resolve('some_new_access_token'));
+      // Create the use case instace
+      const useCase = new AuthenticationsUseCase({
+        authenticationRepository: mockAuthenticationRepository,
+        authenticationTokenManager: mockAuthenticationTokenManager,
+      });
+
+      // Action
+      const accessToken = await useCase.refreshAuthentication(useCasePayload);
+
+      // Assert
+      expect(mockAuthenticationTokenManager.verifyRefreshToken)
+        .toHaveBeenCalledWith(useCasePayload.refreshToken);
+      expect(mockAuthenticationRepository.checkAvailabilityToken)
+        .toHaveBeenCalledWith(useCasePayload.refreshToken);
+      expect(mockAuthenticationTokenManager.decodePayload)
+        .toHaveBeenCalledWith(useCasePayload.refreshToken);
+      expect(mockAuthenticationTokenManager.createAccessToken)
+        .toHaveBeenCalledWith({ username: 'forumapi', id: 'user-123' });
+      expect(accessToken).toEqual('some_new_access_token');
     });
   });
 });
