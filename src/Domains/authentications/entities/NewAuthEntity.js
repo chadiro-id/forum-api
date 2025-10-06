@@ -10,7 +10,7 @@ class NewAuthEntity {
     const { accessToken, refreshToken } = payload;
 
     if (!accessToken || !refreshToken) {
-      throw new Error('NEW_AUTH.NOT_CONTAIN_NEEDED_PROPERTY');
+      throw new Error('NEW_AUTH_ENTITY.NOT_CONTAIN_NEEDED_PROPERTY');
     }
   }
 }

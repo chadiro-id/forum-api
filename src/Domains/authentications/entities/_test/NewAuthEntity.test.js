@@ -6,6 +6,6 @@ describe('NewAuthEntity', () => {
       accessToken: 'accessToken',
     };
 
-    expect(() => new NewAuthEntity(payload)).toThrow('NEW_AUTH.NOT_CONTAIN_NEEDED_PROPERTY');
+    expect(() => new NewAuthEntity(payload)).toThrow('NEW_AUTH_ENTITY.NOT_CONTAIN_NEEDED_PROPERTY');
   });
 });
