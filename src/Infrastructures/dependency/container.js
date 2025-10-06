@@ -13,6 +13,8 @@ const JwtTokenManager = require('../security/JwtTokenManager');
 
 const UserRepository = require('../../Domains/users/UserRepository');
 const UserRepositoryPostgres = require('../repository/UserRepositoryPostgres');
+const AuthenticationRepository = require('../../Domains/authentications/AuthenticationRepository');
+const AuthenticationRepositoryPostgres = require('../repository/AuthenticationRepositoryPostgres');
 
 const UsersUseCase = require('../../Applications/use_case/UsersUseCase');
 
@@ -54,6 +56,17 @@ container.register([
         },
         {
           concrete: nanoid,
+        },
+      ],
+    },
+  },
+  {
+    key: AuthenticationRepository.name,
+    Class: AuthenticationRepositoryPostgres,
+    parameter: {
+      dependencies: [
+        {
+          concrete: pool,
         },
       ],
     },
