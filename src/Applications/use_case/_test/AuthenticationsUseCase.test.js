@@ -6,10 +6,10 @@ const UserRepository = require('../../../Domains/users/UserRepository');
 const NewAuthEntity = require('../../../Domains/authentications/entities/NewAuthEntity');
 
 describe('AuthenticationsUseCase', () => {
-  describe('authenticateUser method', () => {
-    it('should orchestrating the user authentications correctly', async () => {
+  describe('authenticate method', () => {
+    it('should orchestrating the authenticate action correctly', async () => {
       // Arrange
-      const useCasePayload = {
+      const payload = {
         username: 'forumapi',
         password: 'secret',
       };
@@ -45,7 +45,7 @@ describe('AuthenticationsUseCase', () => {
       });
 
       // Action
-      const actualAuthentication = await useCase.authenticateUser(useCasePayload);
+      const actualAuthentication = await useCase.authenticate(payload);
 
       // Assert
       expect(actualAuthentication).toEqual(new NewAuthEntity({
