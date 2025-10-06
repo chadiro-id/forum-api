@@ -30,6 +30,27 @@ class AuthenticationsUseCase {
 
     return authenticationEntity;
   }
+
+  async refreshAuthentication(payload) {
+    const token = this._verifyRefreshToken(payload);
+
+    await this._authenticationTokenManager.verifyRefreshToken(token);
+    await this._authenticationRepository.checkAvailabilityToken(token);
+
+    const { username, id } = await this._authenticationTokenManager.decodePayload(token);
+
+    return this._authenticationTokenManager.createAccessToken({ username, id });
+  }
+
+  _verifyRefreshToken(payload) {
+    const { refreshToken } = payload;
+
+    if (!refreshToken) {
+      throw new Error('AUTHENTICATIONS_USE_CASE.PAYLOAD_NOT_CONTAIN_REFRESH_TOKEN');
+    }
+
+    return refreshToken;
+  }
 }
 
 module.exports = AuthenticationsUseCase;
