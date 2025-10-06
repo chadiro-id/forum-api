@@ -129,4 +129,17 @@ describe('AuthenticationsUseCase', () => {
       expect(accessToken).toEqual('some_new_access_token');
     });
   });
+
+  describe('deauthenticate method', () => {
+    it('should throw error if payload not contain refresh token', async () => {
+      // Arrange
+      const payload = {};
+      const useCase = new AuthenticationsUseCase({});
+
+      // Action & Assert
+      await expect(useCase.deauthenticate(payload))
+        .rejects
+        .toThrow('AUTHENTICATIONS_USE_CASE.PAYLOAD_NOT_CONTAIN_REFRESH_TOKEN');
+    });
+  });
 });
