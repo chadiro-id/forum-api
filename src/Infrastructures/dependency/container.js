@@ -17,6 +17,7 @@ const AuthenticationRepository = require('../../Domains/authentications/Authenti
 const AuthenticationRepositoryPostgres = require('../repository/AuthenticationRepositoryPostgres');
 
 const UsersUseCase = require('../../Applications/use_case/UsersUseCase');
+const AuthenticationsUseCase = require('../../Applications/use_case/AuthenticationsUseCase');
 
 const container = createContainer();
 
@@ -83,6 +84,31 @@ container.register([
         {
           name: 'userRepository',
           internal: UserRepository.name,
+        },
+        {
+          name: 'passwordHash',
+          internal: PasswordHash.name,
+        },
+      ],
+    },
+  },
+  {
+    key: AuthenticationsUseCase.name,
+    Class: AuthenticationsUseCase,
+    parameter: {
+      injectType: 'destructuring',
+      dependencies: [
+        {
+          name: 'userRepository',
+          internal: UserRepository.name,
+        },
+        {
+          name: 'authenticationRepository',
+          internal: AuthenticationRepository.name,
+        },
+        {
+          name: 'authenticationTokenManager',
+          internal: AuthenticationTokenManager.name,
         },
         {
           name: 'passwordHash',
