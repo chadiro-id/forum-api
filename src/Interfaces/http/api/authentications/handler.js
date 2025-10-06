@@ -21,6 +21,28 @@ class AuthenticationsHandler {
     response.code(201);
     return response;
   }
+
+  async putAuthenticationHandler(request) {
+    const useCase = this._container.getInstance(AuthenticationsUseCase.name);
+
+    const accessToken = await useCase.refreshAuthentication(request.payload);
+    return {
+      status: 'success',
+      data: {
+        accessToken,
+      },
+    };
+  }
+
+  async deleteAuthenticationHandler(request) {
+    const useCase = this._container.getInstance(AuthenticationsUseCase.name);
+
+    await useCase.deauthenticate(request.payload);
+
+    return {
+      status: 'success',
+    };
+  }
 }
 
 module.exports = AuthenticationsHandler;
