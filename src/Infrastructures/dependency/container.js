@@ -3,10 +3,13 @@ const { createContainer } = require('instances-container');
 
 const { nanoid } = require('nanoid');
 const bcrypt = require('bcrypt');
+const Jwt = require('@hapi/jwt');
 const pool = require('../database/postgres/pool');
 
 const PasswordHash = require('../../Applications/security/PasswordHash');
 const BcryptPasswordHash = require('../security/BcryptPasswordHash');
+const AuthenticationTokenManager = require('../../Applications/security/AuthenticationTokenManager');
+const JwtTokenManager = require('../security/JwtTokenManager');
 
 const UserRepository = require('../../Domains/users/UserRepository');
 const UserRepositoryPostgres = require('../repository/UserRepositoryPostgres');
@@ -23,6 +26,17 @@ container.register([
       dependencies: [
         {
           concrete: bcrypt,
+        },
+      ],
+    },
+  },
+  {
+    key: AuthenticationTokenManager.name,
+    Class: JwtTokenManager,
+    parameter: {
+      dependencies: [
+        {
+          concrete: Jwt.token,
         },
       ],
     },
