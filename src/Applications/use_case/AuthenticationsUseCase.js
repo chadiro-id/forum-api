@@ -14,7 +14,7 @@ class AuthenticationsUseCase {
     this._passwordHash = passwordHash;
   }
 
-  async authenticateUser(payload) {
+  async authenticate(payload) {
     const { username, password } = new AuthenticateUserEntity(payload);
 
     const encryptedPassword = await this._userRepository.getPasswordByUsername(username);
