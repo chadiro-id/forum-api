@@ -17,4 +17,17 @@ describe('NewAuthEntity', () => {
 
     expect(() => new NewAuthEntity(payload)).toThrow('NEW_AUTH_ENTITY.NOT_MEET_DATA_TYPE_SPECIFICATION');
   });
+
+  it('should create NewAuthEntity correctly', () => {
+    const payload = {
+      accessToken: 'accessToken',
+      refreshToken: 'refreshToken',
+    };
+
+    const entity = new NewAuthEntity(payload);
+
+    expect(entity).toBeInstanceOf(NewAuthEntity);
+    expect(entity.accessToken).toEqual(payload.accessToken);
+    expect(entity.refreshToken).toEqual(payload.refreshToken);
+  });
 });
