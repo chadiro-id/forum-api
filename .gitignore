@@ -1,0 +1,16 @@
+# dependencies
+node_modules/
+
+# testing
+coverage/
+
+# environment variables
+.env
+.env.test
+.env.production
+
+# database configurations
+database/configs/test.json
+
+# misc
+*.pem
