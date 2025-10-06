@@ -12,6 +12,10 @@ class NewAuthEntity {
     if (!accessToken || !refreshToken) {
       throw new Error('NEW_AUTH_ENTITY.NOT_CONTAIN_NEEDED_PROPERTY');
     }
+
+    if (typeof accessToken !== 'string' || typeof refreshToken !== 'string') {
+      throw new Error('NEW_AUTH_ENTITY.NOT_MEET_DATA_TYPE_SPECIFICATION');
+    }
   }
 }
 
