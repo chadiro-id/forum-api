@@ -1,4 +1,4 @@
-const AuthenticateUserEntity = require('../../Domains/authentications/entities/AuthenticateUserEntity');
+const UserLoginEntity = require('../../Domains/authentications/entities/UserLoginEntity');
 const NewAuthEntity = require('../../Domains/authentications/entities/NewAuthEntity');
 
 class AuthenticationsUseCase {
@@ -15,7 +15,7 @@ class AuthenticationsUseCase {
   }
 
   async authenticate(payload) {
-    const { username, password } = new AuthenticateUserEntity(payload);
+    const { username, password } = new UserLoginEntity(payload);
 
     const encryptedPassword = await this._userRepository.getPasswordByUsername(username);
     await this._passwordHash.comparePassword(password, encryptedPassword);
