@@ -24,14 +24,11 @@ describe('AddedThreadEntity', () => {
     });
 
     it('should throw error if payload property does not meet data type spesification', () => {
-      const invalidIdType = { ...correctPayload };
-      invalidIdType.id = [1, 2, 3];
+      const invalidIdType = { ...correctPayload, id: [1, 2, 3] };
 
-      const invalidTitleType = { ...correctPayload };
-      invalidTitleType.title = 123;
+      const invalidTitleType = { ...correctPayload, title: 123 };
 
-      const invalidOwnerType = { ...correctPayload };
-      invalidOwnerType.owner = true;
+      const invalidOwnerType = { ...correctPayload, owner: true };
 
       expect(() => new AddedThreadEntity(invalidIdType)).toThrow('ADDED_THREAD_ENTITY.NOT_MEET_DATA_TYPE_SPECIFICATION');
       expect(() => new AddedThreadEntity(invalidTitleType)).toThrow('ADDED_THREAD_ENTITY.NOT_MEET_DATA_TYPE_SPECIFICATION');
