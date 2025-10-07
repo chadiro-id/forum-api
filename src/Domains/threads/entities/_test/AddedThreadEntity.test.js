@@ -22,5 +22,20 @@ describe('AddedThreadEntity', () => {
       expect(() => new AddedThreadEntity(missingTitle)).toThrow('ADDED_THREAD_ENTITY.NOT_CONTAIN_NEEDED_PROPERTY');
       expect(() => new AddedThreadEntity(missingOwner)).toThrow('ADDED_THREAD_ENTITY.NOT_CONTAIN_NEEDED_PROPERTY');
     });
+
+    it('should throw error if payload property does not meet data type spesification', () => {
+      const invalidIdType = { ...correctPayload };
+      invalidIdType.id = [1, 2, 3];
+
+      const invalidTitleType = { ...correctPayload };
+      invalidTitleType.title = 123;
+
+      const invalidOwnerType = { ...correctPayload };
+      invalidOwnerType.owner = true;
+
+      expect(() => new AddedThreadEntity(invalidIdType)).toThrow('ADDED_THREAD_ENTITY.NOT_MEET_DATA_TYPE_SPECIFICATION');
+      expect(() => new AddedThreadEntity(invalidTitleType)).toThrow('ADDED_THREAD_ENTITY.NOT_MEET_DATA_TYPE_SPECIFICATION');
+      expect(() => new AddedThreadEntity(invalidOwnerType)).toThrow('ADDED_THREAD_ENTITY.NOT_MEET_DATA_TYPE_SPECIFICATION');
+    });
   });
 });
