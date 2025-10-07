@@ -1,7 +1,7 @@
 require('dotenv').config();
 
 const { createServer } = require('./Infrastructures/http/server');
-const container = require('./Infrastructures/dependency/container');
+const container = require('./Infrastructures/containers/container');
 
 (async () => {
   const server = await createServer(container);

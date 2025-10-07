@@ -1,6 +1,6 @@
 const pool = require('../../database/postgres/pool');
 const UsersTestHelper = require('../../../../tests/UsersTestHelper');
-const container = require('../../dependency/container');
+const container = require('../../containers/container');
 const { createServer } = require('../server');
 
 describe('/users endpoint', () => {

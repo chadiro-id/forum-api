@@ -2,7 +2,7 @@ const pool = require('../../database/postgres/pool');
 const AuthenticationsTestHelper = require('../../../../tests/AuthenticationsTestHelper');
 const UsersTestHelper = require('../../../../tests/UsersTestHelper');
 const AuthenticationTokenManager = require('../../../Applications/security/AuthenticationTokenManager');
-const container = require('../../dependency/container');
+const container = require('../../containers/container');
 const { createServer } = require('../server');
 
 describe('/authentications endpoint', () => {
