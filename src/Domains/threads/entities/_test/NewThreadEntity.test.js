@@ -7,7 +7,7 @@ describe('NewThreadEntity', () => {
   };
 
   describe('when the given payload is wrong', () => {
-    it('should throw error id payload not contain required property', () => {
+    it('should throw error if payload not contain required property', () => {
       const missingTitle = { ...correctPayload };
       delete missingTitle.title;
 
