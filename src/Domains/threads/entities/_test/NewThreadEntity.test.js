@@ -1,31 +1,43 @@
 const NewThreadEntity = require('../NewThreadEntity');
 
 describe('NewThreadEntity', () => {
-  it('should throw error when payload not contain needed property', () => {
-    const missingTitlePayload = { body: 'Thread Body' };
-    const missingBodyPayload = { title: 'Thread Title' };
+  const correctPayload = {
+    title: 'Title',
+    body: 'body',
+  };
 
-    expect(() => new NewThreadEntity(missingTitlePayload)).toThrow('NEW_THREAD_ENTITY.NOT_CONTAIN_NEEDED_PROPERTY');
-    expect(() => new NewThreadEntity(missingBodyPayload)).toThrow('NEW_THREAD_ENTITY.NOT_CONTAIN_NEEDED_PROPERTY');
+  describe('when the given payload is wrong', () => {
+    it('should throw error id payload not contain required property', () => {
+      const missingTitle = { ...correctPayload };
+      delete missingTitle.title;
+
+      const missingBody = { ...correctPayload };
+      delete missingBody.body;
+
+      const emptyTitle = { ...correctPayload, title: '' };
+      const emptyBody = { ...correctPayload, body: '' };
+
+      expect(() => new NewThreadEntity(missingTitle)).toThrow('NEW_THREAD_ENTITY.NOT_CONTAIN_NEEDED_PROPERTY');
+      expect(() => new NewThreadEntity(missingBody)).toThrow('NEW_THREAD_ENTITY.NOT_CONTAIN_NEEDED_PROPERTY');
+      expect(() => new NewThreadEntity(emptyTitle)).toThrow('NEW_THREAD_ENTITY.NOT_CONTAIN_NEEDED_PROPERTY');
+      expect(() => new NewThreadEntity(emptyBody)).toThrow('NEW_THREAD_ENTITY.NOT_CONTAIN_NEEDED_PROPERTY');
+    });
+
+    it('should throw error if payload property does not meet data type specification', () => {
+      const invalidTitle = { ...correctPayload, title: [1, 2, 3] };
+      const invalidBody = { ...correctPayload, body: true };
+
+      expect(() => new NewThreadEntity(invalidTitle)).toThrow('NEW_THREAD_ENTITY.NOT_MEET_DATA_TYPE_SPECIFICATION');
+      expect(() => new NewThreadEntity(invalidBody)).toThrow('NEW_THREAD_ENTITY.NOT_MEET_DATA_TYPE_SPECIFICATION');
+    });
   });
 
-  it('should throw error when payload did not meet data type specification', () => {
-    const titleNotStringPayload = { title: 123, body: 'Thread Body' };
-    const bodyNotStringPayload = { title: 'Thread Title', body: [1, 2, 3] };
+  describe('when the given payload is correct', () => {
+    it('should create entity correctly', () => {
+      const { title, body } = new NewThreadEntity(correctPayload);
 
-    expect(() => new NewThreadEntity(titleNotStringPayload)).toThrow('NEW_THREAD_ENTITY.NOT_MEET_DATA_TYPE_SPECIFICATION');
-    expect(() => new NewThreadEntity(bodyNotStringPayload)).toThrow('NEW_THREAD_ENTITY.NOT_MEET_DATA_TYPE_SPECIFICATION');
-  });
-
-  it('should create entity correctly', () => {
-    const payload = {
-      title: 'Thread Title',
-      body: 'Thread Body',
-    };
-
-    const { title, body } = new NewThreadEntity(payload);
-
-    expect(title).toEqual(payload.title);
-    expect(body).toEqual(payload.body);
+      expect(title).toEqual(correctPayload.title);
+      expect(body).toEqual(correctPayload.body);
+    });
   });
 });
