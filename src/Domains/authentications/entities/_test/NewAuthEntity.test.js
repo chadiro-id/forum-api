@@ -1,4 +1,4 @@
-const NewAuthEntity = require('../NewAuthEntity');
+const UserAuthenticationEntity = require('../UserAuthenticationEntity');
 
 describe('NewAuthEntity', () => {
   it('should throw error when payload not contain needed property', () => {
@@ -6,7 +6,7 @@ describe('NewAuthEntity', () => {
       accessToken: 'accessToken',
     };
 
-    expect(() => new NewAuthEntity(payload)).toThrow('NEW_AUTH_ENTITY.NOT_CONTAIN_NEEDED_PROPERTY');
+    expect(() => new UserAuthenticationEntity(payload)).toThrow('NEW_AUTH_ENTITY.NOT_CONTAIN_NEEDED_PROPERTY');
   });
 
   it('should throw error when payload not meet data type specification', () => {
@@ -15,7 +15,7 @@ describe('NewAuthEntity', () => {
       refreshToken: 1234,
     };
 
-    expect(() => new NewAuthEntity(payload)).toThrow('NEW_AUTH_ENTITY.NOT_MEET_DATA_TYPE_SPECIFICATION');
+    expect(() => new UserAuthenticationEntity(payload)).toThrow('NEW_AUTH_ENTITY.NOT_MEET_DATA_TYPE_SPECIFICATION');
   });
 
   it('should create NewAuthEntity correctly', () => {
@@ -24,9 +24,9 @@ describe('NewAuthEntity', () => {
       refreshToken: 'refreshToken',
     };
 
-    const entity = new NewAuthEntity(payload);
+    const entity = new UserAuthenticationEntity(payload);
 
-    expect(entity).toBeInstanceOf(NewAuthEntity);
+    expect(entity).toBeInstanceOf(UserAuthenticationEntity);
     expect(entity.accessToken).toEqual(payload.accessToken);
     expect(entity.refreshToken).toEqual(payload.refreshToken);
   });
