@@ -1,4 +1,4 @@
-const AuthenticateUserEntity = require('../AuthenticateUserEntity');
+const UserLoginEntity = require('../UserLoginEntity');
 
 describe('AuthenticateUserEntity', () => {
   it('should throw error when payload does not contain needed property', () => {
@@ -6,7 +6,7 @@ describe('AuthenticateUserEntity', () => {
       username: 'forumapi',
     };
 
-    expect(() => new AuthenticateUserEntity(payload))
+    expect(() => new UserLoginEntity(payload))
       .toThrow('AUTHENTICATE_USER_ENTITY.NOT_CONTAIN_NEEDED_PROPERTY');
   });
 
@@ -16,7 +16,7 @@ describe('AuthenticateUserEntity', () => {
       password: 12345,
     };
 
-    expect(() => new AuthenticateUserEntity(payload))
+    expect(() => new UserLoginEntity(payload))
       .toThrow('AUTHENTICATE_USER_ENTITY.NOT_MEET_DATA_TYPE_SPECIFICATION');
   });
 
@@ -26,9 +26,9 @@ describe('AuthenticateUserEntity', () => {
       password: '12345',
     };
 
-    const entity = new AuthenticateUserEntity(payload);
+    const entity = new UserLoginEntity(payload);
 
-    expect(entity).toBeInstanceOf(AuthenticateUserEntity);
+    expect(entity).toBeInstanceOf(UserLoginEntity);
     expect(entity.username).toEqual(payload.username);
     expect(entity.password).toEqual(payload.password);
   });
