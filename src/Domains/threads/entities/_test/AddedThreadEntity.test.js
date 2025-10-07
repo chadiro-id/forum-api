@@ -38,4 +38,14 @@ describe('AddedThreadEntity', () => {
       expect(() => new AddedThreadEntity(invalidOwnerType)).toThrow('ADDED_THREAD_ENTITY.NOT_MEET_DATA_TYPE_SPECIFICATION');
     });
   });
+
+  describe('when the given payload is correct', () => {
+    it('should create entity correctly', () => {
+      const { id, title, owner } = new AddedThreadEntity(correctPayload);
+
+      expect(id).toEqual(correctPayload.id);
+      expect(title).toEqual(correctPayload.title);
+      expect(owner).toEqual(correctPayload.owner);
+    });
+  });
 });
