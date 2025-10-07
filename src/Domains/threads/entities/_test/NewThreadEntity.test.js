@@ -16,4 +16,16 @@ describe('NewThreadEntity', () => {
     expect(() => new NewThreadEntity(titleNotStringPayload)).toThrow('NEW_THREAD_ENTITY.NOT_MEET_DATA_TYPE_SPECIFICATION');
     expect(() => new NewThreadEntity(bodyNotStringPayload)).toThrow('NEW_THREAD_ENTITY.NOT_MEET_DATA_TYPE_SPECIFICATION');
   });
+
+  it('should create entity correctly', () => {
+    const payload = {
+      title: 'Thread Title',
+      body: 'Thread Body',
+    };
+
+    const { title, body } = new NewThreadEntity(payload);
+
+    expect(title).toEqual(payload.title);
+    expect(body).toEqual(payload.body);
+  });
 });
