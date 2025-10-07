@@ -18,9 +18,16 @@ describe('AddedThreadEntity', () => {
       const missingOwner = { ...correctPayload };
       delete missingOwner.owner;
 
+      const emptyId = { ...correctPayload, id: '' };
+      const emptyTitle = { ...correctPayload, title: '' };
+      const emptyOwner = { ...correctPayload, owner: '' };
+
       expect(() => new AddedThreadEntity(missingId)).toThrow('ADDED_THREAD_ENTITY.NOT_CONTAIN_NEEDED_PROPERTY');
       expect(() => new AddedThreadEntity(missingTitle)).toThrow('ADDED_THREAD_ENTITY.NOT_CONTAIN_NEEDED_PROPERTY');
       expect(() => new AddedThreadEntity(missingOwner)).toThrow('ADDED_THREAD_ENTITY.NOT_CONTAIN_NEEDED_PROPERTY');
+      expect(() => new AddedThreadEntity(emptyId)).toThrow('ADDED_THREAD_ENTITY.NOT_CONTAIN_NEEDED_PROPERTY');
+      expect(() => new AddedThreadEntity(emptyTitle)).toThrow('ADDED_THREAD_ENTITY.NOT_CONTAIN_NEEDED_PROPERTY');
+      expect(() => new AddedThreadEntity(emptyOwner)).toThrow('ADDED_THREAD_ENTITY.NOT_CONTAIN_NEEDED_PROPERTY');
     });
 
     it('should throw error if payload property does not meet data type spesification', () => {
