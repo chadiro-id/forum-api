@@ -1,12 +1,12 @@
 const RegisterUserEntity = require('../../Domains/users/entities/RegisterUserEntity');
 
-class UsersUseCase {
+class AddUserUseCase {
   constructor({ userRepository, passwordHash }) {
     this._userRepository = userRepository;
     this._passwordHash = passwordHash;
   }
 
-  async addUser(payload) {
+  async execute(payload) {
     const entity = new RegisterUserEntity(payload);
 
     await this._userRepository.verifyAvailableUsername(entity.username);
@@ -16,4 +16,4 @@ class UsersUseCase {
   }
 }
 
-module.exports = UsersUseCase;
+module.exports = AddUserUseCase;

@@ -16,7 +16,7 @@ const UserRepositoryPostgres = require('../repository/UserRepositoryPostgres');
 const AuthenticationRepository = require('../../Domains/authentications/AuthenticationRepository');
 const AuthenticationRepositoryPostgres = require('../repository/AuthenticationRepositoryPostgres');
 
-const UsersUseCase = require('../../Applications/use_case/UsersUseCase');
+const UsersUseCase = require('../../Applications/use_case/AddUserUseCase');
 const AuthenticationsUseCase = require('../../Applications/use_case/AuthenticationsUseCase');
 
 const container = createContainer();
