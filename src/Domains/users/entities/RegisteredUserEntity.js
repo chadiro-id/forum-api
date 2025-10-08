@@ -11,11 +11,11 @@ class RegisteredUserEntity {
 
   _verifyPayload({ id, username, fullname }) {
     if (!id || !username || !fullname) {
-      throw new Error('REGISTERED_USER_ENTITY.NOT_CONTAIN_NEEDED_PROPERTY');
+      throw new Error('REGISTERED_USER_ENTITY.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
     }
 
     if (typeof id !== 'string' || typeof username !== 'string' || typeof fullname !== 'string') {
-      throw new Error('REGISTERED_USER_ENTITY.NOT_MEET_DATA_TYPE_SPECIFICATION');
+      throw new Error('REGISTERED_USER_ENTITY.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
     }
   }
 }

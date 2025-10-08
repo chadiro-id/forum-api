@@ -7,7 +7,7 @@ describe('AuthenticateUserEntity', () => {
     };
 
     expect(() => new UserLoginEntity(payload))
-      .toThrow('AUTHENTICATE_USER_ENTITY.NOT_CONTAIN_NEEDED_PROPERTY');
+      .toThrow('USER_LOGIN_ENTITY.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
   });
 
   it('should throw error when payload not meet data type specification', () => {
@@ -17,7 +17,7 @@ describe('AuthenticateUserEntity', () => {
     };
 
     expect(() => new UserLoginEntity(payload))
-      .toThrow('AUTHENTICATE_USER_ENTITY.NOT_MEET_DATA_TYPE_SPECIFICATION');
+      .toThrow('USER_LOGIN_ENTITY.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
   });
 
   it('should create authentication entity correctly', () => {

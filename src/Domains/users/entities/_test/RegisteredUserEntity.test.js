@@ -7,7 +7,7 @@ describe('a RegisteredUserEntity', () => {
       fullname: 'Forum Api',
     };
 
-    expect(() => new RegisteredUserEntity(payload)).toThrow('REGISTERED_USER_ENTITY.NOT_CONTAIN_NEEDED_PROPERTY');
+    expect(() => new RegisteredUserEntity(payload)).toThrow('REGISTERED_USER_ENTITY.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
   });
 
   it('should throw error when payload did not meet data type specification', () => {
@@ -17,7 +17,7 @@ describe('a RegisteredUserEntity', () => {
       fullname: {},
     };
 
-    expect(() => new RegisteredUserEntity(payload)).toThrow('REGISTERED_USER_ENTITY.NOT_MEET_DATA_TYPE_SPECIFICATION');
+    expect(() => new RegisteredUserEntity(payload)).toThrow('REGISTERED_USER_ENTITY.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
   });
 
   it('should create entity correctly', () => {

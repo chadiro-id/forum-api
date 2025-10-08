@@ -10,11 +10,11 @@ class UserAuthenticationEntity {
     const { accessToken, refreshToken } = payload;
 
     if (!accessToken || !refreshToken) {
-      throw new Error('NEW_AUTH_ENTITY.NOT_CONTAIN_NEEDED_PROPERTY');
+      throw new Error('USER_AUTHENTICATION_ENTITY.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
     }
 
     if (typeof accessToken !== 'string' || typeof refreshToken !== 'string') {
-      throw new Error('NEW_AUTH_ENTITY.NOT_MEET_DATA_TYPE_SPECIFICATION');
+      throw new Error('USER_AUTHENTICATION_ENTITY.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
     }
   }
 }

@@ -6,7 +6,7 @@ describe('NewAuthEntity', () => {
       accessToken: 'accessToken',
     };
 
-    expect(() => new UserAuthenticationEntity(payload)).toThrow('NEW_AUTH_ENTITY.NOT_CONTAIN_NEEDED_PROPERTY');
+    expect(() => new UserAuthenticationEntity(payload)).toThrow('USER_AUTHENTICATION_ENTITY.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
   });
 
   it('should throw error when payload not meet data type specification', () => {
@@ -15,7 +15,7 @@ describe('NewAuthEntity', () => {
       refreshToken: 1234,
     };
 
-    expect(() => new UserAuthenticationEntity(payload)).toThrow('NEW_AUTH_ENTITY.NOT_MEET_DATA_TYPE_SPECIFICATION');
+    expect(() => new UserAuthenticationEntity(payload)).toThrow('USER_AUTHENTICATION_ENTITY.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
   });
 
   it('should create NewAuthEntity correctly', () => {
