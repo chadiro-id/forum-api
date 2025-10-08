@@ -2,82 +2,73 @@ const Jwt = require('@hapi/jwt');
 const config = require('../../../Commons/config');
 const InvariantError = require('../../../Commons/exceptions/InvariantError');
 const JwtTokenManager = require('../JwtTokenManager');
+const AuthenticationTokenManager = require('../../../Applications/security/AuthenticationTokenManager');
 
 describe('JwtTokenManager', () => {
-  describe('createAccessToken function', () => {
-    it('should create accessToken correctly', async () => {
-      // Arrange
-      const payload = {
-        username: 'forumapi',
-      };
+  it('must be an instance of AuthenticationTokenManager', () => {
+    const jwtTokenManager = new JwtTokenManager({});
+
+    expect(jwtTokenManager).toBeInstanceOf(AuthenticationTokenManager);
+  });
+
+  describe('#createAccessToken', () => {
+    it('must call the jwt generate method with correct payload and access token key', async () => {
+      const payload = { username: 'forumapi' };
       const mockJwtToken = {
         generate: jest.fn().mockImplementation(() => 'mock_token'),
       };
+
       const jwtTokenManager = new JwtTokenManager(mockJwtToken);
 
-      // Action
       const accessToken = await jwtTokenManager.createAccessToken(payload);
 
-      // Assert
       expect(mockJwtToken.generate).toHaveBeenCalledWith(payload, config.tokenize.accessTokenKey);
       expect(accessToken).toEqual('mock_token');
     });
   });
 
-  describe('createRefreshToken function', () => {
-    it('should create refreshToken correctly', async () => {
-      // Arrange
-      const payload = {
-        username: 'forumapi',
-      };
+  describe('#createRefreshToken', () => {
+    it('must call the jwt generate method with correct payload and refresh token key', async () => {
+      const payload = { username: 'forumapi' };
       const mockJwtToken = {
         generate: jest.fn().mockImplementation(() => 'mock_token'),
       };
       const jwtTokenManager = new JwtTokenManager(mockJwtToken);
 
-      // Action
       const refreshToken = await jwtTokenManager.createRefreshToken(payload);
 
-      // Assert
       expect(mockJwtToken.generate).toHaveBeenCalledWith(payload, config.tokenize.refreshTokenKey);
       expect(refreshToken).toEqual('mock_token');
     });
   });
 
-  describe('verifyRefreshToken function', () => {
-    it('should throw InvariantError when verification failed', async () => {
-      // Arrange
+  describe('#verifyRefreshToken', () => {
+    it('must throw InvariantError when verification fails', async () => {
       const jwtTokenManager = new JwtTokenManager(Jwt.token);
       const accessToken = await jwtTokenManager.createAccessToken({ username: 'forumapi' });
 
-      // Action & Assert
       await expect(jwtTokenManager.verifyRefreshToken(accessToken))
         .rejects
         .toThrow(InvariantError);
     });
 
-    it('should not throw InvariantError when refresh token verified', async () => {
-      // Arrange
+    it('should not throw error when a valid refresh token provided', async () => {
       const jwtTokenManager = new JwtTokenManager(Jwt.token);
       const refreshToken = await jwtTokenManager.createRefreshToken({ username: 'forumapi' });
 
-      // Action & Assert
       await expect(jwtTokenManager.verifyRefreshToken(refreshToken))
         .resolves
-        .not.toThrow(InvariantError);
+        .not.toThrow();
     });
   });
 
-  describe('decodePayload function', () => {
-    it('should decode payload correctly', async () => {
-      // Arrange
+  describe('#decodePayload', () => {
+    it('must correctly decode the payload from token', async () => {
       const jwtTokenManager = new JwtTokenManager(Jwt.token);
       const accessToken = await jwtTokenManager.createAccessToken({ username: 'forumapi' });
 
-      // Action
       const { username: expectedUsername } = await jwtTokenManager.decodePayload(accessToken);
 
-      // Action & Assert
       expect(expectedUsername).toEqual('forumapi');
     });
   });
