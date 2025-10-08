@@ -1,12 +1,12 @@
-const ThreadsUseCase = require('../ThreadsUseCase');
-const AddedThreadEntity = require('../../../Domains/threads/entities/AddedThreadEntity');
-const UserRepository = require('../../../Domains/users/UserRepository');
-const ThreadRepository = require('../../../Domains/threads/ThreadRepository');
-const NewThreadEntity = require('../../../Domains/threads/entities/NewThreadEntity');
+const AddThreadUseCase = require('../AddThreadUseCase');
+const AddedThreadEntity = require('../../../../Domains/threads/entities/AddedThreadEntity');
+const UserRepository = require('../../../../Domains/users/UserRepository');
+const ThreadRepository = require('../../../../Domains/threads/ThreadRepository');
+const NewThreadEntity = require('../../../../Domains/threads/entities/NewThreadEntity');
 
-describe('ThreadsUseCase', () => {
-  describe('when addThread method invoked', () => {
-    it('should orchestrating business logic correctly', async () => {
+describe('AddThreadUseCase', () => {
+  describe('when executed', () => {
+    it('should orchestrating the add thread action correctly', async () => {
       const payload = {
         title: 'Title',
         body: 'body',
@@ -27,12 +27,12 @@ describe('ThreadsUseCase', () => {
       mockThreadRepository.addThread = jest.fn()
         .mockImplementation(() => Promise.resolve(mockAddedThread));
 
-      const useCase = new ThreadsUseCase({
+      const addThreadUseCase = new AddThreadUseCase({
         userRepository: mockUserRepository,
         threadRepository: mockThreadRepository,
       });
 
-      const addedThread = await useCase.addThread(payload);
+      const addedThread = await addThreadUseCase.execute(payload);
 
       expect(addedThread).toStrictEqual(new AddedThreadEntity({
         id: 'thread-123',
