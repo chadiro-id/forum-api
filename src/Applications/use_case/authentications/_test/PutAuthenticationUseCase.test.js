@@ -23,7 +23,7 @@ describe('PutAuthenticationUseCase', () => {
 
     it('should throw error if refresh token is an empty string', async () => {
       const useCasePayload = {
-        refreshToken: 123,
+        refreshToken: '',
       };
 
       const putAuthenticationUseCase = new PutAuthenticationUseCase({});
