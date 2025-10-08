@@ -1,33 +1,78 @@
 const UserAuthenticationEntity = require('../UserAuthenticationEntity');
 
-describe('NewAuthEntity', () => {
-  it('should throw error when payload not contain needed property', () => {
-    const payload = {
-      accessToken: 'accessToken',
-    };
+describe('UserAuthenticationEntity', () => {
+  const exampleValidPayload = {
+    accessToken: 'access_token',
+    refreshToken: 'refresh_token',
+  };
 
-    expect(() => new UserAuthenticationEntity(payload)).toThrow('USER_AUTHENTICATION_ENTITY.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
+  describe('when the given payload is not valid', () => {
+    it('should throw error if payload not contain needed property', () => {
+      const missingAccessToken = { ...exampleValidPayload };
+      delete missingAccessToken.accessToken;
+
+      const missingRefreshToken = { ...exampleValidPayload };
+      delete missingRefreshToken.refreshToken;
+
+      const emptyAccessToken = {
+        ...exampleValidPayload,
+        accessToken: '',
+      };
+      const emptyRefreshToken = {
+        ...exampleValidPayload,
+        refreshToken: '',
+      };
+
+      expect(() => new UserAuthenticationEntity(missingAccessToken))
+        .toThrow('USER_AUTHENTICATION_ENTITY.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
+      expect(() => new UserAuthenticationEntity(missingRefreshToken))
+        .toThrow('USER_AUTHENTICATION_ENTITY.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
+      expect(() => new UserAuthenticationEntity(emptyAccessToken))
+        .toThrow('USER_AUTHENTICATION_ENTITY.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
+      expect(() => new UserAuthenticationEntity(emptyRefreshToken))
+        .toThrow('USER_AUTHENTICATION_ENTITY.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
+    });
+
+    it('should throw error if payload does not meet data type specification', () => {
+      const accessTokenNotString = {
+        ...exampleValidPayload,
+        accessToken: 123,
+      };
+      const refreshTokenNotString = {
+        ...exampleValidPayload,
+        refreshToken: true,
+      };
+
+      expect(() => new UserAuthenticationEntity(accessTokenNotString))
+        .toThrow('USER_AUTHENTICATION_ENTITY.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
+      expect(() => new UserAuthenticationEntity(refreshTokenNotString))
+        .toThrow('USER_AUTHENTICATION_ENTITY.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
+    });
   });
 
-  it('should throw error when payload not meet data type specification', () => {
-    const payload = {
-      accessToken: 'accessToken',
-      refreshToken: 1234,
-    };
+  describe('when the given payload is valid', () => {
+    it('should create entity correctly', () => {
+      const payload = { ...exampleValidPayload };
 
-    expect(() => new UserAuthenticationEntity(payload)).toThrow('USER_AUTHENTICATION_ENTITY.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
-  });
+      const { accessToken, refreshToken } = new UserAuthenticationEntity(payload);
 
-  it('should create NewAuthEntity correctly', () => {
-    const payload = {
-      accessToken: 'accessToken',
-      refreshToken: 'refreshToken',
-    };
+      expect(accessToken).toEqual(payload.accessToken);
+      expect(refreshToken).toEqual(payload.refreshToken);
+    });
 
-    const entity = new UserAuthenticationEntity(payload);
+    it('should create entity correctly and not contain extra properties', () => {
+      const extraPayload = {
+        ...exampleValidPayload,
+        extra: 'extra property',
+      };
 
-    expect(entity).toBeInstanceOf(UserAuthenticationEntity);
-    expect(entity.accessToken).toEqual(payload.accessToken);
-    expect(entity.refreshToken).toEqual(payload.refreshToken);
+      const userAuthentication = new UserAuthenticationEntity(extraPayload);
+
+      expect(userAuthentication).toEqual(new UserAuthenticationEntity({
+        accessToken: extraPayload.accessToken,
+        refreshToken: extraPayload.refreshToken,
+      }));
+      expect(userAuthentication.extra).toBeUndefined();
+    });
   });
 });
