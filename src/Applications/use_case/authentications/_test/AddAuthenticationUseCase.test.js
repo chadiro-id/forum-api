@@ -3,7 +3,7 @@ const UserAuthenticationEntity = require('../../../../Domains/authentications/en
 const UserRepository = require('../../../../Domains/users/UserRepository');
 const AuthenticationTokenManager = require('../../../security/AuthenticationTokenManager');
 const PasswordHash = require('../../../security/PasswordHash');
-const AddAuthenticationUseCase = require('../AddAuthenticationUse');
+const AddAuthenticationUseCase = require('../AddAuthenticationUseCase');
 
 describe('AddAuthenticationUseCase', () => {
   describe('when executed', () => {
