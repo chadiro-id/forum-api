@@ -46,6 +46,7 @@ describe('DeleteAuthenticationUseCase', () => {
       });
 
       await deleteAuthenticationUseCase.execute(useCasePayload);
+
       expect(mockAuthenticationRepository.checkAvailabilityToken)
         .toHaveBeenCalledWith(useCasePayload.refreshToken);
       expect(mockAuthenticationRepository.deleteToken)
