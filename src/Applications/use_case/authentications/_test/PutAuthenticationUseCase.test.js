@@ -13,9 +13,7 @@ describe('PutAuthenticationUseCase', () => {
     });
 
     it('should throw error if refresh token is not a string', async () => {
-      const useCasePayload = {
-        refreshToken: 123,
-      };
+      const useCasePayload = { refreshToken: 123 };
 
       const putAuthenticationUseCase = new PutAuthenticationUseCase({});
 
@@ -24,9 +22,7 @@ describe('PutAuthenticationUseCase', () => {
     });
 
     it('should throw error if refresh token is an empty string', async () => {
-      const useCasePayload = {
-        refreshToken: '',
-      };
+      const useCasePayload = { refreshToken: '' };
 
       const putAuthenticationUseCase = new PutAuthenticationUseCase({});
 
@@ -37,9 +33,7 @@ describe('PutAuthenticationUseCase', () => {
 
   describe('when executed with correct payload', () => {
     it('should orchestrating the put authentication action correctly', async () => {
-      const useCasePayload = {
-        refreshToken: 'some_refresh_token',
-      };
+      const useCasePayload = { refreshToken: 'some_refresh_token' };
 
       const mockAuthenticationRepository = new AuthenticationRepository();
       const mockAuthenticationTokenManager = new AuthenticationTokenManager();
