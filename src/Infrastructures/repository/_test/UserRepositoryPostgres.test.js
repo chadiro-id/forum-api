@@ -14,22 +14,28 @@ describe('UserRepositoryPostgres', () => {
     await pool.end();
   });
 
-  describe('verifyAvailableUsername', () => {
-    it('should throw InvariantError when username not available', async () => {
-      await UsersTestHelper.addUser({ username: 'forumapi' });
+  describe('#verifyAvailableUsername', () => {
+    it('must throw InvariantError when username not available', async () => {
+      await UsersTestHelper.addUser({
+        username: 'forumapi',
+      });
       const userRepositoryPostgres = new UserRepositoryPostgres(pool, {});
 
-      await expect(userRepositoryPostgres.verifyAvailableUsername('forumapi')).rejects.toThrow(InvariantError);
+      await expect(userRepositoryPostgres.verifyAvailableUsername('forumapi'))
+        .rejects
+        .toThrow(InvariantError);
     });
 
     it('should not throw InvariantError when username available', async () => {
       const userRepositoryPostgres = new UserRepositoryPostgres(pool, {});
 
-      await expect(userRepositoryPostgres.verifyAvailableUsername('forumapi')).resolves.not.toThrow(InvariantError);
+      await expect(userRepositoryPostgres.verifyAvailableUsername('forumapi'))
+        .resolves
+        .not.toThrow(InvariantError);
     });
   });
 
-  describe('addUser', () => {
+  describe('#addUser', () => {
     it('should persist register user entity and return registered user entity correctly', async () => {
       const registerUserEntity = new RegisterUserEntity({
         username: 'forumapi',
@@ -64,8 +70,8 @@ describe('UserRepositoryPostgres', () => {
     });
   });
 
-  describe('getPasswordByUsername', () => {
-    it('should throw InvariantError when user not found', () => {
+  describe('#getPasswordByUsername', () => {
+    it('must throw InvariantError when the given username not exists', () => {
       const userRepositoryPostgres = new UserRepositoryPostgres(pool, {});
 
       return expect(userRepositoryPostgres.getPasswordByUsername('forumapi'))
@@ -73,7 +79,7 @@ describe('UserRepositoryPostgres', () => {
         .toThrow(InvariantError);
     });
 
-    it('should return username password when user is found', async () => {
+    it('must correctly return the password related to the given username when exists', async () => {
       const userRepositoryPostgres = new UserRepositoryPostgres(pool, {});
       await UsersTestHelper.addUser({
         username: 'forumapi',
@@ -85,8 +91,8 @@ describe('UserRepositoryPostgres', () => {
     });
   });
 
-  describe('getIdByUsername', () => {
-    it('should throw InvariantError when user not found', async () => {
+  describe('#getIdByUsername', () => {
+    it('must throw InvariantError when user not found', async () => {
       const userRepositoryPostgres = new UserRepositoryPostgres(pool, {});
 
       await expect(userRepositoryPostgres.getIdByUsername('forumapi'))
