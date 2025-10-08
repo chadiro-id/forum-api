@@ -1,35 +1,64 @@
 const UserLoginEntity = require('../UserLoginEntity');
 
-describe('AuthenticateUserEntity', () => {
-  it('should throw error when payload does not contain needed property', () => {
-    const payload = {
-      username: 'forumapi',
-    };
+describe('UserLoginEntity', () => {
+  const exampleValidPayload = {
+    username: 'forumapi',
+    password: 'secret',
+  };
 
-    expect(() => new UserLoginEntity(payload))
-      .toThrow('USER_LOGIN_ENTITY.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
+  describe('when the given payload is not valid', () => {
+    it('should throw error if payload not contain needed property', () => {
+      const missingUsername = { ...exampleValidPayload };
+      delete missingUsername.username;
+
+      const missingPassword = { ...exampleValidPayload };
+      delete missingPassword.password;
+
+      const emptyUsername = {
+        ...exampleValidPayload,
+        username: '',
+      };
+
+      const emptyPassword = {
+        ...exampleValidPayload,
+        password: '',
+      };
+
+      expect(() => new UserLoginEntity(missingUsername))
+        .toThrow('USER_LOGIN_ENTITY.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
+      expect(() => new UserLoginEntity(missingPassword))
+        .toThrow('USER_LOGIN_ENTITY.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
+      expect(() => new UserLoginEntity(emptyUsername))
+        .toThrow('USER_LOGIN_ENTITY.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
+      expect(() => new UserLoginEntity(emptyPassword))
+        .toThrow('USER_LOGIN_ENTITY.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
+    });
+
+    it('should throw error if payload does not meet data type specification', () => {
+      const usernameNotString = {
+        ...exampleValidPayload,
+        username: 123,
+      };
+      const passwordNotString = {
+        ...exampleValidPayload,
+        password: ['secret'],
+      };
+
+      expect(() => new UserLoginEntity(usernameNotString))
+        .toThrow('USER_LOGIN_ENTITY.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
+      expect(() => new UserLoginEntity(passwordNotString))
+        .toThrow('USER_LOGIN_ENTITY.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
+    });
   });
 
-  it('should throw error when payload not meet data type specification', () => {
-    const payload = {
-      username: 'forumapi',
-      password: 12345,
-    };
+  describe('when the given payload is valid', () => {
+    it('should create entity correctly', () => {
+      const payload = { ...exampleValidPayload };
 
-    expect(() => new UserLoginEntity(payload))
-      .toThrow('USER_LOGIN_ENTITY.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
-  });
+      const userLogin = new UserLoginEntity(payload);
 
-  it('should create authentication entity correctly', () => {
-    const payload = {
-      username: 'forumapi',
-      password: '12345',
-    };
-
-    const entity = new UserLoginEntity(payload);
-
-    expect(entity).toBeInstanceOf(UserLoginEntity);
-    expect(entity.username).toEqual(payload.username);
-    expect(entity.password).toEqual(payload.password);
+      expect(userLogin.username).toEqual(payload.username);
+      expect(userLogin.password).toEqual(payload.password);
+    });
   });
 });
