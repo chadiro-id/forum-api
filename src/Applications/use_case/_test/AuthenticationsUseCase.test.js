@@ -3,7 +3,7 @@ const AuthenticationTokenManager = require('../../security/AuthenticationTokenMa
 const PasswordHash = require('../../security/PasswordHash');
 const AuthenticationRepository = require('../../../Domains/authentications/AuthenticationRepository');
 const UserRepository = require('../../../Domains/users/UserRepository');
-const NewAuthEntity = require('../../../Domains/authentications/entities/NewAuthEntity');
+const UserAuthenticationEntity = require('../../../Domains/authentications/entities/UserAuthenticationEntity');
 
 describe('AuthenticationsUseCase', () => {
   describe('authenticate method', () => {
@@ -13,7 +13,7 @@ describe('AuthenticationsUseCase', () => {
         username: 'forumapi',
         password: 'secret',
       };
-      const mockedAuthentication = new NewAuthEntity({
+      const mockedAuthentication = new UserAuthenticationEntity({
         accessToken: 'access_token',
         refreshToken: 'refresh_token',
       });
@@ -48,7 +48,7 @@ describe('AuthenticationsUseCase', () => {
       const actualAuthentication = await useCase.authenticate(payload);
 
       // Assert
-      expect(actualAuthentication).toEqual(new NewAuthEntity({
+      expect(actualAuthentication).toEqual(new UserAuthenticationEntity({
         accessToken: 'access_token',
         refreshToken: 'refresh_token',
       }));
