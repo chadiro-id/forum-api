@@ -1,11 +1,11 @@
-const UsersUseCase = require('../UsersUseCase');
-const PasswordHash = require('../../security/PasswordHash');
-const UserRepository = require('../../../Domains/users/UserRepository');
-const RegisterUserEntity = require('../../../Domains/users/entities/RegisterUserEntity');
-const RegisteredUserEntity = require('../../../Domains/users/entities/RegisteredUserEntity');
+const AddUserUseCase = require('../AddUserUseCase');
+const PasswordHash = require('../../../security/PasswordHash');
+const UserRepository = require('../../../../Domains/users/UserRepository');
+const RegisterUserEntity = require('../../../../Domains/users/entities/RegisterUserEntity');
+const RegisteredUserEntity = require('../../../../Domains/users/entities/RegisteredUserEntity');
 
-describe('UsersUseCase', () => {
-  describe('addUser method', () => {
+describe('AddUserUseCase', () => {
+  describe('when executed', () => {
     it('should orchestrating the add user action correctly', async () => {
       const useCasePayload = {
         username: 'forumapi',
@@ -29,12 +29,12 @@ describe('UsersUseCase', () => {
       mockUserRepository.addUser = jest.fn()
         .mockImplementation(() => Promise.resolve(mockRegisteredUser));
 
-      const usersUseCase = new UsersUseCase({
+      const useCase = new AddUserUseCase({
         userRepository: mockUserRepository,
         passwordHash: mockPasswordHash,
       });
 
-      const registeredUser = await usersUseCase.addUser(useCasePayload);
+      const registeredUser = await useCase.execute(useCasePayload);
 
       expect(registeredUser).toStrictEqual(new RegisteredUserEntity({
         id: 'user-123',
