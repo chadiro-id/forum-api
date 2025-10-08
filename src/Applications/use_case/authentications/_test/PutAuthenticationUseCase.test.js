@@ -9,5 +9,27 @@ describe('PutAuthenticationUseCase', () => {
       await expect(putAuthenticationUseCase.execute(useCasePayload))
         .rejects.toThrow('PUT_AUTHENTICATION_USE_CASE.PAYLOAD_NOT_CONTAIN_REFRESH_TOKEN');
     });
+
+    it('should throw error if refresh token is not a string', async () => {
+      const useCasePayload = {
+        refreshToken: 123,
+      };
+
+      const putAuthenticationUseCase = new PutAuthenticationUseCase({});
+
+      await expect(putAuthenticationUseCase.execute(useCasePayload))
+        .rejects.toThrow('PUT_AUTHENTICATION_USE_CASE.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
+    });
+
+    it('should throw error if refresh token is an empty string', async () => {
+      const useCasePayload = {
+        refreshToken: 123,
+      };
+
+      const putAuthenticationUseCase = new PutAuthenticationUseCase({});
+
+      await expect(putAuthenticationUseCase.execute(useCasePayload))
+        .rejects.toThrow('PUT_AUTHENTICATION_USE_CASE.PAYLOAD_NOT_CONTAIN_REFRESH_TOKEN');
+    });
   });
 });
