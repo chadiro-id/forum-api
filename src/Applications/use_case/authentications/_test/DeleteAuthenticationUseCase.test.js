@@ -1,3 +1,4 @@
+const AuthenticationRepository = require('../../../../Domains/authentications/AuthenticationRepository');
 const DeleteAuthenticationUseCase = require('../DeleteAuthenticationUseCase');
 
 describe('DeleteAuthenticationUseCase', () => {
@@ -27,6 +28,28 @@ describe('DeleteAuthenticationUseCase', () => {
 
       await expect(deleteAuthenticationUseCase.execute(useCasePayload))
         .rejects.toThrow('DELETE_AUTHENTICATION_USE_CASE.PAYLOAD_NOT_CONTAIN_REFRESH_TOKEN');
+    });
+  });
+
+  describe('when executed with correct payload', () => {
+    it('should orchestrating the delete authentication action correctly', async () => {
+      const useCasePayload = { refreshToken: 'refresh_token' };
+
+      const mockAuthenticationRepository = new AuthenticationRepository();
+      mockAuthenticationRepository.checkAvailabilityToken = jest.fn()
+        .mockImplementation(() => Promise.resolve());
+      mockAuthenticationRepository.deleteToken = jest.fn()
+        .mockImplementation(() => Promise.resolve());
+
+      const deleteAuthenticationUseCase = new DeleteAuthenticationUseCase({
+        authenticationRepository: mockAuthenticationRepository,
+      });
+
+      await deleteAuthenticationUseCase.execute(useCasePayload);
+      expect(mockAuthenticationRepository.checkAvailabilityToken)
+        .toHaveBeenCalledWith(useCasePayload.refreshToken);
+      expect(mockAuthenticationRepository.deleteToken)
+        .toHaveBeenCalledWith(useCasePayload.refreshToken);
     });
   });
 });
