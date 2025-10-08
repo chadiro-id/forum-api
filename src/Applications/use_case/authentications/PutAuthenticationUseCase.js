@@ -9,6 +9,15 @@ class PutAuthenticationUseCase {
 
   async execute(payload) {
     this._verifyPayload(payload);
+
+    const { refreshToken } = payload;
+
+    await this._authenticationTokenManager.verifyRefreshToken(refreshToken);
+    await this._authenticationRepository.checkAvailabilityToken(refreshToken);
+
+    const { username, id } = await this._authenticationTokenManager.decodePayload(refreshToken);
+
+    return this._authenticationTokenManager.createAccessToken({ username, id });
   }
 
   _verifyPayload(payload) {
