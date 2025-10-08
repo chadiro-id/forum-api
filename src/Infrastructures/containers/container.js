@@ -16,7 +16,7 @@ const UserRepositoryPostgres = require('../repository/UserRepositoryPostgres');
 const AuthenticationRepository = require('../../Domains/authentications/AuthenticationRepository');
 const AuthenticationRepositoryPostgres = require('../repository/AuthenticationRepositoryPostgres');
 
-const UsersUseCase = require('../../Applications/use_case/AddUserUseCase');
+const AddUserUseCase = require('../../Applications/use_case/users/AddUserUseCase');
 const AuthenticationsUseCase = require('../../Applications/use_case/AuthenticationsUseCase');
 
 const container = createContainer();
@@ -76,8 +76,8 @@ container.register([
 
 container.register([
   {
-    key: UsersUseCase.name,
-    Class: UsersUseCase,
+    key: AddUserUseCase.name,
+    Class: AddUserUseCase,
     parameter: {
       injectType: 'destructuring',
       dependencies: [
