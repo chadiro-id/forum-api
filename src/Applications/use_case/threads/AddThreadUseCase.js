@@ -1,12 +1,12 @@
-const NewThreadEntity = require('../../Domains/threads/entities/NewThreadEntity');
+const NewThreadEntity = require('../../../Domains/threads/entities/NewThreadEntity');
 
-class ThreadsUseCase {
+class AddThreadUseCase {
   constructor({ userRepository, threadRepository }) {
     this._userRepository = userRepository;
     this._threadRepository = threadRepository;
   }
 
-  async addThread(payload) {
+  async execute(payload) {
     const entity = new NewThreadEntity(payload);
 
     await this._userRepository.verifyUserById(entity.owner);
@@ -15,4 +15,4 @@ class ThreadsUseCase {
   }
 }
 
-module.exports = ThreadsUseCase;
+module.exports = AddThreadUseCase;
