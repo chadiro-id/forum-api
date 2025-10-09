@@ -20,6 +20,9 @@ export default defineConfig([
         "argsIgnorePattern": "^_",
         "caughtErrorsIgnorePattern": "^ignore",
       }],
+      "camelcase": ["error", {
+        allow: ["owner_id", "thread_id", "comment_id", "created_at", "is_delete"]
+      }]
     }
   },
   {
