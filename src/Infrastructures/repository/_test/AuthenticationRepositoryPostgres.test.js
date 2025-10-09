@@ -1,11 +1,11 @@
 const pool = require('../../database/postgres/pool');
-const AuthenticationsTestHelper = require('../../../../tests/AuthenticationsTestHelper');
+const AuthenticationsTableTestHelper = require('../../../../tests/AuthenticationsTableTestHelper');
 const InvariantError = require('../../../Commons/exceptions/InvariantError');
 const AuthenticationRepositoryPostgres = require('../AuthenticationRepositoryPostgres');
 
 describe('AuthenticationRepositoryPostgres', () => {
   afterEach(async () => {
-    await AuthenticationsTestHelper.cleanTable();
+    await AuthenticationsTableTestHelper.cleanTable();
   });
 
   afterAll(async () => {
@@ -19,7 +19,7 @@ describe('AuthenticationRepositoryPostgres', () => {
 
       await authenticationRepository.addToken(token);
 
-      const tokens = await AuthenticationsTestHelper.findToken(token);
+      const tokens = await AuthenticationsTableTestHelper.findToken(token);
       expect(tokens).toHaveLength(1);
       expect(tokens[0].token).toBe(token);
     });
@@ -37,7 +37,7 @@ describe('AuthenticationRepositoryPostgres', () => {
     it('should not throw error when the given token exists', async () => {
       const authenticationRepository = new AuthenticationRepositoryPostgres(pool);
       const token = 'token';
-      await AuthenticationsTestHelper.addToken(token);
+      await AuthenticationsTableTestHelper.addToken(token);
 
       await expect(authenticationRepository.checkAvailabilityToken(token))
         .resolves.not.toThrow();
@@ -48,11 +48,11 @@ describe('AuthenticationRepositoryPostgres', () => {
     it('must correctly delete the given token from database', async () => {
       const authenticationRepository = new AuthenticationRepositoryPostgres(pool);
       const token = 'token';
-      await AuthenticationsTestHelper.addToken(token);
+      await AuthenticationsTableTestHelper.addToken(token);
 
       await authenticationRepository.deleteToken(token);
 
-      const tokens = await AuthenticationsTestHelper.findToken(token);
+      const tokens = await AuthenticationsTableTestHelper.findToken(token);
       expect(tokens).toHaveLength(0);
     });
   });
