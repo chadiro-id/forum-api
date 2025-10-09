@@ -51,4 +51,27 @@ describe('AddedCommentEntity', () => {
         .toThrow(expectedError);
     });
   });
+
+  describe('Correct payload', () => {
+    it('should correctly create entity', () => {
+      const payload = { ...dummyPayload };
+
+      const { id, content, owner } = new AddedCommentEntity(payload);
+
+      expect(id).toEqual(payload.id);
+      expect(content).toEqual(payload.content);
+      expect(owner).toEqual(payload.owner);
+    });
+
+    it('should correctly create entity and not contain extra property', () => {
+      const extraPayload = { ...dummyPayload, extra: 'something extra' };
+
+      const addedComment = new AddedCommentEntity(extraPayload);
+
+      expect(addedComment.id).toEqual(extraPayload.id);
+      expect(addedComment.content).toEqual(extraPayload.content);
+      expect(addedComment.owner).toEqual(extraPayload.owner);
+      expect(addedComment.extra).toBeUndefined();
+    });
+  });
 });
