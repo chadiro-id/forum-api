@@ -4,7 +4,7 @@ describe('NewThreadEntity', () => {
   const exampleValidPayload = {
     title: 'Title',
     body: 'body',
-    owner: 'user-123'
+    userId: 'user-123'
   };
 
   describe('when the given payload is not valid', () => {
@@ -15,24 +15,24 @@ describe('NewThreadEntity', () => {
       const missingBody = { ...exampleValidPayload };
       delete missingBody.body;
 
-      const missingOwner = { ...exampleValidPayload };
-      delete missingOwner.owner;
+      const missingUserId = { ...exampleValidPayload };
+      delete missingUserId.userId;
 
       const emptyTitle = { ...exampleValidPayload, title: '' };
       const emptyBody = { ...exampleValidPayload, body: '' };
-      const emptyOwner = { ...exampleValidPayload, owner: '' };
+      const emptyUserId = { ...exampleValidPayload, userId: '' };
 
       expect(() => new NewThreadEntity(missingTitle))
         .toThrow('NEW_THREAD_ENTITY.NOT_CONTAIN_NEEDED_PROPERTY');
       expect(() => new NewThreadEntity(missingBody))
         .toThrow('NEW_THREAD_ENTITY.NOT_CONTAIN_NEEDED_PROPERTY');
-      expect(() => new NewThreadEntity(missingOwner))
+      expect(() => new NewThreadEntity(missingUserId))
         .toThrow('NEW_THREAD_ENTITY.NOT_CONTAIN_NEEDED_PROPERTY');
       expect(() => new NewThreadEntity(emptyTitle))
         .toThrow('NEW_THREAD_ENTITY.NOT_CONTAIN_NEEDED_PROPERTY');
       expect(() => new NewThreadEntity(emptyBody))
         .toThrow('NEW_THREAD_ENTITY.NOT_CONTAIN_NEEDED_PROPERTY');
-      expect(() => new NewThreadEntity(emptyOwner))
+      expect(() => new NewThreadEntity(emptyUserId))
         .toThrow('NEW_THREAD_ENTITY.NOT_CONTAIN_NEEDED_PROPERTY');
     });
 
@@ -45,16 +45,16 @@ describe('NewThreadEntity', () => {
         ...exampleValidPayload,
         body: true,
       };
-      const ownerNotString = {
+      const userIdNotString = {
         ...exampleValidPayload,
-        owner: {},
+        userId: {},
       };
 
       expect(() => new NewThreadEntity(titleNotString))
         .toThrow('NEW_THREAD_ENTITY.NOT_MEET_DATA_TYPE_SPECIFICATION');
       expect(() => new NewThreadEntity(bodyNotString))
         .toThrow('NEW_THREAD_ENTITY.NOT_MEET_DATA_TYPE_SPECIFICATION');
-      expect(() => new NewThreadEntity(ownerNotString))
+      expect(() => new NewThreadEntity(userIdNotString))
         .toThrow('NEW_THREAD_ENTITY.NOT_MEET_DATA_TYPE_SPECIFICATION');
     });
   });
@@ -63,11 +63,11 @@ describe('NewThreadEntity', () => {
     it('should create entity correctly', () => {
       const payload = { ...exampleValidPayload };
 
-      const { title, body, owner } = new NewThreadEntity(payload);
+      const { title, body, userId } = new NewThreadEntity(payload);
 
       expect(title).toEqual(payload.title);
       expect(body).toEqual(payload.body);
-      expect(owner).toEqual(payload.owner);
+      expect(userId).toEqual(payload.userId);
     });
   });
 });
