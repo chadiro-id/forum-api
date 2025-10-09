@@ -6,7 +6,7 @@ describe('ThreadRepository', () => {
 
     await expect(threadRepository.addThread({}))
       .rejects.toThrow('THREAD_REPOSITORY.METHOD_NOT_IMPLEMENTED');
-    await expect(threadRepository.getThreadById(''))
+    await expect(threadRepository.getDetailThreadById(''))
       .rejects.toThrow('THREAD_REPOSITORY.METHOD_NOT_IMPLEMENTED');
   });
 });
