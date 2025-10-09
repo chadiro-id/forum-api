@@ -9,6 +9,20 @@ class UserRepositoryPostgres extends UserRepository {
     this._idGenerator = idGenerator;
   }
 
+  async addUser(registerUser) {
+    const { username, password, fullname } = registerUser;
+    const id = `user-${this._idGenerator()}`;
+
+    const query = {
+      text: 'INSERT INTO users VALUES($1, $2, $3, $4) RETURNING id, username, fullname',
+      values: [id, username, password, fullname],
+    };
+
+    const result = await this._pool.query(query);
+
+    return new RegisteredUserEntity({ ...result.rows[0] });
+  }
+
   async verifyAvailableUsername(username) {
     const query = {
       text: 'SELECT username FROM users WHERE username = $1',
@@ -22,18 +36,17 @@ class UserRepositoryPostgres extends UserRepository {
     }
   }
 
-  async addUser(registerUser) {
-    const { username, password, fullname } = registerUser;
-    const id = `user-${this._idGenerator()}`;
-
+  async verifyUserById(userId) {
     const query = {
-      text: 'INSERT INTO users VALUES($1, $2, $3, $4) RETURNING id, username, fullname',
-      values: [id, username, password, fullname],
+      text: 'SELECT id FROM users WHERE id = $1',
+      values: [userId],
     };
 
     const result = await this._pool.query(query);
 
-    return new RegisteredUserEntity({ ...result.rows[0] });
+    if (!result.rowCount) {
+      throw new InvariantError('id tidak ditemukan');
+    }
   }
 
   async getPasswordByUsername(username) {
