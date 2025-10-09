@@ -20,18 +20,35 @@ describe('AddedCommentEntity', () => {
       const emptyContent = { ...dummyPayload, content: '' };
       const emptyOwner = { ...dummyPayload, owner: '' };
 
+      const expectedError = new Error('ADDED_COMMENT_ENTITY.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
+
       expect(() => new AddedCommentEntity(missingId))
-        .toThrow('ADDED_COMMENT_ENTITY.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
+        .toThrow(expectedError);
       expect(() => new AddedCommentEntity(missingContent))
-        .toThrow('ADDED_COMMENT_ENTITY.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
+        .toThrow(expectedError);
       expect(() => new AddedCommentEntity(missingOwner))
-        .toThrow('ADDED_COMMENT_ENTITY.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
+        .toThrow(expectedError);
       expect(() => new AddedCommentEntity(emptyId))
-        .toThrow('ADDED_COMMENT_ENTITY.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
+        .toThrow(expectedError);
       expect(() => new AddedCommentEntity(emptyContent))
-        .toThrow('ADDED_COMMENT_ENTITY.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
+        .toThrow(expectedError);
       expect(() => new AddedCommentEntity(emptyOwner))
-        .toThrow('ADDED_COMMENT_ENTITY.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
+        .toThrow(expectedError);
+    });
+
+    it('should throw error when payload property does not meet data type specification', () => {
+      const idNotString = { ...dummyPayload, id: 123 };
+      const contentNotString = { ...dummyPayload, content: true };
+      const ownerNotString = { ...dummyPayload, owner: ['owner'] };
+
+      const expectedError = new Error('ADDED_COMMENT_ENTITY.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
+
+      expect(() => new AddedCommentEntity(idNotString))
+        .toThrow(expectedError);
+      expect(() => new AddedCommentEntity(contentNotString))
+        .toThrow(expectedError);
+      expect(() => new AddedCommentEntity(ownerNotString))
+        .toThrow(expectedError);
     });
   });
 });
