@@ -3,8 +3,10 @@ const PasswordHash = require('../../Applications/security/PasswordHash');
 const AddAuthenticationUseCase = require('../../Applications/use_case/authentications/AddAuthenticationUseCase');
 const DeleteAuthenticationUseCase = require('../../Applications/use_case/authentications/DeleteAuthenticationUseCase');
 const PutAuthenticationUseCase = require('../../Applications/use_case/authentications/PutAuthenticationUseCase');
+const AddThreadUseCase = require('../../Applications/use_case/threads/AddThreadUseCase');
 const AddUserUseCase = require('../../Applications/use_case/users/AddUserUseCase');
 const AuthenticationRepository = require('../../Domains/authentications/AuthenticationRepository');
+const ThreadRepository = require('../../Domains/threads/ThreadRepository');
 const UserRepository = require('../../Domains/users/UserRepository');
 
 const setup = (container) => {
@@ -80,6 +82,26 @@ const setup = (container) => {
           {
             name: 'authenticationRepository',
             internal: AuthenticationRepository.name,
+          },
+        ],
+      },
+    },
+  ]);
+
+  container.register([
+    {
+      key: AddThreadUseCase.name,
+      Class: AddThreadUseCase,
+      parameter: {
+        injectType: 'destructuring',
+        dependencies: [
+          {
+            name: 'userRepository',
+            internal: UserRepository.name,
+          },
+          {
+            name: 'threadRepository',
+            internal: ThreadRepository.name,
           },
         ],
       },
