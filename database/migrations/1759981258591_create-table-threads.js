@@ -1,8 +1,3 @@
-/**
- * @param pgm {import('node-pg-migrate').MigrationBuilder}
- * @param run {() => void | undefined}
- * @returns {Promise<void> | void}
- */
 exports.up = (pgm) => {
   pgm.createTable('threads', {
     id: {
@@ -37,11 +32,6 @@ exports.up = (pgm) => {
   }, { ifNotExists: true });
 };
 
-/**
- * @param pgm {import('node-pg-migrate').MigrationBuilder}
- * @param run {() => void | undefined}
- * @returns {Promise<void> | void}
- */
 exports.down = (pgm) => {
   pgm.dropConstraint('threads', 'threads_owner_id_fkey', { ifExists: true });
   pgm.dropTable('threads', { ifExists: true });
