@@ -23,17 +23,17 @@ describe('NewThreadEntity', () => {
       const emptyUserId = { ...exampleValidPayload, userId: '' };
 
       expect(() => new NewThreadEntity(missingTitle))
-        .toThrow('NEW_THREAD_ENTITY.NOT_CONTAIN_NEEDED_PROPERTY');
+        .toThrow('NEW_THREAD_ENTITY.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
       expect(() => new NewThreadEntity(missingBody))
-        .toThrow('NEW_THREAD_ENTITY.NOT_CONTAIN_NEEDED_PROPERTY');
+        .toThrow('NEW_THREAD_ENTITY.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
       expect(() => new NewThreadEntity(missingUserId))
-        .toThrow('NEW_THREAD_ENTITY.NOT_CONTAIN_NEEDED_PROPERTY');
+        .toThrow('NEW_THREAD_ENTITY.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
       expect(() => new NewThreadEntity(emptyTitle))
-        .toThrow('NEW_THREAD_ENTITY.NOT_CONTAIN_NEEDED_PROPERTY');
+        .toThrow('NEW_THREAD_ENTITY.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
       expect(() => new NewThreadEntity(emptyBody))
-        .toThrow('NEW_THREAD_ENTITY.NOT_CONTAIN_NEEDED_PROPERTY');
+        .toThrow('NEW_THREAD_ENTITY.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
       expect(() => new NewThreadEntity(emptyUserId))
-        .toThrow('NEW_THREAD_ENTITY.NOT_CONTAIN_NEEDED_PROPERTY');
+        .toThrow('NEW_THREAD_ENTITY.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
     });
 
     it('should throw error if payload does not meet data type specification', () => {
@@ -51,11 +51,11 @@ describe('NewThreadEntity', () => {
       };
 
       expect(() => new NewThreadEntity(titleNotString))
-        .toThrow('NEW_THREAD_ENTITY.NOT_MEET_DATA_TYPE_SPECIFICATION');
+        .toThrow('NEW_THREAD_ENTITY.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
       expect(() => new NewThreadEntity(bodyNotString))
-        .toThrow('NEW_THREAD_ENTITY.NOT_MEET_DATA_TYPE_SPECIFICATION');
+        .toThrow('NEW_THREAD_ENTITY.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
       expect(() => new NewThreadEntity(userIdNotString))
-        .toThrow('NEW_THREAD_ENTITY.NOT_MEET_DATA_TYPE_SPECIFICATION');
+        .toThrow('NEW_THREAD_ENTITY.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
     });
   });
 
