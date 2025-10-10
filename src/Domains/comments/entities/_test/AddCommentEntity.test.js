@@ -51,4 +51,16 @@ describe('AddCommentEntity', () => {
         .toThrow(expectedError);
     });
   });
+
+  describe('Correct payload', () => {
+    it('should correctly create entity', () => {
+      const payload = { ...dummyPayload };
+
+      const { threadId, content, ownerId } = new AddCommentEntity(payload);
+
+      expect(threadId).toEqual(payload.threadId);
+      expect(content).toEqual(payload.content);
+      expect(ownerId).toEqual(payload.ownerId);
+    });
+  });
 });
