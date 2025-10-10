@@ -8,6 +8,8 @@ describe('CommentRepository', () => {
 
     await expect(commentRepository.addComment({}))
       .rejects.toThrow(expectedError);
+    await expect(commentRepository.verifyCommentExists(''))
+      .rejects.toThrow(expectedError);
     await expect(commentRepository.getCommentById(''))
       .rejects.toThrow(expectedError);
     await expect(commentRepository.deleteCommentById(''))
