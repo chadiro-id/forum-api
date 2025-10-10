@@ -28,6 +28,15 @@ class CommentRepositoryPostgres extends CommentRepository {
     });
   }
 
+  async deleteCommentById(id) {
+    const query = {
+      text: 'DELETE FROM comments WHERE id = $1',
+      values: [id],
+    };
+
+    await this._pool.query(query);
+  }
+
   async verifyCommentExists(id) {
     const query = {
       text: 'SELECT id FROM comments WHERE id = $1',
