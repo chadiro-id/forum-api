@@ -6,6 +6,8 @@ const AuthenticationRepository = require('../../Domains/authentications/Authenti
 const AuthenticationRepositoryPostgres = require('../repository/AuthenticationRepositoryPostgres');
 const ThreadRepository = require('../../Domains/threads/ThreadRepository');
 const ThreadRepositoryPostgres = require('../repository/ThreadRepositoryPostgres');
+const CommentRepository = require('../../Domains/comments/CommentRepository');
+const CommentRepositoryPostgres = require('../repository/CommentRepositoryPostgres');
 
 const setup = (container) => {
   container.register([
@@ -37,6 +39,20 @@ const setup = (container) => {
     {
       key: ThreadRepository.name,
       Class: ThreadRepositoryPostgres,
+      parameter: {
+        dependencies: [
+          {
+            concrete: pool,
+          },
+          {
+            concrete: nanoid,
+          },
+        ],
+      },
+    },
+    {
+      key: CommentRepository.name,
+      Class: CommentRepositoryPostgres,
       parameter: {
         dependencies: [
           {
