@@ -35,5 +35,20 @@ describe('AddCommentEntity', () => {
       expect(() => new AddCommentEntity(emptyOwnerId))
         .toThrow(expectedError);
     });
+
+    it('should throw error when payload property does not meet data type specification', () => {
+      const threadIdNotString = { ...dummyPayload, threadId: 123 };
+      const contentNotString = { ...dummyPayload, content: ['some content'] };
+      const ownerIdNotString = { ...dummyPayload, ownerId: true };
+
+      const expectedError = new Error('ADD_COMMENT_ENTITY.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
+
+      expect(() => new AddCommentEntity(threadIdNotString))
+        .toThrow(expectedError);
+      expect(() => new AddCommentEntity(contentNotString))
+        .toThrow(expectedError);
+      expect(() => new AddCommentEntity(ownerIdNotString))
+        .toThrow(expectedError);
+    });
   });
 });
