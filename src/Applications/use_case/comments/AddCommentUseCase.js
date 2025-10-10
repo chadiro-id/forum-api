@@ -12,7 +12,7 @@ class AddCommentUseCase {
   async execute(payload) {
     const { userId, threadId, content } = payload;
     const newComment = new AddCommentEntity({
-      threadId, content, owner: userId,
+      threadId, content, ownerId: userId,
     });
 
     await this._threadRepository.verifyThreadExists(threadId);
