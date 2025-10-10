@@ -6,7 +6,7 @@ describe('CommentRepository', () => {
 
     const commentRepository = new CommentRepository();
 
-    await expect(commentRepository.addComment('', {}))
+    await expect(commentRepository.addComment({}))
       .rejects.toThrow(expectedError);
     await expect(commentRepository.getCommentById(''))
       .rejects.toThrow(expectedError);
