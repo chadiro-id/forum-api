@@ -6,6 +6,7 @@ const PutAuthenticationUseCase = require('../../Applications/use_case/authentica
 const AddCommentUseCase = require('../../Applications/use_case/comments/AddCommentUseCase');
 const DeleteCommentUseCase = require('../../Applications/use_case/comments/DeleteCommentUseCase');
 const AddThreadUseCase = require('../../Applications/use_case/threads/AddThreadUseCase');
+const GetDetailThreadUseCase = require('../../Applications/use_case/threads/GetDetailThreadUseCase');
 const AddUserUseCase = require('../../Applications/use_case/users/AddUserUseCase');
 const AuthenticationRepository = require('../../Domains/authentications/AuthenticationRepository');
 const CommentRepository = require('../../Domains/comments/CommentRepository');
@@ -105,6 +106,23 @@ const setup = (container) => {
           {
             name: 'threadRepository',
             internal: ThreadRepository.name,
+          },
+        ],
+      },
+    },
+    {
+      key: GetDetailThreadUseCase.name,
+      Class: GetDetailThreadUseCase,
+      parameter: {
+        injectType: 'destructuring',
+        dependencies: [
+          {
+            name: 'threadRepository',
+            internal: ThreadRepository.name,
+          },
+          {
+            name: 'commentRepository',
+            internal: CommentRepository.name,
           },
         ],
       },
