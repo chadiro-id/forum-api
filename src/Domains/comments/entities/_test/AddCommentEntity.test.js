@@ -22,17 +22,17 @@ describe('AddCommentEntity', () => {
 
       const expectedError = new Error('ADD_COMMENT_ENTITY.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
 
-      expect(new AddCommentEntity(missingThreadId))
+      expect(() => new AddCommentEntity(missingThreadId))
         .toThrow(expectedError);
-      expect(new AddCommentEntity(missingContent))
+      expect(() => new AddCommentEntity(missingContent))
         .toThrow(expectedError);
-      expect(new AddCommentEntity(missingOwnerId))
+      expect(() => new AddCommentEntity(missingOwnerId))
         .toThrow(expectedError);
-      expect(new AddCommentEntity(emptyThreadId))
+      expect(() => new AddCommentEntity(emptyThreadId))
         .toThrow(expectedError);
-      expect(new AddCommentEntity(emptyContent))
+      expect(() => new AddCommentEntity(emptyContent))
         .toThrow(expectedError);
-      expect(new AddCommentEntity(emptyOwnerId))
+      expect(() => new AddCommentEntity(emptyOwnerId))
         .toThrow(expectedError);
     });
   });
