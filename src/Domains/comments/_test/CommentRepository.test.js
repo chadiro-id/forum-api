@@ -12,7 +12,7 @@ describe('CommentRepository', () => {
       .rejects.toThrow(expectedError);
     await expect(commentRepository.verifyCommentOwner(''))
       .rejects.toThrow(expectedError);
-    await expect(commentRepository.getCommentById(''))
+    await expect(commentRepository.getCommentsByThreaId(''))
       .rejects.toThrow(expectedError);
     await expect(commentRepository.deleteCommentById(''))
       .rejects.toThrow(expectedError);
