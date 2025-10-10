@@ -1,20 +1,24 @@
+const AddCommentEntity = require('../../../Domains/comments/entities/AddCommentEntity');
+
 class AddCommentUseCase {
-  constructor(commentRepository) {
+  constructor({
+    commentRepository,
+    threadRepository,
+  }) {
     this._commentRepository = commentRepository;
+    this._threadRepository = threadRepository;
   }
 
-  async execute(userId, _payload) {
-    this._verifyUserId(userId);
-  }
+  async execute(payload) {
+    const { userId, threadId, content } = payload;
+    const newComment = new AddCommentEntity({
+      threadId, content, owner: userId,
+    });
 
-  _verifyUserId(id) {
-    if (!id) {
-      throw new Error('ADD_COMMENT_USE_CASE.MISSING_USER_ID');
-    }
+    await this._threadRepository.verifyThreadExists(threadId);
+    const addedComment = await this._commentRepository.addComment(newComment);
 
-    if (typeof id !== 'string') {
-      throw new Error('ADD_COMMENT_USE_CASE.USER_ID_MUST_BE_A_STRING');
-    }
+    return addedComment;
   }
 }
 
