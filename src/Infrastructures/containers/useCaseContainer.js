@@ -5,11 +5,13 @@ const DeleteAuthenticationUseCase = require('../../Applications/use_case/authent
 const PutAuthenticationUseCase = require('../../Applications/use_case/authentications/PutAuthenticationUseCase');
 const AddCommentUseCase = require('../../Applications/use_case/comments/AddCommentUseCase');
 const DeleteCommentUseCase = require('../../Applications/use_case/comments/DeleteCommentUseCase');
+const AddReplyUseCase = require('../../Applications/use_case/replies/AddReplyUseCase');
 const AddThreadUseCase = require('../../Applications/use_case/threads/AddThreadUseCase');
 const GetDetailThreadUseCase = require('../../Applications/use_case/threads/GetDetailThreadUseCase');
 const AddUserUseCase = require('../../Applications/use_case/users/AddUserUseCase');
 const AuthenticationRepository = require('../../Domains/authentications/AuthenticationRepository');
 const CommentRepository = require('../../Domains/comments/CommentRepository');
+const ReplyRepository = require('../../Domains/replies/ReplyRepository');
 const ThreadRepository = require('../../Domains/threads/ThreadRepository');
 const UserRepository = require('../../Domains/users/UserRepository');
 
@@ -160,6 +162,30 @@ const setup = (container) => {
           {
             name: 'commentRepository',
             internal: CommentRepository.name,
+          },
+        ],
+      },
+    },
+  ]);
+
+  container.register([
+    {
+      key: AddReplyUseCase.name,
+      Class: AddReplyUseCase,
+      parameter: {
+        injectType: 'destructuring',
+        dependencies: [
+          {
+            name: 'threadRepository',
+            internal: ThreadRepository.name,
+          },
+          {
+            name: 'commentRepository',
+            internal: CommentRepository.name,
+          },
+          {
+            name: 'replyRepository',
+            internal: ReplyRepository.name,
           },
         ],
       },
