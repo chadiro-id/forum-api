@@ -1,3 +1,5 @@
+const AuthorizationError = require('../../Commons/exceptions/AuthorizationError');
+const NotFoundError = require('../../Commons/exceptions/NotFoundError');
 const ReplyRepository = require('../../Domains/replies/ReplyRepository');
 
 class ReplyRepositoryPostgres extends ReplyRepository {
@@ -24,6 +26,22 @@ class ReplyRepositoryPostgres extends ReplyRepository {
       content: result.rows[0].content,
       owner: result.rows[0].owner_id,
     };
+  }
+
+  async verifyReplyOwner(id, owner) {
+    const query = {
+      text: 'SELECT owner_id FROM replies WHERE id = $1',
+      values: [id]
+    };
+
+    const result = await this._pool.query(query);
+    if (!result.rows.length) {
+      throw new NotFoundError('Tidak dapat memverifikasi pemilik, id balasan tidak ditemukan');
+    }
+
+    if (result.rows[0].owner_id !== owner) {
+      throw new AuthorizationError('Anda tidak memiliki hak akses');
+    }
   }
 }
 
