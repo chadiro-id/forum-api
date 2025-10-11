@@ -3,8 +3,10 @@ const ReplyRepositoryPostgres = require('../ReplyRepositoryPostgres');
 
 describe('ReplyRepositoryPostgres', () => {
   describe('ReplyRepository contract enforcement', () => {
-    const replyRepositoryPostgres = new ReplyRepositoryPostgres({}, () => {});
+    it('must be an instance of ReplyRepository', () => {
+      const replyRepositoryPostgres = new ReplyRepositoryPostgres({}, () => ('123'));
 
-    expect(replyRepositoryPostgres).toBeInstanceOf(ReplyRepository);
+      expect(replyRepositoryPostgres).toBeInstanceOf(ReplyRepository);
+    });
   });
 });
