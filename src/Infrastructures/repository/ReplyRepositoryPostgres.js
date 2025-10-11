@@ -31,18 +31,16 @@ class ReplyRepositoryPostgres extends ReplyRepository {
   async getRepliesByCommentIds(commentIds) {
     if (!commentIds.length) return [];
 
-    const placeholders = commentIds.map((_, index) => `$${index + 1}`).join(',');
-
     const query = {
       text: `
         SELECT r.id, r.content, r.comment_id, r.created_at, r.is_delete, u.username
         FROM replies r
         LEFT JOIN users u
         ON u.id = r.owner_id
-        WHERE r.comment_id IN (${placeholders})
+        WHERE r.comment_id = ANY($1::text[])
         ORDER BY r.created_at ASC
       `,
-      values: commentIds,
+      values: [commentIds],
     };
 
     const result = await this._pool.query(query);
