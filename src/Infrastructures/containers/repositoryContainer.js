@@ -8,6 +8,8 @@ const ThreadRepository = require('../../Domains/threads/ThreadRepository');
 const ThreadRepositoryPostgres = require('../repository/ThreadRepositoryPostgres');
 const CommentRepository = require('../../Domains/comments/CommentRepository');
 const CommentRepositoryPostgres = require('../repository/CommentRepositoryPostgres');
+const ReplyRepository = require('../../Domains/replies/ReplyRepository');
+const ReplyRepositoryPostgres = require('../repository/ReplyRepositoryPostgres');
 
 const setup = (container) => {
   container.register([
@@ -53,6 +55,20 @@ const setup = (container) => {
     {
       key: CommentRepository.name,
       Class: CommentRepositoryPostgres,
+      parameter: {
+        dependencies: [
+          {
+            concrete: pool,
+          },
+          {
+            concrete: nanoid,
+          },
+        ],
+      },
+    },
+    {
+      key: ReplyRepository.name,
+      Class: ReplyRepositoryPostgres,
       parameter: {
         dependencies: [
           {
