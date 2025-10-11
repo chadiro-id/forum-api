@@ -127,6 +127,10 @@ const setup = (container) => {
             name: 'commentRepository',
             internal: CommentRepository.name,
           },
+          {
+            name: 'replyRepository',
+            internal: ReplyRepository.name,
+          },
         ],
       },
     },
