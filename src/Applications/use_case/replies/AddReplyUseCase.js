@@ -15,7 +15,7 @@ class AddReplyUseCase {
     await this._threadRepository.verifyThreadExists(threadId);
     await this._commentRepository.verifyCommentExists(commentId);
 
-    const addedReply = await this._replyRepository.addReply({ commentId, content, userId });
+    const addedReply = await this._replyRepository.addReply({ commentId, content, ownerId: userId });
     return {
       id: addedReply.id,
       content: addedReply.content,
