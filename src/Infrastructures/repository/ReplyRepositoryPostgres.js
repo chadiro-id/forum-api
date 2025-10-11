@@ -28,6 +28,18 @@ class ReplyRepositoryPostgres extends ReplyRepository {
     };
   }
 
+  async deleteReplyById(id) {
+    const query = {
+      text: 'UPDATE replies SET is_delete = TRUE WHERE id = $1 RETURNING id',
+      values: [id],
+    };
+
+    const result = await this._pool.query(query);
+    if (!result.rows.length) {
+      throw new NotFoundError('Tidak dapat menghapus balasan, id tidak ditemukan');
+    }
+  }
+
   async verifyReplyOwner(id, owner) {
     const query = {
       text: 'SELECT owner_id FROM replies WHERE id = $1',
