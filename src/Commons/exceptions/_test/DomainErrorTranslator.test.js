@@ -16,9 +16,9 @@ describe('DomainErrorTranslator', () => {
     expect(DomainErrorTranslator.translate(new Error('USER_LOGIN_ENTITY.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION')))
       .toStrictEqual(new InvariantError('username dan password harus string'));
     expect(DomainErrorTranslator.translate(new Error('NEW_THREAD_ENTITY.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY')))
-      .toStrictEqual(new InvariantError('harus mengirimkan username dan password'));
+      .toStrictEqual(new InvariantError('harus mengirimkan judul dan isi thread'));
     expect(DomainErrorTranslator.translate(new Error('NEW_THREAD_ENTITY.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION')))
-      .toStrictEqual(new InvariantError('username dan password harus string'));
+      .toStrictEqual(new InvariantError('judul dan isi thread harus string'));
     expect(DomainErrorTranslator.translate(new Error('PUT_AUTHENTICATION_USE_CASE.PAYLOAD_NOT_CONTAIN_REFRESH_TOKEN')))
       .toStrictEqual(new InvariantError('harus mengirimkan token refresh'));
     expect(DomainErrorTranslator.translate(new Error('PUT_AUTHENTICATION_USE_CASE.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION')))
