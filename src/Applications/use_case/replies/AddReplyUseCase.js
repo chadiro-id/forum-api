@@ -29,6 +29,10 @@ class AddReplyUseCase {
     if (!threadId || !commentId || !content || !userId) {
       throw new Error('ADD_REPLY_USE_CASE.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
     }
+
+    if (typeof content !== 'string') {
+      throw new Error('ADD_REPLY_USE_CASE.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
+    }
   }
 }
 
