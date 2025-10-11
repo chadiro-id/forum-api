@@ -12,5 +12,7 @@ describe('ReplyRepository', () => {
       .toThrow('REPLY_REPOSITORY.METHOD_NOT_IMPLEMENTED');
     expect(replyRepository.verifyExistsById(''))
       .toThrow('REPLY_REPOSITORY.METHOD_NOT_IMPLEMENTED');
+    expect(replyRepository.verifyReplyOwner('', ''))
+      .toThrow('REPLY_REPOSITORY.METHOD_NOT_IMPLEMENTED');
   });
 });
