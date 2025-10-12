@@ -47,4 +47,16 @@ describe('NewReply Entity', () => {
         .toThrow('NEW_REPLY.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
     });
   });
+
+  describe('Correct payload', () => {
+    it('should correctly create the entity', () => {
+      const payload = { ...dummyPayload };
+
+      const { commentId, content, owner } = new NewReply(payload);
+
+      expect(commentId).toEqual(payload.commentId);
+      expect(content).toEqual(payload.content);
+      expect(owner).toEqual(payload.owner);
+    });
+  });
 });
