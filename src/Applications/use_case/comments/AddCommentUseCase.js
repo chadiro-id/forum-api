@@ -1,4 +1,5 @@
-const AddCommentEntity = require('../../../Domains/comments/entities/AddCommentEntity');
+const NewComment = require('../../../Domains/comments/entities/NewComment');
+const AddedComment = require('../../../Domains/comments/entities/AddedComment');
 
 class AddCommentUseCase {
   constructor({
@@ -10,15 +11,23 @@ class AddCommentUseCase {
   }
 
   async execute(payload) {
-    const { userId, threadId, content } = payload;
-    const newComment = new AddCommentEntity({
-      threadId, content, ownerId: userId,
-    });
+    if (payload instanceof NewComment === false) {
+      throw new Error('ADD_COMMENT_USE_CASE.PAYLOAD_MUST_BE_INSTANCE_OF_NEWCOMMENT');
+    }
+    const { threadId, owner, content } = payload;
 
     await this._threadRepository.verifyThreadExists(threadId);
-    const addedComment = await this._commentRepository.addComment(newComment);
+    const addedCommentId = await this._commentRepository.addComment({
+      thread_id: threadId,
+      owner_id: owner,
+      content: content
+    });
 
-    return addedComment;
+    return new AddedComment({
+      id: addedCommentId,
+      content,
+      owner
+    });
   }
 }
 
