@@ -38,7 +38,7 @@ describe('ThreadRepositoryPostgres', () => {
         ).rejects.toThrow('Database connection failed');
       });
 
-      it('should persist the record and return the added record correctly', async () => {
+      it('should persist the thread record and return the id correctly', async () => {
         mockPool.query.mockResolvedValue({
           rows: [{
             id: 'thread-123',
@@ -48,7 +48,7 @@ describe('ThreadRepositoryPostgres', () => {
           rowCount: 1,
         });
 
-        const addedRecord = await threadRepositoryPostgres.addThread({
+        const addedThreadId = await threadRepositoryPostgres.addThread({
           title: 'Some title',
           body: 'Some body',
           owner_id: 'user-123',
@@ -67,11 +67,7 @@ describe('ThreadRepositoryPostgres', () => {
         expect(calledValues[2]).toEqual('Some body');
         expect(calledValues[3]).toEqual('user-123');
 
-        expect(addedRecord).toEqual({
-          id: 'thread-123',
-          title: 'Some title',
-          owner_id: 'user-123',
-        });
+        expect(addedThreadId).toEqual('thread-123');
       });
     });
 
