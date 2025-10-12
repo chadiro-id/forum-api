@@ -1,6 +1,10 @@
 class NewComment {
   constructor(payload) {
     this._verifyPayload(payload);
+
+    this.threadId = payload.threadId;
+    this.content = payload.content;
+    this.owner = payload.owner;
   }
 
   _verifyPayload(payload) {
