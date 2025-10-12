@@ -1,5 +1,7 @@
 const AddThreadUseCase = require('../../../../Applications/use_case/threads/AddThreadUseCase');
 const GetDetailThreadUseCase = require('../../../../Applications/use_case/threads/GetDetailThreadUseCase');
+const InvariantError = require('../../../../Commons/exceptions/InvariantError');
+const NewThread = require('../../../../Domains/threads/entities/NewThread');
 
 class ThreadsHandler {
   constructor(container) {
@@ -10,10 +12,16 @@ class ThreadsHandler {
   }
 
   async postThreadHandler(request, h) {
+    this._validatePayload(request.payload);
     const { id: credentialId } = request.auth.credentials;
+    const { title, body } = request.payload;
+
+    const newThread = new NewThread({
+      title, body, owner: credentialId
+    });
 
     const addThreadUseCase = this._container.getInstance(AddThreadUseCase.name);
-    const addedThread = await addThreadUseCase.execute(credentialId, request.payload);
+    const addedThread = await addThreadUseCase.execute(newThread);
 
     const response = h.response({
       status: 'success',
@@ -40,6 +48,18 @@ class ThreadsHandler {
     });
 
     return response;
+  }
+
+  _validatePayload(payload) {
+    const { title, body } = payload;
+
+    if (!title || !body) {
+      throw new InvariantError('Judul dan isi wajib di isi');
+    }
+
+    if (typeof title !== 'string' || typeof body !== 'string') {
+      throw new InvariantError('Judul dan isi harus berupa string');
+    }
   }
 }
 
