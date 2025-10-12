@@ -15,8 +15,7 @@ class ThreadRepositoryPostgres extends ThreadRepository {
 
     const query = {
       text: `
-      INSERT INTO
-        threads
+      INSERT INTO threads
         (id, title, body, owner_id)
       VALUES
         ($1, $2, $3, $4)
