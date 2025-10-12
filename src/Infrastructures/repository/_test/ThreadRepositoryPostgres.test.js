@@ -83,7 +83,7 @@ describe('ThreadRepositoryPostgres', () => {
         expect(mockPool.query).toHaveBeenCalledWith(
           expect.objectContaining({
             text: expect.stringContaining('SELECT id FROM threads'),
-            values: expect.arrayContaining(['thread-123']),
+            values: ['thread-123'],
           })
         );
       });
@@ -101,7 +101,7 @@ describe('ThreadRepositoryPostgres', () => {
         expect(mockPool.query).toHaveBeenCalledWith(
           expect.objectContaining({
             text: expect.stringContaining('SELECT id FROM threads'),
-            values: expect.arrayContaining(['thread-123']),
+            values: ['thread-123'],
           })
         );
       });
