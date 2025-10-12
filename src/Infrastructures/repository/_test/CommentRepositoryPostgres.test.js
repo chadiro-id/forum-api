@@ -71,5 +71,56 @@ describe('CommentRepositoryPostgres', () => {
         expect(addedCommentId).toEqual('comment-123');
       });
     });
+
+    describe('getCommentsByThreadId', () => {
+      it('should correctly query the database and return the comments related to the given thread id', async () => {
+        mockPool.query.mockResolvedValue({
+          rows: [
+            {
+              id: 'comment-001',
+              content: 'Something comment',
+              username: 'forumapi_1',
+              created_at: 'date time',
+              is_delete: false,
+            },
+            {
+              id: 'comment-002',
+              content: 'Something comment',
+              username: 'forumapi_2',
+              created_at: 'date time',
+              is_delete: false,
+            },
+            {
+              id: 'comment-003',
+              content: 'Something comment',
+              username: 'forumapi_3',
+              created_at: 'date time',
+              is_delete: false,
+            },
+          ],
+          rowCount: 3,
+        });
+
+        const comments = await commentRepositoryPostgres.getCommentsByThreadId('thread-123');
+
+        expect(mockPool.query).toHaveBeenCalledTimes(1);
+        expect(mockPool.query).toHaveBeenCalledWith(
+          expect.objectContaining({
+            text: expect.stringContaining('SELECT'),
+            values: ['thread-123'],
+          })
+        );
+        expect(comments).toHaveLength(3);
+        expect(comments).toEqual(
+          expect.arrayOf({
+            id: expect.stringContaining('comment-'),
+            content: expect.stringContaining('Something'),
+            username: expect.stringContaining('forumapi_'),
+            is_delete: expect.any(Boolean),
+            created_at: expect.stringContaining('date'),
+          })
+        );
+      });
+    });
   });
 });
