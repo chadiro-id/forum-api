@@ -10,7 +10,7 @@ describe('CommentRepositoryPostgres', () => {
     });
   });
 
-  describe('Method implementations', () => {
+  describe('Method implementations and database query', () => {
     let mockPool;
     let fakeIdGenerator;
     let commentRepositoryPostgres;
@@ -32,6 +32,21 @@ describe('CommentRepositoryPostgres', () => {
 
     afterEach(() => {
       jest.clearAllMocks();
+    });
+
+    it('should throw error when database fails', async () => {
+      mockPool.query.mockRejectedValue(new Error('Database fails'));
+
+      await expect(commentRepositoryPostgres.addComment({}))
+        .rejects.toThrow('Database fails');
+      await expect(commentRepositoryPostgres.getCommentsByThreadId(''))
+        .rejects.toThrow('Database fails');
+      await expect(commentRepositoryPostgres.softDeleteCommentById(''))
+        .rejects.toThrow('Database fails');
+      await expect(commentRepositoryPostgres.verifyCommentExists(''))
+        .rejects.toThrow('Database fails');
+      await expect(commentRepositoryPostgres.verifyCommentOwner('', ''))
+        .rejects.toThrow('Database fails');
     });
 
     describe('addComment', () => {
