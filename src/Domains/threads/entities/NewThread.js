@@ -1,6 +1,10 @@
 class NewThread {
   constructor(payload) {
     this._verifyPayload(payload);
+
+    this.title = payload.title;
+    this.body = payload.body;
+    this.owner = payload.owner;
   }
 
   _verifyPayload(payload) {
