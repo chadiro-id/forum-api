@@ -47,4 +47,16 @@ describe('NewComment Entity', () => {
         .toThrow('NEW_COMMENT.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
     });
   });
+
+  describe('Correct payload', () => {
+    it('should correctly create the entity', () => {
+      const payload = { ...dummyPayload };
+
+      const { threadId, content, owner } = new NewComment(payload);
+
+      expect(threadId).toEqual(payload.threadId);
+      expect(content).toEqual(payload.content);
+      expect(owner).toEqual(payload.owner);
+    });
+  });
 });
