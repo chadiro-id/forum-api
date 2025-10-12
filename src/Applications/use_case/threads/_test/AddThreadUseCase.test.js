@@ -1,52 +1,53 @@
 const AddThreadUseCase = require('../AddThreadUseCase');
-const AddedThreadEntity = require('../../../../Domains/threads/entities/AddedThreadEntity');
-const UserRepository = require('../../../../Domains/users/UserRepository');
 const ThreadRepository = require('../../../../Domains/threads/ThreadRepository');
-const NewThreadEntity = require('../../../../Domains/threads/entities/NewThreadEntity');
+const NewThread = require('../../../../Domains/threads/entities/NewThread');
 
 describe('AddThreadUseCase', () => {
-  it('should orchestrating the add thread action correctly', async () => {
-    const useCaseArg1 = 'user-123';
-    const useCaseArg2 = {
-      title: 'Title',
-      body: 'body',
-    };
+  describe('Fails execution', () => {
+    it('should throw error when payload not provided correctly', async () => {
+      const addThreadUseCase = new AddThreadUseCase({});
 
-    const mockAddedThread = new AddedThreadEntity({
-      id: 'thread-123',
-      title: useCaseArg2.title,
-      owner: useCaseArg1,
+      await expect(addThreadUseCase.execute())
+        .rejects
+        .toThrow('ADD_THREAD_USE_CASE.PAYLOAD_MUST_BE_INSTANCE_OF_NEWTHREAD');
+      await expect(addThreadUseCase.execute('NewThread'))
+        .rejects
+        .toThrow('ADD_THREAD_USE_CASE.PAYLOAD_MUST_BE_INSTANCE_OF_NEWTHREAD');
+      await expect(addThreadUseCase.execute(123))
+        .rejects
+        .toThrow('ADD_THREAD_USE_CASE.PAYLOAD_MUST_BE_INSTANCE_OF_NEWTHREAD');
+      await expect(addThreadUseCase.execute({}))
+        .rejects
+        .toThrow('ADD_THREAD_USE_CASE.PAYLOAD_MUST_BE_INSTANCE_OF_NEWTHREAD');
     });
+  });
 
-    const mockUserRepository = new UserRepository();
-    const mockThreadRepository = new ThreadRepository();
+  describe('Successfull execution', () => {
+    it('should orchestrating the add thread action correctly', async () => {
+      const payload = new NewThread({
+        title: 'Something thread title',
+        body: 'Something thread body',
+        owner: 'user-123',
+      });
 
-    // mockUserRepository.verifyUserById = jest.fn()
-    //   .mockImplementation(() => Promise.resolve());
-    mockThreadRepository.addThread = jest.fn()
-      .mockImplementation(() => Promise.resolve(mockAddedThread));
+      const mockThreadRepository = new ThreadRepository();
+      mockThreadRepository.addThread = jest.fn()
+        .mockImplementation(() => Promise.resolve('thread-123'));
 
-    const addThreadUseCase = new AddThreadUseCase({
-      userRepository: mockUserRepository,
-      threadRepository: mockThreadRepository,
+      const addThreadUseCase = new AddThreadUseCase({
+        threadRepository: mockThreadRepository,
+      });
+
+      const addedThreadId = await addThreadUseCase.execute(payload);
+
+      expect(mockThreadRepository.addThread).toHaveBeenCalledTimes(1);
+      expect(mockThreadRepository.addThread).toHaveBeenCalledWith({
+        title: payload.title,
+        body: payload.body,
+        owner_id: payload.owner,
+      });
+
+      expect(addedThreadId).toEqual('thread-123');
     });
-
-    const addedThread = await addThreadUseCase.execute(useCaseArg1, useCaseArg2);
-
-    expect(addedThread).toStrictEqual(new AddedThreadEntity({
-      id: 'thread-123',
-      title: useCaseArg2.title,
-      owner: useCaseArg1,
-    }));
-
-    // expect(mockUserRepository.verifyUserById)
-    //   .toHaveBeenCalledWith(useCaseArg1);
-
-    expect(mockThreadRepository.addThread)
-      .toHaveBeenCalledWith(new NewThreadEntity({
-        title: useCaseArg2.title,
-        body: useCaseArg2.body,
-        userId: useCaseArg1,
-      }));
   });
 });
