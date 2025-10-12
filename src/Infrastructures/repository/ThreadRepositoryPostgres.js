@@ -20,14 +20,14 @@ class ThreadRepositoryPostgres extends ThreadRepository {
       VALUES
         ($1, $2, $3, $4)
       RETURNING
-        id, title, owner_id
+        id
       `,
       values: [id, title, body, owner_id]
     };
 
     const result = await this._pool.query(query);
 
-    return result.rows[0];
+    return result.rows[0].id;
   }
 
   async verifyThreadExists(id) {
