@@ -119,5 +119,64 @@ describe('ThreadRepositoryPostgres', () => {
         );
       });
     });
+
+    describe('getThreadById', () => {
+      it('should throw error when database fails', async () => {
+        mockPool.query.mockRejectedValue(new Error('Database connection failed'));
+
+        await expect(
+          threadRepositoryPostgres.getThreadById('thread-123')
+        ).rejects.toThrow('Database connection failed');
+      });
+
+      it('should throw NotFoundError when the thread record with the given id is not exists', async () => {
+        mockPool.query.mockResolvedValue({
+          rows: [], rowCount: 0
+        });
+
+        await expect(
+          threadRepositoryPostgres.getThreadById('thread-123')
+        ).rejects.toThrow(NotFoundError);
+
+        expect(mockPool.query).toHaveBeenCalledTimes(1);
+        expect(mockPool.query).toHaveBeenCalledWith(
+          expect.objectContaining({
+            text: expect.stringContaining('SELECT'),
+            values: ['thread-123'],
+          })
+        );
+      });
+
+      it('should correctly query and return the thread record with the given id if exists', async () => {
+        mockPool.query.mockResolvedValue({
+          rows: [{
+            id: 'thread-123',
+            title: 'Some thread title',
+            body: 'Some thread content',
+            username: 'forumapi',
+            created_at: 'xxx'
+          }],
+          rowCount: 1,
+        });
+
+        const thread = await threadRepositoryPostgres.getThreadById('thread-123');
+
+        expect(mockPool.query).toHaveBeenCalledTimes(1);
+        expect(mockPool.query).toHaveBeenCalledWith(
+          expect.objectContaining({
+            text: expect.stringContaining('SELECT'),
+            values: ['thread-123']
+          })
+        );
+
+        expect(thread).toEqual({
+          id: 'thread-123',
+          title: 'Some thread title',
+          body: 'Some thread content',
+          created_at: 'xxx',
+          username: 'forumapi',
+        });
+      });
+    });
   });
 });
