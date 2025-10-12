@@ -1,20 +1,31 @@
-const NewThreadEntity = require('../../../Domains/threads/entities/NewThreadEntity');
+const AddedThread = require('../../../Domains/threads/entities/AddedThread');
+const NewThread = require('../../../Domains/threads/entities/NewThread');
 
 class AddThreadUseCase {
   constructor({
-    userRepository,
     threadRepository,
   }) {
-    this._userRepository = userRepository;
     this._threadRepository = threadRepository;
   }
 
-  async execute(userId, payload) {
-    // await this._userRepository.verifyUserById(userId);
+  async execute(payload) {
+    if (payload instanceof NewThread === false) {
+      throw new Error('ADD_THREAD_USE_CASE.PAYLOAD_MUST_BE_INSTANCE_OF_NEWTHREAD');
+    }
 
-    const entity = new NewThreadEntity({ ...payload, userId });
+    const threadRecord = {
+      title: payload.title,
+      body: payload.body,
+      owner_id: payload.owner,
+    };
 
-    return this._threadRepository.addThread(entity);
+    const addedThreadId = await this._threadRepository.addThread(threadRecord);
+
+    return new AddedThread({
+      id: addedThreadId,
+      title: payload.title,
+      owner: payload.owner,
+    });
   }
 }
 
