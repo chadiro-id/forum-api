@@ -4,16 +4,16 @@ exports.up = (pgm) => {
       type: 'VARCHAR(50)',
       primaryKey: true,
     },
-    content: {
-      type: 'TEXT',
-      notNull: true,
-    },
     thread_id: {
       type: 'VARCHAR(50)',
       notNull: true,
     },
     owner_id: {
       type: 'VARCHAR(50)',
+      notNull: true,
+    },
+    content: {
+      type: 'TEXT',
       notNull: true,
     },
     is_delete: {
