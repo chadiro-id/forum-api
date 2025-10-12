@@ -47,13 +47,16 @@ class CommentRepositoryPostgres extends CommentRepository {
     return result.rows;
   }
 
-  async deleteCommentById(id) {
+  async softDeleteCommentById(id) {
     const query = {
-      text: 'UPDATE comments SET is_delete = $1 WHERE id = $2',
-      values: [true, id],
+      text: 'UPDATE comments SET is_delete = TRUE WHERE id = $1',
+      values: [id],
     };
 
-    await this._pool.query(query);
+    const result = await this._pool.query(query);
+    if (!result.rows.length) {
+      throw new NotFoundError('Tidak dapat menghapus komentar, id tidak ditemukan');
+    }
   }
 
   async verifyCommentExists(id) {
