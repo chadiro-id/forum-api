@@ -33,5 +33,18 @@ describe('NewReply Entity', () => {
       expect(() => new NewReply(emptyOwner))
         .toThrow('NEW_REPLY.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
     });
+
+    it('should throw error when payload property does not meet data type specification', () => {
+      const commentIdNotString = { ...dummyPayload, commentId: 123 };
+      const contentNotString = { ...dummyPayload, content: true };
+      const ownerNotString = { ...dummyPayload, owner: ['user-123'] };
+
+      expect(() => new NewReply(commentIdNotString))
+        .toThrow('NEW_REPLY.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
+      expect(() => new NewReply(contentNotString))
+        .toThrow('NEW_REPLY.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
+      expect(() => new NewReply(ownerNotString))
+        .toThrow('NEW_REPLY.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
+    });
   });
 });
