@@ -1,10 +1,10 @@
 const NewReply = require('../NewReply');
 
-describe('NewReply', () => {
+describe('NewReply Entity', () => {
   const dummyPayload = {
     commentId: 'comment-123',
-    content: 'some reply',
-    ownerId: 'user-123',
+    content: 'Something reply',
+    owner: 'user-123',
   };
 
   describe('Bad payload', () => {
@@ -13,24 +13,24 @@ describe('NewReply', () => {
       delete missingCommentId.commentId;
       const missingContent = { ...dummyPayload };
       delete missingContent.content;
-      const missingOwnerId = { ...dummyPayload };
-      delete missingOwnerId.ownerId;
+      const missingOwner = { ...dummyPayload };
+      delete missingOwner.owner;
 
       const emptyCommentId = { ...dummyPayload, commentId: '' };
       const emptyContent = { ...dummyPayload, content: '' };
-      const emptyOwnerId = { ...dummyPayload, ownerId: '' };
+      const emptyOwner = { ...dummyPayload, owner: '' };
 
       expect(() => new NewReply(missingCommentId))
         .toThrow('NEW_REPLY.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
       expect(() => new NewReply(missingContent))
         .toThrow('NEW_REPLY.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
-      expect(() => new NewReply(missingOwnerId))
+      expect(() => new NewReply(missingOwner))
         .toThrow('NEW_REPLY.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
       expect(() => new NewReply(emptyCommentId))
         .toThrow('NEW_REPLY.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
       expect(() => new NewReply(emptyContent))
         .toThrow('NEW_REPLY.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
-      expect(() => new NewReply(emptyOwnerId))
+      expect(() => new NewReply(emptyOwner))
         .toThrow('NEW_REPLY.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
     });
   });
