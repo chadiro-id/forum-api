@@ -10,7 +10,7 @@ class AddThreadUseCase {
   }
 
   async execute(userId, payload) {
-    await this._userRepository.verifyUserById(userId);
+    // await this._userRepository.verifyUserById(userId);
 
     const entity = new NewThreadEntity({ ...payload, userId });
 

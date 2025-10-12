@@ -21,8 +21,8 @@ describe('AddThreadUseCase', () => {
     const mockUserRepository = new UserRepository();
     const mockThreadRepository = new ThreadRepository();
 
-    mockUserRepository.verifyUserById = jest.fn()
-      .mockImplementation(() => Promise.resolve());
+    // mockUserRepository.verifyUserById = jest.fn()
+    //   .mockImplementation(() => Promise.resolve());
     mockThreadRepository.addThread = jest.fn()
       .mockImplementation(() => Promise.resolve(mockAddedThread));
 
@@ -39,8 +39,8 @@ describe('AddThreadUseCase', () => {
       owner: useCaseArg1,
     }));
 
-    expect(mockUserRepository.verifyUserById)
-      .toHaveBeenCalledWith(useCaseArg1);
+    // expect(mockUserRepository.verifyUserById)
+    //   .toHaveBeenCalledWith(useCaseArg1);
 
     expect(mockThreadRepository.addThread)
       .toHaveBeenCalledWith(new NewThreadEntity({
