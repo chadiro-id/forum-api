@@ -15,12 +15,6 @@ describe('CommentRepositoryPostgres', () => {
     let fakeIdGenerator;
     let commentRepositoryPostgres;
 
-    const dummyNewComment = {
-      threadId: 'thread-123',
-      ownerId: 'user-456',
-      content: 'Sebuah komentar',
-    };
-
     beforeEach(() => {
       mockPool = {
         query: jest.fn(),
@@ -50,13 +44,17 @@ describe('CommentRepositoryPostgres', () => {
     });
 
     describe('addComment', () => {
-      it('should persist the comment and return the added comment', async () => {
+      it('should persist the comment record and return the id correctly', async () => {
         mockPool.query.mockResolvedValue({
-          rows: [{ id: 'comment-123', content: 'Sebuah komentar', owner_id: 'user-456' }],
+          rows: [{ id: 'comment-123' }],
           rowCount: 1,
         });
 
-        const addedComment = await commentRepositoryPostgres.addComment(dummyNewComment);
+        const addedCommentId = await commentRepositoryPostgres.addComment({
+          thread_id: 'thread-123',
+          owner_id: 'user-123',
+          content: 'Something comment',
+        });
 
         expect(mockPool.query).toHaveBeenCalledTimes(1);
         expect(mockPool.query).toHaveBeenCalledWith(
@@ -66,15 +64,11 @@ describe('CommentRepositoryPostgres', () => {
         );
         const calledValues = mockPool.query.mock.calls[0][0].values;
         expect(calledValues[0]).toEqual('comment-123');
-        expect(calledValues[1]).toEqual(dummyNewComment.content);
-        expect(calledValues[2]).toEqual(dummyNewComment.threadId);
-        expect(calledValues[3]).toEqual(dummyNewComment.ownerId);
+        expect(calledValues[1]).toEqual('thread-123');
+        expect(calledValues[2]).toEqual('user-123');
+        expect(calledValues[3]).toEqual('Something comment');
 
-        expect(addedComment).toEqual({
-          id: 'comment-123',
-          content: 'Sebuah komentar',
-          owner: 'user-456',
-        });
+        expect(addedCommentId).toEqual('comment-123');
       });
     });
   });
