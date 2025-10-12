@@ -1,7 +1,6 @@
 const NotFoundError = require('../../Commons/exceptions/NotFoundError');
 const AuthorizationError = require('../../Commons/exceptions/AuthorizationError');
 const CommentRepository = require('../../Domains/comments/CommentRepository');
-const AddedCommentEntity = require('../../Domains/comments/entities/AddedCommentEntity');
 
 class CommentRepositoryPostgres extends CommentRepository {
   constructor(pool, idGenerator) {
@@ -10,23 +9,19 @@ class CommentRepositoryPostgres extends CommentRepository {
     this._idGenerator = idGenerator;
   }
 
-  async addComment(entity) {
-    const { threadId, content, ownerId } = entity;
+  async addComment(newComment) {
+    const { thread_id, content, owner_id } = newComment;
 
     const id = `comment-${this._idGenerator()}`;
 
     const query = {
-      text: 'INSERT INTO comments (id, content, thread_id, owner_id) VALUES ($1, $2, $3, $4) RETURNING id, content, owner_id',
-      values: [id, content, threadId, ownerId],
+      text: 'INSERT INTO comments (id, thread_id, owner_id, content) VALUES ($1, $2, $3, $4) RETURNING id',
+      values: [id, thread_id, owner_id, content],
     };
 
     const result = await this._pool.query(query);
 
-    return new AddedCommentEntity({
-      id: result.rows[0].id,
-      content: result.rows[0].content,
-      owner: result.rows[0].owner_id,
-    });
+    return result.rows[0].id;
   }
 
   async getCommentsByThreadId(threadId) {
