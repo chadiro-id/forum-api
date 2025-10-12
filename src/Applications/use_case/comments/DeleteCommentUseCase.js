@@ -12,7 +12,7 @@ class DeleteCommentUseCase {
 
     await this._threadRepository.verifyThreadExists(threadId);
     await this._commentRepository.verifyCommentOwner(commentId, credentialId);
-    await this._commentRepository.deleteCommentById(commentId);
+    await this._commentRepository.softDeleteCommentById(commentId);
   }
 }
 
