@@ -36,18 +36,18 @@ class UserRepositoryPostgres extends UserRepository {
     }
   }
 
-  async verifyUserById(userId) {
-    const query = {
-      text: 'SELECT id FROM users WHERE id = $1',
-      values: [userId],
-    };
+  // async verifyUserById(userId) {
+  //   const query = {
+  //     text: 'SELECT id FROM users WHERE id = $1',
+  //     values: [userId],
+  //   };
 
-    const result = await this._pool.query(query);
+  //   const result = await this._pool.query(query);
 
-    if (!result.rowCount) {
-      throw new InvariantError('id tidak ditemukan');
-    }
-  }
+  //   if (!result.rowCount) {
+  //     throw new InvariantError('id tidak ditemukan');
+  //   }
+  // }
 
   async getPasswordByUsername(username) {
     const query = {
