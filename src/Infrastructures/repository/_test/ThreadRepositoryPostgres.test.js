@@ -40,11 +40,7 @@ describe('ThreadRepositoryPostgres', () => {
 
       it('should persist the thread record and return the id correctly', async () => {
         mockPool.query.mockResolvedValue({
-          rows: [{
-            id: 'thread-123',
-            title: 'Some title',
-            owner_id: 'user-123',
-          }],
+          rows: [{ id: 'thread-123' }],
           rowCount: 1,
         });
 
