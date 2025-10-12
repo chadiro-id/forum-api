@@ -11,7 +11,7 @@ describe('ThreadRepositoryPostgres', () => {
     });
   });
 
-  describe('Method Implementations', () => {
+  describe('Method implementations and database query', () => {
     let mockPool;
     let fakeIdGenerator;
     let threadRepositoryPostgres;
@@ -29,15 +29,18 @@ describe('ThreadRepositoryPostgres', () => {
       jest.clearAllMocks();
     });
 
+    it('should throw error when database fails', async () => {
+      mockPool.query.mockRejectedValue(new Error('Database fails'));
+
+      await expect(threadRepositoryPostgres.addThread({}))
+        .rejects.toThrow('Database fails');
+      await expect(threadRepositoryPostgres.verifyThreadExists(''))
+        .rejects.toThrow('Database fails');
+      await expect(threadRepositoryPostgres.getThreadById(''))
+        .rejects.toThrow('Database fails');
+    });
+
     describe('addThread', () => {
-      it('should throw error when database fails', async () => {
-        mockPool.query.mockRejectedValue(new Error('Database connection failed'));
-
-        await expect(
-          threadRepositoryPostgres.addThread({})
-        ).rejects.toThrow('Database connection failed');
-      });
-
       it('should persist the thread record and return the id correctly', async () => {
         mockPool.query.mockResolvedValue({
           rows: [{ id: 'thread-123' }],
@@ -68,14 +71,6 @@ describe('ThreadRepositoryPostgres', () => {
     });
 
     describe('verifyThreadExists', () => {
-      it('should throw error when database fails', async () => {
-        mockPool.query.mockRejectedValue(new Error('Database connection failed'));
-
-        await expect(
-          threadRepositoryPostgres.verifyThreadExists('')
-        ).rejects.toThrow('Database connection failed');
-      });
-
       it('should throw NotFoundError when the thread record with the given id is not exists', async () => {
         mockPool.query.mockResolvedValue({
           rows: [], rowCount: 0
@@ -113,14 +108,6 @@ describe('ThreadRepositoryPostgres', () => {
     });
 
     describe('getThreadById', () => {
-      it('should throw error when database fails', async () => {
-        mockPool.query.mockRejectedValue(new Error('Database connection failed'));
-
-        await expect(
-          threadRepositoryPostgres.getThreadById('thread-123')
-        ).rejects.toThrow('Database connection failed');
-      });
-
       it('should throw NotFoundError when the thread record with the given id is not exists', async () => {
         mockPool.query.mockResolvedValue({
           rows: [], rowCount: 0
