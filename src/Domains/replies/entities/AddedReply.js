@@ -1,6 +1,10 @@
 class AddedReply {
   constructor(payload) {
     this._verifyPayload(payload);
+
+    this.id = payload.id;
+    this.content = payload.content;
+    this.owner = payload.owner;
   }
 
   _verifyPayload(payload) {
