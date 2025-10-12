@@ -7,7 +7,7 @@ describe('AddedThread entity', () => {
     owner: 'user-123'
   };
 
-  describe('Payload is bad', () => {
+  describe('Bad payload', () => {
     it('should throw error when payload not contain needed property', () => {
       const missingId = { ...dummyPayload };
       delete missingId.id;
@@ -32,6 +32,19 @@ describe('AddedThread entity', () => {
         .toThrow('ADDED_THREAD.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
       expect(() => new AddedThread(emptyOwner))
         .toThrow('ADDED_THREAD.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
+    });
+
+    it('should throw error when payload property does not meet data type specification', () => {
+      const idNotString = { ...dummyPayload, id: 123 };
+      const titleNotString = { ...dummyPayload, title: {} };
+      const ownerNotString = { ...dummyPayload, owner: true };
+
+      expect(() => new AddedThread(idNotString))
+        .toThrow('ADDED_THREAD.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
+      expect(() => new AddedThread(titleNotString))
+        .toThrow('ADDED_THREAD.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
+      expect(() => new AddedThread(ownerNotString))
+        .toThrow('ADDED_THREAD.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
     });
   });
 });
