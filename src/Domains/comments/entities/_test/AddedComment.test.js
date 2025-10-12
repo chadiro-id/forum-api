@@ -47,4 +47,28 @@ describe('AddedComment Entity', () => {
         .toThrow('ADDED_COMMENT.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
     });
   });
+
+  describe('Correct payload', () => {
+    it('should correctly create the entity', () => {
+      const payload = { ...dummyPayload };
+
+      const { id, content, owner } = new AddedComment(payload);
+
+      expect(id).toEqual(payload.id);
+      expect(content).toEqual(payload.content);
+      expect(owner).toEqual(payload.owner);
+    });
+
+    it('should correctly create the entity and not contain extra property', () => {
+      const extraPayload = { ...dummyPayload, extra: 'Something extra' };
+
+      const addedComment = new AddedComment(extraPayload);
+
+      expect(addedComment.id).toEqual(extraPayload.id);
+      expect(addedComment.content).toEqual(extraPayload.content);
+      expect(addedComment.owner).toEqual(extraPayload.owner);
+
+      expect(addedComment.extra).toBeUndefined();
+    });
+  });
 });
