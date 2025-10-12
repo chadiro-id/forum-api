@@ -35,9 +35,9 @@ describe('NewComment Entity', () => {
     });
 
     it('should throw error when payload property does not meet data type specification', () => {
-      const threadIdNotString = { ...dummyPayload, threadId: '' };
-      const contentNotString = { ...dummyPayload, content: '' };
-      const ownerNotString = { ...dummyPayload, owner: '' };
+      const threadIdNotString = { ...dummyPayload, threadId: 123 };
+      const contentNotString = { ...dummyPayload, content: true };
+      const ownerNotString = { ...dummyPayload, owner: {} };
 
       expect(() => new NewComment(threadIdNotString))
         .toThrow('NEW_COMMENT.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
