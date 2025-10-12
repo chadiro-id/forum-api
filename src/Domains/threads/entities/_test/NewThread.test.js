@@ -47,4 +47,16 @@ describe('NewThread entity', () => {
         .toThrow('NEW_THREAD.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
     });
   });
+
+  describe('Payload is correct', () => {
+    it('should correctly create the entity', () => {
+      const payload = { ...dummyPayload };
+
+      const { title, body, owner } = new NewThread(payload);
+
+      expect(title).toEqual(payload.title);
+      expect(body).toEqual(payload.body);
+      expect(owner).toEqual(payload.owner);
+    });
+  });
 });
