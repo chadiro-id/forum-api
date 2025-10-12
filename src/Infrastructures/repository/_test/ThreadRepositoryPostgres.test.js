@@ -1,3 +1,4 @@
+const NotFoundError = require('../../../Commons/exceptions/NotFoundError');
 const ThreadRepository = require('../../../Domains/threads/ThreadRepository');
 const ThreadRepositoryPostgres = require('../ThreadRepositoryPostgres');
 
@@ -63,6 +64,43 @@ describe('ThreadRepositoryPostgres', () => {
           title: 'Some title',
           owner_id: 'user-123',
         });
+      });
+    });
+
+    describe('verifyThreadExists', () => {
+      it('should throw NotFoundError when the thread record with the given id is not exists', async () => {
+        mockPool.query.mockResolvedValue({
+          rows: [], rowCount: 0
+        });
+
+        await expect(threadRepositoryPostgres.verifyThreadExists('thread-123'))
+          .rejects.toThrow(NotFoundError);
+
+        expect(mockPool.query).toHaveBeenCalledTimes(1);
+        expect(mockPool.query).toHaveBeenCalledWith(
+          expect.objectContaining({
+            text: expect.stringContaining('SELECT id FROM threads'),
+            values: expect.arrayContaining(['thread-123']),
+          })
+        );
+      });
+
+      it('should not throw error when the thread record with the given id is exists', async () => {
+        mockPool.query.mockResolvedValue({
+          rows: [{ id: 'thread-123' }],
+          rowCount: 1,
+        });
+
+        await expect(threadRepositoryPostgres.verifyThreadExists('thread-123'))
+          .resolves.not.toThrow();
+
+        expect(mockPool.query).toHaveBeenCalledTimes(1);
+        expect(mockPool.query).toHaveBeenCalledWith(
+          expect.objectContaining({
+            text: expect.stringContaining('SELECT id FROM threads'),
+            values: expect.arrayContaining(['thread-123']),
+          })
+        );
       });
     });
   });
