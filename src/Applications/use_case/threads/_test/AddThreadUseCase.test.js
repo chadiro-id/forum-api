@@ -1,6 +1,7 @@
 const AddThreadUseCase = require('../AddThreadUseCase');
 const ThreadRepository = require('../../../../Domains/threads/ThreadRepository');
 const NewThread = require('../../../../Domains/threads/entities/NewThread');
+const AddedThread = require('../../../../Domains/threads/entities/AddedThread');
 
 describe('AddThreadUseCase', () => {
   describe('Fails execution', () => {
@@ -38,7 +39,7 @@ describe('AddThreadUseCase', () => {
         threadRepository: mockThreadRepository,
       });
 
-      const addedThreadId = await addThreadUseCase.execute(payload);
+      const addedThread = await addThreadUseCase.execute(payload);
 
       expect(mockThreadRepository.addThread).toHaveBeenCalledTimes(1);
       expect(mockThreadRepository.addThread).toHaveBeenCalledWith({
@@ -47,7 +48,11 @@ describe('AddThreadUseCase', () => {
         owner_id: payload.owner,
       });
 
-      expect(addedThreadId).toEqual('thread-123');
+      expect(addedThread).toEqual(new AddedThread({
+        id: 'thread-123',
+        title: 'Something thread title',
+        owner: 'user-123',
+      }));
     });
   });
 });
