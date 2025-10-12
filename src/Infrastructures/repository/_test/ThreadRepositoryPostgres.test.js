@@ -126,14 +126,14 @@ describe('ThreadRepositoryPostgres', () => {
         );
       });
 
-      it('should correctly query and return the thread record with the given id if exists', async () => {
+      it('should correctly query the database and return the thread record related to the given id', async () => {
         mockPool.query.mockResolvedValue({
           rows: [{
             id: 'thread-123',
             title: 'Some thread title',
             body: 'Some thread content',
             username: 'forumapi',
-            created_at: 'xxx'
+            created_at: '2025-10-12T14:59:05.169Z'
           }],
           rowCount: 1,
         });
@@ -152,7 +152,7 @@ describe('ThreadRepositoryPostgres', () => {
           id: 'thread-123',
           title: 'Some thread title',
           body: 'Some thread content',
-          created_at: 'xxx',
+          created_at: '2025-10-12T14:59:05.169Z',
           username: 'forumapi',
         });
       });
