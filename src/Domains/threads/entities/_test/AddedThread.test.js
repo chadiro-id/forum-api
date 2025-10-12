@@ -47,4 +47,28 @@ describe('AddedThread entity', () => {
         .toThrow('ADDED_THREAD.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
     });
   });
+
+  describe('Correct payload', () => {
+    it('should correctly create the entity', () => {
+      const payload = { ...dummyPayload };
+
+      const { id, title, owner } = new AddedThread(payload);
+
+      expect(id).toEqual(payload.id);
+      expect(title).toEqual(payload.title);
+      expect(owner).toEqual(payload.owner);
+    });
+
+    it('should correctly create the entity and not contain extra property', () => {
+      const extraPayload = { ...dummyPayload, extra: 'Something extra' };
+
+      const addedThread = new AddedThread(extraPayload);
+
+      expect(addedThread.id).toEqual(extraPayload.id);
+      expect(addedThread.title).toEqual(extraPayload.title);
+      expect(addedThread.owner).toEqual(extraPayload.owner);
+
+      expect(addedThread.extra).toBeUndefined();
+    });
+  });
 });
