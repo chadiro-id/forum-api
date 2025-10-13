@@ -31,23 +31,10 @@ class UserRepositoryPostgres extends UserRepository {
 
     const result = await this._pool.query(query);
 
-    if (result.rowCount) {
+    if (result.rows.length) {
       throw new InvariantError('username tidak tersedia');
     }
   }
-
-  // async verifyUserById(userId) {
-  //   const query = {
-  //     text: 'SELECT id FROM users WHERE id = $1',
-  //     values: [userId],
-  //   };
-
-  //   const result = await this._pool.query(query);
-
-  //   if (!result.rowCount) {
-  //     throw new InvariantError('id tidak ditemukan');
-  //   }
-  // }
 
   async getPasswordByUsername(username) {
     const query = {
@@ -56,8 +43,7 @@ class UserRepositoryPostgres extends UserRepository {
     };
 
     const result = await this._pool.query(query);
-
-    if (!result.rowCount) {
+    if (!result.rows.length) {
       throw new InvariantError('username tidak ditemukan');
     }
 
@@ -71,14 +57,11 @@ class UserRepositoryPostgres extends UserRepository {
     };
 
     const result = await this._pool.query(query);
-
-    if (!result.rowCount) {
+    if (!result.rows.length) {
       throw new InvariantError('user tidak ditemukan');
     }
 
-    const { id } = result.rows[0];
-
-    return id;
+    return result.rows[0].id;
   }
 }
 
