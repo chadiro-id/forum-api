@@ -1,7 +1,7 @@
 /* istanbul ignore file */
 const pool = require('../src/Infrastructures/database/postgres/pool');
 
-const AuthenticationsTestHelper = {
+const AuthenticationsTableTestHelper = {
   async addToken(token) {
     const query = {
       text: 'INSERT INTO authentications VALUES($1)',
@@ -27,4 +27,4 @@ const AuthenticationsTestHelper = {
   },
 };
 
-module.exports = AuthenticationsTestHelper;
+module.exports = AuthenticationsTableTestHelper;

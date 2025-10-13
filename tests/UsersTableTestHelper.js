@@ -1,7 +1,7 @@
 /* istanbul ignore file */
 const pool = require('../src/Infrastructures/database/postgres/pool');
 
-const UsersTestHelper = {
+const UsersTableTestHelper = {
   async addUser({
     id = 'user-123', username = 'forumapi', password = 'supersecret^_^@01', fullname = 'Forum Api',
   }) {
@@ -28,4 +28,4 @@ const UsersTestHelper = {
   },
 };
 
-module.exports = UsersTestHelper;
+module.exports = UsersTableTestHelper;
