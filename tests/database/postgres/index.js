@@ -1,13 +1,13 @@
-const { Pool } = require('pg');
+const pool = require('../../../src/Infrastructures/database/postgres/pool');
 
-const AuthenticationsTable = require('./AuthenticationsTable');
-const UsersTable = require('./UsersTable');
-const ThreadsTable = require('./ThreadsTable');
-
-const pool = new Pool();
+const authenticationsTableHelper = require('./authenticationsTable');
+const usersTableHelper = require('./usersTable');
+const threadsTableHelper = require('./threadsTable');
+const commentsTableHelper = require('./commentsTable');
 
 module.exports = {
-  authenticationsTable: new AuthenticationsTable(pool),
-  usersTable: new UsersTable(pool),
-  threadsTable: new ThreadsTable(pool),
+  usersTable: usersTableHelper(pool),
+  authenticationsTable: authenticationsTableHelper(pool),
+  threadsTable: threadsTableHelper(pool),
+  commentsTable: commentsTableHelper(pool),
 };
