@@ -1,10 +1,12 @@
 /* istanbul ignore file */
-const pool = require('../../../src/Infrastructures/database/postgres/pool');
+class ThreadsTable {
+  constructor(pool) {
+    this._pool = pool;
+  }
 
-const ThreadsTableTestHelper = {
   async cleanTable() {
-    await pool.query('DELETE FROM threads WHERE 1=1');
+    await this._pool.query('DELETE FROM threads WHERE 1=1');
   }
 };
 
-module.exports = ThreadsTableTestHelper;
+module.exports = ThreadsTable;
