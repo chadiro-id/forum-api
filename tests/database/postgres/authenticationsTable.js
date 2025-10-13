@@ -1,32 +1,33 @@
 /* istanbul ignore file */
-class AuthenticationsTable {
-  constructor(pool) {
-    this._pool = pool;
-  }
+const tableHelper = (pool) => {
 
-  async addToken(token) {
+  const addToken = async (token) => {
     const query = {
       text: 'INSERT INTO authentications VALUES($1)',
       values: [token],
     };
 
-    await this._pool.query(query);
-  }
+    await pool.query(query);
+  };
 
-  async findToken(token) {
+  const findToken = async (token) => {
     const query = {
       text: 'SELECT token FROM authentications WHERE token = $1',
       values: [token],
     };
 
-    const result = await this._pool.query(query);
+    const result = await pool.query(query);
 
     return result.rows;
-  }
+  };
 
-  async cleanTable() {
-    await this._pool.query('DELETE FROM authentications WHERE 1=1');
-  }
-}
+  const clean = async () => {
+    await pool.query('DELETE FROM authentications WHERE 1=1');
+  };
 
-module.exports = AuthenticationsTable;
+  return {
+    addToken, findToken, clean,
+  };
+};
+
+module.exports = tableHelper;
