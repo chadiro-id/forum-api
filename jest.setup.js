@@ -34,13 +34,13 @@ afterAll(() => {
   console.log = originalLog;
 });
 
-jest.mock('pg', () => {
-  const mClient = {
-    connect: jest.fn(),
-    query: jest.fn(),
-    end: jest.fn(),
-  };
-  const mPool = jest.fn(() => mClient);
-  return { Pool: mPool };
-});
+// jest.mock('pg', () => {
+//   const mClient = {
+//     connect: jest.fn(),
+//     query: jest.fn(),
+//     end: jest.fn(),
+//   };
+//   const mPool = jest.fn(() => mClient);
+//   return { Pool: mPool };
+// });
 
