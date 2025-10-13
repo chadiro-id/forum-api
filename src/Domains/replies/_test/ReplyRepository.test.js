@@ -8,9 +8,9 @@ describe('ReplyRepository', () => {
       .rejects.toThrow('REPLY_REPOSITORY.METHOD_NOT_IMPLEMENTED');
     await expect(replyRepository.getRepliesByCommentIds([]))
       .rejects.toThrow('REPLY_REPOSITORY.METHOD_NOT_IMPLEMENTED');
-    await expect(replyRepository.deleteReplyById(''))
+    await expect(replyRepository.softDeleteReplyById(''))
       .rejects.toThrow('REPLY_REPOSITORY.METHOD_NOT_IMPLEMENTED');
-    await expect(replyRepository.verifyExistsById(''))
+    await expect(replyRepository.verifyReplyExists(''))
       .rejects.toThrow('REPLY_REPOSITORY.METHOD_NOT_IMPLEMENTED');
     await expect(replyRepository.verifyReplyOwner('', ''))
       .rejects.toThrow('REPLY_REPOSITORY.METHOD_NOT_IMPLEMENTED');
