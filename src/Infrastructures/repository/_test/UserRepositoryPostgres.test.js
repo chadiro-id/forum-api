@@ -1,19 +1,13 @@
 const pool = require('../../database/postgres/pool');
-const UsersTable = require('../../../../tests/database/postgres/UsersTable');
 const InvariantError = require('../../../Commons/exceptions/InvariantError');
 const RegisterUserEntity = require('../../../Domains/users/entities/RegisterUserEntity');
 const RegisteredUserEntity = require('../../../Domains/users/entities/RegisteredUserEntity');
 const UserRepositoryPostgres = require('../UserRepositoryPostgres');
+const { usersTable } = require('../../../../tests/database/postgres');
 
 describe('UserRepositoryPostgres', () => {
-  let usersTable;
-
-  beforeAll(() => {
-    usersTable = new UsersTable(pool);
-  });
-
-  afterEach(async () => {
-    await usersTable.cleanTable();
+  beforeEach(async () => {
+    await usersTable.clean();
   });
 
   afterAll(async () => {
