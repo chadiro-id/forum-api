@@ -1,13 +1,19 @@
 const pool = require('../../database/postgres/pool');
+const UsersTable = require('../../../../tests/database/postgres/UsersTable');
 const InvariantError = require('../../../Commons/exceptions/InvariantError');
 const RegisterUserEntity = require('../../../Domains/users/entities/RegisterUserEntity');
 const RegisteredUserEntity = require('../../../Domains/users/entities/RegisteredUserEntity');
 const UserRepositoryPostgres = require('../UserRepositoryPostgres');
-const UsersTableTestHelper = require('../../../../tests/UsersTableTestHelper');
 
 describe('UserRepositoryPostgres', () => {
+  let usersTable;
+
+  beforeAll(() => {
+    usersTable = new UsersTable(pool);
+  });
+
   afterEach(async () => {
-    await UsersTableTestHelper.cleanTable();
+    await usersTable.cleanTable();
   });
 
   afterAll(async () => {
@@ -16,7 +22,7 @@ describe('UserRepositoryPostgres', () => {
 
   describe('#verifyAvailableUsername', () => {
     it('must throw InvariantError when username not available', async () => {
-      await UsersTableTestHelper.addUser({
+      await usersTable.addUser({
         username: 'forumapi',
       });
       const userRepositoryPostgres = new UserRepositoryPostgres(pool, {});
@@ -47,7 +53,7 @@ describe('UserRepositoryPostgres', () => {
 
       await userRepositoryPostgres.addUser(registerUserEntity);
 
-      const users = await UsersTableTestHelper.findUsersById('user-123');
+      const users = await usersTable.findUsersById('user-123');
       expect(users).toHaveLength(1);
     });
 
@@ -81,7 +87,7 @@ describe('UserRepositoryPostgres', () => {
 
     it('must correctly return the password related to the given username when exists', async () => {
       const userRepositoryPostgres = new UserRepositoryPostgres(pool, {});
-      await UsersTableTestHelper.addUser({
+      await usersTable.addUser({
         username: 'forumapi',
         password: 'secret_password',
       });
@@ -101,7 +107,7 @@ describe('UserRepositoryPostgres', () => {
     });
 
     it('should return user id correctly', async () => {
-      await UsersTableTestHelper.addUser({ id: 'user-321', username: 'forumapi' });
+      await usersTable.addUser({ id: 'user-321', username: 'forumapi' });
       const userRepositoryPostgres = new UserRepositoryPostgres(pool, {});
 
       const userId = await userRepositoryPostgres.getIdByUsername('forumapi');
