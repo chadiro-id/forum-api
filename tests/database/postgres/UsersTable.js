@@ -1,7 +1,8 @@
 /* istanbul ignore file */
-const pool = require('../../../src/Infrastructures/database/postgres/pool');
-
-const UsersTableTestHelper = {
+class UsersTable {
+  constructor(pool) {
+    this._pool = pool;
+  }
   async addUser({
     id = 'user-123', username = 'forumapi', password = 'supersecret^_^@01', fullname = 'Forum Api',
   }) {
@@ -10,8 +11,8 @@ const UsersTableTestHelper = {
       values: [id, username, password, fullname],
     };
 
-    await pool.query(query);
-  },
+    await this._pool.query(query);
+  }
 
   async findUsersById(id) {
     const query = {
@@ -19,13 +20,13 @@ const UsersTableTestHelper = {
       values: [id],
     };
 
-    const result = await pool.query(query);
+    const result = await this._pool.query(query);
     return result.rows;
-  },
+  }
 
   async cleanTable() {
-    await pool.query('DELETE FROM users WHERE 1=1');
-  },
+    await this._pool.query('DELETE FROM users WHERE 1=1');
+  }
 };
 
-module.exports = UsersTableTestHelper;
+module.exports = UsersTable;
