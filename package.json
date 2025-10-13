@@ -6,9 +6,12 @@
   "scripts": {
     "start": "node src/app.js",
     "start:dev": "nodemon src/app.js",
-    "test": "jest --setup-files dotenv/config -i",
-    "test:watch": "jest --watch-all --coverage --setup-files dotenv/config -i",
-    "test:watch:change": "jest --watch --setup-files dotenv/config -i",
+    "test": "jest -i",
+    "test:watch": "jest --watch-all --coverage -i",
+    "test:watch:change": "jest --watch -i",
+    "test:unit": "jest --config=jest.unit.config.js",
+    "test:unit:quiet": "SILENT_TEST_LOGS=true jest --config=jest.unit.config.js",
+    "test:integration": "jest --config=jest.integration.config.js",
     "migrate": "node-pg-migrate -m database/migrations",
     "migrate:test": "node-pg-migrate -f database/configs/test.json -m database/migrations",
     "lint": "eslint ."
