@@ -5,7 +5,7 @@ const { authenticationsTable } = require('../../../../tests/database/postgres');
 
 describe('AuthenticationRepositoryPostgres', () => {
   beforeEach(async () => {
-    await authenticationsTable.cleanTable();
+    await authenticationsTable.clean();
   });
 
   afterAll(async () => {
