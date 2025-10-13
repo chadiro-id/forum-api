@@ -1,18 +1,17 @@
 const pool = require('../../database/postgres/pool');
-const AuthenticationsTableTestHelper = require('../../../../tests/AuthenticationsTableTestHelper');
-const UsersTableTestHelper = require('../../../../tests/UsersTableTestHelper');
 const AuthenticationTokenManager = require('../../../Applications/security/AuthenticationTokenManager');
 const container = require('../../containers/container');
 const { createServer } = require('../server');
+const { usersTable, authenticationsTable } = require('../../../../tests/database/postgres');
 
 describe('/authentications endpoint', () => {
   afterAll(async () => {
     await pool.end();
   });
 
-  afterEach(async () => {
-    await UsersTableTestHelper.cleanTable();
-    await AuthenticationsTableTestHelper.cleanTable();
+  beforeEach(async () => {
+    await usersTable.clean();
+    await authenticationsTable.clean();
   });
 
   describe('when POST /authentications', () => {
@@ -272,7 +271,7 @@ describe('/authentications endpoint', () => {
       // Arrange
       const server = await createServer(container);
       const refreshToken = 'refresh_token';
-      await AuthenticationsTableTestHelper.addToken(refreshToken);
+      await authenticationsTable.addToken(refreshToken);
 
       // Action
       const response = await server.inject({
