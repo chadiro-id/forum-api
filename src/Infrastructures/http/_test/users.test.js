@@ -1,5 +1,5 @@
 const pool = require('../../database/postgres/pool');
-const UsersTableTestHelper = require('../../../../tests/UsersTableTestHelper');
+const { usersTable } = require('../../../../tests/database/postgres');
 const container = require('../../containers/container');
 const { createServer } = require('../server');
 
@@ -8,8 +8,8 @@ describe('/users endpoint', () => {
     await pool.end();
   });
 
-  afterEach(async () => {
-    await UsersTableTestHelper.cleanTable();
+  beforeEach(async () => {
+    await usersTable.clean();
   });
 
   describe('when POST /users', () => {
@@ -114,7 +114,7 @@ describe('/users endpoint', () => {
     });
 
     it('should response 400 when username unavailable', async () => {
-      await UsersTableTestHelper.addUser({ username: 'forumapi' });
+      await usersTable.addUser({ username: 'forumapi' });
       const requestPayload = {
         username: 'forumapi',
         fullname: 'Forum Api',
