@@ -5,12 +5,13 @@ const container = require('../../containers/container');
 const { usersTable, authenticationsTable } = require('../../../../tests/db_helper/postgres');
 
 describe('Threads Endpoints', () => {
-  let accessToken;
   let server;
+  let userId;
+  let accessToken;
 
   beforeAll(async () => {
     server = await createServer(container);
-    await registerUser(server);
+    userId = await registerUser(server);
     accessToken = await loginUser(server);
   });
 
@@ -88,6 +89,37 @@ describe('Threads Endpoints', () => {
         expect.objectContaining({
           status: 'fail',
           message: expect.any(String),
+        })
+      );
+    });
+
+    it('should response 201 and return the persisted thread', async () => {
+      const payload = {
+        title: 'Judul thread',
+        body: 'Isi thread',
+      };
+
+      const response = await server.inject({
+        method: 'POST',
+        url: '/threads',
+        payload: payload,
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toBe(201);
+      expect(responseJson).toEqual(
+        expect.objectContaining({
+          status: 'success',
+          data: expect.objectContaining({
+            addedThread: expect.objectContaining({
+              id: expect.stringContaining('thread-'),
+              title: 'Judul thread',
+              owner: `${userId}`,
+            })
+          })
         })
       );
     });
