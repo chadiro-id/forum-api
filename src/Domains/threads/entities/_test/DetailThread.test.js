@@ -1,4 +1,4 @@
-const DetailThreadEntity = require('../DetailThreadEntity');
+const DetailThread = require('../DetailThread');
 
 describe('DetailThreadEntity', () => {
   const correctPayload = {
@@ -15,7 +15,7 @@ describe('DetailThreadEntity', () => {
       const missingId = { ...correctPayload };
       delete missingId.id;
 
-      expect(() => new DetailThreadEntity(missingId)).toThrow('DETAIL_THREAD_ENTITY.NOT_CONTAIN_NEEDED_PROPERTY');
+      expect(() => new DetailThread(missingId)).toThrow('DETAIL_THREAD_ENTITY.NOT_CONTAIN_NEEDED_PROPERTY');
     });
   });
 });
