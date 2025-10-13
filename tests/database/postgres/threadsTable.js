@@ -1,12 +1,13 @@
 /* istanbul ignore file */
-class ThreadsTable {
-  constructor(pool) {
-    this._pool = pool;
-  }
+const tableHelper = (pool) => {
 
-  async cleanTable() {
-    await this._pool.query('DELETE FROM threads WHERE 1=1');
-  }
+  const clean = async () => {
+    await pool.query('DELETE FROM threads WHERE 1=1');
+  };
+
+  return {
+    clean,
+  };
 };
 
-module.exports = ThreadsTable;
+module.exports = tableHelper;
