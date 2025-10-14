@@ -7,7 +7,7 @@ const config = {
   testMatch: [
     '**/?(*.)+(test).[jt]s?(x)',
   ],
-  testPathIgnorePatterns: ['/node_modules/', '/dist/'],
+  testPathIgnorePatterns: ['<rootDir>/node_modules/', '<rootDir>/tests/'],
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
 };
 
