@@ -7,10 +7,10 @@ const DomainErrorTranslator = {
 };
 
 DomainErrorTranslator._directories = {
-  'REGISTER_USER_ENTITY.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY': new InvariantError('tidak dapat membuat user baru karena properti yang dibutuhkan tidak ada'),
-  'REGISTER_USER_ENTITY.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION': new InvariantError('tidak dapat membuat user baru karena tipe data tidak sesuai'),
-  'REGISTER_USER_ENTITY.USERNAME_EXCEED_CHAR_LIMIT': new InvariantError('tidak dapat membuat user baru karena karakter username melebihi batas limit'),
-  'REGISTER_USER_ENTITY.USERNAME_CONTAIN_RESTRICTED_CHARACTER': new InvariantError('tidak dapat membuat user baru karena username mengandung karakter terlarang'),
+  'REGISTER_USER_ENTITY.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY': new InvariantError('tidak dapat membuat user baru, data tidak lengkap'),
+  'REGISTER_USER_ENTITY.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION': new InvariantError('tidak dapat membuat user baru, tipe data tidak sesuai'),
+  'REGISTER_USER_ENTITY.USERNAME_EXCEED_CHAR_LIMIT': new InvariantError('tidak dapat membuat user baru, username maksimal 50 karakter'),
+  'REGISTER_USER_ENTITY.USERNAME_CONTAIN_RESTRICTED_CHARACTER': new InvariantError('tidak dapat membuat user baru, username mengandung karakter terlarang'),
   'USER_LOGIN_ENTITY.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY': new InvariantError('harus mengirimkan username dan password'),
   'USER_LOGIN_ENTITY.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION': new InvariantError('username dan password harus string'),
   'NEW_THREAD_ENTITY.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY': new InvariantError('harus mengirimkan judul dan isi thread'),

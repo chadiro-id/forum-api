@@ -4,13 +4,13 @@ const InvariantError = require('../InvariantError');
 describe('DomainErrorTranslator', () => {
   it('should translate error correctly', () => {
     expect(DomainErrorTranslator.translate(new Error('REGISTER_USER_ENTITY.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY')))
-      .toStrictEqual(new InvariantError('tidak dapat membuat user baru karena properti yang dibutuhkan tidak ada'));
+      .toStrictEqual(new InvariantError('tidak dapat membuat user baru, data tidak lengkap'));
     expect(DomainErrorTranslator.translate(new Error('REGISTER_USER_ENTITY.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION')))
-      .toStrictEqual(new InvariantError('tidak dapat membuat user baru karena tipe data tidak sesuai'));
+      .toStrictEqual(new InvariantError('tidak dapat membuat user baru, tipe data tidak sesuai'));
     expect(DomainErrorTranslator.translate(new Error('REGISTER_USER_ENTITY.USERNAME_EXCEED_CHAR_LIMIT')))
-      .toStrictEqual(new InvariantError('tidak dapat membuat user baru karena karakter username melebihi batas limit'));
+      .toStrictEqual(new InvariantError('tidak dapat membuat user baru, username maksimal 50 karakter'));
     expect(DomainErrorTranslator.translate(new Error('REGISTER_USER_ENTITY.USERNAME_CONTAIN_RESTRICTED_CHARACTER')))
-      .toStrictEqual(new InvariantError('tidak dapat membuat user baru karena username mengandung karakter terlarang'));
+      .toStrictEqual(new InvariantError('tidak dapat membuat user baru, username mengandung karakter terlarang'));
     expect(DomainErrorTranslator.translate(new Error('USER_LOGIN_ENTITY.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY')))
       .toStrictEqual(new InvariantError('harus mengirimkan username dan password'));
     expect(DomainErrorTranslator.translate(new Error('USER_LOGIN_ENTITY.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION')))
