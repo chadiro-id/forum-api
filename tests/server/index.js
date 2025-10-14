@@ -35,7 +35,7 @@ exports.post = async (endpoint, options = {}) => {
 };
 
 exports.get = async (endpoint, options = {}) => {
-  return inject('GET', endpoint, options.headers);
+  return inject('GET', endpoint, options.headers, options.payload);
 };
 
 exports.put = async (endpoint, options = {}) => {
@@ -43,5 +43,5 @@ exports.put = async (endpoint, options = {}) => {
 };
 
 exports.delete = async (enpoint, options = {}) => {
-  return inject('DELETE', enpoint, options.headers);
+  return inject('DELETE', enpoint, options.headers, options.payload);
 };
