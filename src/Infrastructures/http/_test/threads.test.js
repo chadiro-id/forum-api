@@ -2,31 +2,40 @@ const pool = require('../../database/postgres/pool');
 const { createServer } = require('../server');
 const { registerUser, loginUser } = require('../../../../tests/ServerHelper');
 const container = require('../../containers/container');
-const { usersTable, authenticationsTable } = require('../../../../tests/db_helper/postgres');
+const {
+  usersTable,
+  authenticationsTable,
+  threadsTable,
+} = require('../../../../tests/db_helper/postgres');
+
+let server;
+let currentUserId;
+let accessToken;
+let currentThreadId;
+
+beforeAll(async () => {
+  console.log('BEFORE ALL');
+  server = await createServer(container);
+  currentUserId = await registerUser(server);
+  accessToken = await loginUser(server);
+});
+
+afterAll(async () => {
+  console.log('AFTER ALL');
+  await authenticationsTable.clean();
+  await usersTable.clean();
+  await pool.end();
+});
 
 describe('Threads Endpoints', () => {
-  let server;
-  let userId;
-  let accessToken;
-
-  beforeAll(async () => {
-    server = await createServer(container);
-    userId = await registerUser(server);
-    accessToken = await loginUser(server);
-  });
-
   beforeEach(async () => {
+    console.log('INIT SERVER');
     await server.initialize();
   });
 
   afterEach(async () => {
+    console.log('STOP SERVER');
     await server.stop();
-  });
-
-  afterAll(async () => {
-    await authenticationsTable.clean();
-    await usersTable.clean();
-    await pool.end();
   });
 
   describe('POST /threads', () => {
@@ -117,11 +126,47 @@ describe('Threads Endpoints', () => {
             addedThread: expect.objectContaining({
               id: expect.stringContaining('thread-'),
               title: 'Judul thread',
-              owner: `${userId}`,
+              owner: `${currentUserId}`,
             })
           })
         })
       );
+    });
+  });
+
+  describe('GET /threads/{threadId}', () => {
+    beforeEach(async () => {
+      console.log('ADD THREAD');
+      currentThreadId = await threadsTable.add({ owner: currentUserId });
+    });
+
+    afterEach(async () => {
+      console.log('CLEAN THREAD');
+      await threadsTable.clean();
+    });
+
+    describe('thread with empty comments', () => {
+      it('should response 200 and correct thread property', async () => {
+        const thread = await threadsTable.findById(currentThreadId);
+        console.log(thread);
+        const response = await server.inject({
+          method: 'GET',
+          url: `/threads/${currentThreadId}`,
+        });
+
+        const responseJson = JSON.parse(response.payload);
+
+        expect(response.statusCode).toBe(200);
+        expect(responseJson.status).toEqual('success');
+        expect(responseJson.data.thread.id).toEqual(expect.any(String));
+        expect(responseJson.data.thread.id).not.toBe('');
+        expect(responseJson.data.thread.title).toBe('Judul thread');
+        expect(responseJson.data.thread.body).toBe('Isi thread');
+        expect(Date.parse(responseJson.data.thread.date)).not.toBeNaN();
+        expect(responseJson.data.thread.username).toBe('forumapi');
+        expect(responseJson.data.thread.comments).toEqual(expect.any(Array));
+        expect(responseJson.data.thread.comments).toHaveLength(0);
+      });
     });
   });
 });
