@@ -1,4 +1,4 @@
-const table = (pool) => {
+const comments = (pool) => {
   const clean = async () => {
     await pool.query('DELETE FROM comments WHERE 1=1');
   };
@@ -8,4 +8,4 @@ const table = (pool) => {
   };
 };
 
-module.exports = table;
+module.exports = comments;
