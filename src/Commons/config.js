@@ -4,7 +4,7 @@ const config = {
   app: {
     host: process.env.HOST,
     port: process.env.PORT,
-    debug: ['development', 'test'].includes(process.env.NODE_ENV) ? { request: ['error'] } : {},
+    debug: ['development'].includes(process.env.NODE_ENV) ? { request: ['error'] } : {},
   },
   pgTest: {
     host: process.env.PGHOST_TEST,
