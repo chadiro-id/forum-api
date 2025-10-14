@@ -1,6 +1,5 @@
 /* istanbul ignore file */
-const tableHelper = (pool) => {
-
+const authentications = (pool) => {
   const addToken = async (token) => {
     const query = {
       text: 'INSERT INTO authentications VALUES($1)',
@@ -31,4 +30,4 @@ const tableHelper = (pool) => {
   };
 };
 
-module.exports = tableHelper;
+module.exports = authentications;
