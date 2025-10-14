@@ -15,7 +15,7 @@ const tableHelper = (pool) => {
     return result.rows[0].id;
   };
 
-  const findById = (id) => {
+  const findById = async (id) => {
     const query = {
       text: `
       SELECT
@@ -32,7 +32,7 @@ const tableHelper = (pool) => {
       values: [id],
     };
 
-    const result = pool.query(query);
+    const result = await pool.query(query);
     return result.rows.map(({
       id, title, body, created_at, username,
     }) => ({
