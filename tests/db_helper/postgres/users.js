@@ -7,12 +7,12 @@ const users = (pool) => {
     fullname = 'Forum Api',
   }) => {
     const query = {
-      text: 'INSERT INTO users VALUES($1, $2, $3, $4)',
+      text: 'INSERT INTO users VALUES($1, $2, $3, $4) RETURNING id, username',
       values: [id, username, password, fullname],
     };
 
-    await pool.query(query);
-    return id;
+    const result = await pool.query(query);
+    return result.rows[0];
   };
 
   const findById = async (id) => {
