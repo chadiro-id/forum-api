@@ -1,6 +1,6 @@
 /* istanbul ignore file */
-const tableHelper = (pool) => {
-  const addUser = async ({
+const users = (pool) => {
+  const add = async ({
     id = 'user-123',
     username = 'forumapi',
     password = 'supersecret^_^@01',
@@ -15,7 +15,7 @@ const tableHelper = (pool) => {
     return id;
   };
 
-  const findUsersById = async (id) => {
+  const findById = async (id) => {
     const query = {
       text: 'SELECT * FROM users WHERE id = $1',
       values: [id],
@@ -30,8 +30,8 @@ const tableHelper = (pool) => {
   };
 
   return {
-    addUser, findUsersById, clean
+    add, findById, clean
   };
 };
 
-module.exports = tableHelper;
+module.exports = users;
