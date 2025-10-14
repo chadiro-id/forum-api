@@ -1,137 +1,134 @@
 const pool = require('../../database/postgres/pool');
+const serverTest = require('../../../../tests/server');
 const { usersTable } = require('../../../../tests/db_helper/postgres');
-const container = require('../../containers/container');
-const { createServer } = require('../server');
 
-describe('/users endpoint', () => {
-  afterAll(async () => {
-    await pool.end();
-  });
+beforeAll(async () => {
+  await serverTest.init();
+  await usersTable.add({ id: 'user-1000', username: 'superuser' });
+});
 
+afterAll(async () => {
+  await usersTable.clean();
+  await pool.end();
+});
+
+describe('Users Endpoints', () => {
   beforeEach(async () => {
-    await usersTable.clean();
+    await serverTest.init();
   });
 
-  describe('when POST /users', () => {
+  afterEach(async () => {
+    await serverTest.stop();
+  });
+
+  describe('POST /users', () => {
+    const dummyPayload = {
+      username: 'johndoe',
+      password: 'supersecret^_^@01',
+      fullname: 'John Doe',
+    };
+
     it('should response 201 and persisted user', async () => {
-      const requestPayload = {
-        username: 'forumapi',
-        password: 'supersecret^_^@01',
-        fullname: 'Forum Api',
-      };
-
-      const server = await createServer(container);
-
-      const response = await server.inject({
-        method: 'POST',
-        url: '/users',
-        payload: requestPayload,
+      const response = await serverTest.post('/users', {
+        payload: { ...dummyPayload }
       });
 
       const responseJson = JSON.parse(response.payload);
       expect(response.statusCode).toEqual(201);
       expect(responseJson.status).toEqual('success');
-      expect(responseJson.data.addedUser).toBeDefined();
+      expect(responseJson.data.addedUser).toEqual({
+        id: expect.stringContaining('user-'),
+        username: dummyPayload.username,
+        fullname: dummyPayload.fullname,
+      });
     });
 
     it('should response 400 when request payload not contain needed property', async () => {
-      const requestPayload = {
-        fullname: 'Forum Api',
-        password: 'supersecret^_^@01',
-      };
-      const server = await createServer(container);
+      const requestPayload = { ...dummyPayload };
+      delete requestPayload.fullname;
 
-      const response = await server.inject({
-        method: 'POST',
-        url: '/users',
+      const response = await serverTest.post('/users', {
         payload: requestPayload,
       });
 
       const responseJson = JSON.parse(response.payload);
       expect(response.statusCode).toEqual(400);
       expect(responseJson.status).toEqual('fail');
-      expect(responseJson.message).toEqual('tidak dapat membuat user baru karena properti yang dibutuhkan tidak ada');
+      expect(responseJson.message).toEqual(
+        expect.stringContaining('data tidak lengkap')
+      );
     });
 
     it('should response 400 when request payload not meet data type specification', async () => {
       const requestPayload = {
-        username: 'forumapi',
-        password: 'supersecret^_^@01',
-        fullname: ['Forum Api'],
+        ...dummyPayload,
+        fullname: ['John Doe'],
       };
-      const server = await createServer(container);
 
-      const response = await server.inject({
-        method: 'POST',
-        url: '/users',
+      const response = await serverTest.post('/users', {
         payload: requestPayload,
       });
 
       const responseJson = JSON.parse(response.payload);
       expect(response.statusCode).toEqual(400);
       expect(responseJson.status).toEqual('fail');
-      expect(responseJson.message).toEqual('tidak dapat membuat user baru karena tipe data tidak sesuai');
+      expect(responseJson.message).toEqual(
+        expect.stringContaining('tipe data tidak sesuai')
+      );
     });
 
     it('should response 400 when username more than 50 character', async () => {
       const requestPayload = {
-        username: 'forumapiforumapiforumapiforumapiforumapiforumapiforumapi',
-        password: 'supersecret^_^@01',
-        fullname: 'Forum Api',
+        ...dummyPayload,
+        username: 'johndoejohndoejohndoejohndoejohndoejohndoejohndoejohndoe',
       };
-      const server = await createServer(container);
 
-      const response = await server.inject({
-        method: 'POST',
-        url: '/users',
+      const response = await serverTest.post('/users', {
         payload: requestPayload,
       });
 
       const responseJson = JSON.parse(response.payload);
       expect(response.statusCode).toEqual(400);
       expect(responseJson.status).toEqual('fail');
-      expect(responseJson.message).toEqual('tidak dapat membuat user baru karena karakter username melebihi batas limit');
+      expect(responseJson.message).toEqual(
+        expect.stringContaining('username maksimal 50 karakter')
+      );
     });
 
     it('should response 400 when username contain restricted character', async () => {
       const requestPayload = {
-        username: 'forum api',
-        password: 'supersecret^_^@01',
-        fullname: 'Forum Api',
+        ...dummyPayload,
+        username: 'john doe',
       };
-      const server = await createServer(container);
 
-      const response = await server.inject({
-        method: 'POST',
-        url: '/users',
+      const response = await serverTest.post('/users', {
         payload: requestPayload,
       });
 
       const responseJson = JSON.parse(response.payload);
       expect(response.statusCode).toEqual(400);
       expect(responseJson.status).toEqual('fail');
-      expect(responseJson.message).toEqual('tidak dapat membuat user baru karena username mengandung karakter terlarang');
+      expect(responseJson.message).toEqual(
+        expect.stringContaining('username mengandung karakter terlarang')
+      );
     });
 
     it('should response 400 when username unavailable', async () => {
-      await usersTable.add({ username: 'forumapi' });
       const requestPayload = {
-        username: 'forumapi',
-        fullname: 'Forum Api',
-        password: 'super_secret',
+        ...dummyPayload,
+        username: 'superuser',
       };
-      const server = await createServer(container);
 
-      const response = await server.inject({
-        method: 'POST',
-        url: '/users',
+      const response = await serverTest.post('/users', {
         payload: requestPayload,
       });
 
       const responseJson = JSON.parse(response.payload);
       expect(response.statusCode).toEqual(400);
       expect(responseJson.status).toEqual('fail');
-      expect(responseJson.message).toEqual('username tidak tersedia');
+      expect(responseJson.message).toEqual(
+        expect.stringContaining('username tidak tersedia')
+      );
     });
   });
 });
