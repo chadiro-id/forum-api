@@ -22,6 +22,7 @@ exports.init = async () => {
   }
 
   await server.initialize();
+  initialized = true;
 };
 
 exports.stop = async () => {
@@ -42,5 +43,5 @@ exports.put = async (endpoint, options = {}) => {
 };
 
 exports.delete = async (enpoint, options = {}) => {
-  return inject('DELETE', enpoint, options.headers, options.payload);
+  return inject('DELETE', enpoint, options.headers);
 };
