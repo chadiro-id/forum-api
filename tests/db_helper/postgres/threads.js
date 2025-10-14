@@ -1,5 +1,5 @@
 /* istanbul ignore file */
-const tableHelper = (pool) => {
+const threads = (pool) => {
   const add = async ({
     id = 'thread-123',
     title = 'Judul thread',
@@ -55,4 +55,4 @@ const tableHelper = (pool) => {
   };
 };
 
-module.exports = tableHelper;
+module.exports = threads;
