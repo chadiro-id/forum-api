@@ -6,11 +6,10 @@ const { authenticationsTable } = require('../db_helper/postgres');
 const getUserAuth = async ({ username = 'forumapi', id = 'user-123' }) => {
   const jwt = container.getInstance(AuthenticationTokenManager.name);
 
-  const accessToken = jwt.createAccessToken({ username, id });
-  const refreshToken = jwt.createAccessToken({ username, id });
+  const accessToken = await jwt.createAccessToken({ username, id });
+  const refreshToken = await jwt.createAccessToken({ username, id });
 
   authenticationsTable.addToken(refreshToken);
-
   return accessToken;
 };
 
