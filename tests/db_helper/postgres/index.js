@@ -1,13 +1,13 @@
 const pool = require('../../../src/Infrastructures/database/postgres/pool');
 
-const authenticationsTableHelper = require('./authenticationsTable');
-const usersTableHelper = require('./usersTable');
-const threadsTableHelper = require('./threadsTable');
-const commentsTableHelper = require('./commentsTable');
+const authentications = require('./authentications');
+const users = require('./users');
+const threads = require('./threads');
+const comments = require('./comments');
 
 module.exports = {
-  usersTable: usersTableHelper(pool),
-  authenticationsTable: authenticationsTableHelper(pool),
-  threadsTable: threadsTableHelper(pool),
-  commentsTable: commentsTableHelper(pool),
+  usersTable: users(pool),
+  authenticationsTable: authentications(pool),
+  threadsTable: threads(pool),
+  commentsTable: comments(pool),
 };
