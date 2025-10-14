@@ -1,7 +1,10 @@
 /* istanbul ignore file */
 const tableHelper = (pool) => {
   const addUser = async ({
-    id = 'user-123', username = 'forumapi', password = 'supersecret^_^@01', fullname = 'Forum Api',
+    id = 'user-123',
+    username = 'forumapi',
+    password = 'supersecret^_^@01',
+    fullname = 'Forum Api',
   }) => {
     const query = {
       text: 'INSERT INTO users VALUES($1, $2, $3, $4)',
@@ -9,6 +12,7 @@ const tableHelper = (pool) => {
     };
 
     await pool.query(query);
+    return id;
   };
 
   const findUsersById = async (id) => {
