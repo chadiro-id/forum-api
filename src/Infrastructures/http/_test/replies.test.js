@@ -9,13 +9,13 @@ const {
 } = require('../../../../tests/db_helper/postgres');
 
 let userA;
-let accessTokenA;
+let userAuthA;
 
 beforeAll(async () => {
   await serverTest.init();
 
   userA = await usersTable.add({ id: 'user-123', username: 'whoami' });
-  accessTokenA = await getUserAuth({ username: 'whoami', id: 'user-123' });
+  userAuthA = await getUserAuth({ ...userA });
 });
 
 afterAll(async () => {
@@ -26,10 +26,15 @@ afterAll(async () => {
 
 describe('Replies Endpoints', () => {
   let threadId, commentId;
+  let authorizationUserA;
 
   beforeAll(async () => {
-    threadId = await threadsTable.add({ owner: userA });
-    commentId = await commentsTable.add({ owner: userA });
+    threadId = await threadsTable.add({ owner: userA.id });
+    commentId = await commentsTable.add({ owner: userA.id });
+
+    authorizationUserA = {
+      Authorization: `Bearer ${userAuthA.accessToken}`
+    };
   });
 
   beforeEach(async () => {
@@ -47,10 +52,10 @@ describe('Replies Endpoints', () => {
 
   describe('POST /threads/{threadId}/comments/{commentId}/replies', () => {
     it('should response 401 when request with no authentication', async () => {
-      const response = await serverTest.post(
-        `/threads/${threadId}/comments/${commentId}/replies`,
-        { payload: { content: 'Sebuah balasan' } }
-      );
+      const endpoint = `/threads/${threadId}/comments/${commentId}/replies`;
+      const response = await serverTest.post(endpoint, {
+        payload: { content: 'Sebuah balasan' }
+      });
 
       const responseJson = JSON.parse(response.payload);
       expect(response.statusCode).toBe(401);
@@ -58,10 +63,10 @@ describe('Replies Endpoints', () => {
       expect(responseJson.message).toEqual('Missing authentication');
     });
 
-    it('should response 404 when request for not existing thread', async () => {
+    it('should response 404 when request for a thread that does not exists', async () => {
       const endpoint = `/threads/xxx/comments/${commentId}/replies`;
       const options = {
-        headers: { Authorization: `Bearer ${accessTokenA}` },
+        headers: { ...authorizationUserA },
         payload: { content: 'Sebuah balasan' },
       };
 
@@ -69,7 +74,7 @@ describe('Replies Endpoints', () => {
 
       const responseJson = JSON.parse(response.payload);
       expect(response.statusCode).toBe(404);
-      expect(responseJson.status).toEqual('fail');
+      expect(responseJson.status).toBe('fail');
       expect(responseJson.message).toEqual(expect.any(String));
       expect(responseJson.message).not.toBe('');
     });
