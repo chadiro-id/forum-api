@@ -1,23 +1,21 @@
 const pool = require('../../database/postgres/pool');
-const { createServer } = require('../server');
-const { registerUser, loginUser } = require('../../../../tests/ServerHelper');
-const container = require('../../containers/container');
+const serverTest = require('../../../../tests/server');
+const { getUserAuth } = require('../../../../tests/server/helper');
 const {
   usersTable,
   authenticationsTable,
   threadsTable,
 } = require('../../../../tests/db_helper/postgres');
 
-let server;
-let currentUserId;
+let userId;
 let accessToken;
-let currentThreadId;
 
 beforeAll(async () => {
   console.log('BEFORE ALL');
-  server = await createServer(container);
-  currentUserId = await registerUser(server);
-  accessToken = await loginUser(server);
+  await serverTest.init();
+  userId = await usersTable.add({ id: 'user-123', username: 'forumapi' });
+  accessToken = await getUserAuth({ id: 'user-123', username: 'forumapi' });
+  console.log('before all:', accessToken);
 });
 
 afterAll(async () => {
@@ -30,114 +28,89 @@ afterAll(async () => {
 describe('Threads Endpoints', () => {
   beforeEach(async () => {
     console.log('INIT SERVER');
-    await server.initialize();
+    await serverTest.init();
+    console.log(accessToken);
   });
 
   afterEach(async () => {
     console.log('STOP SERVER');
-    await server.stop();
+    await serverTest.stop();
   });
 
   describe('POST /threads', () => {
+    let authorization;
+    const dummyPayload = {
+      title: 'Judul thread',
+      body: 'Sebuah thread',
+    };
+
+    beforeAll(async () => {
+      authorization = {
+        Authorization: `Bearer ${accessToken}`
+      };
+    });
+
     it('should response 401 when request with no authentication', async () => {
-      const response = await server.inject({
-        method: 'POST',
-        url: '/threads',
+      const response = await serverTest.post('/threads', {
+        payload: { ...dummyPayload }
       });
 
       const responseJson = JSON.parse(response.payload);
       expect(response.statusCode).toEqual(401);
-      expect(responseJson).toEqual(
-        expect.objectContaining({
-          error: expect.stringContaining('Unauthorized'),
-          message: expect.stringContaining('Missing authentication'),
-        })
-      );
+      expect(responseJson.error).toEqual('Unauthorized');
+      expect(responseJson.message).toEqual('Missing authentication');
     });
 
     it('should response 400 when request payload not contain needed property', async () => {
-      const requestPayload = {
-        title: 'Judul thread',
-      };
-
-      const response = await server.inject({
-        method: 'POST',
-        url: '/threads',
-        payload: requestPayload,
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
+      const response = await serverTest.post('/threads', {
+        headers: { ...authorization },
+        payload: {}
       });
 
       const responseJson = JSON.parse(response.payload);
       expect(response.statusCode).toBe(400);
-      expect(responseJson).toEqual({
-        status: 'fail',
-        message: expect.any(String)
-      });
+      expect(responseJson.status).toBe('fail');
+      expect(responseJson.message).toEqual(expect.any(String));
+      expect(responseJson.message).not.toBe('');
     });
 
     it('should response 400 when request payload does not meet data type specification', async () => {
-      const payload = {
-        title: 123,
-        body: 'Isi thread',
-      };
-
-      const response = await server.inject({
-        method: 'POST',
-        url: '/threads',
-        payload: payload,
-        headers: {
-          Authorization: `Bearer ${accessToken}`
-        }
+      const response = await serverTest.post('/threads', {
+        headers: { ...authorization },
+        payload: { ...dummyPayload, body: 123 },
       });
 
       const responseJson = JSON.parse(response.payload);
       expect(response.statusCode).toBe(400);
-      expect(responseJson).toEqual(
-        expect.objectContaining({
-          status: 'fail',
-          message: expect.any(String),
-        })
-      );
+      expect(responseJson.status).toBe('fail');
+      expect(responseJson.message).toEqual(expect.any(String));
+      expect(responseJson.message).not.toBe('');
     });
 
     it('should response 201 and return the persisted thread', async () => {
-      const payload = {
-        title: 'Judul thread',
-        body: 'Isi thread',
-      };
-
-      const response = await server.inject({
-        method: 'POST',
-        url: '/threads',
-        payload: payload,
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
+      const response = await serverTest.post('/threads', {
+        headers: { ...authorization },
+        payload: { ...dummyPayload },
       });
 
       const responseJson = JSON.parse(response.payload);
       expect(response.statusCode).toBe(201);
-      expect(responseJson).toEqual(
-        expect.objectContaining({
-          status: 'success',
-          data: expect.objectContaining({
-            addedThread: expect.objectContaining({
-              id: expect.stringContaining('thread-'),
-              title: 'Judul thread',
-              owner: `${currentUserId}`,
-            })
-          })
-        })
-      );
+      expect(responseJson.status).toBe('success');
+      expect(responseJson.data).toHaveProperty('addedThread');
+      expect(responseJson.data.addedThread).toEqual({
+        id: expect.stringContaining('thread-'),
+        title: dummyPayload.title,
+        owner: userId,
+      });
     });
   });
 
   describe('GET /threads/{threadId}', () => {
+    let threadId;
+
     beforeEach(async () => {
       console.log('ADD THREAD');
-      currentThreadId = await threadsTable.add({ owner: currentUserId });
+      threadId = await threadsTable.add({ owner: userId });
     });
 
     afterEach(async () => {
@@ -145,28 +118,21 @@ describe('Threads Endpoints', () => {
       await threadsTable.clean();
     });
 
-    describe('thread with empty comments', () => {
-      it('should response 200 and correct thread property', async () => {
-        const thread = await threadsTable.findById(currentThreadId);
-        console.log(thread);
-        const response = await server.inject({
-          method: 'GET',
-          url: `/threads/${currentThreadId}`,
-        });
+    it('should response 200 and correct thread property', async () => {
+      const response = await serverTest.get(`/threads/${threadId}`);
 
-        const responseJson = JSON.parse(response.payload);
+      const responseJson = JSON.parse(response.payload);
 
-        expect(response.statusCode).toBe(200);
-        expect(responseJson.status).toEqual('success');
-        expect(responseJson.data.thread.id).toEqual(expect.any(String));
-        expect(responseJson.data.thread.id).not.toBe('');
-        expect(responseJson.data.thread.title).toBe('Judul thread');
-        expect(responseJson.data.thread.body).toBe('Isi thread');
-        expect(Date.parse(responseJson.data.thread.date)).not.toBeNaN();
-        expect(responseJson.data.thread.username).toBe('forumapi');
-        expect(responseJson.data.thread.comments).toEqual(expect.any(Array));
-        expect(responseJson.data.thread.comments).toHaveLength(0);
-      });
+      expect(response.statusCode).toBe(200);
+      expect(responseJson.status).toEqual('success');
+      expect(responseJson.data.thread.id).toEqual(expect.any(String));
+      expect(responseJson.data.thread.id).not.toBe('');
+      expect(responseJson.data.thread.title).toBe('Judul thread');
+      expect(responseJson.data.thread.body).toBe('Isi thread');
+      expect(Date.parse(responseJson.data.thread.date)).not.toBeNaN();
+      expect(responseJson.data.thread.username).toBe('forumapi');
+      expect(responseJson.data.thread.comments).toEqual(expect.any(Array));
+      expect(responseJson.data.thread.comments).toHaveLength(0);
     });
   });
 });
