@@ -118,7 +118,7 @@ describe('Threads Endpoints', () => {
       await threadsTable.clean();
     });
 
-    it('should response 200 and correct thread property', async () => {
+    it('should response 200 and correct body property', async () => {
       const response = await serverTest.get(`/threads/${threadId}`);
 
       const responseJson = JSON.parse(response.payload);
