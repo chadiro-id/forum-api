@@ -9,7 +9,7 @@ const {
 } = require('../../../../tests/db_helper/postgres');
 
 let userA;
-let accessTokenA;
+let userAuthA;
 // let userB;
 // let accessTokenB;
 
@@ -19,7 +19,7 @@ beforeAll(async () => {
   userA = await usersTable.add({ id: 'user-123', username: 'whoami' });
   // userB = await usersTable.add({ id: 'user-456', username: 'johndoe' });
 
-  accessTokenA = await getUserAuth({ id: 'user-123', username: 'whoami' });
+  userAuthA = await getUserAuth({ ...userA });
   // accessTokenB = await getUserAuth({ id: 'user-456', username: 'johndoe' });
 });
 
@@ -40,9 +40,13 @@ describe('Comments Endpoints', () => {
 
   describe('POST /threads/{threadId}/comments', () => {
     let currentThreadId;
+    let authorizationUserA;
 
     beforeAll(async () => {
-      currentThreadId = await threadsTable.add({ owner: userA });
+      currentThreadId = await threadsTable.add({ owner: userA.id });
+      authorizationUserA = {
+        Authorization: `Bearer ${userAuthA.accessToken}`,
+      };
     });
 
     afterAll(async () => {
@@ -58,19 +62,13 @@ describe('Comments Endpoints', () => {
       expect(responseJson.message).toEqual('Missing authentication');
     });
 
-    it('should response 404 when request for not exist thread', async () => {
+    it('should response 404 when request for a thread that does not exists', async () => {
       const response = await serverTest.post('/threads/xxx/comments', {
-        headers: {
-          Authorization: `Bearer ${accessTokenA}`,
-        },
-        payload: {
-          content: 'Sebuah komentar',
-        },
+        headers: { ...authorizationUserA },
+        payload: { content: 'Sebuah komentar' },
       });
-      console.log(accessTokenA);
 
       const responseJson = JSON.parse(response.payload);
-      console.log(responseJson);
       expect(response.statusCode).toBe(404);
       expect(responseJson.status).toEqual('fail');
       expect(responseJson.message).toEqual(expect.any(String));
@@ -79,12 +77,8 @@ describe('Comments Endpoints', () => {
 
     it('should response 400 when request payload not contain needed property', async () => {
       const response = await serverTest.post(`/threads/${currentThreadId}/comments`, {
-        headers: {
-          Authorization: `Bearer ${accessTokenA}`,
-        },
-        payload: {
-          contents: 'Sebuah komentar',
-        },
+        headers: { ...authorizationUserA },
+        payload: { contents: 'Sebuah komentar' },
       });
 
       const responseJson = JSON.parse(response.payload);
