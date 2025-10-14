@@ -7,15 +7,14 @@ const {
   threadsTable,
 } = require('../../../../tests/db_helper/postgres');
 
-let userId;
-let accessToken;
+let currentUser;
+let currentUserAuth;
 
 beforeAll(async () => {
   console.log('BEFORE ALL');
   await serverTest.init();
-  userId = await usersTable.add({ id: 'user-123', username: 'forumapi' });
-  accessToken = await getUserAuth({ id: 'user-123', username: 'forumapi' });
-  console.log('before all:', accessToken);
+  currentUser = await usersTable.add({ username: 'whoami' });
+  currentUserAuth = await getUserAuth({ username: 'whoami' });
 });
 
 afterAll(async () => {
@@ -29,7 +28,6 @@ describe('Threads Endpoints', () => {
   beforeEach(async () => {
     console.log('INIT SERVER');
     await serverTest.init();
-    console.log(accessToken);
   });
 
   afterEach(async () => {
@@ -46,7 +44,7 @@ describe('Threads Endpoints', () => {
 
     beforeAll(async () => {
       authorization = {
-        Authorization: `Bearer ${accessToken}`
+        Authorization: `Bearer ${currentUserAuth.accessToken}`
       };
     });
 
@@ -100,7 +98,7 @@ describe('Threads Endpoints', () => {
       expect(responseJson.data.addedThread).toEqual({
         id: expect.stringContaining('thread-'),
         title: dummyPayload.title,
-        owner: userId,
+        owner: currentUser.id,
       });
     });
   });
@@ -110,7 +108,7 @@ describe('Threads Endpoints', () => {
 
     beforeEach(async () => {
       console.log('ADD THREAD');
-      threadId = await threadsTable.add({ owner: userId });
+      threadId = await threadsTable.add({ owner: currentUser.id });
     });
 
     afterEach(async () => {
@@ -130,7 +128,7 @@ describe('Threads Endpoints', () => {
       expect(responseJson.data.thread.title).toBe('Judul thread');
       expect(responseJson.data.thread.body).toBe('Isi thread');
       expect(Date.parse(responseJson.data.thread.date)).not.toBeNaN();
-      expect(responseJson.data.thread.username).toBe('forumapi');
+      expect(responseJson.data.thread.username).toBe(currentUser.username);
       expect(responseJson.data.thread.comments).toEqual(expect.any(Array));
       expect(responseJson.data.thread.comments).toHaveLength(0);
     });
