@@ -16,7 +16,7 @@ describe('UserRepositoryPostgres', () => {
 
   describe('#verifyAvailableUsername', () => {
     it('must throw InvariantError when username not available', async () => {
-      await usersTable.addUser({
+      await usersTable.add({
         username: 'forumapi',
       });
       const userRepositoryPostgres = new UserRepositoryPostgres(pool, {});
@@ -47,7 +47,7 @@ describe('UserRepositoryPostgres', () => {
 
       await userRepositoryPostgres.addUser(registerUserEntity);
 
-      const users = await usersTable.findUsersById('user-123');
+      const users = await usersTable.findById('user-123');
       expect(users).toHaveLength(1);
     });
 
@@ -81,7 +81,7 @@ describe('UserRepositoryPostgres', () => {
 
     it('must correctly return the password related to the given username when exists', async () => {
       const userRepositoryPostgres = new UserRepositoryPostgres(pool, {});
-      await usersTable.addUser({
+      await usersTable.add({
         username: 'forumapi',
         password: 'secret_password',
       });
@@ -101,7 +101,7 @@ describe('UserRepositoryPostgres', () => {
     });
 
     it('should return user id correctly', async () => {
-      await usersTable.addUser({ id: 'user-321', username: 'forumapi' });
+      await usersTable.add({ id: 'user-321', username: 'forumapi' });
       const userRepositoryPostgres = new UserRepositoryPostgres(pool, {});
 
       const userId = await userRepositoryPostgres.getIdByUsername('forumapi');

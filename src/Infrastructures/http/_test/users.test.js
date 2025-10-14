@@ -114,7 +114,7 @@ describe('/users endpoint', () => {
     });
 
     it('should response 400 when username unavailable', async () => {
-      await usersTable.addUser({ username: 'forumapi' });
+      await usersTable.add({ username: 'forumapi' });
       const requestPayload = {
         username: 'forumapi',
         fullname: 'Forum Api',

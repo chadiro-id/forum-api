@@ -16,8 +16,8 @@ let accessTokenA;
 beforeAll(async () => {
   await serverTest.init();
 
-  userA = await usersTable.addUser({ id: 'user-123', username: 'whoami' });
-  // userB = await usersTable.addUser({ id: 'user-456', username: 'johndoe' });
+  userA = await usersTable.add({ id: 'user-123', username: 'whoami' });
+  // userB = await usersTable.add({ id: 'user-456', username: 'johndoe' });
 
   accessTokenA = await getUserAuth({ id: 'user-123', username: 'whoami' });
   // accessTokenB = await getUserAuth({ id: 'user-456', username: 'johndoe' });
