@@ -9,7 +9,7 @@ const getUserAuth = async ({ username = 'forumapi', id = 'user-123' }) => {
   const accessToken = await jwt.createAccessToken({ username, id });
   const refreshToken = await jwt.createAccessToken({ username, id });
 
-  authenticationsTable.addToken(refreshToken);
+  await authenticationsTable.addToken(refreshToken);
   return accessToken;
 };
 
