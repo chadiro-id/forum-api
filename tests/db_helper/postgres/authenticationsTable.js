@@ -8,6 +8,7 @@ const tableHelper = (pool) => {
     };
 
     await pool.query(query);
+    return token;
   };
 
   const findToken = async (token) => {
