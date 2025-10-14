@@ -10,7 +10,7 @@ const getUserAuth = async ({ username = 'forumapi', id = 'user-123' }) => {
   const refreshToken = await jwt.createAccessToken({ username, id });
 
   await authenticationsTable.addToken(refreshToken);
-  return accessToken;
+  return { accessToken, refreshToken };
 };
 
 module.exports = { getUserAuth };
