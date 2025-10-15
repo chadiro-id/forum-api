@@ -21,6 +21,10 @@ class NewThread {
     ) {
       throw new Error('NEW_THREAD.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
     }
+
+    if (title.length > 255) {
+      throw new Error('NEW_THREAD.TITLE_EXCEED_CHAR_LIMIT');
+    }
   }
 }
 
