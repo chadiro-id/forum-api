@@ -1,7 +1,6 @@
 const AddThreadUseCase = require('../../../../Applications/use_case/threads/AddThreadUseCase');
 const GetDetailThreadUseCase = require('../../../../Applications/use_case/threads/GetDetailThreadUseCase');
 const InvariantError = require('../../../../Commons/exceptions/InvariantError');
-const NewThread = require('../../../../Domains/threads/entities/NewThread');
 
 class ThreadsHandler {
   constructor(container) {
@@ -13,15 +12,11 @@ class ThreadsHandler {
 
   async postThreadHandler(request, h) {
     this._validatePayload(request.payload);
-    const { id: credentialId } = request.auth.credentials;
+    const { id: owner } = request.auth.credentials;
     const { title, body } = request.payload;
 
-    const newThread = new NewThread({
-      title, body, owner: credentialId
-    });
-
     const addThreadUseCase = this._container.getInstance(AddThreadUseCase.name);
-    const addedThread = await addThreadUseCase.execute(newThread);
+    const addedThread = await addThreadUseCase.execute({ title, body, owner });
 
     const response = h.response({
       status: 'success',
