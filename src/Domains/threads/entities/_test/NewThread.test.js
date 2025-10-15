@@ -46,6 +46,16 @@ describe('NewThread Entity', () => {
       expect(() => new NewThread(ownerNotString))
         .toThrow('NEW_THREAD.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
     });
+
+    it('should throw error when title contains more than 255 character', () => {
+      const payload = {
+        ...dummyPayload,
+        title: 'Judul thread'.repeat(25),
+      };
+
+      expect(() => new NewThread(payload))
+        .toThrow('NEW_THREAD.TITLE_EXCEED_CHAR_LIMIT');
+    });
   });
 
   describe('Correct payload', () => {
