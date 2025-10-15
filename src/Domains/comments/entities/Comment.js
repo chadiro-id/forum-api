@@ -10,6 +10,7 @@ class Comment {
     this.content = payload.content;
     this.date = payload.date;
     this.username = payload.username;
+    this.replies = payload.replies || [];
   }
 
   _validatePayload(payload) {
@@ -49,7 +50,7 @@ class Comment {
   }
 
   get replies() {
-    return this._replies || [];
+    return this._replies;
   }
 
   toJSON() {
