@@ -10,11 +10,11 @@ class UserLogin {
     const { username, password } = payload;
 
     if (!username || !password) {
-      throw new Error('USER_LOGIN_ENTITY.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
+      throw new Error('USER_LOGIN.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
     }
 
     if (typeof username !== 'string' || typeof password !== 'string') {
-      throw new Error('USER_LOGIN_ENTITY.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
+      throw new Error('USER_LOGIN.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
     }
   }
 }
