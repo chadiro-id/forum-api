@@ -1,4 +1,5 @@
 class DetailThreadEntity {
+  _comments;
   constructor(payload) {
     this._verifyPayload(payload);
 
@@ -32,6 +33,17 @@ class DetailThreadEntity {
     if (Number.isNaN(ms)) {
       throw new Error('DETAIL_THREAD.INVALID_DATE_STRING');
     }
+  }
+
+  set comments(value) {
+    if (!value || !Array.isArray(value)) {
+      throw new Error('DETAIL_THREAD.COMMENTS_MUST_BE_AN_ARRAY');
+    }
+    this._comments = value;
+  }
+
+  get comments() {
+    return this._comments || [];
   }
 }
 
