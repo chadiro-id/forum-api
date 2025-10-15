@@ -44,7 +44,7 @@ describe('Authentications Endpoints', () => {
       await usersTable.clean();
     });
 
-    it('should response 201 and new authentication', async () => {
+    it('should response 201 and user authentication', async () => {
       const response = await serverTest.post('/authentications', {
         payload: { ...loginUser }
       });
@@ -56,7 +56,7 @@ describe('Authentications Endpoints', () => {
       expect(responseJson.data.refreshToken).toBeDefined();
     });
 
-    it('should response 400 if username not found', async () => {
+    it('should response 400 when username is unknown', async () => {
       const response = await serverTest.post('/authentications', {
         payload: { ...loginUser, username: 'johnnnndoe' }
       });
@@ -67,7 +67,7 @@ describe('Authentications Endpoints', () => {
       expect(responseJson.message).toEqual('username tidak ditemukan');
     });
 
-    it('should response 401 if password wrong', async () => {
+    it('should response 401 when password is incorrect', async () => {
       const requestPayload = {
         ...loginUser,
         password: 'wrong_password',
@@ -83,21 +83,7 @@ describe('Authentications Endpoints', () => {
       expect(responseJson.message).toEqual('kredensial yang Anda masukkan salah');
     });
 
-    it('should response 400 if login payload not contain needed property', async () => {
-      const requestPayload = {
-        username: 'johndoe',
-      };
-      const response = await serverTest.post('/authentications', {
-        payload: requestPayload,
-      });
-
-      const responseJson = JSON.parse(response.payload);
-      expect(response.statusCode).toEqual(400);
-      expect(responseJson.status).toEqual('fail');
-      expect(responseJson.message).toEqual('harus mengirimkan username dan password');
-    });
-
-    it('should response 400 if login payload wrong data type', async () => {
+    it('should response 400 when login payload has wrong data type', async () => {
       const requestPayload = {
         username: 123,
         password: 'secret',
@@ -111,6 +97,20 @@ describe('Authentications Endpoints', () => {
       expect(response.statusCode).toEqual(400);
       expect(responseJson.status).toEqual('fail');
       expect(responseJson.message).toEqual('username dan password harus string');
+    });
+
+    it('should response 400 when login payload not contain needed property', async () => {
+      const requestPayload = {
+        username: 'johndoe',
+      };
+      const response = await serverTest.post('/authentications', {
+        payload: requestPayload,
+      });
+
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(400);
+      expect(responseJson.status).toEqual('fail');
+      expect(responseJson.message).toEqual('harus mengirimkan username dan password');
     });
   });
 
@@ -126,7 +126,7 @@ describe('Authentications Endpoints', () => {
       await usersTable.clean();
     });
 
-    it('should return 200 and new access token', async () => {
+    it('should response 200 and new access token', async () => {
       const loginResponse = await serverTest.post('/authentications', {
         payload: { ...loginUser },
       });
@@ -142,7 +142,7 @@ describe('Authentications Endpoints', () => {
       expect(responseJson.data.accessToken).toBeDefined();
     });
 
-    it('should return 400 payload not contain refresh token', async () => {
+    it('should response 400 when payload not contain refresh token', async () => {
       const response = await serverTest.put('/authentications', {
         payload: { refreshTokens: '' },
       });
@@ -153,7 +153,7 @@ describe('Authentications Endpoints', () => {
       expect(responseJson.message).toEqual('harus mengirimkan token refresh');
     });
 
-    it('should return 400 if refresh token not string', async () => {
+    it('should response 400 when refresh token not string', async () => {
       const response = await serverTest.put('/authentications', {
         payload: { refreshToken: 123 },
       });
@@ -164,7 +164,7 @@ describe('Authentications Endpoints', () => {
       expect(responseJson.message).toEqual('refresh token harus string');
     });
 
-    it('should return 400 if refresh token not valid', async () => {
+    it('should response 400 when refresh token not valid', async () => {
       const response = await serverTest.put('/authentications', {
         payload: {
           refreshToken: 'invalid_refresh_token',
@@ -177,7 +177,7 @@ describe('Authentications Endpoints', () => {
       expect(responseJson.message).toEqual('refresh token tidak valid');
     });
 
-    it('should return 400 if refresh token not registered in database', async () => {
+    it('should response 400 when refresh token not registered in database', async () => {
       const refreshToken = await container.getInstance(AuthenticationTokenManager.name)
         .createRefreshToken({ username: 'johndoe' });
 
@@ -192,7 +192,7 @@ describe('Authentications Endpoints', () => {
     });
   });
 
-  describe('when DELETE /authentications', () => {
+  describe('DELETE /authentications', () => {
     beforeAll(async () => {
       await authenticationsTable.addToken('registered_refresh_token');
     });
@@ -201,9 +201,8 @@ describe('Authentications Endpoints', () => {
       await authenticationsTable.clean();
     });
 
-    it('should response 200 if refresh token valid', async () => {
+    it('should response 200 when refresh token is valid', async () => {
       const refreshToken = 'registered_refresh_token';
-      // await authenticationsTable.addToken(refreshToken);
 
       const response = await serverTest.delete('/authentications', {
         payload: { refreshToken },
@@ -214,20 +213,7 @@ describe('Authentications Endpoints', () => {
       expect(responseJson.status).toEqual('success');
     });
 
-    it('should response 400 if refresh token not registered in database', async () => {
-      const refreshToken = 'refresh_token';
-
-      const response = await serverTest.delete('/authentications', {
-        payload: { refreshToken },
-      });
-
-      const responseJson = JSON.parse(response.payload);
-      expect(response.statusCode).toBe(400);
-      expect(responseJson.status).toEqual('fail');
-      expect(responseJson.message).toEqual('refresh token tidak ditemukan di database');
-    });
-
-    it('should response 400 if payload not contain refresh token', async () => {
+    it('should response 400 when payload not contain refresh token', async () => {
       const response = await serverTest.delete('/authentications', {
         payload: {},
       });
@@ -238,7 +224,7 @@ describe('Authentications Endpoints', () => {
       expect(responseJson.message).toEqual('harus mengirimkan token refresh');
     });
 
-    it('should response 400 if refresh token not string', async () => {
+    it('should response 400 when refresh token not string', async () => {
       const response = await serverTest.delete('/authentications', {
         payload: {
           refreshToken: 123,
@@ -249,6 +235,19 @@ describe('Authentications Endpoints', () => {
       expect(response.statusCode).toBe(400);
       expect(responseJson.status).toEqual('fail');
       expect(responseJson.message).toEqual('refresh token harus string');
+    });
+
+    it('should response 400 when refresh token not registered in database', async () => {
+      const refreshToken = 'refresh_token';
+
+      const response = await serverTest.delete('/authentications', {
+        payload: { refreshToken },
+      });
+
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toBe(400);
+      expect(responseJson.status).toEqual('fail');
+      expect(responseJson.message).toEqual('refresh token tidak ditemukan di database');
     });
   });
 });
