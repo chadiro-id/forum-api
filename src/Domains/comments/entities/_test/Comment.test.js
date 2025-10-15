@@ -1,3 +1,4 @@
+const Reply = require('../../../replies/entities/Reply');
 const Comment = require('../Comment');
 
 describe('Comment Entity', () => {
@@ -102,7 +103,7 @@ describe('Comment Entity', () => {
       expect(replies).toHaveLength(0);
     });
 
-    it('should throw error when set value is not an array', () => {
+    it('should throw error when set non-array value', () => {
       const numVal = 123;
       const stringVal = 'replies';
       const objVal = { replies: {} };
@@ -117,9 +118,23 @@ describe('Comment Entity', () => {
         .toThrow('COMMENT.REPLIES_MUST_BE_AN_ARRAY');
     });
 
+    it('should throw error when value contain invalid element', () => {
+      const reply = new Reply({ ...dummyPayload });
+      const arrContainString = [reply, '2'];
+      const arrContainNum = [1, reply];
+
+      const comment = new Comment(dummyPayload);
+
+      expect(() => comment.replies = arrContainString)
+        .toThrow('COMMENT.REPLIES_INVALID_ELEMENT');
+      expect(() => comment.replies = arrContainNum)
+        .toThrow('COMMENT.REPLIES_INVALID_ELEMENT');
+    });
+
     it('should correctly set replies', () => {
       const comment = new Comment(dummyPayload);
-      comment.replies = ['Reply'];
+      const reply = new Reply(dummyPayload);
+      comment.replies = [reply];
 
       const replies = comment.replies;
 
