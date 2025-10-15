@@ -1,6 +1,11 @@
 class Comment {
   constructor(payload) {
     this._validatePayload(payload);
+
+    this.id = payload.id;
+    this.content = payload.content;
+    this.date = payload.date;
+    this.username = payload.username;
   }
 
   _validatePayload(payload) {
