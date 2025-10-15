@@ -65,4 +65,30 @@ describe('Reply Entity', () => {
         .toThrow('REPLY.INVALID_DATE_STRING');
     });
   });
+
+  describe('Correct payload', () => {
+    it('should correctly create the entity', () => {
+      const payload = { ...dummyPayload };
+
+      const { id, content, date, username } = new Reply(payload);
+
+      expect(id).toEqual(payload.id);
+      expect(content).toEqual(payload.content);
+      expect(date).toEqual(payload.date);
+      expect(username).toEqual(payload.username);
+    });
+
+    it('should correctly create the entity and not contain extra property', () => {
+      const extraPayload = { ...dummyPayload, extra: 'Something extra' };
+
+      const reply = new Reply(extraPayload);
+
+      expect(reply.id).toEqual(extraPayload.id);
+      expect(reply.content).toEqual(extraPayload.content);
+      expect(reply.date).toEqual(extraPayload.date);
+      expect(reply.username).toEqual(extraPayload.username);
+
+      expect(reply.extra).toBeUndefined();
+    });
+  });
 });
