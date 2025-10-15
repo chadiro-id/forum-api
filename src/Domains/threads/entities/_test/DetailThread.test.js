@@ -1,3 +1,4 @@
+const Comment = require('../../../comments/entities/Comment');
 const DetailThread = require('../DetailThread');
 
 describe('DetailThread Entity', () => {
@@ -104,6 +105,13 @@ describe('DetailThread Entity', () => {
   });
 
   describe('Comments', () => {
+    const dummyComment = {
+      id: 'comment-123',
+      content: 'Sebuah komentar',
+      username: 'johndoe',
+      date: dummyPayload.date,
+    };
+
     it('should return empty array as default value', () => {
       const detailThread = new DetailThread(dummyPayload);
 
@@ -113,7 +121,7 @@ describe('DetailThread Entity', () => {
       expect(comments).toHaveLength(0);
     });
 
-    it('should throw error when set value is not an array', () => {
+    it('should throw error when set non-array value', () => {
       const numVal = 123;
       const stringVal = 'comments';
       const objVal = { comments: {} };
@@ -128,13 +136,50 @@ describe('DetailThread Entity', () => {
         .toThrow('DETAIL_THREAD.COMMENTS_MUST_BE_AN_ARRAY');
     });
 
-    it('should correctly set when value is an array', () => {
+    it('should throw error when value contain invalid element', () => {
+      const comment = new Comment({ ...dummyComment });
+
+      const arrContainString = [comment, 'comment'];
+      const arrContainObj = [{}, comment];
+
+      const thread = new DetailThread({ ...dummyPayload });
+
+      expect(() => thread.comments = arrContainString)
+        .toThrow('DETAIL_THREAD.COMMENTS_INVALID_ELEMENT');
+      expect(() => thread.comments = arrContainObj)
+        .toThrow('DETAIL_THREAD.COMMENTS_INVALID_ELEMENT');
+    });
+
+    it('should correctly set comments', () => {
+      const comment = new Comment({ ...dummyComment });
       const detailThread = new DetailThread(dummyPayload);
-      detailThread.comments = ['Comment'];
+      detailThread.comments = [comment, comment];
 
       const comments = detailThread.comments;
 
-      expect(comments).toHaveLength(1);
+      expect(comments).toHaveLength(2);
+      expect(comments).toEqual([comment, comment]);
+    });
+
+    it('should correctly serialize to JSON', () => {
+      const comment1 = new Comment(dummyComment);
+      const comment2 = new Comment({ ...dummyComment, id: 'comment-456' });
+
+      const thread = new DetailThread(dummyPayload);
+      thread.comments = [comment1, comment2];
+
+      const jsonString = JSON.stringify(thread);
+      const json = JSON.parse(jsonString);
+      console.log(json);
+
+      expect(json).toEqual({
+        id: dummyPayload.id,
+        title: dummyPayload.title,
+        body: dummyPayload.body,
+        date: dummyPayload.date,
+        username: dummyPayload.username,
+        comments: expect.any(Array),
+      });
     });
   });
 });
