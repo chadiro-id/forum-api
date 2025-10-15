@@ -1,7 +1,7 @@
-const RegisterUserEntity = require('../RegisterUserEntity');
+const RegisterUser = require('../RegisterUser');
 
-describe('RegisterUserEntity', () => {
-  const exampleValidPayload = {
+describe('RegisterUser', () => {
+  const dummyPayload = {
     username: 'forumapi',
     password: 'secret',
     fullname: 'Forum Api',
@@ -9,99 +9,77 @@ describe('RegisterUserEntity', () => {
 
   describe('when the given payload is not valid', () => {
     it('should throw error when payload not contain needed property', () => {
-      const missingUsername = { ...exampleValidPayload };
+      const missingUsername = { ...dummyPayload };
       delete missingUsername.username;
-
-      const missingPassword = { ...exampleValidPayload };
+      const missingPassword = { ...dummyPayload };
       delete missingPassword.password;
-
-      const missingFullname = { ...exampleValidPayload };
+      const missingFullname = { ...dummyPayload };
       delete missingFullname.fullname;
 
-      const emptyUsername = {
-        ...exampleValidPayload,
-        username: '',
-      };
-      const emptyPassword = {
-        ...exampleValidPayload,
-        password: '',
-      };
-      const emptyFullname = {
-        ...exampleValidPayload,
-        fullname: '',
-      };
+      const emptyUsername = { ...dummyPayload, username: '' };
+      const emptyPassword = { ...dummyPayload, password: '' };
+      const emptyFullname = { ...dummyPayload, fullname: '' };
 
-      expect(() => new RegisterUserEntity(missingUsername))
-        .toThrow('REGISTER_USER_ENTITY.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
-      expect(() => new RegisterUserEntity(missingPassword))
-        .toThrow('REGISTER_USER_ENTITY.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
-      expect(() => new RegisterUserEntity(missingFullname))
-        .toThrow('REGISTER_USER_ENTITY.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
-      expect(() => new RegisterUserEntity(emptyUsername))
-        .toThrow('REGISTER_USER_ENTITY.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
-      expect(() => new RegisterUserEntity(emptyPassword))
-        .toThrow('REGISTER_USER_ENTITY.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
-      expect(() => new RegisterUserEntity(emptyFullname))
-        .toThrow('REGISTER_USER_ENTITY.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
+      expect(() => new RegisterUser(missingUsername))
+        .toThrow('REGISTER_USER.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
+      expect(() => new RegisterUser(missingPassword))
+        .toThrow('REGISTER_USER.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
+      expect(() => new RegisterUser(missingFullname))
+        .toThrow('REGISTER_USER.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
+      expect(() => new RegisterUser(emptyUsername))
+        .toThrow('REGISTER_USER.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
+      expect(() => new RegisterUser(emptyPassword))
+        .toThrow('REGISTER_USER.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
+      expect(() => new RegisterUser(emptyFullname))
+        .toThrow('REGISTER_USER.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
     });
 
     it('should throw error when payload does not meet data type specification', () => {
-      const usernameNotString = {
-        ...exampleValidPayload,
-        username: 123,
-      };
+      const usernameNotString = { ...dummyPayload, username: 123 };
+      const passwordNotString = { ...dummyPayload, password: true };
+      const fullnameNotString = { ...dummyPayload, fullname: ['Forum Api'] };
 
-      const passwordNotString = {
-        ...exampleValidPayload,
-        password: true,
-      };
-
-      const fullnameNotString = {
-        ...exampleValidPayload,
-        fullname: ['Forum Api'],
-      };
-
-      expect(() => new RegisterUserEntity(usernameNotString))
-        .toThrow('REGISTER_USER_ENTITY.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
-      expect(() => new RegisterUserEntity(passwordNotString))
-        .toThrow('REGISTER_USER_ENTITY.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
-      expect(() => new RegisterUserEntity(fullnameNotString))
-        .toThrow('REGISTER_USER_ENTITY.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
+      expect(() => new RegisterUser(usernameNotString))
+        .toThrow('REGISTER_USER.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
+      expect(() => new RegisterUser(passwordNotString))
+        .toThrow('REGISTER_USER.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
+      expect(() => new RegisterUser(fullnameNotString))
+        .toThrow('REGISTER_USER.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
     });
 
     it('should throw error when username contains more than 50 character', () => {
       const payload = {
-        ...exampleValidPayload,
+        ...dummyPayload,
         username: 'forumapiforumapiforumapiforumapiforumapiforumapifor',
       };
 
-      expect(() => new RegisterUserEntity(payload))
-        .toThrow('REGISTER_USER_ENTITY.USERNAME_EXCEED_CHAR_LIMIT');
+      expect(() => new RegisterUser(payload))
+        .toThrow('REGISTER_USER.USERNAME_EXCEED_CHAR_LIMIT');
     });
 
     it('should throw error when username contains restricted character', () => {
       const usernameContainWhiteSpace = {
-        ...exampleValidPayload,
+        ...dummyPayload,
         username: 'forum api',
       };
 
       const usernameContainSymbol = {
-        ...exampleValidPayload,
+        ...dummyPayload,
         username: '$forumapi',
       };
 
-      expect(() => new RegisterUserEntity(usernameContainWhiteSpace))
-        .toThrow('REGISTER_USER_ENTITY.USERNAME_CONTAIN_RESTRICTED_CHARACTER');
-      expect(() => new RegisterUserEntity(usernameContainSymbol))
-        .toThrow('REGISTER_USER_ENTITY.USERNAME_CONTAIN_RESTRICTED_CHARACTER');
+      expect(() => new RegisterUser(usernameContainWhiteSpace))
+        .toThrow('REGISTER_USER.USERNAME_CONTAIN_RESTRICTED_CHARACTER');
+      expect(() => new RegisterUser(usernameContainSymbol))
+        .toThrow('REGISTER_USER.USERNAME_CONTAIN_RESTRICTED_CHARACTER');
     });
   });
 
   describe('when the given payload is valid', () => {
     it('should create entity correctly', () => {
-      const payload = { ...exampleValidPayload };
+      const payload = { ...dummyPayload };
 
-      const { username, fullname, password } = new RegisterUserEntity(payload);
+      const { username, fullname, password } = new RegisterUser(payload);
 
       expect(username).toEqual(payload.username);
       expect(fullname).toEqual(payload.fullname);
