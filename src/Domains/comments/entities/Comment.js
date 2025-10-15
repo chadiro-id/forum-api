@@ -1,3 +1,5 @@
+const Reply = require('../../replies/entities/Reply');
+
 class Comment {
   _replies;
 
@@ -37,11 +39,27 @@ class Comment {
       throw new Error('COMMENT.REPLIES_MUST_BE_AN_ARRAY');
     }
 
+    const hasInvalidElement = value.some((el) => el instanceof Reply === false);
+
+    if (hasInvalidElement) {
+      throw new Error('COMMENT.REPLIES_INVALID_ELEMENT');
+    }
+
     this._replies = value;
   }
 
   get replies() {
     return this._replies || [];
+  }
+
+  toJSON() {
+    return {
+      id: this.id,
+      content: this.content,
+      username: this.username,
+      date: this.date,
+      replies: this.replies,
+    };
   }
 }
 
