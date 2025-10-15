@@ -1,4 +1,4 @@
-const RegisterUserEntity = require('../../../Domains/users/entities/RegisterUserEntity');
+const RegisterUser = require('../../../Domains/users/entities/RegisterUser');
 
 class AddUserUseCase {
   constructor({ userRepository, passwordHash }) {
@@ -7,7 +7,7 @@ class AddUserUseCase {
   }
 
   async execute(payload) {
-    const entity = new RegisterUserEntity(payload);
+    const entity = new RegisterUser(payload);
 
     await this._userRepository.verifyAvailableUsername(entity.username);
     entity.password = await this._passwordHash.hash(entity.password);

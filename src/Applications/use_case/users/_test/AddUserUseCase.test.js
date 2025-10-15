@@ -1,8 +1,8 @@
 const AddUserUseCase = require('../AddUserUseCase');
 const PasswordHash = require('../../../security/PasswordHash');
 const UserRepository = require('../../../../Domains/users/UserRepository');
-const RegisterUserEntity = require('../../../../Domains/users/entities/RegisterUserEntity');
-const RegisteredUserEntity = require('../../../../Domains/users/entities/RegisteredUserEntity');
+const RegisterUser = require('../../../../Domains/users/entities/RegisterUser');
+const RegisteredUser = require('../../../../Domains/users/entities/RegisteredUser');
 
 describe('AddUserUseCase', () => {
   describe('when executed', () => {
@@ -13,7 +13,7 @@ describe('AddUserUseCase', () => {
         fullname: 'Forum Api',
       };
 
-      const mockRegisteredUser = new RegisteredUserEntity({
+      const mockRegisteredUser = new RegisteredUser({
         id: 'user-123',
         username: useCasePayload.username,
         fullname: useCasePayload.fullname,
@@ -36,7 +36,7 @@ describe('AddUserUseCase', () => {
 
       const registeredUser = await useCase.execute(useCasePayload);
 
-      expect(registeredUser).toStrictEqual(new RegisteredUserEntity({
+      expect(registeredUser).toStrictEqual(new RegisteredUser({
         id: 'user-123',
         username: useCasePayload.username,
         fullname: useCasePayload.fullname,
@@ -44,7 +44,7 @@ describe('AddUserUseCase', () => {
 
       expect(mockUserRepository.verifyAvailableUsername).toHaveBeenCalledWith(useCasePayload.username);
       expect(mockPasswordHash.hash).toHaveBeenCalledWith(useCasePayload.password);
-      expect(mockUserRepository.addUser).toHaveBeenCalledWith(new RegisterUserEntity({
+      expect(mockUserRepository.addUser).toHaveBeenCalledWith(new RegisterUser({
         username: useCasePayload.username,
         password: 'encrypted_password',
         fullname: useCasePayload.fullname,
