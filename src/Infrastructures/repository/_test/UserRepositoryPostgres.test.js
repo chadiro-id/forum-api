@@ -1,7 +1,7 @@
 const pool = require('../../database/postgres/pool');
 const InvariantError = require('../../../Commons/exceptions/InvariantError');
-const RegisterUserEntity = require('../../../Domains/users/entities/RegisterUserEntity');
-const RegisteredUserEntity = require('../../../Domains/users/entities/RegisteredUserEntity');
+const RegisterUser = require('../../../Domains/users/entities/RegisterUser');
+const RegisteredUser = require('../../../Domains/users/entities/RegisteredUser');
 const UserRepositoryPostgres = require('../UserRepositoryPostgres');
 const { usersTable } = require('../../../../tests/db_helper/postgres');
 
@@ -37,7 +37,7 @@ describe('UserRepositoryPostgres', () => {
 
   describe('#addUser', () => {
     it('should persist register user entity and return registered user entity correctly', async () => {
-      const registerUserEntity = new RegisterUserEntity({
+      const registerUserEntity = new RegisterUser({
         username: 'forumapi',
         password: 'secret_password',
         fullname: 'Forum Api',
@@ -52,7 +52,7 @@ describe('UserRepositoryPostgres', () => {
     });
 
     it('should return registered user entity correctly', async () => {
-      const registerUser = new RegisterUserEntity({
+      const registerUser = new RegisterUser({
         username: 'forumapi',
         password: 'secret_password',
         fullname: 'Forum Api',
@@ -62,7 +62,7 @@ describe('UserRepositoryPostgres', () => {
 
       const registeredUser = await userRepositoryPostgres.addUser(registerUser);
 
-      expect(registeredUser).toStrictEqual(new RegisteredUserEntity({
+      expect(registeredUser).toStrictEqual(new RegisteredUser({
         id: 'user-123',
         username: 'forumapi',
         fullname: 'Forum Api',

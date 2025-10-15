@@ -1,5 +1,5 @@
 const InvariantError = require('../../Commons/exceptions/InvariantError');
-const RegisteredUserEntity = require('../../Domains/users/entities/RegisteredUserEntity');
+const RegisteredUser = require('../../Domains/users/entities/RegisteredUser');
 const UserRepository = require('../../Domains/users/UserRepository');
 
 class UserRepositoryPostgres extends UserRepository {
@@ -20,7 +20,7 @@ class UserRepositoryPostgres extends UserRepository {
 
     const result = await this._pool.query(query);
 
-    return new RegisteredUserEntity({ ...result.rows[0] });
+    return new RegisteredUser({ ...result.rows[0] });
   }
 
   async verifyAvailableUsername(username) {
