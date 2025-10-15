@@ -68,5 +68,12 @@ describe('DetailThread Entity', () => {
       expect(() => new DetailThread(usernameNotString))
         .toThrow('DETAIL_THREAD.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
     });
+
+    it('should throw error when date string is not valid', () => {
+      const invalidDateString = { ...dummyPayload, date: 'Date' };
+
+      expect(() => new DetailThread(invalidDateString))
+        .toThrow('DETAIL_THREAD.INVALID_DATE_STRING');
+    });
   });
 });
