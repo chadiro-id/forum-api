@@ -1,13 +1,13 @@
 const RegisterUser = require('../RegisterUser');
 
-describe('RegisterUser', () => {
+describe('RegisterUser Entity', () => {
   const dummyPayload = {
-    username: 'forumapi',
+    username: 'johndoe',
     password: 'secret',
-    fullname: 'Forum Api',
+    fullname: 'John Doe',
   };
 
-  describe('when the given payload is not valid', () => {
+  describe('Bad payload', () => {
     it('should throw error when payload not contain needed property', () => {
       const missingUsername = { ...dummyPayload };
       delete missingUsername.username;
@@ -75,8 +75,8 @@ describe('RegisterUser', () => {
     });
   });
 
-  describe('when the given payload is valid', () => {
-    it('should create entity correctly', () => {
+  describe('Correct payload', () => {
+    it('should correctly create the entity', () => {
       const payload = { ...dummyPayload };
 
       const { username, fullname, password } = new RegisterUser(payload);

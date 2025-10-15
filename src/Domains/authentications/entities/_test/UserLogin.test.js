@@ -1,13 +1,13 @@
 const UserLogin = require('../UserLogin');
 
-describe('UserLogin', () => {
+describe('UserLogin Entity', () => {
   const dummyPayload = {
     username: 'johndoe',
     password: 'secret',
   };
 
-  describe('when the given payload is not valid', () => {
-    it('should throw error if payload not contain needed property', () => {
+  describe('Bad payload', () => {
+    it('should throw error when payload not contain needed property', () => {
       const missingUsername = { ...dummyPayload };
       delete missingUsername.username;
       const missingPassword = { ...dummyPayload };
@@ -26,7 +26,7 @@ describe('UserLogin', () => {
         .toThrow('USER_LOGIN.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
     });
 
-    it('should throw error if payload does not meet data type specification', () => {
+    it('should throw error when payload property does not meet data type specification', () => {
       const usernameNotString = { ...dummyPayload, username: 123 };
       const passwordNotString = { ...dummyPayload, password: ['secret'] };
 
@@ -37,8 +37,8 @@ describe('UserLogin', () => {
     });
   });
 
-  describe('when the given payload is valid', () => {
-    it('should create entity correctly', () => {
+  describe('Correct payload', () => {
+    it('should correctly create the entity', () => {
       const payload = { ...dummyPayload };
 
       const userLogin = new UserLogin(payload);

@@ -1,14 +1,14 @@
 const RegisteredUser = require('../RegisteredUser');
 
-describe('RegisteredUser', () => {
+describe('RegisteredUser Entity', () => {
   const dummyPayload = {
     id: 'user-123',
     username: 'whoami',
     fullname: 'Who Am I',
   };
 
-  describe('when the given payload is not valid', () => {
-    it('should throw error if payload not contain needed property', () => {
+  describe('Bad payload', () => {
+    it('should throw error when payload not contain needed property', () => {
       const missingId = { ...dummyPayload };
       delete missingId.id;
       const missingUsername = { ...dummyPayload };
@@ -34,7 +34,7 @@ describe('RegisteredUser', () => {
         .toThrow('REGISTERED_USER.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
     });
 
-    it('should throw error if payload does not meet data type specification', () => {
+    it('should throw error when payload does not meet data type specification', () => {
       const idNotString = { ...dummyPayload, id: 123 };
       const usernameNotString = { ...dummyPayload, username: ['forumapi'] };
       const fullnameNotString = { ...dummyPayload, fullname: true };
@@ -48,8 +48,8 @@ describe('RegisteredUser', () => {
     });
   });
 
-  describe('when the given payload is valid', () => {
-    it('should create entity correctly', () => {
+  describe('Correct payload', () => {
+    it('should correctly create the entity', () => {
       const payload = { ...dummyPayload };
 
       const { id, username, fullname } = new RegisteredUser(payload);
@@ -59,7 +59,7 @@ describe('RegisteredUser', () => {
       expect(fullname).toEqual(payload.fullname);
     });
 
-    it('should create entity correctly and not contain extra properties', () => {
+    it('should correctly create the entity and not contain extra properties', () => {
       const extraPayload = { ...dummyPayload, extra: 'extra property' };
 
       const registeredUser = new RegisteredUser(extraPayload);

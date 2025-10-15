@@ -1,13 +1,13 @@
 const UserAuthentication = require('../UserAuthentication');
 
-describe('UserAuthentication', () => {
+describe('UserAuthentication Entity', () => {
   const dummyPayload = {
     accessToken: 'access_token',
     refreshToken: 'refresh_token',
   };
 
-  describe('when the given payload is not valid', () => {
-    it('should throw error if payload not contain needed property', () => {
+  describe('Bad payload', () => {
+    it('should throw error when payload not contain needed property', () => {
       const missingAccessToken = { ...dummyPayload };
       delete missingAccessToken.accessToken;
       const missingRefreshToken = { ...dummyPayload };
@@ -26,7 +26,7 @@ describe('UserAuthentication', () => {
         .toThrow('USER_AUTHENTICATION.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
     });
 
-    it('should throw error if payload does not meet data type specification', () => {
+    it('should throw error when payload property does not meet data type specification', () => {
       const accessTokenNotString = {
         ...dummyPayload,
         accessToken: 123,
@@ -43,8 +43,8 @@ describe('UserAuthentication', () => {
     });
   });
 
-  describe('when the given payload is valid', () => {
-    it('should create entity correctly', () => {
+  describe('Correct payload', () => {
+    it('should correctly create the entity', () => {
       const payload = { ...dummyPayload };
 
       const { accessToken, refreshToken } = new UserAuthentication(payload);
@@ -53,7 +53,7 @@ describe('UserAuthentication', () => {
       expect(refreshToken).toEqual(payload.refreshToken);
     });
 
-    it('should create entity correctly and not contain extra properties', () => {
+    it('should correctly create the entity and not contain extra properties', () => {
       const extraPayload = { ...dummyPayload, extra: 'extra property' };
 
       const userAuthentication = new UserAuthentication(extraPayload);
