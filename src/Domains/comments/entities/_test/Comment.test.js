@@ -91,4 +91,39 @@ describe('Comment Entity', () => {
       expect(comment.extra).toBeUndefined();
     });
   });
+
+  describe('Replies', () => {
+    it('should return empty array as default value', () => {
+      const comment = new Comment(dummyPayload);
+
+      const replies = comment.replies;
+
+      expect(replies).toEqual(expect.any(Array));
+      expect(replies).toHaveLength(0);
+    });
+
+    it('should throw error when set value is not an array', () => {
+      const numVal = 123;
+      const stringVal = 'replies';
+      const objVal = { replies: {} };
+
+      const comment = new Comment(dummyPayload);
+
+      expect(() => comment.replies = numVal)
+        .toThrow('COMMENT.REPLIES_MUST_BE_AN_ARRAY');
+      expect(() => comment.replies = stringVal)
+        .toThrow('COMMENT.REPLIES_MUST_BE_AN_ARRAY');
+      expect(() => comment.replies = objVal)
+        .toThrow('COMMENT.REPLIES_MUST_BE_AN_ARRAY');
+    });
+
+    it('should correctly set replies', () => {
+      const comment = new Comment(dummyPayload);
+      comment.replies = ['Reply'];
+
+      const replies = comment.replies;
+
+      expect(replies).toHaveLength(1);
+    });
+  });
 });
