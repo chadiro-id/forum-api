@@ -64,11 +64,10 @@ describe('RegisteredUser', () => {
 
       const registeredUser = new RegisteredUser(extraPayload);
 
-      expect(registeredUser).toEqual(new RegisteredUser({
-        id: extraPayload.id,
-        username: extraPayload.username,
-        fullname: extraPayload.fullname,
-      }));
+      expect(registeredUser.id).toEqual(extraPayload.id);
+      expect(registeredUser.username).toEqual(extraPayload.username);
+      expect(registeredUser.fullname).toEqual(extraPayload.fullname);
+
       expect(registeredUser.extra).toBeUndefined();
     });
   });
