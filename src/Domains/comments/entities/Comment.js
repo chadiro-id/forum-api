@@ -1,4 +1,6 @@
 class Comment {
+  _replies;
+
   constructor(payload) {
     this._validatePayload(payload);
 
@@ -28,6 +30,18 @@ class Comment {
     if (Number.isNaN(ms)) {
       throw new Error('COMMENT.INVALID_DATE_STRING');
     }
+  }
+
+  set replies(value) {
+    if (!value || !Array.isArray(value)) {
+      throw new Error('COMMENT.REPLIES_MUST_BE_AN_ARRAY');
+    }
+
+    this._replies = value;
+  }
+
+  get replies() {
+    return this._replies || [];
   }
 }
 
