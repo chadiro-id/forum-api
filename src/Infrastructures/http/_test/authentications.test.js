@@ -13,9 +13,13 @@ afterAll(async () => {
 });
 
 describe('Authentications Endpoints', () => {
-  const dummyLogin = {
+  const loginUser = {
     username: 'johndoe',
     password: 'supersecret^_^007'
+  };
+  const registerUser = {
+    ...loginUser,
+    fullname: 'John Doe',
   };
 
   beforeEach(async () => {
@@ -23,19 +27,26 @@ describe('Authentications Endpoints', () => {
   });
 
   afterEach(async () => {
-    await authenticationsTable.clean();
-    await usersTable.clean();
+    // await authenticationsTable.clean();
+    // await usersTable.clean();
     await serverTest.stop();
   });
 
   describe('POST /authentications', () => {
-    it('should response 201 and new authentication', async () => {
+    beforeAll(async () => {
       await serverTest.post('/users', {
-        payload: { ...dummyLogin, fullname: 'John Doe' }
+        payload: { ...registerUser }
       });
+    });
 
+    afterAll(async () => {
+      await authenticationsTable.clean();
+      await usersTable.clean();
+    });
+
+    it('should response 201 and new authentication', async () => {
       const response = await serverTest.post('/authentications', {
-        payload: { ...dummyLogin }
+        payload: { ...loginUser }
       });
 
       const responseJson = JSON.parse(response.payload);
@@ -47,7 +58,7 @@ describe('Authentications Endpoints', () => {
 
     it('should response 400 if username not found', async () => {
       const response = await serverTest.post('/authentications', {
-        payload: { ...dummyLogin }
+        payload: { ...loginUser, username: 'johnnnndoe' }
       });
 
       const responseJson = JSON.parse(response.payload);
@@ -58,16 +69,9 @@ describe('Authentications Endpoints', () => {
 
     it('should response 401 if password wrong', async () => {
       const requestPayload = {
-        ...dummyLogin,
+        ...loginUser,
         password: 'wrong_password',
       };
-
-      await serverTest.post('/users', {
-        payload: {
-          ...dummyLogin,
-          fullname: 'John Doe',
-        }
-      });
 
       const response = await serverTest.post('/authentications', {
         payload: requestPayload,
@@ -111,16 +115,20 @@ describe('Authentications Endpoints', () => {
   });
 
   describe('PUT /authentications', () => {
-    it('should return 200 and new access token', async () => {
+    beforeAll(async () => {
       await serverTest.post('/users', {
-        payload: {
-          ...dummyLogin,
-          fullname: 'John Doe',
-        }
+        payload: { ...registerUser }
       });
+    });
 
+    afterAll(async () => {
+      await authenticationsTable.clean();
+      await usersTable.clean();
+    });
+
+    it('should return 200 and new access token', async () => {
       const loginResponse = await serverTest.post('/authentications', {
-        payload: { ...dummyLogin },
+        payload: { ...loginUser },
       });
       const { data: { refreshToken } } = JSON.parse(loginResponse.payload);
 
@@ -185,9 +193,17 @@ describe('Authentications Endpoints', () => {
   });
 
   describe('when DELETE /authentications', () => {
+    beforeAll(async () => {
+      await authenticationsTable.addToken('registered_refresh_token');
+    });
+
+    afterAll(async () => {
+      await authenticationsTable.clean();
+    });
+
     it('should response 200 if refresh token valid', async () => {
-      const refreshToken = 'refresh_token';
-      await authenticationsTable.addToken(refreshToken);
+      const refreshToken = 'registered_refresh_token';
+      // await authenticationsTable.addToken(refreshToken);
 
       const response = await serverTest.delete('/authentications', {
         payload: { refreshToken },
