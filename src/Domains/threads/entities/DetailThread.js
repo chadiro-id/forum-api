@@ -27,6 +27,11 @@ class DetailThreadEntity {
     ) {
       throw new Error('DETAIL_THREAD.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
     }
+
+    const ms = Date.parse(date);
+    if (Number.isNaN(ms)) {
+      throw new Error('DETAIL_THREAD.INVALID_DATE_STRING');
+    }
   }
 }
 
