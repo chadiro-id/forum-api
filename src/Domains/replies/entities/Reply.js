@@ -1,6 +1,11 @@
 class Reply {
   constructor(payload) {
     this._validatePayload(payload);
+
+    this.id = payload.id;
+    this.content = payload.content;
+    this.date = payload.date;
+    this.owner = payload.owner;
   }
 
   _validatePayload(payload) {
@@ -19,7 +24,8 @@ class Reply {
       throw new Error('REPLY.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
     }
 
-    if (Number.isNaN(Date.parse(date))) {
+    const ms = Date.parse(date);
+    if (Number.isNaN(ms)) {
       throw new Error('REPLY.INVALID_DATE_STRING');
     }
   }
