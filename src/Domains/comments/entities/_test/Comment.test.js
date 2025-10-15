@@ -2,7 +2,7 @@ const Comment = require('../Comment');
 
 describe('Comment Entity', () => {
   const dummyPayload = {
-    id: 'content-123',
+    id: 'comment-123',
     content: 'Sebuah komentar',
     date: '2025-10-15T02:08:54.384Z',
     username: 'superuser',
@@ -63,6 +63,32 @@ describe('Comment Entity', () => {
 
       expect(() => new Comment(invalidDateString))
         .toThrow('COMMENT.INVALID_DATE_STRING');
+    });
+  });
+
+  describe('Correct payload', () => {
+    it('should correctly create the entity', () => {
+      const payload = { ...dummyPayload };
+
+      const { id, content, date, username } = new Comment(payload);
+
+      expect(id).toEqual(payload.id);
+      expect(content).toEqual(payload.content);
+      expect(date).toEqual(payload.date);
+      expect(username).toEqual(payload.username);
+    });
+
+    it('should correctly create the entity and not contain extra property', () => {
+      const extraPayload = { ...dummyPayload, extra: 'Something extra' };
+
+      const comment = new Comment(extraPayload);
+
+      expect(comment.id).toEqual(extraPayload.id);
+      expect(comment.content).toEqual(extraPayload.content);
+      expect(comment.date).toEqual(extraPayload.date);
+      expect(comment.username).toEqual(extraPayload.username);
+
+      expect(comment.extra).toBeUndefined();
     });
   });
 });
