@@ -1,5 +1,5 @@
 class CommentRepository {
-  async addComment(_entity) {
+  async addComment(_newComment) {
     throw new Error('COMMENT_REPOSITORY.METHOD_NOT_IMPLEMENTED');
   }
 
