@@ -8,14 +8,44 @@ describe('AddThreadUseCase', () => {
     it('should throw error when payload not provided correctly', async () => {
       const addThreadUseCase = new AddThreadUseCase({});
 
-      await expect(addThreadUseCase.execute())
+      await expect(() => addThreadUseCase.execute())
         .rejects.toThrow();
-      await expect(addThreadUseCase.execute('NewThread'))
+      await expect(() => addThreadUseCase.execute('NewThread'))
         .rejects.toThrow();
-      await expect(addThreadUseCase.execute(123))
+      await expect(() => addThreadUseCase.execute(123))
         .rejects.toThrow();
-      await expect(addThreadUseCase.execute({}))
+      await expect(() => addThreadUseCase.execute({}))
         .rejects.toThrow();
+    });
+
+    it('should throw error when added thread is not instance of AddedThread entity', async () => {
+      const useCasePayload = {
+        title: 'Judul thread',
+        body: 'Sebuah thread',
+        owner: 'user-123',
+      };
+
+      const mockThreadRepository = new ThreadRepository();
+      mockThreadRepository.addThread = jest.fn()
+        .mockResolvedValue({
+          id: 'thread-123',
+          title: 'Judul thread',
+          owner: 'user-123',
+        });
+
+      const useCase = new AddThreadUseCase({
+        threadRepository: mockThreadRepository,
+      });
+
+      await expect(() => useCase.execute(useCasePayload))
+        .rejects.toThrow('ADD_THREAD_USE_CASE.ADDED_THREAD_MUST_BE_INSTANCE_OF_ADDED_THREAD');
+
+      expect(mockThreadRepository.addThread).toHaveBeenCalledTimes(1);
+      expect(mockThreadRepository.addThread).toHaveBeenCalledWith(new NewThread({
+        title: useCasePayload.title,
+        body: useCasePayload.body,
+        owner: useCasePayload.owner,
+      }));
     });
   });
 
