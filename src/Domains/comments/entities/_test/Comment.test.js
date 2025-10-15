@@ -140,5 +140,20 @@ describe('Comment Entity', () => {
 
       expect(replies).toHaveLength(1);
     });
+
+    it('should correctly serialize JSON', () => {
+      const comment = new Comment({ ...dummyPayload });
+
+      const jsonString = JSON.stringify(comment);
+      const jsonObj = JSON.parse(jsonString);
+
+      expect(jsonObj).toEqual({
+        id: dummyPayload.id,
+        content: dummyPayload.content,
+        date: dummyPayload.date,
+        username: dummyPayload.username,
+        replies: [],
+      });
+    });
   });
 });
