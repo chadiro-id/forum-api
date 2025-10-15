@@ -1,5 +1,5 @@
 const AuthenticationRepository = require('../../../../Domains/authentications/AuthenticationRepository');
-const UserAuthenticationEntity = require('../../../../Domains/authentications/entities/UserAuthenticationEntity');
+const UserAuthentication = require('../../../../Domains/authentications/entities/UserAuthentication');
 const UserRepository = require('../../../../Domains/users/UserRepository');
 const AuthenticationTokenManager = require('../../../security/AuthenticationTokenManager');
 const PasswordHash = require('../../../security/PasswordHash');
@@ -13,7 +13,7 @@ describe('AddAuthenticationUseCase', () => {
         password: 'secret^_123',
       };
 
-      const mockedAuthentication = new UserAuthenticationEntity({
+      const mockedAuthentication = new UserAuthentication({
         accessToken: 'access_token',
         refreshToken: 'refresh_token',
       });
@@ -45,7 +45,7 @@ describe('AddAuthenticationUseCase', () => {
 
       const actualUserAuthentication = await addAuthenticationUseCase.execute(useCasePayload);
 
-      expect(actualUserAuthentication).toStrictEqual(new UserAuthenticationEntity({
+      expect(actualUserAuthentication).toStrictEqual(new UserAuthentication({
         accessToken: 'access_token',
         refreshToken: 'refresh_token',
       }));
