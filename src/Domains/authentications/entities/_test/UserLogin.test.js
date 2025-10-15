@@ -1,61 +1,47 @@
-const UserLoginEntity = require('../UserLogin');
+const UserLogin = require('../UserLogin');
 
-describe('UserLoginEntity', () => {
-  const exampleValidPayload = {
-    username: 'forumapi',
+describe('UserLogin', () => {
+  const dummyPayload = {
+    username: 'johndoe',
     password: 'secret',
   };
 
   describe('when the given payload is not valid', () => {
     it('should throw error if payload not contain needed property', () => {
-      const missingUsername = { ...exampleValidPayload };
+      const missingUsername = { ...dummyPayload };
       delete missingUsername.username;
-
-      const missingPassword = { ...exampleValidPayload };
+      const missingPassword = { ...dummyPayload };
       delete missingPassword.password;
 
-      const emptyUsername = {
-        ...exampleValidPayload,
-        username: '',
-      };
+      const emptyUsername = { ...dummyPayload, username: '' };
+      const emptyPassword = { ...dummyPayload, password: '' };
 
-      const emptyPassword = {
-        ...exampleValidPayload,
-        password: '',
-      };
-
-      expect(() => new UserLoginEntity(missingUsername))
-        .toThrow('USER_LOGIN_ENTITY.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
-      expect(() => new UserLoginEntity(missingPassword))
-        .toThrow('USER_LOGIN_ENTITY.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
-      expect(() => new UserLoginEntity(emptyUsername))
-        .toThrow('USER_LOGIN_ENTITY.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
-      expect(() => new UserLoginEntity(emptyPassword))
-        .toThrow('USER_LOGIN_ENTITY.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
+      expect(() => new UserLogin(missingUsername))
+        .toThrow('USER_LOGIN.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
+      expect(() => new UserLogin(missingPassword))
+        .toThrow('USER_LOGIN.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
+      expect(() => new UserLogin(emptyUsername))
+        .toThrow('USER_LOGIN.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
+      expect(() => new UserLogin(emptyPassword))
+        .toThrow('USER_LOGIN.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
     });
 
     it('should throw error if payload does not meet data type specification', () => {
-      const usernameNotString = {
-        ...exampleValidPayload,
-        username: 123,
-      };
-      const passwordNotString = {
-        ...exampleValidPayload,
-        password: ['secret'],
-      };
+      const usernameNotString = { ...dummyPayload, username: 123 };
+      const passwordNotString = { ...dummyPayload, password: ['secret'] };
 
-      expect(() => new UserLoginEntity(usernameNotString))
-        .toThrow('USER_LOGIN_ENTITY.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
-      expect(() => new UserLoginEntity(passwordNotString))
-        .toThrow('USER_LOGIN_ENTITY.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
+      expect(() => new UserLogin(usernameNotString))
+        .toThrow('USER_LOGIN.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
+      expect(() => new UserLogin(passwordNotString))
+        .toThrow('USER_LOGIN.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
     });
   });
 
   describe('when the given payload is valid', () => {
     it('should create entity correctly', () => {
-      const payload = { ...exampleValidPayload };
+      const payload = { ...dummyPayload };
 
-      const userLogin = new UserLoginEntity(payload);
+      const userLogin = new UserLogin(payload);
 
       expect(userLogin.username).toEqual(payload.username);
       expect(userLogin.password).toEqual(payload.password);
