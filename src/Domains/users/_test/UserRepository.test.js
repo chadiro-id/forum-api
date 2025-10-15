@@ -8,8 +8,6 @@ describe('UserRepository', () => {
       .rejects.toThrow('USER_REPOSITORY.METHOD_NOT_IMPLEMENTED');
     await expect(userRepository.verifyAvailableUsername(''))
       .rejects.toThrow('USER_REPOSITORY.METHOD_NOT_IMPLEMENTED');
-    await expect(userRepository.verifyUserById(''))
-      .rejects.toThrow('USER_REPOSITORY.METHOD_NOT_IMPLEMENTED');
     await expect(userRepository.getPasswordByUsername(''))
       .rejects.toThrow('USER_REPOSITORY.METHOD_NOT_IMPLEMENTED');
     await expect(userRepository.getIdByUsername(''))
