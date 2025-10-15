@@ -1,5 +1,8 @@
+const Comment = require('../../comments/entities/Comment');
+
 class DetailThreadEntity {
   _comments;
+
   constructor(payload) {
     this._verifyPayload(payload);
 
@@ -8,6 +11,7 @@ class DetailThreadEntity {
     this.body = payload.body;
     this.date = payload.date;
     this.username = payload.username;
+    this.comments = payload.comments || [];
   }
 
   _verifyPayload(payload) {
@@ -39,11 +43,27 @@ class DetailThreadEntity {
     if (!value || !Array.isArray(value)) {
       throw new Error('DETAIL_THREAD.COMMENTS_MUST_BE_AN_ARRAY');
     }
+
+    const hasInvalidElement = value.some((el) => el instanceof Comment === false);
+    if (hasInvalidElement) {
+      throw new Error('DETAIL_THREAD.COMMENTS_INVALID_ELEMENT');
+    }
     this._comments = value;
   }
 
   get comments() {
-    return this._comments || [];
+    return this._comments;
+  }
+
+  toJSON() {
+    return {
+      id: this.id,
+      title: this.title,
+      body: this.body,
+      username: this.username,
+      date: this.date,
+      comments: this.comments,
+    };
   }
 }
 
