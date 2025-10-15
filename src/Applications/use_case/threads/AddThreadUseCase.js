@@ -9,23 +9,14 @@ class AddThreadUseCase {
   }
 
   async execute(payload) {
-    if (payload instanceof NewThread === false) {
-      throw new Error('ADD_THREAD_USE_CASE.PAYLOAD_MUST_BE_INSTANCE_OF_NEWTHREAD');
+    const newThread = new NewThread(payload);
+
+    const addedThread = await this._threadRepository.addThread(newThread);
+    if (addedThread instanceof AddedThread === false) {
+      throw new Error('ADD_THREAD_USE_CASE.ADDED_THREAD_MUST_BE_INSTANCE_OF_ADDED_THREAD');
     }
 
-    const threadRecord = {
-      title: payload.title,
-      body: payload.body,
-      owner_id: payload.owner,
-    };
-
-    const addedThreadId = await this._threadRepository.addThread(threadRecord);
-
-    return new AddedThread({
-      id: addedThreadId,
-      title: payload.title,
-      owner: payload.owner,
-    });
+    return addedThread;
   }
 }
 
