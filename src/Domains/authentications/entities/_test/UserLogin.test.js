@@ -1,4 +1,4 @@
-const UserLoginEntity = require('../UserLoginEntity');
+const UserLoginEntity = require('../UserLogin');
 
 describe('UserLoginEntity', () => {
   const exampleValidPayload = {
