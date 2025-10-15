@@ -48,6 +48,7 @@ class DetailThreadEntity {
     if (hasInvalidElement) {
       throw new Error('DETAIL_THREAD.COMMENTS_INVALID_ELEMENT');
     }
+
     this._comments = value;
   }
 
