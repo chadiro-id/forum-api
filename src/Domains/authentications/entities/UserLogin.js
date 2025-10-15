@@ -1,4 +1,4 @@
-class UserLoginEntity {
+class UserLogin {
   constructor(payload) {
     this._verifyPayload(payload);
 
@@ -19,4 +19,4 @@ class UserLoginEntity {
   }
 }
 
-module.exports = UserLoginEntity;
+module.exports = UserLogin;
