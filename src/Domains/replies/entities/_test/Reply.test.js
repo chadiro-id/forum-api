@@ -57,5 +57,12 @@ describe('Reply Entity', () => {
       expect(() => new Reply(usernameNotString))
         .toThrow('REPLY.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
     });
+
+    it('should throw error when date string is not valid', () => {
+      const invalidDateString = { ...dummyPayload, date: 'date' };
+
+      expect(() => new Reply(invalidDateString))
+        .toThrow('REPLY.INVALID_DATE_STRING');
+    });
   });
 });
