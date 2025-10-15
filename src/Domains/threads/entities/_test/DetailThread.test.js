@@ -6,7 +6,7 @@ describe('DetailThread Entity', () => {
     title: 'Judul thread',
     body: 'Sebuah thread',
     date: '2025-10-15T02:08:54.384Z',
-    username: 'user-123',
+    username: 'superuser',
   };
 
   describe('Bad payload', () => {
