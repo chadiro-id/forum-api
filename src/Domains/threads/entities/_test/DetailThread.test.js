@@ -76,4 +76,30 @@ describe('DetailThread Entity', () => {
         .toThrow('DETAIL_THREAD.INVALID_DATE_STRING');
     });
   });
+
+  describe('Correct payload', () => {
+    it('should correctly create the entity', () => {
+      const payload = { ...dummyPayload };
+
+      const { id, title, body, date, username } = new DetailThread(payload);
+
+      expect(id).toEqual(payload.id);
+      expect(title).toEqual(payload.title);
+      expect(body).toEqual(payload.body);
+      expect(date).toEqual(payload.date);
+      expect(username).toEqual(payload.username);
+    });
+
+    it('should correctly create the entity and not contain extra property', () => {
+      const extraPayload = { ...dummyPayload, extra: 'Something extra' };
+
+      const detailThread = new DetailThread(extraPayload);
+
+      expect(detailThread.id).toEqual(extraPayload.id);
+      expect(detailThread.title).toEqual(extraPayload.title);
+      expect(detailThread.body).toEqual(extraPayload.body);
+      expect(detailThread.date).toEqual(extraPayload.date);
+      expect(detailThread.username).toEqual(extraPayload.username);
+    });
+  });
 });
