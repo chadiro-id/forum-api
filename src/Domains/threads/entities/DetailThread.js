@@ -1,6 +1,6 @@
 const Comment = require('../../comments/entities/Comment');
 
-class DetailThreadEntity {
+class DetailThread {
   _comments;
 
   constructor(payload) {
@@ -68,4 +68,4 @@ class DetailThreadEntity {
   }
 }
 
-module.exports = DetailThreadEntity;
+module.exports = DetailThread;
