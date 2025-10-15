@@ -103,45 +103,38 @@ describe('DetailThread Entity', () => {
     });
   });
 
-  describe('Thread comments', () => {
-    it('should throw error when value is not an array', () => {
-      const detailThread = new DetailThread({ ...dummyPayload });
-      const mockedSetter = jest.fn()
-        .mockImplementation(() => {
-          throw new Error('DETAIL_THREAD.COMMENTS_MUST_BE_AN_ARRAY');
-        });
+  describe('Comments', () => {
+    it('should return empty array as default value', () => {
+      const detailThread = new DetailThread(dummyPayload);
 
-      Object.defineProperty(detailThread, 'comments', {
-        set: mockedSetter,
-        configurable: true,
-      });
+      const comments = detailThread.comments;
 
-      expect(() => { detailThread.comments = {}; })
+      expect(comments).toEqual(expect.any(Array));
+      expect(comments).toHaveLength(0);
+    });
+
+    it('should throw error when set value is not an array', () => {
+      const numVal = 123;
+      const stringVal = 'comments';
+      const objVal = { comments: {} };
+
+      const detailThread = new DetailThread(dummyPayload);
+
+      expect(() => detailThread.comments = numVal)
         .toThrow('DETAIL_THREAD.COMMENTS_MUST_BE_AN_ARRAY');
-      expect(() => { detailThread.comments = 'Comments'; })
+      expect(() => detailThread.comments = stringVal)
         .toThrow('DETAIL_THREAD.COMMENTS_MUST_BE_AN_ARRAY');
-      expect(() => { detailThread.comments = 123; })
+      expect(() => detailThread.comments = objVal)
         .toThrow('DETAIL_THREAD.COMMENTS_MUST_BE_AN_ARRAY');
     });
 
-    it('should not throw error when value is an array', () => {
-      const detailThread = new DetailThread({ ...dummyPayload });
-      const mockedSetter = jest.fn().mockReturnValue();
+    it('should correctly set when value is an array', () => {
+      const detailThread = new DetailThread(dummyPayload);
+      detailThread.comments = ['Comment'];
 
-      Object.defineProperty(detailThread, 'comments', {
-        set: mockedSetter,
-        configurable: true,
-      });
+      const comments = detailThread.comments;
 
-      expect(() => { detailThread.comments = []; })
-        .not.toThrow('DETAIL_THREAD.COMMENTS_MUST_BE_AN_ARRAY');
-    });
-
-    it('should set comments value correctly', () => {
-      const detailThread = new DetailThread({ ...dummyPayload });
-      jest.spyOn(DetailThread, 'comments', 'get').mockReturnValue([]);
-      detailThread.comments = [];
-      expect(detailThread.comments).toBe([]);
+      expect(comments).toHaveLength(1);
     });
   });
 });
