@@ -1,13 +1,13 @@
 const NewThread = require('../NewThread');
 
-describe('NewThread entity', () => {
+describe('NewThread Entity', () => {
   const dummyPayload = {
     title: 'Something thread title',
     body: 'Something thread body',
     owner: 'user-123',
   };
 
-  describe('Payload is bad', () => {
+  describe('Bad Payload', () => {
     it('should throw error when payload not contain needed property', () => {
       const missingTitle = { ...dummyPayload };
       delete missingTitle.title;
@@ -48,7 +48,7 @@ describe('NewThread entity', () => {
     });
   });
 
-  describe('Payload is correct', () => {
+  describe('Correct payload', () => {
     it('should correctly create the entity', () => {
       const payload = { ...dummyPayload };
 
