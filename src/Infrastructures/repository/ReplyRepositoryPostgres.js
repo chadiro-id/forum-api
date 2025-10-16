@@ -96,14 +96,14 @@ class ReplyRepositoryPostgres extends ReplyRepository {
 
   _transformToReply({
     id,
-    comment_id: commmentId,
+    comment_id: commentId,
     username,
     content,
     created_at: date,
     is_delete: isDelete,
   }) {
     return new Reply({
-      id, commmentId, username, content, date, isDelete
+      id, commentId, username, content, date, isDelete
     });
   }
 }
