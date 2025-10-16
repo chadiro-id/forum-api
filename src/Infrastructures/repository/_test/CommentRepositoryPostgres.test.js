@@ -1,4 +1,6 @@
 const CommentRepository = require('../../../Domains/comments/CommentRepository');
+const AddedComment = require('../../../Domains/comments/entities/AddedComment');
+const NewComment = require('../../../Domains/comments/entities/NewComment');
 const CommentRepositoryPostgres = require('../CommentRepositoryPostgres');
 
 describe('CommentRepositoryPostgres', () => {
@@ -46,15 +48,15 @@ describe('CommentRepositoryPostgres', () => {
     describe('addComment', () => {
       it('should persist the comment record and return the id correctly', async () => {
         mockPool.query.mockResolvedValue({
-          rows: [{ id: 'comment-123' }],
+          rows: [{ id: 'comment-123', content: 'Sebuah komentar', owner_id: 'user-123' }],
           rowCount: 1,
         });
 
-        const addedCommentId = await commentRepositoryPostgres.addComment({
-          thread_id: 'thread-123',
-          owner_id: 'user-123',
-          content: 'Something comment',
-        });
+        const addedComment = await commentRepositoryPostgres.addComment(new NewComment({
+          threadId: 'thread-123',
+          content: 'Sebuah komentar',
+          owner: 'user-123',
+        }));
 
         expect(mockPool.query).toHaveBeenCalledTimes(1);
         expect(mockPool.query).toHaveBeenCalledWith(
@@ -66,9 +68,13 @@ describe('CommentRepositoryPostgres', () => {
         expect(calledValues[0]).toEqual('comment-123');
         expect(calledValues[1]).toEqual('thread-123');
         expect(calledValues[2]).toEqual('user-123');
-        expect(calledValues[3]).toEqual('Something comment');
+        expect(calledValues[3]).toEqual('Sebuah komentar');
 
-        expect(addedCommentId).toEqual('comment-123');
+        expect(addedComment).toEqual(new AddedComment({
+          id: 'comment-123',
+          content: 'Sebuah komentar',
+          owner: 'user-123',
+        }));
       });
     });
 
