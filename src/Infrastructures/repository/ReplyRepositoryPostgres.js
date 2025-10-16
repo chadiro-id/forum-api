@@ -1,5 +1,6 @@
 const AuthorizationError = require('../../Commons/exceptions/AuthorizationError');
 const NotFoundError = require('../../Commons/exceptions/NotFoundError');
+const AddedReply = require('../../Domains/replies/entities/AddedReply');
 const Reply = require('../../Domains/replies/entities/Reply');
 const ReplyRepository = require('../../Domains/replies/ReplyRepository');
 
@@ -17,16 +18,19 @@ class ReplyRepositoryPostgres extends ReplyRepository {
     const id = `reply-${this._idGenerator()}`;
 
     const query = {
-      text: 'INSERT INTO replies (id, content, comment_id, owner_id) VALUES ($1, $2, $3, $4) RETURNING id, content, owner_id',
-      values: [id, content, commentId, ownerId],
+      text: `
+      INSERT INTO replies
+        (id, comment_id, owner_id, content)
+      VALUES
+        ($1, $2, $3, $4)
+      RETURNING
+        id, content, owner_id
+      `,
+      values: [id, commentId, ownerId, content],
     };
 
     const result = await this._pool.query(query);
-    return {
-      id: result.rows[0].id,
-      content: result.rows[0].content,
-      owner: result.rows[0].owner_id,
-    };
+    return this._transformToAddedReply(result.rows[0]);
   }
 
   async getRepliesByCommentIds(commentIds) {
@@ -34,12 +38,18 @@ class ReplyRepositoryPostgres extends ReplyRepository {
 
     const query = {
       text: `
-        SELECT r.id, r.content, r.comment_id, r.created_at, r.is_delete, u.username
-        FROM replies r
-        LEFT JOIN users u
-        ON u.id = r.owner_id
-        WHERE r.comment_id = ANY($1::text[])
-        ORDER BY r.created_at ASC
+      SELECT
+        r.id, r.content, r.comment_id, r.created_at, r.is_delete, u.username
+      FROM
+        replies r
+      LEFT JOIN
+        users u
+      ON
+        u.id = r.owner_id
+      WHERE
+        r.comment_id = ANY($1::text[])
+      ORDER BY
+        r.created_at ASC
       `,
       values: [commentIds],
     };
@@ -76,14 +86,24 @@ class ReplyRepositoryPostgres extends ReplyRepository {
     }
   }
 
-  _transformToReply(row) {
+  _transformToAddedReply({
+    id, content, owner_id: owner
+  }) {
+    return new AddedReply({
+      id, content, owner
+    });
+  }
+
+  _transformToReply({
+    id,
+    comment_id: commmentId,
+    username,
+    content,
+    created_at: date,
+    is_delete: isDelete,
+  }) {
     return new Reply({
-      id: row.id,
-      commentId: row.comment_id,
-      username: row.username,
-      content: row.content,
-      isDelete: row.is_delete,
-      date: row.created_at,
+      id, commmentId, username, content, date, isDelete
     });
   }
 }
