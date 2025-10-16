@@ -6,16 +6,21 @@ const {
   authenticationsTable,
   threadsTable,
   commentsTable,
+  repliesTable,
 } = require('../../../../tests/db_helper/postgres');
 
 let userA;
 let userAuthA;
+let userB;
+let userAuthB;
 
 beforeAll(async () => {
   await serverTest.init();
 
   userA = await usersTable.add({ id: 'user-123', username: 'whoami' });
   userAuthA = await getUserAuth({ ...userA });
+  userB = await usersTable.add({ id: 'user-456', username: 'johndoe' });
+  userAuthB = await getUserAuth({ ...userB });
 });
 
 afterAll(async () => {
@@ -25,8 +30,10 @@ afterAll(async () => {
 });
 
 describe('Replies Endpoints', () => {
-  let threadId, commentId;
+  let threadId;
+  let commentId;
   let authorizationUserA;
+  let authorizationUserB;
 
   beforeAll(async () => {
     threadId = await threadsTable.add({ owner: userA.id });
@@ -34,6 +41,9 @@ describe('Replies Endpoints', () => {
 
     authorizationUserA = {
       Authorization: `Bearer ${userAuthA.accessToken}`
+    };
+    authorizationUserB = {
+      Authorization: `Bearer ${userAuthB.accessToken}`
     };
   });
 
@@ -144,6 +154,74 @@ describe('Replies Endpoints', () => {
       expect(responseJson.data.addedReply.id).toEqual(expect.stringContaining('reply-'));
       expect(responseJson.data.addedReply.content).toEqual('Sebuah balasan');
       expect(responseJson.data.addedReply.owner).toEqual(userA.id);
+    });
+  });
+
+  describe('DELETE /threads/{threadId}/comments/{commentId}/replies/{replyId}', () => {
+    let replyUserA;
+    let replyUserB;
+
+    beforeAll(async () => {
+      replyUserA = await repliesTable.add({ id: 'reply-123', commentId, owner: userA.id });
+      replyUserB = await repliesTable.add({ id: 'reply-456', commentId, owner: userB.id });
+    });
+
+    afterAll(async () => {
+      await repliesTable.clean();
+    });
+
+    it('should response 401 when delete reply without authentication', async () => {
+      const endpoint = `/threads/${threadId}/comments/${commentId}/replies/${replyUserA}`;
+
+      const response = await serverTest.delete(endpoint);
+
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toBe(401);
+      expect(responseJson.error).toEqual('Unauthorized');
+      expect(responseJson.message).toEqual('Missing authentication');
+    });
+
+    it('should response 404 when delete reply that not exists', async () => {
+      const endpoint = `/threads/${threadId}/comments/${commentId}/replies/xxx`;
+      const options = {
+        headers: { ...authorizationUserB }
+      };
+
+      const response = await serverTest.delete(endpoint, options);
+
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toBe(404);
+      expect(responseJson.status).toEqual('fail');
+      expect(responseJson.message).toEqual(expect.any(String));
+      expect(responseJson.message.trim()).not.toBe('');
+    });
+
+    it('should response 403 when delete reply by not authorized user', async () => {
+      const endpoint = `/threads/${threadId}/comments/${commentId}/replies/${replyUserB}`;
+      const options = {
+        headers: { ...authorizationUserA }
+      };
+
+      const response = await serverTest.delete(endpoint, options);
+
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toBe(403);
+      expect(responseJson.status).toEqual('fail');
+      expect(responseJson.message).toEqual(expect.any(String));
+      expect(responseJson.message.trim()).not.toBe('');
+    });
+
+    it('should response 200 when delete reply by authorized user', async () => {
+      const endpoint = `/threads/${threadId}/comments/${commentId}/replies/${replyUserA}`;
+      const options = {
+        headers: { ...authorizationUserA }
+      };
+
+      const response = await serverTest.delete(endpoint, options);
+
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toBe(200);
+      expect(responseJson.status).toEqual('success');
     });
   });
 });
