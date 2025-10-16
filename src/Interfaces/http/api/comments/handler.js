@@ -1,7 +1,6 @@
 const AddCommentUseCase = require('../../../../Applications/use_case/comments/AddCommentUseCase');
 const DeleteCommentUseCase = require('../../../../Applications/use_case/comments/DeleteCommentUseCase');
 const InvariantError = require('../../../../Commons/exceptions/InvariantError');
-const NewComment = require('../../../../Domains/comments/entities/NewComment');
 
 class CommentsHandler {
   constructor(container) {
@@ -16,17 +15,12 @@ class CommentsHandler {
     const { id: owner } = request.auth.credentials;
 
     const { content } = request.payload;
-
     if (!content || typeof content !== 'string') {
       throw new InvariantError('Komentar harus di isi dengan benar');
     }
 
-    const newComment = new NewComment({
-      threadId, owner, content
-    });
-
-    const addCommentUseCase = this._container.getInstance(AddCommentUseCase.name);
-    const addedComment = await addCommentUseCase.execute(newComment);
+    const useCase = this._container.getInstance(AddCommentUseCase.name);
+    const addedComment = await useCase.execute({ threadId, owner, content });
 
     const response = h.response({
       status: 'success',
