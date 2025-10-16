@@ -98,6 +98,21 @@ describe('Threads Endpoints', () => {
       expect(responseJson.message).not.toBe('');
     });
 
+    it('should response 400 when thread title more than 255 character', async () => {
+      const options = {
+        headers: { ...authorizationUserA },
+        payload: { ...dummyPayload, title: 'Sebuah Thread'.repeat(102) },
+      };
+
+      const response = await serverTest.post('/threads', options);
+
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toBe(400);
+      expect(responseJson.status).toBe('fail');
+      expect(responseJson.message).toEqual(expect.any(String));
+      expect(responseJson.message).not.toBe('');
+    });
+
     it('should response 201 and return the persisted thread', async () => {
       const options = {
         headers: { ...authorizationUserA },
