@@ -28,9 +28,8 @@ class Reply {
       throw new Error('REPLY.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
     }
 
-    const ms = Date.parse(date);
-    if (Number.isNaN(ms)) {
-      throw new Error('REPLY.INVALID_DATE_STRING');
+    if (Number.isNaN(Date.parse(date))) {
+      throw new Error('REPLY.DATE_INVALID');
     }
   }
 

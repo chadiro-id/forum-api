@@ -60,11 +60,15 @@ describe('Reply Entity', () => {
         .toThrow('REPLY.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
     });
 
-    it('should throw error when date string is not valid', () => {
-      const invalidDateString = { ...dummyPayload, date: 'date' };
+    it('should throw error when date is not valid', () => {
 
-      expect(() => new Reply(invalidDateString))
-        .toThrow('REPLY.INVALID_DATE_STRING');
+      const dateString = { ...dummyPayload, date: 'date' };
+      const dateObj = { ...dummyPayload, date: new Date('date') };
+
+      expect(() => new Reply(dateString))
+        .toThrow('REPLY.DATE_INVALID');
+      expect(() => new Reply(dateObj))
+        .toThrow('REPLY.DATE_INVALID');
     });
   });
 
