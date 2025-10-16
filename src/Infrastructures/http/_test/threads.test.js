@@ -11,14 +11,12 @@ let currentUser;
 let currentUserAuth;
 
 beforeAll(async () => {
-  console.log('BEFORE ALL');
   await serverTest.init();
   currentUser = await usersTable.add({ username: 'whoami' });
   currentUserAuth = await getUserAuth({ username: 'whoami' });
 });
 
 afterAll(async () => {
-  console.log('AFTER ALL');
   await authenticationsTable.clean();
   await usersTable.clean();
   await pool.end();
@@ -26,12 +24,10 @@ afterAll(async () => {
 
 describe('Threads Endpoints', () => {
   beforeEach(async () => {
-    console.log('INIT SERVER');
     await serverTest.init();
   });
 
   afterEach(async () => {
-    console.log('STOP SERVER');
     await serverTest.stop();
   });
 
@@ -107,24 +103,21 @@ describe('Threads Endpoints', () => {
     let threadId;
 
     beforeEach(async () => {
-      console.log('ADD THREAD');
       threadId = await threadsTable.add({ owner: currentUser.id });
     });
 
     afterEach(async () => {
-      console.log('CLEAN THREAD');
       await threadsTable.clean();
     });
 
-    it('should response 200 and correct body property', async () => {
+    it('should response 200 and detail thread', async () => {
       const response = await serverTest.get(`/threads/${threadId}`);
 
       const responseJson = JSON.parse(response.payload);
-      console.log(responseJson);
 
       expect(response.statusCode).toBe(200);
       expect(responseJson.status).toEqual('success');
-      expect(responseJson.data.thread.id).toEqual(expect.any(String));
+      expect(responseJson.data.thread.id).toEqual(expect.stringContaining('thread-'));
       expect(responseJson.data.thread.id).not.toBe('');
       expect(responseJson.data.thread.title).toBe('Judul thread');
       expect(responseJson.data.thread.body).toBe('Isi thread');
