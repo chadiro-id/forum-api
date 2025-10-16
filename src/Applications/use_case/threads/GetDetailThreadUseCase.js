@@ -1,3 +1,5 @@
+const DetailThread = require('../../../Domains/threads/entities/DetailThread');
+
 class GetDetailThreadUseCase {
   constructor({
     threadRepository,
@@ -11,8 +13,11 @@ class GetDetailThreadUseCase {
 
   async execute(threadId) {
     const thread = await this._threadRepository.getThreadById(threadId);
-    const comments = await this._commentRepository.getCommentsByThreadId(threadId);
+    if (thread instanceof DetailThread === false) {
+      throw new Error();
+    }
 
+    const comments = await this._commentRepository.getCommentsByThreadId(threadId);
     const commentIds = comments.map(({ id }) => id);
 
     const replies = await this._replyRepository.getRepliesByCommentIds(commentIds);
@@ -22,7 +27,7 @@ class GetDetailThreadUseCase {
       entry.replies = repliesGrouped[entry.id] || [];
       return entry;
     });
-    console.log('Get Thread Use Case:', JSON.stringify(thread));
+
     return thread;
   }
 
