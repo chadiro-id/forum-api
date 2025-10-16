@@ -30,7 +30,7 @@ class Comment {
     }
 
     if (Number.isNaN(Date.parse(date))) {
-      throw new Error('COMMENT.INVALID_DATE');
+      throw new Error('COMMENT.DATE_INVALID');
     }
 
     if (Array.isArray(replies)) {
