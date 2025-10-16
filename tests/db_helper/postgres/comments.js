@@ -1,3 +1,4 @@
+/* istanbul ignore file */
 const comments = (pool) => {
   const add = async ({
     id = 'comment-123',
