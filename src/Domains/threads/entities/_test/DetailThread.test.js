@@ -74,7 +74,7 @@ describe('DetailThread Entity', () => {
       const invalidDateString = { ...dummyPayload, date: 'Date' };
 
       expect(() => new DetailThread(invalidDateString))
-        .toThrow('DETAIL_THREAD.INVALID_DATE_STRING');
+        .toThrow('DETAIL_THREAD.DATE_INVALID');
     });
   });
 
