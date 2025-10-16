@@ -41,7 +41,7 @@ describe('AddCommentUseCase', () => {
 
       await expect(useCase.execute({ ...dummyPayload }))
         .rejects
-        .toThrow();
+        .toThrow('ADD_COMMENT_USE_CASE.ADDED_COMMENT_MUST_BE_INSTANCE_OF_ADDED_COMMENT_ENTITY');
 
       expect(mockThreadRepository.verifyThreadExists).toHaveBeenCalledTimes(1);
       expect(mockThreadRepository.verifyThreadExists).toHaveBeenCalledWith(dummyPayload.threadId);
