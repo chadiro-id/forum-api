@@ -69,19 +69,17 @@ class ThreadRepositoryPostgres extends ThreadRepository {
     return this._transformToDetailThread(result.rows[0]);
   }
 
-  _transformToAddedThread(row) {
+  _transformToAddedThread({
+    id, title, owner_id: owner
+  }) {
     return new AddedThread({
-      id: row.id,
-      title: row.title,
-      owner: row.owner_id,
+      id, title, owner
     });
   }
 
   _transformToDetailThread({
     id, title, body, username, created_at: date,
   }) {
-    console.log('trasform ->', id, title, body, username, date);
-    console.log('date ->', date);
     return new DetailThread({
       id, title, body, username, date
     });
