@@ -1,4 +1,5 @@
 const CommentRepository = require('../../../../Domains/comments/CommentRepository');
+const AddedReply = require('../../../../Domains/replies/entities/AddedReply');
 const NewReply = require('../../../../Domains/replies/entities/NewReply');
 const ReplyRepository = require('../../../../Domains/replies/ReplyRepository');
 const ThreadRepository = require('../../../../Domains/threads/ThreadRepository');
@@ -24,7 +25,7 @@ describe('AddReplyUseCase', () => {
         .rejects.toThrow();
     });
 
-    it('should throw error when the added reply instance is not AddedReply entity', async () => {
+    it('should throw error when the addedReply instance is not AddedReply entity', async () => {
       const mockThreadRepository = new ThreadRepository();
       const mockCommentRepository = new CommentRepository();
       const mockReplyRepository = new ReplyRepository();
@@ -59,6 +60,49 @@ describe('AddReplyUseCase', () => {
           content: dummyPayload.content,
           owner: dummyPayload.owner,
         }));
+    });
+  });
+
+  describe('Successfull execution', () => {
+    it('should orchestrating the add reply action correctly', async () => {
+      const mockThreadRepository = new ThreadRepository();
+      const mockCommentRepository = new CommentRepository();
+      const mockReplyRepository = new ReplyRepository();
+
+      mockThreadRepository.verifyThreadExists = jest.fn().mockResolvedValue();
+      mockCommentRepository.verifyCommentExists = jest.fn().mockResolvedValue();
+      mockReplyRepository.addReply = jest.fn().mockResolvedValue(new AddedReply({
+        id: 'reply-123',
+        content: 'Sebuah balasan',
+        owner: 'user-123',
+      }));
+
+      const useCase = new AddReplyUseCase({
+        threadRepository: mockThreadRepository,
+        commentRepository: mockCommentRepository,
+        replyRepository: mockReplyRepository,
+      });
+
+      const addedReply = await useCase.execute({ ...dummyPayload });
+
+      expect(mockThreadRepository.verifyThreadExists).toHaveBeenCalledTimes(1);
+      expect(mockThreadRepository.verifyThreadExists).toHaveBeenCalledWith(dummyPayload.threadId);
+
+      expect(mockCommentRepository.verifyCommentExists).toHaveBeenCalledTimes(1);
+      expect(mockCommentRepository.verifyCommentExists).toHaveBeenCalledWith(dummyPayload.commentId);
+
+      expect(mockReplyRepository.addReply).toHaveBeenCalledTimes(1);
+      expect(mockReplyRepository.addReply).toHaveBeenCalledWith(new NewReply({
+        commentId: dummyPayload.commentId,
+        content: dummyPayload.content,
+        owner: dummyPayload.owner,
+      }));
+
+      expect(addedReply).toEqual(new AddedReply({
+        id: 'reply-123',
+        content: 'Sebuah balasan',
+        owner: 'user-123',
+      }));
     });
   });
 });
