@@ -30,10 +30,13 @@ afterAll(async () => {
 });
 
 describe('Comments Endpoints', () => {
+  let threadId;
   let authorizationUserA;
   let authorizationUserB;
 
   beforeAll(async () => {
+    threadId = await threadsTable.add({ owner: userA.id });
+
     authorizationUserA = {
       Authorization: `Bearer ${userAuthA.accessToken}`,
     };
@@ -51,16 +54,10 @@ describe('Comments Endpoints', () => {
   });
 
   describe('POST /threads/{threadId}/comments', () => {
-    let threadId;
     let endpoint;
 
     beforeAll(async () => {
-      threadId = await threadsTable.add({ owner: userA.id });
       endpoint = `/threads/${threadId}/comments`;
-    });
-
-    afterAll(async () => {
-      await threadsTable.clean();
     });
 
     it('should response 401 when request with no authentications', async () => {
@@ -141,17 +138,15 @@ describe('Comments Endpoints', () => {
   });
 
   describe('DELETE /threads/{threadId}/comments/{commentId}', () => {
-    let threadId;
-    let commentUserA, commentUserB;
+    let commentUserA;
+    let commentUserB;
 
     beforeAll(async () => {
-      threadId = await threadsTable.add({ owner: userA.id });
       commentUserA = await commentsTable.add({ id: 'comment-123', threadId, owner: userA.id });
       commentUserB = await commentsTable.add({ id: 'comment-456', threadId, owner: userB.id });
     });
 
     afterAll(async () => {
-      await threadsTable.clean();
       await commentsTable.clean();
     });
 
