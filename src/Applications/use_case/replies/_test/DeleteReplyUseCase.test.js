@@ -1,3 +1,6 @@
+const CommentRepository = require('../../../../Domains/comments/CommentRepository');
+const ReplyRepository = require('../../../../Domains/replies/ReplyRepository');
+const ThreadRepository = require('../../../../Domains/threads/ThreadRepository');
 const DeleteReplyUseCase = require('../DeleteReplyUseCase');
 
 describe('DeleteReplyUseCase', () => {
@@ -59,6 +62,37 @@ describe('DeleteReplyUseCase', () => {
         .rejects.toThrow('DELETE_REPLY_USE_CASE.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
       await expect(useCase.execute(ownerNotString))
         .rejects.toThrow('DELETE_REPLY_USE_CASE.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
+    });
+  });
+
+  describe('Successfull execution', () => {
+    it('should correctly orchestrating the delete reply action', async () => {
+      const mockThreadRepository = new ThreadRepository();
+      const mockCommentRepository = new CommentRepository();
+      const mockReplyRepository = new ReplyRepository();
+
+      mockThreadRepository.verifyThreadExists = jest.fn().mockResolvedValue();
+      mockCommentRepository.verifyCommentExists = jest.fn().mockResolvedValue();
+      mockReplyRepository.verifyReplyOwner = jest.fn().mockResolvedValue();
+      mockReplyRepository.softDeleteReplyById = jest.fn().mockResolvedValue();
+
+      const useCase = new DeleteReplyUseCase({
+        threadRepository: mockThreadRepository,
+        commentRepository: mockCommentRepository,
+        replyRepository: mockReplyRepository,
+      });
+
+      await expect(useCase.execute({ ...dummyPayload }))
+        .resolves.not.toThrow();
+
+      expect(mockThreadRepository.verifyThreadExists).toHaveBeenCalledTimes(1);
+      expect(mockThreadRepository.verifyThreadExists).toHaveBeenCalledWith(dummyPayload.threadId);
+      expect(mockCommentRepository.verifyCommentExists).toHaveBeenCalledTimes(1);
+      expect(mockCommentRepository.verifyCommentExists).toHaveBeenCalledWith(dummyPayload.commentId);
+      expect(mockReplyRepository.verifyReplyOwner).toHaveBeenCalledTimes(1);
+      expect(mockReplyRepository.verifyReplyOwner).toHaveBeenCalledWith(dummyPayload.replyId, dummyPayload.owner);
+      expect(mockReplyRepository.softDeleteReplyById).toHaveBeenCalledTimes(1);
+      expect(mockReplyRepository.softDeleteReplyById).toHaveBeenCalledWith(dummyPayload.replyId);
     });
   });
 });
