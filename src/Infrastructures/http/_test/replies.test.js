@@ -7,7 +7,7 @@ const {
   threadsTable,
   commentsTable,
   repliesTable,
-} = require('../../../../tests/db_helper/postgres');
+} = require('../../../../tests/helper/postgres');
 
 let userA;
 let userAuthA;
