@@ -119,8 +119,8 @@ describe('Threads Endpoints', () => {
       expect(responseJson.status).toEqual('success');
       expect(responseJson.data.thread.id).toEqual(expect.stringContaining('thread-'));
       expect(responseJson.data.thread.id).not.toBe('');
-      expect(responseJson.data.thread.title).toBe('Judul thread');
-      expect(responseJson.data.thread.body).toBe('Isi thread');
+      expect(responseJson.data.thread.title).toEqual('Sebuah thread');
+      expect(responseJson.data.thread.body).toEqual('Isi thread');
       expect(Date.parse(responseJson.data.thread.date)).not.toBeNaN();
       expect(responseJson.data.thread.username).toBe(currentUser.username);
       expect(responseJson.data.thread.comments).toEqual(expect.any(Array));
