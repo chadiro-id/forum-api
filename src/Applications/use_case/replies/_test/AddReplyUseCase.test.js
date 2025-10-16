@@ -48,23 +48,21 @@ describe('AddReplyUseCase', () => {
         .rejects
         .toThrow('ADD_REPLY_USE_CASE.ADDED_REPLY_MUST_BE_INSTANCE_OF_ADDED_REPLY_ENTITY');
 
-      expect(mockThreadRepository.verifyThreadExists)
-        .toHaveBeenCalledTimes(1);
-      expect(mockCommentRepository.verifyCommentExists)
-        .toHaveBeenCalledTimes(1);
-      expect(mockReplyRepository.addReply)
-        .toHaveBeenCalledTimes(1);
-      expect(mockReplyRepository.addReply)
-        .toHaveBeenCalledWith(new NewReply({
-          commentId: dummyPayload.commentId,
-          content: dummyPayload.content,
-          owner: dummyPayload.owner,
-        }));
+      expect(mockThreadRepository.verifyThreadExists).toHaveBeenCalledTimes(1);
+      expect(mockThreadRepository.verifyThreadExists).toHaveBeenCalledWith(dummyPayload.threadId);
+      expect(mockCommentRepository.verifyCommentExists).toHaveBeenCalledTimes(1);
+      expect(mockCommentRepository.verifyCommentExists).toHaveBeenCalledWith(dummyPayload.commentId);
+      expect(mockReplyRepository.addReply).toHaveBeenCalledTimes(1);
+      expect(mockReplyRepository.addReply).toHaveBeenCalledWith(new NewReply({
+        commentId: dummyPayload.commentId,
+        content: dummyPayload.content,
+        owner: dummyPayload.owner,
+      }));
     });
   });
 
   describe('Successfull execution', () => {
-    it('should orchestrating the add reply action correctly', async () => {
+    it('should correctly orchestrating the add reply action', async () => {
       const mockThreadRepository = new ThreadRepository();
       const mockCommentRepository = new CommentRepository();
       const mockReplyRepository = new ReplyRepository();
