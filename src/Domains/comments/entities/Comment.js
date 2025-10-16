@@ -29,9 +29,8 @@ class Comment {
       throw new Error('COMMENT.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
     }
 
-    const ms = Date.parse(date);
-    if (Number.isNaN(ms)) {
-      throw new Error('COMMENT.INVALID_DATE_STRING');
+    if (Number.isNaN(Date.parse(date))) {
+      throw new Error('COMMENT.INVALID_DATE');
     }
 
     if (Array.isArray(replies)) {
