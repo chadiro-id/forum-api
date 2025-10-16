@@ -64,7 +64,7 @@ describe('Comment Entity', () => {
       const invalidDateString = { ...dummyPayload, date: 'date' };
 
       expect(() => new Comment(invalidDateString))
-        .toThrow('COMMENT.INVALID_DATE_STRING');
+        .toThrow('COMMENT.DATE_INVALID');
     });
   });
 
