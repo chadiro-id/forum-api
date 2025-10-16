@@ -1,17 +1,15 @@
 const Comment = require('../../comments/entities/Comment');
 
 class DetailThread {
-  _comments;
-
   constructor(payload) {
     this._verifyPayload(payload);
 
-    this.id = payload.id;
-    this.title = payload.title;
-    this.body = payload.body;
-    this.date = payload.date;
-    this.username = payload.username;
-    this.comments = payload.comments || [];
+    this._id = payload.id;
+    this._title = payload.title;
+    this._body = payload.body;
+    this._date = payload.date;
+    this._username = payload.username;
+    this._comments = payload.comments || [];
   }
 
   _verifyPayload(payload) {
@@ -22,12 +20,6 @@ class DetailThread {
     if (!id || !title || !body || !date || !username) {
       throw new Error('DETAIL_THREAD.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
     }
-
-    console.log('typeof id', typeof id);
-    console.log('typeof title', typeof title);
-    console.log('typeof body', typeof body);
-    console.log('typeof date', typeof date);
-    console.log('typeof username', typeof username);
 
     if (
       typeof id !== 'string'
@@ -43,16 +35,29 @@ class DetailThread {
       throw new Error('DETAIL_THREAD.TITLE_EXCEDD_CHAR_LIMIT');
     }
 
-    if (typeof date === 'string') {
-      const ms = Date.parse(date);
-      if (Number.isNaN(ms)) {
-        throw new Error('DETAIL_THREAD.INVALID_DATE_STRING');
-      }
-    } else {
-      if (date instanceof Date === false) {
-        throw new Error('DETAIL_THREAD.INVALID_DATE_OBJECT');
-      }
+    if (Number.isNaN(Date.parse(date))) {
+      throw new Error('DETAIL_THREAD.DATE_INVALID');
     }
+  }
+
+  get id() {
+    return this._id;
+  }
+
+  get username() {
+    return this._username;
+  }
+
+  get title() {
+    return this._title;
+  }
+
+  get body() {
+    return this._body;
+  }
+
+  get date() {
+    return this._date;
   }
 
   set comments(value) {
@@ -79,7 +84,7 @@ class DetailThread {
       body: this.body,
       username: this.username,
       date: this.date,
-      comments: this.comments.map((entry) => entry.toJSON()),
+      comments: this.comments,
     };
   }
 }
