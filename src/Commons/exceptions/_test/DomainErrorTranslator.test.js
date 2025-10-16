@@ -10,7 +10,7 @@ describe('DomainErrorTranslator', () => {
     expect(DomainErrorTranslator.translate(new Error('REGISTER_USER.USERNAME_EXCEED_CHAR_LIMIT')))
       .toStrictEqual(new InvariantError('tidak dapat membuat user baru, username maksimal 50 karakter'));
     expect(DomainErrorTranslator.translate(new Error('REGISTER_USER.USERNAME_CONTAIN_RESTRICTED_CHARACTER')))
-      .toStrictEqual(new InvariantError('tidak dapat membuat user baru, username mengandung karakter terlarang'));
+      .toStrictEqual(new InvariantError('tidak dapat membuat user baru karena username mengandung karakter terlarang'));
     expect(DomainErrorTranslator.translate(new Error('USER_LOGIN.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY')))
       .toStrictEqual(new InvariantError('harus mengirimkan username dan password'));
     expect(DomainErrorTranslator.translate(new Error('USER_LOGIN.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION')))
