@@ -5,7 +5,7 @@ const {
   usersTable,
   authenticationsTable,
   threadsTable,
-} = require('../../../../tests/db_helper/postgres');
+} = require('../../../../tests/helper/postgres');
 
 let currentUser;
 let currentUserAuth;

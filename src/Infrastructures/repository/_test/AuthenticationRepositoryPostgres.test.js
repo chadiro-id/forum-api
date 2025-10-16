@@ -1,7 +1,7 @@
 const pool = require('../../database/postgres/pool');
 const InvariantError = require('../../../Commons/exceptions/InvariantError');
 const AuthenticationRepositoryPostgres = require('../AuthenticationRepositoryPostgres');
-const { authenticationsTable } = require('../../../../tests/db_helper/postgres');
+const { authenticationsTable } = require('../../../../tests/helper/postgres');
 
 describe('AuthenticationRepositoryPostgres', () => {
   beforeEach(async () => {

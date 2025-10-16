@@ -1,6 +1,6 @@
 const pool = require('../../database/postgres/pool');
 const serverTest = require('../../../../tests/server');
-const { usersTable } = require('../../../../tests/db_helper/postgres');
+const { usersTable } = require('../../../../tests/helper/postgres');
 
 beforeAll(async () => {
   await serverTest.init();

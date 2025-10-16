@@ -3,7 +3,7 @@ const InvariantError = require('../../../Commons/exceptions/InvariantError');
 const RegisterUser = require('../../../Domains/users/entities/RegisterUser');
 const RegisteredUser = require('../../../Domains/users/entities/RegisteredUser');
 const UserRepositoryPostgres = require('../UserRepositoryPostgres');
-const { usersTable } = require('../../../../tests/db_helper/postgres');
+const { usersTable } = require('../../../../tests/helper/postgres');
 
 describe('UserRepositoryPostgres', () => {
   beforeEach(async () => {
