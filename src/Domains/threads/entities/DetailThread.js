@@ -23,19 +23,35 @@ class DetailThread {
       throw new Error('DETAIL_THREAD.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
     }
 
+    console.log('typeof id', typeof id);
+    console.log('typeof title', typeof title);
+    console.log('typeof body', typeof body);
+    console.log('typeof date', typeof date);
+    console.log('typeof username', typeof username);
+
     if (
       typeof id !== 'string'
       || typeof title !== 'string'
       || typeof body !== 'string'
-      || typeof date !== 'string'
       || typeof username !== 'string'
+      || ['string', 'object'].includes(typeof date) === false
     ) {
       throw new Error('DETAIL_THREAD.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
     }
 
-    const ms = Date.parse(date);
-    if (Number.isNaN(ms)) {
-      throw new Error('DETAIL_THREAD.INVALID_DATE_STRING');
+    if (title.length > 255) {
+      throw new Error('DETAIL_THREAD.TITLE_EXCEDD_CHAR_LIMIT');
+    }
+
+    if (typeof date === 'string') {
+      const ms = Date.parse(date);
+      if (Number.isNaN(ms)) {
+        throw new Error('DETAIL_THREAD.INVALID_DATE_STRING');
+      }
+    } else {
+      if (date instanceof Date === false) {
+        throw new Error('DETAIL_THREAD.INVALID_DATE_OBJECT');
+      }
     }
   }
 
@@ -63,7 +79,7 @@ class DetailThread {
       body: this.body,
       username: this.username,
       date: this.date,
-      comments: this.comments,
+      comments: this.comments.map((entry) => entry.toJSON()),
     };
   }
 }

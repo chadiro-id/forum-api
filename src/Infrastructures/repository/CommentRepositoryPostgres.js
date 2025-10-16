@@ -1,6 +1,7 @@
 const NotFoundError = require('../../Commons/exceptions/NotFoundError');
 const AuthorizationError = require('../../Commons/exceptions/AuthorizationError');
 const CommentRepository = require('../../Domains/comments/CommentRepository');
+const Comment = require('../../Domains/comments/entities/Comment');
 
 class CommentRepositoryPostgres extends CommentRepository {
   constructor(pool, idGenerator) {
@@ -45,7 +46,7 @@ class CommentRepositoryPostgres extends CommentRepository {
 
     const result = await this._pool.query(query);
 
-    return result.rows;
+    return result.rows.map((row) => this._transformToComment(row));
   }
 
   async softDeleteCommentById(id) {
@@ -86,6 +87,20 @@ class CommentRepositoryPostgres extends CommentRepository {
     if (owner !== result.rows[0].owner_id) {
       throw new AuthorizationError('Anda tidak memiliki hak akses');
     }
+  }
+
+  _transformToComment({
+    id, username, content, created_at: date, is_delete: isDelete
+  }) {
+    console.log('[CommentRepository] transform -> id:', id);
+    console.log('[CommentRepository] transform -> content:', content);
+    console.log('[CommentRepository] transform -> username:', username);
+    console.log('[CommentRepository] transform -> date:', date);
+    console.log('[CommentRepository] transform -> isDelete:', isDelete);
+
+    return new Comment({
+      id, username, content, date, isDelete
+    });
   }
 }
 

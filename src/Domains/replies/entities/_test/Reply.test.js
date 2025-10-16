@@ -3,9 +3,11 @@ const Reply = require('../Reply');
 describe('Reply Entity', () => {
   const dummyPayload = {
     id: 'reply-123',
+    commentId: 'comment-123',
     content: 'Sebuah balasan',
     date: '2025-10-15T02:08:54.384Z',
-    username: 'superuser'
+    username: 'superuser',
+    isDelete: false,
   };
 
   describe('Bad payload', () => {

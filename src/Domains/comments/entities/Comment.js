@@ -1,30 +1,30 @@
 const Reply = require('../../replies/entities/Reply');
 
 class Comment {
-  _replies;
-
   constructor(payload) {
     this._validatePayload(payload);
 
-    this.id = payload.id;
-    this.content = payload.content;
-    this.date = payload.date;
-    this.username = payload.username;
-    this.replies = payload.replies || [];
+    this._id = payload.id;
+    this._username = payload.username;
+    this._content = payload.content;
+    this._isDelete = payload.isDelete;
+    this._date = payload.date;
+    this._replies = payload.replies || [];
   }
 
   _validatePayload(payload) {
-    const { id, content, date, username } = payload;
+    const { id, username, content, date, isDelete, replies } = payload;
 
-    if (!id || !content || !date || !username) {
+    if (!id || !username || !content || !date || isDelete === undefined) {
       throw new Error('COMMENT.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
     }
 
     if (
       typeof id !== 'string'
-      || typeof content !== 'string'
-      || typeof date !== 'string'
       || typeof username !== 'string'
+      || typeof content !== 'string'
+      || typeof isDelete !== 'boolean'
+      || ['string', 'object'].includes(typeof date) === false
     ) {
       throw new Error('COMMENT.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
     }
@@ -33,6 +33,31 @@ class Comment {
     if (Number.isNaN(ms)) {
       throw new Error('COMMENT.INVALID_DATE_STRING');
     }
+
+    if (Array.isArray(replies)) {
+      const hasInvalidElement = replies.some((el) => el instanceof Reply === false);
+      if (hasInvalidElement) {
+        throw new Error('COMMENT.REPLIES_INVALID_ELEMENT');
+      }
+    }
+  }
+
+  get id() {
+    return this._id;
+  }
+
+  get username() {
+    return this._username;
+  }
+
+  get content() {
+    return this._isDelete
+      ? '**komentar telah dihapus**'
+      : this._content;
+  }
+
+  get date() {
+    return this._date;
   }
 
   set replies(value) {

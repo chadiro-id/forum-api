@@ -110,6 +110,7 @@ describe('DetailThread Entity', () => {
       content: 'Sebuah komentar',
       username: 'johndoe',
       date: dummyPayload.date,
+      isDelete: false,
     };
 
     it('should return empty array as default value', () => {

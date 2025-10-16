@@ -74,30 +74,30 @@ describe('CommentRepositoryPostgres', () => {
 
     describe('getCommentsByThreadId', () => {
       it('should correctly query the database and return the comments related to the given thread id', async () => {
+        const comment1 = {
+          id: 'comment-001',
+          content: 'Something comment',
+          username: 'forumapi_1',
+          created_at: '2025-10-15T02:08:54.384Z',
+          is_delete: false,
+        };
+        const comment2 = {
+          id: 'comment-002',
+          content: 'Something comment',
+          username: 'forumapi_2',
+          created_at: '2025-10-15T02:08:54.384Z',
+          is_delete: false,
+        };
+        const comment3 = {
+          id: 'comment-003',
+          content: 'Something comment',
+          username: 'forumapi_3',
+          created_at: '2025-10-15T02:08:54.384Z',
+          is_delete: false,
+        };
+
         mockPool.query.mockResolvedValue({
-          rows: [
-            {
-              id: 'comment-001',
-              content: 'Something comment',
-              username: 'forumapi_1',
-              created_at: 'date time',
-              is_delete: false,
-            },
-            {
-              id: 'comment-002',
-              content: 'Something comment',
-              username: 'forumapi_2',
-              created_at: 'date time',
-              is_delete: false,
-            },
-            {
-              id: 'comment-003',
-              content: 'Something comment',
-              username: 'forumapi_3',
-              created_at: 'date time',
-              is_delete: false,
-            },
-          ],
+          rows: [comment1, comment2, comment3],
           rowCount: 3,
         });
 
@@ -112,13 +112,15 @@ describe('CommentRepositoryPostgres', () => {
         );
         expect(comments).toHaveLength(3);
         expect(comments).toEqual(
-          expect.arrayOf({
-            id: expect.stringContaining('comment-'),
-            content: expect.stringContaining('Something'),
-            username: expect.stringContaining('forumapi_'),
-            is_delete: expect.any(Boolean),
-            created_at: expect.stringContaining('date'),
-          })
+          expect.arrayOf(
+            expect.objectContaining({
+              id: expect.stringContaining('comment-'),
+              content: expect.any(String),
+              date: expect.any(String),
+              username: expect.any(String),
+              replies: expect.any(Array)
+            })
+          )
         );
       });
     });

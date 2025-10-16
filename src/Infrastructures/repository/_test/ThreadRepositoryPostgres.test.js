@@ -1,4 +1,5 @@
 const NotFoundError = require('../../../Commons/exceptions/NotFoundError');
+const DetailThread = require('../../../Domains/threads/entities/DetailThread');
 const ThreadRepository = require('../../../Domains/threads/ThreadRepository');
 const ThreadRepositoryPostgres = require('../ThreadRepositoryPostgres');
 
@@ -43,14 +44,14 @@ describe('ThreadRepositoryPostgres', () => {
     describe('addThread', () => {
       it('should persist the thread record and return the id correctly', async () => {
         mockPool.query.mockResolvedValue({
-          rows: [{ id: 'thread-123' }],
+          rows: [{ id: 'thread-123', title: 'Judul thread', owner_id: 'user-123' }],
           rowCount: 1,
         });
 
-        const addedThreadId = await threadRepositoryPostgres.addThread({
-          title: 'Some title',
-          body: 'Some body',
-          owner_id: 'user-123',
+        const addedThread = await threadRepositoryPostgres.addThread({
+          title: 'Judul thread',
+          body: 'Sebuah thread',
+          owner: 'user-123',
         });
 
         expect(mockPool.query).toHaveBeenCalledTimes(1);
@@ -62,11 +63,13 @@ describe('ThreadRepositoryPostgres', () => {
 
         const calledValues = mockPool.query.mock.calls[0][0].values;
         expect(calledValues[0]).toEqual('thread-123');
-        expect(calledValues[1]).toEqual('Some title');
-        expect(calledValues[2]).toEqual('Some body');
+        expect(calledValues[1]).toEqual('Judul thread');
+        expect(calledValues[2]).toEqual('Sebuah thread');
         expect(calledValues[3]).toEqual('user-123');
 
-        expect(addedThreadId).toEqual('thread-123');
+        expect(addedThread.id).toEqual('thread-123');
+        expect(addedThread.title).toEqual('Judul thread');
+        expect(addedThread.owner).toEqual('user-123');
       });
     });
 
@@ -113,9 +116,8 @@ describe('ThreadRepositoryPostgres', () => {
           rows: [], rowCount: 0
         });
 
-        await expect(
-          threadRepositoryPostgres.getThreadById('thread-123')
-        ).rejects.toThrow(NotFoundError);
+        await expect(() => threadRepositoryPostgres.getThreadById('thread-123'))
+          .rejects.toThrow(NotFoundError);
 
         expect(mockPool.query).toHaveBeenCalledTimes(1);
         expect(mockPool.query).toHaveBeenCalledWith(
@@ -130,9 +132,9 @@ describe('ThreadRepositoryPostgres', () => {
         mockPool.query.mockResolvedValue({
           rows: [{
             id: 'thread-123',
-            title: 'Some thread title',
-            body: 'Some thread content',
-            username: 'forumapi',
+            title: 'Judul thread',
+            body: 'Sebuah thread',
+            username: 'johndoe',
             created_at: '2025-10-12T14:59:05.169Z'
           }],
           rowCount: 1,
@@ -148,13 +150,16 @@ describe('ThreadRepositoryPostgres', () => {
           })
         );
 
-        expect(thread).toEqual({
+        console.log(thread);
+
+        expect(thread).toEqual(new DetailThread({
           id: 'thread-123',
-          title: 'Some thread title',
-          body: 'Some thread content',
-          created_at: '2025-10-12T14:59:05.169Z',
-          username: 'forumapi',
-        });
+          title: 'Judul thread',
+          body: 'Sebuah thread',
+          date: '2025-10-12T14:59:05.169Z',
+          username: 'johndoe',
+          comments: [],
+        }));
       });
     });
   });

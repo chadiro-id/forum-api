@@ -1,5 +1,6 @@
 const AuthorizationError = require('../../Commons/exceptions/AuthorizationError');
 const NotFoundError = require('../../Commons/exceptions/NotFoundError');
+const Reply = require('../../Domains/replies/entities/Reply');
 const ReplyRepository = require('../../Domains/replies/ReplyRepository');
 
 class ReplyRepositoryPostgres extends ReplyRepository {
@@ -44,7 +45,7 @@ class ReplyRepositoryPostgres extends ReplyRepository {
     };
 
     const result = await this._pool.query(query);
-    return result.rows;
+    return result.rows.map((row) => this._transformToReply(row));
   }
 
   async softDeleteReplyById(id) {
@@ -73,6 +74,17 @@ class ReplyRepositoryPostgres extends ReplyRepository {
     if (result.rows[0].owner_id !== owner) {
       throw new AuthorizationError('Anda tidak memiliki hak akses');
     }
+  }
+
+  _transformToReply(row) {
+    return new Reply({
+      id: row.id,
+      commentId: row.comment_id,
+      username: row.username,
+      content: row.content,
+      isDelete: row.is_delete,
+      date: row.created_at,
+    });
   }
 }
 

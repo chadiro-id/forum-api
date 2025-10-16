@@ -7,6 +7,7 @@ describe('Comment Entity', () => {
     content: 'Sebuah komentar',
     date: '2025-10-15T02:08:54.384Z',
     username: 'superuser',
+    isDelete: false,
   };
 
   describe('Bad payload', () => {
@@ -119,7 +120,7 @@ describe('Comment Entity', () => {
     });
 
     it('should throw error when value contain invalid element', () => {
-      const reply = new Reply({ ...dummyPayload });
+      const reply = new Reply({ ...dummyPayload, commentId: dummyPayload.id, id: 'reply-123' });
       const arrContainString = [reply, '2'];
       const arrContainNum = [1, reply];
 
@@ -133,7 +134,7 @@ describe('Comment Entity', () => {
 
     it('should correctly set replies', () => {
       const comment = new Comment(dummyPayload);
-      const reply = new Reply(dummyPayload);
+      const reply = new Reply({ ...dummyPayload, id: 'reply-123', commentId: dummyPayload.id });
       comment.replies = [reply];
 
       const replies = comment.replies;

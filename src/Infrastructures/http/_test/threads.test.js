@@ -120,6 +120,7 @@ describe('Threads Endpoints', () => {
       const response = await serverTest.get(`/threads/${threadId}`);
 
       const responseJson = JSON.parse(response.payload);
+      console.log(responseJson);
 
       expect(response.statusCode).toBe(200);
       expect(responseJson.status).toEqual('success');
