@@ -1,3 +1,6 @@
+const AddedReply = require('../../../Domains/replies/entities/AddedReply');
+const NewReply = require('../../../Domains/replies/entities/NewReply');
+
 class AddReplyUseCase {
   constructor({
     threadRepository,
@@ -10,29 +13,17 @@ class AddReplyUseCase {
   }
 
   async execute(payload) {
-    this._verifyPayload(payload);
-    const { threadId, commentId, content, userId } = payload;
-    await this._threadRepository.verifyThreadExists(threadId);
-    await this._commentRepository.verifyCommentExists(commentId);
+    const newReply = new NewReply(payload);
 
-    const addedReply = await this._replyRepository.addReply({ commentId, content, ownerId: userId });
-    return {
-      id: addedReply.id,
-      content: addedReply.content,
-      owner: addedReply.owner,
-    };
-  }
+    await this._threadRepository.verifyThreadExists(payload.threadId);
+    await this._commentRepository.verifyCommentExists(payload.commentId);
 
-  _verifyPayload(payload) {
-    const { threadId, commentId, content, userId } = payload;
-
-    if (!threadId || !commentId || !content || !userId) {
-      throw new Error('ADD_REPLY_USE_CASE.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
+    const addedReply = await this._replyRepository.addReply(newReply);
+    if (addedReply instanceof AddedReply === false) {
+      throw new Error('ADD_REPLY_USE_CASE.ADDED_REPLY_MUST_BE_INSTANCE_OF_ADDED_REPLY_ENTITY');
     }
 
-    if (typeof content !== 'string') {
-      throw new Error('ADD_REPLY_USE_CASE.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
-    }
+    return addedReply;
   }
 }
 
