@@ -2,7 +2,7 @@
 const threads = (pool) => {
   const add = async ({
     id = 'thread-123',
-    title = 'Judul thread',
+    title = 'Sebuah thread',
     body = 'Isi thread',
     owner = 'user-123'
   }) => {
