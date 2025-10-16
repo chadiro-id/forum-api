@@ -5,22 +5,22 @@ const {
   usersTable,
   authenticationsTable,
   threadsTable,
-  // commentsTable,
+  commentsTable,
 } = require('../../../../tests/db_helper/postgres');
 
 let userA;
 let userAuthA;
-// let userB;
-// let accessTokenB;
+let userB;
+let userAuthB;
 
 beforeAll(async () => {
   await serverTest.init();
 
   userA = await usersTable.add({ id: 'user-123', username: 'whoami' });
-  // userB = await usersTable.add({ id: 'user-456', username: 'johndoe' });
+  userB = await usersTable.add({ id: 'user-456', username: 'johndoe' });
 
   userAuthA = await getUserAuth({ ...userA });
-  // accessTokenB = await getUserAuth({ id: 'user-456', username: 'johndoe' });
+  userAuthB = await getUserAuth({ ...userB });
 });
 
 afterAll(async () => {
@@ -30,6 +30,18 @@ afterAll(async () => {
 });
 
 describe('Comments Endpoints', () => {
+  let authorizationUserA;
+  let authorizationUserB;
+
+  beforeAll(async () => {
+    authorizationUserA = {
+      Authorization: `Bearer ${userAuthA.accessToken}`,
+    };
+    authorizationUserB = {
+      Authorization: `Bearer ${userAuthB.accessToken}`
+    };
+  });
+
   beforeEach(async () => {
     await serverTest.init();
   });
@@ -39,16 +51,12 @@ describe('Comments Endpoints', () => {
   });
 
   describe('POST /threads/{threadId}/comments', () => {
-    let currentThreadId;
-    let authorizationUserA;
+    let threadId;
     let endpoint;
 
     beforeAll(async () => {
-      currentThreadId = await threadsTable.add({ owner: userA.id });
-      authorizationUserA = {
-        Authorization: `Bearer ${userAuthA.accessToken}`,
-      };
-      endpoint = `/threads/${currentThreadId}/comments`;
+      threadId = await threadsTable.add({ owner: userA.id });
+      endpoint = `/threads/${threadId}/comments`;
     });
 
     afterAll(async () => {
@@ -129,6 +137,76 @@ describe('Comments Endpoints', () => {
       expect(responseJson.data.addedComment.id).toEqual(expect.stringContaining('comment-'));
       expect(responseJson.data.addedComment.content).toEqual('Sebuah komentar');
       expect(responseJson.data.addedComment.owner).toEqual(userA.id);
+    });
+  });
+
+  describe('DELETE /threads/{threadId}/comments/{commentId}', () => {
+    let threadId;
+    let commentUserA, commentUserB;
+
+    beforeAll(async () => {
+      threadId = await threadsTable.add({ owner: userA.id });
+      commentUserA = await commentsTable.add({ id: 'comment-123', threadId, owner: userA.id });
+      commentUserB = await commentsTable.add({ id: 'comment-456', threadId, owner: userB.id });
+    });
+
+    afterAll(async () => {
+      await threadsTable.clean();
+      await commentsTable.clean();
+    });
+
+    it('should response 401 when delete comment without authentication', async () => {
+      const endpoint = `/threads/${threadId}/comments/${commentUserA}`;
+
+      const response = await serverTest.delete(endpoint);
+
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toBe(401);
+      expect(responseJson.error).toEqual('Unauthorized');
+      expect(responseJson.message).toEqual('Missing authentication');
+    });
+
+    it('should response 404 when delete comment that not exists', async () => {
+      const endpoint = `/threads/${threadId}/comments/xxx`;
+      const options = {
+        headers: { ...authorizationUserB }
+      };
+
+      const response = await serverTest.delete(endpoint, options);
+
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toBe(404);
+      expect(responseJson.status).toEqual('fail');
+      expect(responseJson.message).toEqual(expect.any(String));
+      expect(responseJson.message.trim()).not.toBe('');
+    });
+
+    it('should response 403 when delete comment by not authorized user', async () => {
+      const endpoint = `/threads/${threadId}/comments/${commentUserB}`;
+      const options = {
+        headers: { ...authorizationUserA }
+      };
+
+      const response = await serverTest.delete(endpoint, options);
+
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toBe(403);
+      expect(responseJson.status).toEqual('fail');
+      expect(responseJson.message).toEqual(expect.any(String));
+      expect(responseJson.message.trim()).not.toBe('');
+    });
+
+    it('should response 200 when delete comment by authorized user', async () => {
+      const endpoint = `/threads/${threadId}/comments/${commentUserA}`;
+      const options = {
+        headers: { ...authorizationUserA }
+      };
+
+      const response = await serverTest.delete(endpoint, options);
+
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toBe(200);
+      expect(responseJson.status).toEqual('success');
     });
   });
 });
