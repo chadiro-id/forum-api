@@ -4,6 +4,12 @@ const NewThread = require('../../../../Domains/threads/entities/NewThread');
 const AddedThread = require('../../../../Domains/threads/entities/AddedThread');
 
 describe('AddThreadUseCase', () => {
+  const dummyPayload = {
+    title: 'Sebuah thread',
+    body: 'Isi thread',
+    owner: 'user-123',
+  };
+
   describe('Fails execution', () => {
     it('should throw error when payload not provided correctly', async () => {
       const addThreadUseCase = new AddThreadUseCase({});
@@ -18,70 +24,57 @@ describe('AddThreadUseCase', () => {
         .rejects.toThrow();
     });
 
-    it('should throw error when added thread is not instance of AddedThread entity', async () => {
-      const useCasePayload = {
-        title: 'Judul thread',
-        body: 'Sebuah thread',
-        owner: 'user-123',
-      };
-
+    it('should throw error when addedThread is not instance of AddedThread entity', async () => {
       const mockThreadRepository = new ThreadRepository();
-      mockThreadRepository.addThread = jest.fn()
-        .mockResolvedValue({
-          id: 'thread-123',
-          title: 'Judul thread',
-          owner: 'user-123',
-        });
+      mockThreadRepository.addThread = jest.fn().mockResolvedValue({
+        id: 'thread-123',
+        title: 'Sebuah thread',
+        owner: 'user-123',
+      });
 
       const useCase = new AddThreadUseCase({
         threadRepository: mockThreadRepository,
       });
 
-      await expect(() => useCase.execute(useCasePayload))
-        .rejects.toThrow('ADD_THREAD_USE_CASE.ADDED_THREAD_MUST_BE_INSTANCE_OF_ADDED_THREAD');
+      await expect(useCase.execute({ ...dummyPayload }))
+        .rejects
+        .toThrow('ADD_THREAD_USE_CASE.ADDED_THREAD_MUST_BE_INSTANCE_OF_ADDED_THREAD');
 
       expect(mockThreadRepository.addThread).toHaveBeenCalledTimes(1);
       expect(mockThreadRepository.addThread).toHaveBeenCalledWith(new NewThread({
-        title: useCasePayload.title,
-        body: useCasePayload.body,
-        owner: useCasePayload.owner,
+        title: dummyPayload.title,
+        body: dummyPayload.body,
+        owner: dummyPayload.owner,
       }));
     });
   });
 
   describe('Successfull execution', () => {
-    it('should orchestrating the add thread action correctly', async () => {
-      const useCasePayload = {
-        title: 'Judul thread',
-        body: 'Sebuah thread',
-        owner: 'user-123',
-      };
-
+    it('should correctly orchestrating the add thread action', async () => {
       const mockThreadRepository = new ThreadRepository();
-      mockThreadRepository.addThread = jest.fn()
-        .mockResolvedValue(new AddedThread({
-          id: 'thread-123',
-          title: useCasePayload.title,
-          owner: useCasePayload.owner,
-        }));
+      mockThreadRepository.addThread = jest.fn().mockResolvedValue(new AddedThread({
+        id: 'thread-123',
+        title: 'Sebuah thread',
+        owner: 'user-123',
+      }));
 
       const addThreadUseCase = new AddThreadUseCase({
         threadRepository: mockThreadRepository,
       });
 
-      const addedThread = await addThreadUseCase.execute(useCasePayload);
+      const addedThread = await addThreadUseCase.execute({ ...dummyPayload });
 
       expect(mockThreadRepository.addThread).toHaveBeenCalledTimes(1);
       expect(mockThreadRepository.addThread).toHaveBeenCalledWith(new NewThread({
-        title: useCasePayload.title,
-        body: useCasePayload.body,
-        owner: useCasePayload.owner,
+        title: dummyPayload.title,
+        body: dummyPayload.body,
+        owner: dummyPayload.owner,
       }));
 
       expect(addedThread).toBeInstanceOf(AddedThread);
       expect(Object.keys(addedThread)).toHaveLength(3);
       expect(addedThread.id).toEqual('thread-123');
-      expect(addedThread.title).toEqual('Judul thread');
+      expect(addedThread.title).toEqual('Sebuah thread');
       expect(addedThread.owner).toEqual('user-123');
     });
   });
