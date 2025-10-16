@@ -20,18 +20,22 @@ describe('AddCommentUseCase', () => {
 
   describe('Successfull execution', () => {
     it('should correctly orchestrating the add comment action', async () => {
-      const payload = new NewComment({
+      const payload = {
         threadId: 'thread-123',
         content: 'Sebuah komentar',
         owner: 'user-123',
-      });
+      };
 
       const mockThreadRepository = new ThreadRepository();
       const mockCommentRepository = new CommentRepository();
       mockThreadRepository.verifyThreadExists = jest.fn()
         .mockImplementation(() => Promise.resolve());;
       mockCommentRepository.addComment = jest.fn()
-        .mockImplementation(() => Promise.resolve('comment-123'));
+        .mockImplementation(() => Promise.resolve(new AddedComment({
+          id: 'comment-123',
+          content: 'Sebuah komentar',
+          owner: 'user-123',
+        })));
 
       const addCommentUseCase = new AddCommentUseCase({
         threadRepository: mockThreadRepository,
@@ -42,11 +46,11 @@ describe('AddCommentUseCase', () => {
 
       expect(mockThreadRepository.verifyThreadExists).toHaveBeenCalledTimes(1);
       expect(mockCommentRepository.addComment).toHaveBeenCalledTimes(1);
-      expect(mockCommentRepository.addComment).toHaveBeenCalledWith({
-        thread_id: 'thread-123',
-        owner_id: 'user-123',
+      expect(mockCommentRepository.addComment).toHaveBeenCalledWith(new NewComment({
+        threadId: 'thread-123',
+        owner: 'user-123',
         content: 'Sebuah komentar',
-      });
+      }));
 
       expect(addedComment).toEqual(new AddedComment({
         id: 'comment-123',
