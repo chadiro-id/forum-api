@@ -45,9 +45,11 @@ describe('Threads Endpoints', () => {
     });
 
     it('should response 401 when request with no authentication', async () => {
-      const response = await serverTest.post('/threads', {
+      const options = {
         payload: { ...dummyPayload }
-      });
+      };
+
+      const response = await serverTest.post('/threads', options);
 
       const responseJson = JSON.parse(response.payload);
       expect(response.statusCode).toEqual(401);
@@ -56,10 +58,12 @@ describe('Threads Endpoints', () => {
     });
 
     it('should response 400 when request payload not contain needed property', async () => {
-      const response = await serverTest.post('/threads', {
+      const options = {
         headers: { ...authorization },
         payload: {}
-      });
+      };
+
+      const response = await serverTest.post('/threads', options);
 
       const responseJson = JSON.parse(response.payload);
       expect(response.statusCode).toBe(400);
@@ -69,10 +73,12 @@ describe('Threads Endpoints', () => {
     });
 
     it('should response 400 when request payload does not meet data type specification', async () => {
-      const response = await serverTest.post('/threads', {
+      const options = {
         headers: { ...authorization },
         payload: { ...dummyPayload, body: 123 },
-      });
+      };
+
+      const response = await serverTest.post('/threads', options);
 
       const responseJson = JSON.parse(response.payload);
       expect(response.statusCode).toBe(400);
@@ -82,10 +88,12 @@ describe('Threads Endpoints', () => {
     });
 
     it('should response 201 and return the persisted thread', async () => {
-      const response = await serverTest.post('/threads', {
+      const options = {
         headers: { ...authorization },
         payload: { ...dummyPayload },
-      });
+      };
+
+      const response = await serverTest.post('/threads', options);
 
       const responseJson = JSON.parse(response.payload);
       expect(response.statusCode).toBe(201);
