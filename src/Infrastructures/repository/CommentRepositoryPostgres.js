@@ -2,6 +2,7 @@ const NotFoundError = require('../../Commons/exceptions/NotFoundError');
 const AuthorizationError = require('../../Commons/exceptions/AuthorizationError');
 const CommentRepository = require('../../Domains/comments/CommentRepository');
 const Comment = require('../../Domains/comments/entities/Comment');
+const AddedComment = require('../../Domains/comments/entities/AddedComment');
 
 class CommentRepositoryPostgres extends CommentRepository {
   constructor(pool, idGenerator) {
@@ -11,18 +12,25 @@ class CommentRepositoryPostgres extends CommentRepository {
   }
 
   async addComment(newComment) {
-    const { thread_id, content, owner_id } = newComment;
+    const { threadId, content, owner } = newComment;
 
     const id = `comment-${this._idGenerator()}`;
 
     const query = {
-      text: 'INSERT INTO comments (id, thread_id, owner_id, content) VALUES ($1, $2, $3, $4) RETURNING id',
-      values: [id, thread_id, owner_id, content],
+      text: `
+      INSERT INTO comments
+        (id, thread_id, owner_id, content)
+      VALUES
+        ($1, $2, $3, $4)
+      RETURNING
+        id, content, owner_id
+      `,
+      values: [id, threadId, owner, content],
     };
 
     const result = await this._pool.query(query);
 
-    return result.rows[0].id;
+    return this._transformToAddedComment(result.rows[0]);
   }
 
   async getCommentsByThreadId(threadId) {
@@ -89,15 +97,17 @@ class CommentRepositoryPostgres extends CommentRepository {
     }
   }
 
+  _transformToAddedComment({
+    id, content, owner_id: owner
+  }) {
+    return new AddedComment({
+      id, content, owner
+    });
+  }
+
   _transformToComment({
     id, username, content, created_at: date, is_delete: isDelete
   }) {
-    console.log('[CommentRepository] transform -> id:', id);
-    console.log('[CommentRepository] transform -> content:', content);
-    console.log('[CommentRepository] transform -> username:', username);
-    console.log('[CommentRepository] transform -> date:', date);
-    console.log('[CommentRepository] transform -> isDelete:', isDelete);
-
     return new Comment({
       id, username, content, date, isDelete
     });
