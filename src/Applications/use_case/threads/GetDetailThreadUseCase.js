@@ -14,7 +14,7 @@ class GetDetailThreadUseCase {
   async execute(threadId) {
     const thread = await this._threadRepository.getThreadById(threadId);
     if (thread instanceof DetailThread === false) {
-      throw new Error();
+      throw new Error('GET_DETAIL_THREAD_USE_CASE.DETAIL_THREAD_MUST_BE_INSTANCE_OF_DETAIL_THREAD_ENTITY');
     }
 
     const comments = await this._commentRepository.getCommentsByThreadId(threadId);
