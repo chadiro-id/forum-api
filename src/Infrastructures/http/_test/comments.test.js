@@ -53,6 +53,10 @@ describe('Comments Endpoints', () => {
     await serverTest.stop();
   });
 
+  afterAll(async () => {
+    await threadsTable.clean();
+  });
+
   describe('POST /threads/{threadId}/comments', () => {
     let endpoint;
 
@@ -151,7 +155,7 @@ describe('Comments Endpoints', () => {
     });
 
     it('should response 401 when delete comment without authentication', async () => {
-      const endpoint = `/threads/${thread.id}/comments/${commentUserA}`;
+      const endpoint = `/threads/${thread.id}/comments/${commentUserA.id}`;
 
       const response = await serverTest.delete(endpoint);
 
@@ -177,7 +181,7 @@ describe('Comments Endpoints', () => {
     });
 
     it('should response 403 when delete comment by not authorized user', async () => {
-      const endpoint = `/threads/${thread.id}/comments/${commentUserB}`;
+      const endpoint = `/threads/${thread.id}/comments/${commentUserB.id}`;
       const options = {
         headers: { ...authorizationUserA }
       };
@@ -192,7 +196,7 @@ describe('Comments Endpoints', () => {
     });
 
     it('should response 200 when delete comment by authorized user', async () => {
-      const endpoint = `/threads/${thread.id}/comments/${commentUserA}`;
+      const endpoint = `/threads/${thread.id}/comments/${commentUserA.id}`;
       const options = {
         headers: { ...authorizationUserA }
       };
