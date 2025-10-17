@@ -7,13 +7,12 @@ const AuthenticationTokenManager = require('../../../Applications/security/Authe
 describe('JwtTokenManager', () => {
   it('must be an instance of AuthenticationTokenManager', () => {
     const jwtTokenManager = new JwtTokenManager({});
-
     expect(jwtTokenManager).toBeInstanceOf(AuthenticationTokenManager);
   });
 
-  describe('#createAccessToken', () => {
-    it('must call the jwt generate method with correct payload and access token key', async () => {
-      const payload = { username: 'forumapi' };
+  describe('createAccessToken', () => {
+    it('should call the jwt generate method with correct payload and access token key', async () => {
+      const payload = { username: 'johndoe' };
       const mockJwtToken = {
         generate: jest.fn().mockImplementation(() => 'mock_token'),
       };
@@ -27,9 +26,9 @@ describe('JwtTokenManager', () => {
     });
   });
 
-  describe('#createRefreshToken', () => {
-    it('must call the jwt generate method with correct payload and refresh token key', async () => {
-      const payload = { username: 'forumapi' };
+  describe('createRefreshToken', () => {
+    it('should call the jwt generate method with correct payload and refresh token key', async () => {
+      const payload = { username: 'johndoe' };
       const mockJwtToken = {
         generate: jest.fn().mockImplementation(() => 'mock_token'),
       };
@@ -42,10 +41,10 @@ describe('JwtTokenManager', () => {
     });
   });
 
-  describe('#verifyRefreshToken', () => {
-    it('must throw InvariantError when verification fails', async () => {
+  describe('verifyRefreshToken', () => {
+    it('should throw InvariantError when verification fails', async () => {
       const jwtTokenManager = new JwtTokenManager(Jwt.token);
-      const accessToken = await jwtTokenManager.createAccessToken({ username: 'forumapi' });
+      const accessToken = await jwtTokenManager.createAccessToken({ username: 'johndoe' });
 
       await expect(jwtTokenManager.verifyRefreshToken(accessToken))
         .rejects
@@ -54,7 +53,7 @@ describe('JwtTokenManager', () => {
 
     it('should not throw error when a valid refresh token provided', async () => {
       const jwtTokenManager = new JwtTokenManager(Jwt.token);
-      const refreshToken = await jwtTokenManager.createRefreshToken({ username: 'forumapi' });
+      const refreshToken = await jwtTokenManager.createRefreshToken({ username: 'johndoe' });
 
       await expect(jwtTokenManager.verifyRefreshToken(refreshToken))
         .resolves
@@ -62,14 +61,14 @@ describe('JwtTokenManager', () => {
     });
   });
 
-  describe('#decodePayload', () => {
-    it('must correctly decode the payload from token', async () => {
+  describe('decodePayload', () => {
+    it('should correctly decode the payload from token', async () => {
       const jwtTokenManager = new JwtTokenManager(Jwt.token);
-      const accessToken = await jwtTokenManager.createAccessToken({ username: 'forumapi' });
+      const accessToken = await jwtTokenManager.createAccessToken({ username: 'johndoe' });
 
       const { username: expectedUsername } = await jwtTokenManager.decodePayload(accessToken);
 
-      expect(expectedUsername).toEqual('forumapi');
+      expect(expectedUsername).toEqual('johndoe');
     });
   });
 });
