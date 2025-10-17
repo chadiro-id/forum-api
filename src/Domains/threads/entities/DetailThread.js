@@ -9,7 +9,7 @@ class DetailThread {
     this._body = payload.body;
     this._date = payload.date;
     this._username = payload.username;
-    this._comments = payload.comments || [];
+    this._comments = [];
   }
 
   _verifyPayload(payload) {
