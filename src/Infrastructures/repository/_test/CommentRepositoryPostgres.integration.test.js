@@ -7,6 +7,7 @@ const {
 const CommentRepositoryPostgres = require('../CommentRepositoryPostgres');
 const NewComment = require('../../../Domains/comments/entities/NewComment');
 const AddedComment = require('../../../Domains/comments/entities/AddedComment');
+const Comment = require('../../../Domains/comments/entities/Comment');
 
 describe('[Integration] CommentRepositoryPostgres', () => {
   let commentRepo;
@@ -16,7 +17,7 @@ describe('[Integration] CommentRepositoryPostgres', () => {
   beforeAll(async () => {
     commentRepo = new CommentRepositoryPostgres(pool, () => '123');
     currentUser = await usersTable.add({ username: 'johndoe' });
-    thread = await threadsTable.add({});
+    thread = await threadsTable.add({ owner: currentUser.id });
   });
 
   beforeEach(async () => {
@@ -52,6 +53,28 @@ describe('[Integration] CommentRepositoryPostgres', () => {
         id: 'comment-123',
         content: 'Sebuah komentar',
         owner: currentUser.id,
+      }));
+    });
+  });
+
+  describe('getCommentsByThreadId', () => {
+    it('should return an empty array when thread has no comments', async () => {
+      const comments = await commentRepo.getCommentsByThreadId(thread.id);
+      expect(comments).toEqual([]);
+    });
+
+    it('should return thread comments correctly', async () => {
+      const { id, created_at: date } = await commentsTable.add({ threadId: thread.id, owner: currentUser.id });
+
+      const comments = await commentRepo.getCommentsByThreadId(thread.id);
+
+      expect(comments).toHaveLength(1);
+      expect(comments[0]).toStrictEqual(new Comment({
+        id,
+        content: 'Sebuah komentar',
+        username: currentUser.username,
+        date,
+        isDelete: false,
       }));
     });
   });
