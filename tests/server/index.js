@@ -5,43 +5,48 @@ const container = require('../../src/Infrastructures/containers/container');
 let server;
 let initialized;
 
-const inject = async (method, url, headers, payload) => {
+const inject = async (method, url, options) => {
+  if (typeof url !== 'string') {
+    throw new Error('SERVER_TEST.INVALID_URL');
+  }
+
+  if (typeof options !== 'object') {
+    throw new Error('SERVER_TEST.OPTIONS_MUST_BE_AN_OBJECT');
+  }
+
   return server.inject({
+    ...options,
     method,
     url,
-    headers,
-    payload,
   });
 };
 
-exports.init = async () => {
-  if (initialized) return;
-
+exports.setup = async () => {
   if (!server) {
     server = await createServer(container);
   }
+};
 
+exports.init = async () => {
+  if (!server) {
+    throw new Error('SERVER_TEST.NOT_FOUND');
+  }
+
+  if (initialized) return;
   await server.initialize();
   initialized = true;
 };
 
 exports.stop = async () => {
-  initialized = false;
+  if (!server) {
+    throw new Error('SERVER_TEST.NOT_FOUND');
+  }
+
   await server.stop();
+  initialized = false;
 };
 
-exports.post = async (endpoint, options = {}) => {
-  return inject('POST', endpoint, options.headers, options.payload);
-};
-
-exports.get = async (endpoint, options = {}) => {
-  return inject('GET', endpoint, options.headers, options.payload);
-};
-
-exports.put = async (endpoint, options = {}) => {
-  return inject('PUT', endpoint, options.headers, options.payload);
-};
-
-exports.delete = async (enpoint, options = {}) => {
-  return inject('DELETE', enpoint, options.headers, options.payload);
-};
+exports.post = async (endpoint, options = {}) => inject('POST', endpoint, options);
+exports.get = async (endpoint, options = {}) => inject('GET', endpoint, options);
+exports.put = async (endpoint, options = {}) => inject('PUT', endpoint, options);
+exports.delete = async (enpoint, options = {}) => inject('DELETE', enpoint, options);
