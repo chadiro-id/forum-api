@@ -1,29 +1,25 @@
 const NotFoundError = require('../../../Commons/exceptions/NotFoundError');
+const AddedThread = require('../../../Domains/threads/entities/AddedThread');
 const DetailThread = require('../../../Domains/threads/entities/DetailThread');
+const NewThread = require('../../../Domains/threads/entities/NewThread');
 const ThreadRepository = require('../../../Domains/threads/ThreadRepository');
 const ThreadRepositoryPostgres = require('../ThreadRepositoryPostgres');
 
 describe('ThreadRepositoryPostgres', () => {
-  describe('ThreadRepository contract enforcement', () => {
-    it('must be an instance of ThreadRepository', () => {
-      const threadRepositoryPostgres = new ThreadRepositoryPostgres({}, () => '');
-
-      expect(threadRepositoryPostgres).toBeInstanceOf(ThreadRepository);
-    });
+  it('must be an instance of ThreadRepository', () => {
+    const threadRepo = new ThreadRepositoryPostgres({}, () => '');
+    expect(threadRepo).toBeInstanceOf(ThreadRepository);
   });
 
-  describe('Method implementations and database query', () => {
+  describe('Methods and Pool Query', () => {
     let mockPool;
-    let fakeIdGenerator;
-    let threadRepositoryPostgres;
+    let threadRepo;
 
     beforeEach(() => {
       mockPool = {
         query: jest.fn(),
       };
-      fakeIdGenerator = () => '123';
-
-      threadRepositoryPostgres = new ThreadRepositoryPostgres(mockPool, fakeIdGenerator);
+      threadRepo = new ThreadRepositoryPostgres(mockPool, () => '123');
     });
 
     afterEach(() => {
@@ -33,26 +29,26 @@ describe('ThreadRepositoryPostgres', () => {
     it('should throw error when database fails', async () => {
       mockPool.query.mockRejectedValue(new Error('Database fails'));
 
-      await expect(threadRepositoryPostgres.addThread({}))
+      await expect(threadRepo.addThread({}))
         .rejects.toThrow('Database fails');
-      await expect(threadRepositoryPostgres.verifyThreadExists(''))
+      await expect(threadRepo.verifyThreadExists(''))
         .rejects.toThrow('Database fails');
-      await expect(threadRepositoryPostgres.getThreadById(''))
+      await expect(threadRepo.getThreadById(''))
         .rejects.toThrow('Database fails');
     });
 
     describe('addThread', () => {
-      it('should persist the thread record and return the id correctly', async () => {
+      it('should persist the new thread and return the added thread correctly', async () => {
         mockPool.query.mockResolvedValue({
-          rows: [{ id: 'thread-123', title: 'Judul thread', owner_id: 'user-123' }],
+          rows: [{ id: 'thread-123', title: 'Sebuah thread', owner_id: 'user-123' }],
           rowCount: 1,
         });
 
-        const addedThread = await threadRepositoryPostgres.addThread({
-          title: 'Judul thread',
-          body: 'Sebuah thread',
+        const addedThread = await threadRepo.addThread(new NewThread({
+          title: 'Sebuah thread',
+          body: 'Isi thread',
           owner: 'user-123',
-        });
+        }));
 
         expect(mockPool.query).toHaveBeenCalledTimes(1);
         expect(mockPool.query).toHaveBeenCalledWith(
@@ -63,23 +59,24 @@ describe('ThreadRepositoryPostgres', () => {
 
         const calledValues = mockPool.query.mock.calls[0][0].values;
         expect(calledValues[0]).toEqual('thread-123');
-        expect(calledValues[1]).toEqual('Judul thread');
-        expect(calledValues[2]).toEqual('Sebuah thread');
+        expect(calledValues[1]).toEqual('Sebuah thread');
+        expect(calledValues[2]).toEqual('Isi thread');
         expect(calledValues[3]).toEqual('user-123');
 
+        expect(addedThread).toBeInstanceOf(AddedThread);
         expect(addedThread.id).toEqual('thread-123');
-        expect(addedThread.title).toEqual('Judul thread');
+        expect(addedThread.title).toEqual('Sebuah thread');
         expect(addedThread.owner).toEqual('user-123');
       });
     });
 
     describe('verifyThreadExists', () => {
-      it('should throw NotFoundError when the thread record with the given id is not exists', async () => {
+      it('should throw NotFoundError when the id is not exists', async () => {
         mockPool.query.mockResolvedValue({
           rows: [], rowCount: 0
         });
 
-        await expect(threadRepositoryPostgres.verifyThreadExists('thread-123'))
+        await expect(threadRepo.verifyThreadExists('thread-123'))
           .rejects.toThrow(NotFoundError);
 
         expect(mockPool.query).toHaveBeenCalledTimes(1);
@@ -91,13 +88,13 @@ describe('ThreadRepositoryPostgres', () => {
         );
       });
 
-      it('should not throw error when the thread record with the given id is exists', async () => {
+      it('should not throw error when the id is exists', async () => {
         mockPool.query.mockResolvedValue({
           rows: [{ id: 'thread-123' }],
           rowCount: 1,
         });
 
-        await expect(threadRepositoryPostgres.verifyThreadExists('thread-123'))
+        await expect(threadRepo.verifyThreadExists('thread-123'))
           .resolves.not.toThrow();
 
         expect(mockPool.query).toHaveBeenCalledTimes(1);
@@ -111,12 +108,12 @@ describe('ThreadRepositoryPostgres', () => {
     });
 
     describe('getThreadById', () => {
-      it('should throw NotFoundError when the thread record with the given id is not exists', async () => {
+      it('should throw NotFoundError when the id is not exists', async () => {
         mockPool.query.mockResolvedValue({
           rows: [], rowCount: 0
         });
 
-        await expect(() => threadRepositoryPostgres.getThreadById('thread-123'))
+        await expect(threadRepo.getThreadById('thread-123'))
           .rejects.toThrow(NotFoundError);
 
         expect(mockPool.query).toHaveBeenCalledTimes(1);
@@ -128,19 +125,19 @@ describe('ThreadRepositoryPostgres', () => {
         );
       });
 
-      it('should correctly query the database and return the thread record related to the given id', async () => {
+      it('should correctly pool.query and return the thread related to the given id', async () => {
         mockPool.query.mockResolvedValue({
           rows: [{
             id: 'thread-123',
-            title: 'Judul thread',
-            body: 'Sebuah thread',
+            title: 'Sebuah thread',
+            body: 'Isi thread',
             username: 'johndoe',
-            created_at: '2025-10-12T14:59:05.169Z'
+            created_at: new Date('2025-10-12T14:59:05.169Z')
           }],
           rowCount: 1,
         });
 
-        const thread = await threadRepositoryPostgres.getThreadById('thread-123');
+        const thread = await threadRepo.getThreadById('thread-123');
 
         expect(mockPool.query).toHaveBeenCalledTimes(1);
         expect(mockPool.query).toHaveBeenCalledWith(
@@ -150,13 +147,11 @@ describe('ThreadRepositoryPostgres', () => {
           })
         );
 
-        console.log(thread);
-
         expect(thread).toEqual(new DetailThread({
           id: 'thread-123',
-          title: 'Judul thread',
-          body: 'Sebuah thread',
-          date: '2025-10-12T14:59:05.169Z',
+          title: 'Sebuah thread',
+          body: 'Isi thread',
+          date: new Date('2025-10-12T14:59:05.169Z'),
           username: 'johndoe',
           comments: [],
         }));
