@@ -1,3 +1,4 @@
+const NotFoundError = require('../../../Commons/exceptions/NotFoundError');
 const AddedReply = require('../../../Domains/replies/entities/AddedReply');
 const NewReply = require('../../../Domains/replies/entities/NewReply');
 const Reply = require('../../../Domains/replies/entities/Reply');
@@ -129,6 +130,43 @@ describe('ReplyRepositoryPostgres', () => {
           username: reply3.username,
           isDelete: reply3.is_delete,
         }));
+      });
+    });
+
+    describe('softDeleteReplyById', () => {
+      it('should throw NotFoundError when the given id is not exists', async () => {
+        mockPool.query.mockResolvedValue({
+          rows: [], rowCount: 0
+        });
+
+        await expect(repo.softDeleteReplyById('reply-123'))
+          .rejects.toThrow(NotFoundError);
+
+        expect(mockPool.query).toHaveBeenCalledTimes(1);
+        expect(mockPool.query).toHaveBeenCalledWith(
+          expect.objectContaining({
+            text: expect.stringContaining('is_delete = TRUE'),
+            values: ['reply-123']
+          })
+        );
+      });
+
+      it('should not throw NotFoundError when the given id is exists', async () => {
+        mockPool.query.mockResolvedValue({
+          rows: [{ id: 'reply-123' }],
+          rowCount: 1
+        });
+
+        await expect(repo.softDeleteReplyById('reply-123'))
+          .resolves.not.toThrow(NotFoundError);
+
+        expect(mockPool.query).toHaveBeenCalledTimes(1);
+        expect(mockPool.query).toHaveBeenCalledWith(
+          expect.objectContaining({
+            text: expect.stringContaining('is_delete = TRUE'),
+            values: ['reply-123']
+          })
+        );
       });
     });
   });
