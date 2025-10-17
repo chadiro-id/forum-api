@@ -33,15 +33,7 @@ const threads = (pool) => {
     };
 
     const result = await pool.query(query);
-    return result.rows.map(({
-      id, title, body, created_at, username,
-    }) => ({
-      id,
-      title,
-      body,
-      date: created_at,
-      username,
-    }))[0];
+    return result.rows;
   };
 
   const clean = async () => {
