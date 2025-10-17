@@ -76,5 +76,22 @@ describe('[Unit] AuthenticationRepositoryPostgres', () => {
         );
       });
     });
+
+    describe('deleteToken', () => {
+      it('should resolve and call pool.query correctly', async () => {
+        mockPool.query.mockResolvedValue();
+
+        await expect(authenticationRepo.deleteToken('token'))
+          .resolves.not.toThrow();
+
+        expect(mockPool.query).toHaveBeenCalledTimes(1);
+        expect(mockPool.query).toHaveBeenCalledWith(
+          expect.objectContaining({
+            text: expect.stringContaining('DELETE FROM authentications WHERE token'),
+            values: ['token']
+          })
+        );
+      });
+    });
   });
 });
