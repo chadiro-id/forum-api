@@ -1,3 +1,4 @@
+const InvariantError = require('../../../Commons/exceptions/InvariantError');
 const AuthenticationRepository = require('../../../Domains/authentications/AuthenticationRepository');
 const AuthenticationRepositoryPostgres = require('../AuthenticationRepositoryPostgres');
 
@@ -33,6 +34,43 @@ describe('[Unit] AuthenticationRepositoryPostgres', () => {
         expect(mockPool.query).toHaveBeenCalledWith(
           expect.objectContaining({
             text: expect.stringContaining('INSERT INTO authentications'),
+            values: ['token']
+          })
+        );
+      });
+    });
+
+    describe('checkAvailibilityToken', () => {
+      it('should throw InvariantError when token not exists', async () => {
+        mockPool.query.mockResolvedValue({
+          rows: [], rowCount: 0
+        });
+
+        await expect(authenticationRepo.checkAvailabilityToken('token'))
+          .rejects.toThrow(InvariantError);
+
+        expect(mockPool.query).toHaveBeenCalledTimes(1);
+        expect(mockPool.query).toHaveBeenCalledWith(
+          expect.objectContaining({
+            text: expect.stringContaining('SELECT token FROM authentications'),
+            values: ['token']
+          })
+        );
+      });
+
+      it('should resolves and not throw InvariantError when token exists', async () => {
+        mockPool.query.mockResolvedValue({
+          rows: [{ token: 'token' }],
+          rowCount: 1,
+        });
+
+        await expect(authenticationRepo.checkAvailabilityToken('token'))
+          .resolves.not.toThrow(InvariantError);
+
+        expect(mockPool.query).toHaveBeenCalledTimes(1);
+        expect(mockPool.query).toHaveBeenCalledWith(
+          expect.objectContaining({
+            text: expect.stringContaining('SELECT token FROM authentications'),
             values: ['token']
           })
         );
