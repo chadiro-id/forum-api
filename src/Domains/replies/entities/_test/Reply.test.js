@@ -98,7 +98,15 @@ describe('Reply Entity', () => {
       expect(username).toEqual(payload.username);
     });
 
-    it('should correctly create the entity and not contain extra property', () => {
+    it('should not reveal original content value when isDelete equal to TRUE', () => {
+      const payload = { ...dummyPayload, isDelete: true };
+
+      const { content } = new Reply(payload);
+
+      expect(content).toEqual('**balasan telah dihapus**');
+    });
+
+    it('should not contain extra property', () => {
       const extraPayload = { ...dummyPayload, extra: 'Something extra' };
 
       const reply = new Reply(extraPayload);
@@ -110,6 +118,23 @@ describe('Reply Entity', () => {
       expect(reply.username).toEqual(extraPayload.username);
 
       expect(reply.extra).toBeUndefined();
+    });
+  });
+
+  describe('JSON Serialization', () => {
+    it('should serialize to JSON correctly', () => {
+      const payload = { ...dummyPayload };
+
+      const reply = new Reply(payload);
+      const json = reply.toJSON();
+
+      expect(json.isDelete).toBeUndefined();
+      expect(json.commentId).toBeUndefined();
+
+      expect(json.id).toEqual(payload.id);
+      expect(json.content).toEqual(payload.content);
+      expect(json.date).toEqual(payload.date);
+      expect(json.username).toEqual(payload.username);
     });
   });
 });
