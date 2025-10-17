@@ -7,12 +7,12 @@ const replies = (pool) => {
     content = 'Sebuah balasan',
   }) => {
     const query = {
-      text: 'INSERT INTO replies (id, comment_id, owner_id, content) VALUES ($1, $2, $3, $4) RETURNING id',
+      text: 'INSERT INTO replies (id, comment_id, owner_id, content) VALUES ($1, $2, $3, $4) RETURNING id, created_at',
       values: [id, commentId, owner, content],
     };
 
-    await pool.query(query);
-    return id;
+    const result = await pool.query(query);
+    return result.rows[0];
   };
 
   const findById = async (id) => {
