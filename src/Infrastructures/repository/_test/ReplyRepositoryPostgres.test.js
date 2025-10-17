@@ -7,12 +7,9 @@ const ReplyRepository = require('../../../Domains/replies/ReplyRepository');
 const ReplyRepositoryPostgres = require('../ReplyRepositoryPostgres');
 
 describe('ReplyRepositoryPostgres', () => {
-  describe('ReplyRepository Contract', () => {
-    it('must be an instance of ReplyRepository', () => {
-      const replyRepositoryPostgres = new ReplyRepositoryPostgres({}, () => '');
-
-      expect(replyRepositoryPostgres).toBeInstanceOf(ReplyRepository);
-    });
+  it('must be an instance of ReplyRepository', () => {
+    const replyRepositoryPostgres = new ReplyRepositoryPostgres({}, () => '');
+    expect(replyRepositoryPostgres).toBeInstanceOf(ReplyRepository);
   });
 
   describe('Methods and Pool Query', () => {
