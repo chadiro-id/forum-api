@@ -1,6 +1,6 @@
 const pool = require('../../database/postgres/pool');
 const serverTest = require('../../../../tests/helper/ServerTestHelper');
-const { getUserAuth } = require('../../../../tests/helper/authenticationHelper');
+const { createAuthToken } = require('../../../../tests/helper/authenticationHelper');
 const {
   usersTable,
   authenticationsTable,
@@ -19,8 +19,8 @@ beforeAll(async () => {
   userA = await usersTable.add({ id: 'user-123', username: 'whoami' });
   userB = await usersTable.add({ id: 'user-456', username: 'johndoe' });
 
-  userAuthA = await getUserAuth({ ...userA });
-  userAuthB = await getUserAuth({ ...userB });
+  userAuthA = await createAuthToken({ ...userA });
+  userAuthB = await createAuthToken({ ...userB });
 });
 
 afterAll(async () => {
