@@ -5,47 +5,31 @@ const RegisteredUser = require('../../../Domains/users/entities/RegisteredUser')
 const UserRepositoryPostgres = require('../UserRepositoryPostgres');
 const { usersTable } = require('../../../../tests/helper/postgres');
 
-describe('UserRepositoryPostgres', () => {
+describe('[Integration] UserRepositoryPostgres', () => {
+  let userRepo;
+
+  beforeAll(() => {
+    userRepo = new UserRepositoryPostgres(pool, () => '123');
+  });
+
   beforeEach(async () => {
     await usersTable.clean();
   });
 
   afterAll(async () => {
+    await usersTable.clean();
     await pool.end();
   });
 
-  describe('#verifyAvailableUsername', () => {
-    it('must throw InvariantError when username not available', async () => {
-      await usersTable.add({
-        username: 'forumapi',
-      });
-      const userRepositoryPostgres = new UserRepositoryPostgres(pool, {});
-
-      await expect(userRepositoryPostgres.verifyAvailableUsername('forumapi'))
-        .rejects
-        .toThrow(InvariantError);
-    });
-
-    it('should not throw InvariantError when username available', async () => {
-      const userRepositoryPostgres = new UserRepositoryPostgres(pool, {});
-
-      await expect(userRepositoryPostgres.verifyAvailableUsername('forumapi'))
-        .resolves
-        .not.toThrow(InvariantError);
-    });
-  });
-
-  describe('#addUser', () => {
-    it('should persist register user entity and return registered user entity correctly', async () => {
-      const registerUserEntity = new RegisterUser({
-        username: 'forumapi',
+  describe('addUser', () => {
+    it('should persist register user entity correctly', async () => {
+      const registerUser = new RegisterUser({
+        username: 'johndoe',
         password: 'secret_password',
-        fullname: 'Forum Api',
+        fullname: 'John Doe',
       });
-      const fakeIdGenerator = () => '123';
-      const userRepositoryPostgres = new UserRepositoryPostgres(pool, fakeIdGenerator);
 
-      await userRepositoryPostgres.addUser(registerUserEntity);
+      await userRepo.addUser(registerUser);
 
       const users = await usersTable.findById('user-123');
       expect(users).toHaveLength(1);
@@ -53,58 +37,66 @@ describe('UserRepositoryPostgres', () => {
 
     it('should return registered user entity correctly', async () => {
       const registerUser = new RegisterUser({
-        username: 'forumapi',
+        username: 'johndoe',
         password: 'secret_password',
-        fullname: 'Forum Api',
+        fullname: 'John Doe',
       });
-      const fakeIdGenerator = () => '123';
-      const userRepositoryPostgres = new UserRepositoryPostgres(pool, fakeIdGenerator);
 
-      const registeredUser = await userRepositoryPostgres.addUser(registerUser);
+      const registeredUser = await userRepo.addUser(registerUser);
 
       expect(registeredUser).toStrictEqual(new RegisteredUser({
         id: 'user-123',
-        username: 'forumapi',
-        fullname: 'Forum Api',
+        username: 'johndoe',
+        fullname: 'John Doe',
       }));
     });
   });
 
-  describe('#getPasswordByUsername', () => {
-    it('must throw InvariantError when the given username not exists', () => {
-      const userRepositoryPostgres = new UserRepositoryPostgres(pool, {});
+  describe('verifyAvailableUsername', () => {
+    it('should throw InvariantError when username not available', async () => {
+      await usersTable.add({ username: 'johndoe' });
 
-      return expect(userRepositoryPostgres.getPasswordByUsername('forumapi'))
+      await expect(userRepo.verifyAvailableUsername('johndoe'))
         .rejects
         .toThrow(InvariantError);
     });
 
-    it('must correctly return the password related to the given username when exists', async () => {
-      const userRepositoryPostgres = new UserRepositoryPostgres(pool, {});
+    it('should not throw InvariantError when username available', async () => {
+      await expect(userRepo.verifyAvailableUsername('johndoe23'))
+        .resolves
+        .not.toThrow(InvariantError);
+    });
+  });
+
+  describe('getPasswordByUsername', () => {
+    it('should throw InvariantError when the given username not exists', () => {
+      return expect(userRepo.getPasswordByUsername('johndoe'))
+        .rejects
+        .toThrow(InvariantError);
+    });
+
+    it('should correctly return the password related to username when exists', async () => {
       await usersTable.add({
-        username: 'forumapi',
+        username: 'johndoe',
         password: 'secret_password',
       });
 
-      const password = await userRepositoryPostgres.getPasswordByUsername('forumapi');
+      const password = await userRepo.getPasswordByUsername('johndoe');
       expect(password).toBe('secret_password');
     });
   });
 
-  describe('#getIdByUsername', () => {
-    it('must throw InvariantError when user not found', async () => {
-      const userRepositoryPostgres = new UserRepositoryPostgres(pool, {});
-
-      await expect(userRepositoryPostgres.getIdByUsername('forumapi'))
+  describe('getIdByUsername', () => {
+    it('should throw InvariantError when user not exists', async () => {
+      await expect(userRepo.getIdByUsername('johndoe'))
         .rejects
         .toThrow(InvariantError);
     });
 
     it('should return user id correctly', async () => {
-      await usersTable.add({ id: 'user-321', username: 'forumapi' });
-      const userRepositoryPostgres = new UserRepositoryPostgres(pool, {});
+      await usersTable.add({ id: 'user-321', username: 'johndoe' });
 
-      const userId = await userRepositoryPostgres.getIdByUsername('forumapi');
+      const userId = await userRepo.getIdByUsername('johndoe');
 
       expect(userId).toEqual('user-321');
     });
