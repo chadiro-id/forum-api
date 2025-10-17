@@ -17,7 +17,7 @@ const comments = (pool) => {
 
   const findById = async (id) => {
     const query = {
-      text: 'SELECT id FROM comments WHERE id = $1',
+      text: 'SELECT * FROM comments WHERE id = $1',
       values: [id],
     };
 
