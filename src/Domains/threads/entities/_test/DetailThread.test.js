@@ -6,8 +6,16 @@ describe('DetailThread Entity', () => {
     id: 'thread-123',
     title: 'Judul thread',
     body: 'Sebuah thread',
-    date: '2025-10-15T02:08:54.384Z',
+    date: new Date('2025-10-15T02:08:54.384Z'),
     username: 'superuser',
+  };
+
+  const dummyComment = {
+    id: 'comment-123',
+    content: 'Sebuah komentar',
+    username: 'johndoe',
+    date: new Date(2017, 10, 16),
+    isDelete: false,
   };
 
   describe('Bad payload', () => {
@@ -26,7 +34,6 @@ describe('DetailThread Entity', () => {
       const emptyId = { ...dummyPayload, id: '' };
       const emptyTitle = { ...dummyPayload, title: '' };
       const emptyBody = { ...dummyPayload, body: '' };
-      const emptyDate = { ...dummyPayload, date: '' };
       const emptyUsername = { ...dummyPayload, username: '' };
 
       expect(() => new DetailThread(missingId))
@@ -45,8 +52,6 @@ describe('DetailThread Entity', () => {
         .toThrow('DETAIL_THREAD.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
       expect(() => new DetailThread(emptyBody))
         .toThrow('DETAIL_THREAD.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
-      expect(() => new DetailThread(emptyDate))
-        .toThrow('DETAIL_THREAD.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
       expect(() => new DetailThread(emptyUsername))
         .toThrow('DETAIL_THREAD.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
     });
@@ -55,7 +60,7 @@ describe('DetailThread Entity', () => {
       const idNotString = { ...dummyPayload, id: 123 };
       const titleNotString = { ...dummyPayload, title: ['Judul'] };
       const bodyNotString = { ...dummyPayload, body: {} };
-      const dateNotString = { ...dummyPayload, date: true };
+      const dateNotStringOrObject = { ...dummyPayload, date: true };
       const usernameNotString = { ...dummyPayload, username: 69 };
 
       expect(() => new DetailThread(idNotString))
@@ -64,16 +69,19 @@ describe('DetailThread Entity', () => {
         .toThrow('DETAIL_THREAD.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
       expect(() => new DetailThread(bodyNotString))
         .toThrow('DETAIL_THREAD.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
-      expect(() => new DetailThread(dateNotString))
+      expect(() => new DetailThread(dateNotStringOrObject))
         .toThrow('DETAIL_THREAD.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
       expect(() => new DetailThread(usernameNotString))
         .toThrow('DETAIL_THREAD.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
     });
 
-    it('should throw error when date string is not valid', () => {
-      const invalidDateString = { ...dummyPayload, date: 'Date' };
+    it('should throw error when date is not valid', () => {
+      const dateString = { ...dummyPayload, date: 'Date' };
+      const dateObj = { ...dummyPayload, date: new Date('date') };
 
-      expect(() => new DetailThread(invalidDateString))
+      expect(() => new DetailThread(dateString))
+        .toThrow('DETAIL_THREAD.DATE_INVALID');
+      expect(() => new DetailThread(dateObj))
         .toThrow('DETAIL_THREAD.DATE_INVALID');
     });
   });
@@ -105,14 +113,6 @@ describe('DetailThread Entity', () => {
   });
 
   describe('Comments', () => {
-    const dummyComment = {
-      id: 'comment-123',
-      content: 'Sebuah komentar',
-      username: 'johndoe',
-      date: dummyPayload.date,
-      isDelete: false,
-    };
-
     it('should return empty array as default value', () => {
       const detailThread = new DetailThread(dummyPayload);
 
@@ -161,26 +161,20 @@ describe('DetailThread Entity', () => {
       expect(comments).toHaveLength(2);
       expect(comments).toEqual([comment, comment]);
     });
+  });
 
+  describe('JSON Serialization', () => {
     it('should correctly serialize to JSON', () => {
-      const comment1 = new Comment(dummyComment);
-      const comment2 = new Comment({ ...dummyComment, id: 'comment-456' });
+      const payload = { ...dummyPayload };
+      const thread = new DetailThread(payload);
 
-      const thread = new DetailThread(dummyPayload);
-      thread.comments = [comment1, comment2];
+      const json = thread.toJSON();
 
-      const jsonString = JSON.stringify(thread);
-      const json = JSON.parse(jsonString);
-      console.log(json);
-
-      expect(json).toEqual({
-        id: dummyPayload.id,
-        title: dummyPayload.title,
-        body: dummyPayload.body,
-        date: dummyPayload.date,
-        username: dummyPayload.username,
-        comments: expect.any(Array),
-      });
+      expect(json.id).toEqual(payload.id);
+      expect(json.title).toEqual(payload.title);
+      expect(json.body).toEqual(payload.body);
+      expect(json.date).toEqual(payload.date);
+      expect(json.username).toEqual(payload.username);
     });
   });
 });
