@@ -135,16 +135,16 @@ describe('Threads Endpoints', () => {
 
   describe('GET /threads/{threadId}', () => {
     let thread;
-    let commentId1;
-    let commentId2;
-    let replyId2;
+    let commentA;
+    let commentB;
+    let replyX;
 
     beforeAll(async () => {
       thread = await threadsTable.add({ owner: userA.id });
-      commentId1 = await commentsTable.add({ id: 'comment-123', threadId: thread.id, owner: userA.id });
-      commentId2 = await commentsTable.add({ id: 'comment-456', threadId: thread.id, owner: userB.id });
-      await repliesTable.add({ id: 'reply-123', commentId: commentId1, owner: userB.id });
-      replyId2 = await repliesTable.add({ id: 'reply-456', commentId: commentId1, owner: userA.id });
+      commentA = await commentsTable.add({ id: 'comment-123', threadId: thread.id, owner: userA.id });
+      commentB = await commentsTable.add({ id: 'comment-456', threadId: thread.id, owner: userB.id });
+      await repliesTable.add({ id: 'reply-123', commentId: commentA.id, owner: userB.id });
+      replyX = await repliesTable.add({ id: 'reply-456', commentId: commentA.id, owner: userA.id });
     });
 
     afterAll(async () => {
@@ -197,13 +197,13 @@ describe('Threads Endpoints', () => {
     });
 
     it('should response 200 and return deleted comment and reply correctly', async () => {
-      const comment2endpoint = `/threads/${thread.id}/comments/${commentId2}`;
+      const comment2endpoint = `/threads/${thread.id}/comments/${commentB.id}`;
       const comment2options = {
         headers: { ...authorizationUserB }
       };
       await serverTest.delete(comment2endpoint, comment2options);
 
-      const reply2endpoint = `/threads/${thread.id}/comments/${commentId2}/replies/${replyId2}`;
+      const reply2endpoint = `/threads/${thread.id}/comments/${commentB.id}/replies/${replyX.id}`;
       const reply2options = {
         headers: { ...authorizationUserA }
       };

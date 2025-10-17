@@ -13,13 +13,13 @@ describe('[Integration] ReplyRepositoryPostgres', () => {
   let replyRepo;
   let currentUser;
   let thread;
-  let commentId;
+  let comment;
 
   beforeAll(async () => {
     replyRepo = new ReplyRepositoryPostgres(pool, () => '123');
     currentUser = await usersTable.add({ username: 'johndoe' });
     thread = await threadsTable.add({ owner: currentUser.id });
-    commentId = await commentsTable.add({ threadId: thread.id, owner: currentUser.id });
+    comment = await commentsTable.add({ threadId: thread.id, owner: currentUser.id });
   });
 
   beforeEach(async () => {
@@ -39,7 +39,7 @@ describe('[Integration] ReplyRepositoryPostgres', () => {
 
     beforeAll(() => {
       newReply = new NewReply({
-        commentId,
+        commentId: comment.id,
         content: 'Sebuah balasan',
         owner: currentUser.id,
       });
