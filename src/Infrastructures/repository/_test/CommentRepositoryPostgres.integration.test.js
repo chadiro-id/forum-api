@@ -8,6 +8,7 @@ const CommentRepositoryPostgres = require('../CommentRepositoryPostgres');
 const NewComment = require('../../../Domains/comments/entities/NewComment');
 const AddedComment = require('../../../Domains/comments/entities/AddedComment');
 const Comment = require('../../../Domains/comments/entities/Comment');
+const NotFoundError = require('../../../Commons/exceptions/NotFoundError');
 
 describe('[Integration] CommentRepositoryPostgres', () => {
   let commentRepo;
@@ -76,6 +77,25 @@ describe('[Integration] CommentRepositoryPostgres', () => {
         date,
         isDelete: false,
       }));
+    });
+  });
+
+  describe('softDeleteCommentById', () => {
+    it('should throw NotFoundError when id not exists', async () => {
+      await expect(commentRepo.softDeleteCommentById('comment-123'))
+        .rejects
+        .toThrow(NotFoundError);
+    });
+
+    it('should resolves and update delete status of comment', async () => {
+      await commentsTable.add({ threadId: thread.id, owner: currentUser.id });
+
+      await expect(commentRepo.softDeleteCommentById('comment-123'))
+        .resolves
+        .not.toThrow(NotFoundError);
+
+      const comments = await commentsTable.findById('comment-123');
+      expect(comments[0].is_delete).toBe(true);
     });
   });
 });
