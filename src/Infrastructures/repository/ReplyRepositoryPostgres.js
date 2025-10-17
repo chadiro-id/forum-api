@@ -34,8 +34,6 @@ class ReplyRepositoryPostgres extends ReplyRepository {
   }
 
   async getRepliesByCommentIds(commentIds) {
-    if (!commentIds.length) return [];
-
     const query = {
       text: `
       SELECT
