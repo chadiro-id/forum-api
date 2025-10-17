@@ -2,7 +2,7 @@
 const AuthenticationTokenManager = require('../../src/Applications/security/AuthenticationTokenManager');
 const container = require('../../src/Infrastructures/containers/container');
 
-const getUserAuth = async ({ username = 'forumapi', id = 'user-123' }) => {
+const createAuthToken = async ({ username = 'forumapi', id = 'user-123' }) => {
   const jwt = container.getInstance(AuthenticationTokenManager.name);
 
   const accessToken = await jwt.createAccessToken({ username, id });
@@ -11,4 +11,4 @@ const getUserAuth = async ({ username = 'forumapi', id = 'user-123' }) => {
   return { accessToken, refreshToken };
 };
 
-module.exports = { getUserAuth };
+module.exports = { createAuthToken };
