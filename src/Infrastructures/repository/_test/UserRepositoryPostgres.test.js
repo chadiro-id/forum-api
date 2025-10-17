@@ -1,10 +1,11 @@
+const InvariantError = require('../../../Commons/exceptions/InvariantError');
 const RegisteredUser = require('../../../Domains/users/entities/RegisteredUser');
 const RegisterUser = require('../../../Domains/users/entities/RegisterUser');
 const UserRepository = require('../../../Domains/users/UserRepository');
 const UserRepositoryPostgres = require('../UserRepositoryPostgres');
 
 describe('[Unit] UserRepositoryPostgres', () => {
-  it('should be an instance of UserRepository', () => {
+  it('must be an instance of UserRepository', () => {
     const repo = new UserRepositoryPostgres({}, () => '');
     expect(repo).toBeInstanceOf(UserRepository);
   });
@@ -54,6 +55,80 @@ describe('[Unit] UserRepositoryPostgres', () => {
           username: 'johndoe',
           fullname: 'John Doe',
         }));
+      });
+    });
+
+    describe('verifyAvailableUsername', () => {
+      it('should throw InvariantError when the username is not available', async () => {
+        mockPool.query.mockResolvedValue({
+          rows: [{ username: 'johndoe' }],
+          rowCount: 1,
+        });
+
+        await expect(userRepo.verifyAvailableUsername('johndoe'))
+          .rejects.toThrow(InvariantError);
+
+        expect(mockPool.query).toHaveBeenCalledTimes(1);
+        expect(mockPool.query).toHaveBeenCalledWith(
+          expect.objectContaining({
+            text: expect.stringContaining('SELECT username FROM users'),
+            values: ['johndoe']
+          })
+        );
+      });
+
+      it('should not throw InvariantError when the username is available', async () => {
+        mockPool.query.mockResolvedValue({
+          rows: [], rowCount: 0
+        });
+
+        await expect(userRepo.verifyAvailableUsername('johndoe'))
+          .resolves.not.toThrow(InvariantError);
+
+        expect(mockPool.query).toHaveBeenCalledTimes(1);
+        expect(mockPool.query).toHaveBeenCalledWith(
+          expect.objectContaining({
+            text: expect.stringContaining('SELECT username FROM users'),
+            values: ['johndoe']
+          })
+        );
+      });
+    });
+
+    describe('getPasswordByUsername', () => {
+      it('should throw InvariantError when username not exists', async () => {
+        mockPool.query.mockResolvedValue({
+          rows: [], rowCount: 0
+        });
+
+        await expect(userRepo.getPasswordByUsername('johndoe'))
+          .rejects.toThrow(InvariantError);
+
+        expect(mockPool.query).toHaveBeenCalledTimes(1);
+        expect(mockPool.query).toHaveBeenCalledWith(
+          expect.objectContaining({
+            text: expect.stringContaining('SELECT password FROM users'),
+            values: ['johndoe']
+          })
+        );
+      });
+
+      it('should correctly pool.query and return the password related to username', async () => {
+        mockPool.query.mockResolvedValue({
+          rows: [{ password: 'supersecret' }],
+          rowCount: 1,
+        });
+
+        const password = await userRepo.getPasswordByUsername('johndoe');
+
+        expect(mockPool.query).toHaveBeenCalledTimes(1);
+        expect(mockPool.query).toHaveBeenCalledWith(
+          expect.objectContaining({
+            text: expect.stringContaining('SELECT password FROM users'),
+            values: ['johndoe']
+          })
+        );
+        expect(password).toEqual('supersecret');
       });
     });
   });
