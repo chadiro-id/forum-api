@@ -134,15 +134,15 @@ describe('Threads Endpoints', () => {
   });
 
   describe('GET /threads/{threadId}', () => {
-    let threadId;
+    let thread;
     let commentId1;
     let commentId2;
     let replyId2;
 
     beforeAll(async () => {
-      threadId = await threadsTable.add({ owner: userA.id });
-      commentId1 = await commentsTable.add({ id: 'comment-123', threadId, owner: userA.id });
-      commentId2 = await commentsTable.add({ id: 'comment-456', threadId, owner: userB.id });
+      thread = await threadsTable.add({ owner: userA.id });
+      commentId1 = await commentsTable.add({ id: 'comment-123', threadId: thread.id, owner: userA.id });
+      commentId2 = await commentsTable.add({ id: 'comment-456', threadId: thread.id, owner: userB.id });
       await repliesTable.add({ id: 'reply-123', commentId: commentId1, owner: userB.id });
       replyId2 = await repliesTable.add({ id: 'reply-456', commentId: commentId1, owner: userA.id });
     });
@@ -154,7 +154,7 @@ describe('Threads Endpoints', () => {
     });
 
     it('should response 200 and detail thread', async () => {
-      const response = await serverTest.get(`/threads/${threadId}`);
+      const response = await serverTest.get(`/threads/${thread.id}`);
 
       const responseJson = JSON.parse(response.payload);
 
@@ -197,19 +197,19 @@ describe('Threads Endpoints', () => {
     });
 
     it('should response 200 and return deleted comment and reply correctly', async () => {
-      const comment2endpoint = `/threads/${threadId}/comments/${commentId2}`;
+      const comment2endpoint = `/threads/${thread.id}/comments/${commentId2}`;
       const comment2options = {
         headers: { ...authorizationUserB }
       };
       await serverTest.delete(comment2endpoint, comment2options);
 
-      const reply2endpoint = `/threads/${threadId}/comments/${commentId2}/replies/${replyId2}`;
+      const reply2endpoint = `/threads/${thread.id}/comments/${commentId2}/replies/${replyId2}`;
       const reply2options = {
         headers: { ...authorizationUserA }
       };
       await serverTest.delete(reply2endpoint, reply2options);
 
-      const response = await serverTest.get(`/threads/${threadId}`);
+      const response = await serverTest.get(`/threads/${thread.id}`);
       expect(response.statusCode).toBe(200);
 
       const responseJson = JSON.parse(response.payload);

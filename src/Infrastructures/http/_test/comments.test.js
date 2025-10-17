@@ -30,12 +30,12 @@ afterAll(async () => {
 });
 
 describe('Comments Endpoints', () => {
-  let threadId;
+  let thread;
   let authorizationUserA;
   let authorizationUserB;
 
   beforeAll(async () => {
-    threadId = await threadsTable.add({ owner: userA.id });
+    thread = await threadsTable.add({ owner: userA.id });
 
     authorizationUserA = {
       Authorization: `Bearer ${userAuthA.accessToken}`,
@@ -57,7 +57,7 @@ describe('Comments Endpoints', () => {
     let endpoint;
 
     beforeAll(async () => {
-      endpoint = `/threads/${threadId}/comments`;
+      endpoint = `/threads/${thread.id}/comments`;
     });
 
     it('should response 401 when request with no authentications', async () => {
@@ -142,8 +142,8 @@ describe('Comments Endpoints', () => {
     let commentUserB;
 
     beforeAll(async () => {
-      commentUserA = await commentsTable.add({ id: 'comment-123', threadId, owner: userA.id });
-      commentUserB = await commentsTable.add({ id: 'comment-456', threadId, owner: userB.id });
+      commentUserA = await commentsTable.add({ id: 'comment-123', threadId: thread.id, owner: userA.id });
+      commentUserB = await commentsTable.add({ id: 'comment-456', threadId: thread.id, owner: userB.id });
     });
 
     afterAll(async () => {
@@ -151,7 +151,7 @@ describe('Comments Endpoints', () => {
     });
 
     it('should response 401 when delete comment without authentication', async () => {
-      const endpoint = `/threads/${threadId}/comments/${commentUserA}`;
+      const endpoint = `/threads/${thread.id}/comments/${commentUserA}`;
 
       const response = await serverTest.delete(endpoint);
 
@@ -162,7 +162,7 @@ describe('Comments Endpoints', () => {
     });
 
     it('should response 404 when delete comment that not exists', async () => {
-      const endpoint = `/threads/${threadId}/comments/xxx`;
+      const endpoint = `/threads/${thread.id}/comments/xxx`;
       const options = {
         headers: { ...authorizationUserB }
       };
@@ -177,7 +177,7 @@ describe('Comments Endpoints', () => {
     });
 
     it('should response 403 when delete comment by not authorized user', async () => {
-      const endpoint = `/threads/${threadId}/comments/${commentUserB}`;
+      const endpoint = `/threads/${thread.id}/comments/${commentUserB}`;
       const options = {
         headers: { ...authorizationUserA }
       };
@@ -192,7 +192,7 @@ describe('Comments Endpoints', () => {
     });
 
     it('should response 200 when delete comment by authorized user', async () => {
-      const endpoint = `/threads/${threadId}/comments/${commentUserA}`;
+      const endpoint = `/threads/${thread.id}/comments/${commentUserA}`;
       const options = {
         headers: { ...authorizationUserA }
       };
