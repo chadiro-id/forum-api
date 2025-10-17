@@ -15,12 +15,23 @@ const comments = (pool) => {
     return id;
   };
 
+  const findById = async (id) => {
+    const query = {
+      text: 'SELECT id FROM comments WHERE id = $1',
+      values: [id],
+    };
+
+    const result = await pool.query(query);
+    return result.rows;
+  };
+
   const clean = async () => {
     await pool.query('DELETE FROM comments WHERE 1=1');
   };
 
   return {
     add,
+    findById,
     clean,
   };
 };
