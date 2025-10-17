@@ -12,14 +12,14 @@ const AddedReply = require('../../../Domains/replies/entities/AddedReply');
 describe('[Integration] ReplyRepositoryPostgres', () => {
   let replyRepo;
   let currentUser;
-  let threadId;
+  let thread;
   let commentId;
 
   beforeAll(async () => {
     replyRepo = new ReplyRepositoryPostgres(pool, () => '123');
     currentUser = await usersTable.add({ username: 'johndoe' });
-    threadId = await threadsTable.add({ owner: currentUser.id });
-    commentId = await commentsTable.add({ threadId, owner: currentUser.id });
+    thread = await threadsTable.add({ owner: currentUser.id });
+    commentId = await commentsTable.add({ threadId: thread.id, owner: currentUser.id });
   });
 
   beforeEach(async () => {

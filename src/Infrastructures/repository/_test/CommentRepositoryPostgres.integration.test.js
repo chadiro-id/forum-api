@@ -11,12 +11,12 @@ const AddedComment = require('../../../Domains/comments/entities/AddedComment');
 describe('[Integration] CommentRepositoryPostgres', () => {
   let commentRepo;
   let currentUser;
-  let threadId;
+  let thread;
 
   beforeAll(async () => {
     commentRepo = new CommentRepositoryPostgres(pool, () => '123');
     currentUser = await usersTable.add({ username: 'johndoe' });
-    threadId = await threadsTable.add({});
+    thread = await threadsTable.add({});
   });
 
   beforeEach(async () => {
@@ -34,7 +34,7 @@ describe('[Integration] CommentRepositoryPostgres', () => {
 
     beforeAll(() => {
       newComment = new NewComment({
-        threadId,
+        threadId: thread.id,
         content: 'Sebuah komentar',
         owner: currentUser.id,
       });
