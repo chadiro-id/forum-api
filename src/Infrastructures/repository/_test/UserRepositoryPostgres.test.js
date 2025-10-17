@@ -131,5 +131,43 @@ describe('[Unit] UserRepositoryPostgres', () => {
         expect(password).toEqual('supersecret');
       });
     });
+
+    describe('getIdByUsername', () => {
+      it('should throw InvariantError when username not exists', async () => {
+        mockPool.query.mockResolvedValue({
+          rows: [], rowCount: 0
+        });
+
+        await expect(userRepo.getIdByUsername('johndoe'))
+          .rejects.toThrow(InvariantError);
+
+        expect(mockPool.query).toHaveBeenCalledTimes(1);
+        expect(mockPool.query).toHaveBeenCalledWith(
+          expect.objectContaining({
+            text: expect.stringContaining('SELECT id FROM users'),
+            values: ['johndoe']
+          })
+        );
+      });
+
+      it('should correctly pool.query and return the id related to username', async () => {
+        mockPool.query.mockResolvedValue({
+          rows: [{ id: 'user-123' }],
+          rowCount: 1,
+        });
+
+        const id = await userRepo.getIdByUsername('johndoe');
+
+        expect(mockPool.query).toHaveBeenCalledTimes(1);
+        expect(mockPool.query).toHaveBeenCalledWith(
+          expect.objectContaining({
+            text: expect.stringContaining('SELECT id FROM users'),
+            values: ['johndoe']
+          })
+        );
+
+        expect(id).toEqual('user-123');
+      });
+    });
   });
 });
