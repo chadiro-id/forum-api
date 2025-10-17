@@ -71,11 +71,41 @@ describe('Comment Entity', () => {
       expect(() => new Comment(dateObj))
         .toThrow('COMMENT.DATE_INVALID');
     });
+
+    it('should throw error when replies contain invalid element', () => {
+      const reply = new Reply({
+        id: 'reply-123',
+        commentId: 'comment-123',
+        content: 'Sebuah balasan',
+        username: 'johndoe',
+        date: new Date(2025, 10, 17),
+        isDelete: false
+      });
+      const arrContainString = [reply, '0'];
+      const arrContainNum = [1, reply];
+
+      const payload1 = { ...dummyPayload, replies: arrContainString };
+      const payload2 = { ...dummyPayload, replies: arrContainNum };
+
+      expect(() => new Comment(payload1))
+        .toThrow('COMMENT.REPLIES_INVALID_ELEMENT');
+      expect(() => new Comment(payload2))
+        .toThrow('COMMENT.REPLIES_INVALID_ELEMENT');
+    });
   });
 
   describe('Correct payload', () => {
     it('should correctly create the entity', () => {
-      const payload = { ...dummyPayload };
+      const reply = new Reply({
+        id: 'reply-123',
+        commentId: 'comment-123',
+        content: 'Sebuah balasan',
+        username: 'johndoe',
+        date: new Date(2025, 10, 17),
+        isDelete: false,
+      });
+
+      const payload = { ...dummyPayload, replies: [reply] };
 
       const { id, content, date, username, replies } = new Comment(payload);
 
@@ -83,7 +113,8 @@ describe('Comment Entity', () => {
       expect(content).toEqual(payload.content);
       expect(date).toEqual(payload.date);
       expect(username).toEqual(payload.username);
-      expect(replies).toEqual([]);
+      expect(replies).toHaveLength(1);
+      expect(replies[0]).toBeInstanceOf(Reply);
     });
 
     it('should not reveal original content value when isDelete equal to TRUE', () => {
