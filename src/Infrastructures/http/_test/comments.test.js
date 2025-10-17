@@ -1,6 +1,6 @@
 const pool = require('../../database/postgres/pool');
 const serverTest = require('../../../../tests/helper/ServerTestHelper');
-const { getUserAuth } = require('../../../../tests/server/helper');
+const { getUserAuth } = require('../../../../tests/helper/authenticationHelper');
 const {
   usersTable,
   authenticationsTable,
