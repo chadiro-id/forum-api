@@ -1,29 +1,24 @@
 const CommentRepository = require('../../../Domains/comments/CommentRepository');
 const AddedComment = require('../../../Domains/comments/entities/AddedComment');
+const Comment = require('../../../Domains/comments/entities/Comment');
 const NewComment = require('../../../Domains/comments/entities/NewComment');
 const CommentRepositoryPostgres = require('../CommentRepositoryPostgres');
 
 describe('CommentRepositoryPostgres', () => {
-  describe('CommentRepository contract enforcement', () => {
-    it('must be an instance of CommentRepository', () => {
-      const commentRepositoryPostgres = new CommentRepositoryPostgres({}, () => '');
-
-      expect(commentRepositoryPostgres).toBeInstanceOf(CommentRepository);
-    });
+  it('must be an instance of CommentRepository', () => {
+    const repo = new CommentRepositoryPostgres({}, () => '');
+    expect(repo).toBeInstanceOf(CommentRepository);
   });
 
-  describe('Method implementations and database query', () => {
+  describe('Methods and Pool Query', () => {
     let mockPool;
-    let fakeIdGenerator;
-    let commentRepositoryPostgres;
+    let commentRepo;
 
     beforeEach(() => {
       mockPool = {
         query: jest.fn(),
       };
-      fakeIdGenerator = () => '123';
-
-      commentRepositoryPostgres = new CommentRepositoryPostgres(mockPool, fakeIdGenerator);
+      commentRepo = new CommentRepositoryPostgres(mockPool, () => '123');
     });
 
     afterEach(() => {
@@ -33,26 +28,26 @@ describe('CommentRepositoryPostgres', () => {
     it('should throw error when database fails', async () => {
       mockPool.query.mockRejectedValue(new Error('Database fails'));
 
-      await expect(commentRepositoryPostgres.addComment({}))
+      await expect(commentRepo.addComment({}))
         .rejects.toThrow('Database fails');
-      await expect(commentRepositoryPostgres.getCommentsByThreadId(''))
+      await expect(commentRepo.getCommentsByThreadId(''))
         .rejects.toThrow('Database fails');
-      await expect(commentRepositoryPostgres.softDeleteCommentById(''))
+      await expect(commentRepo.softDeleteCommentById(''))
         .rejects.toThrow('Database fails');
-      await expect(commentRepositoryPostgres.verifyCommentExists(''))
+      await expect(commentRepo.verifyCommentExists(''))
         .rejects.toThrow('Database fails');
-      await expect(commentRepositoryPostgres.verifyCommentOwner('', ''))
+      await expect(commentRepo.verifyCommentOwner('', ''))
         .rejects.toThrow('Database fails');
     });
 
     describe('addComment', () => {
-      it('should persist the comment record and return the id correctly', async () => {
+      it('should persist the comment and return the added comment correctly', async () => {
         mockPool.query.mockResolvedValue({
           rows: [{ id: 'comment-123', content: 'Sebuah komentar', owner_id: 'user-123' }],
           rowCount: 1,
         });
 
-        const addedComment = await commentRepositoryPostgres.addComment(new NewComment({
+        const addedComment = await commentRepo.addComment(new NewComment({
           threadId: 'thread-123',
           content: 'Sebuah komentar',
           owner: 'user-123',
@@ -79,26 +74,26 @@ describe('CommentRepositoryPostgres', () => {
     });
 
     describe('getCommentsByThreadId', () => {
-      it('should correctly query the database and return the comments related to the given thread id', async () => {
+      it('should correctly pool.query and return the comments related to the given thread id', async () => {
         const comment1 = {
           id: 'comment-001',
-          content: 'Something comment',
-          username: 'forumapi_1',
-          created_at: '2025-10-15T02:08:54.384Z',
+          content: 'Isi komentar 1',
+          username: 'whoami',
+          created_at: new Date('2025-10-15T02:06:54.384Z'),
           is_delete: false,
         };
         const comment2 = {
           id: 'comment-002',
-          content: 'Something comment',
-          username: 'forumapi_2',
-          created_at: '2025-10-15T02:08:54.384Z',
+          content: 'Isi komentar 2',
+          username: 'johndoe',
+          created_at: new Date('2025-10-15T02:07:54.384Z'),
           is_delete: false,
         };
         const comment3 = {
           id: 'comment-003',
-          content: 'Something comment',
-          username: 'forumapi_3',
-          created_at: '2025-10-15T02:08:54.384Z',
+          content: 'Isi komentar 3',
+          username: 'instinct',
+          created_at: new Date('2025-10-15T02:08:54.384Z'),
           is_delete: false,
         };
 
@@ -107,7 +102,7 @@ describe('CommentRepositoryPostgres', () => {
           rowCount: 3,
         });
 
-        const comments = await commentRepositoryPostgres.getCommentsByThreadId('thread-123');
+        const comments = await commentRepo.getCommentsByThreadId('thread-123');
 
         expect(mockPool.query).toHaveBeenCalledTimes(1);
         expect(mockPool.query).toHaveBeenCalledWith(
@@ -117,17 +112,27 @@ describe('CommentRepositoryPostgres', () => {
           })
         );
         expect(comments).toHaveLength(3);
-        expect(comments).toEqual(
-          expect.arrayOf(
-            expect.objectContaining({
-              id: expect.stringContaining('comment-'),
-              content: expect.any(String),
-              date: expect.any(String),
-              username: expect.any(String),
-              replies: expect.any(Array)
-            })
-          )
-        );
+        expect(comments[0]).toEqual(new Comment({
+          id: comment1.id,
+          content: comment1.content,
+          username: comment1.username,
+          date: comment1.created_at,
+          isDelete: comment1.is_delete
+        }));
+        expect(comments[1]).toEqual(new Comment({
+          id: comment2.id,
+          content: comment2.content,
+          username: comment2.username,
+          date: comment2.created_at,
+          isDelete: comment2.is_delete
+        }));
+        expect(comments[2]).toEqual(new Comment({
+          id: comment3.id,
+          content: comment3.content,
+          username: comment3.username,
+          date: comment3.created_at,
+          isDelete: comment3.is_delete
+        }));
       });
     });
   });
