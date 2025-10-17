@@ -86,8 +86,7 @@ describe('[Integration] ThreadRepositoryPostgres', () => {
         title: 'Sebuah thread',
         body: 'Isi thread',
         date,
-        owner: currentUser.id,
-        comments: []
+        username: 'whoami',
       }));
     });
   });
