@@ -5,7 +5,7 @@ describe('Comment Entity', () => {
   const dummyPayload = {
     id: 'comment-123',
     content: 'Sebuah komentar',
-    date: '2025-10-15T02:08:54.384Z',
+    date: new Date('2025-10-15T02:08:54.384Z'),
     username: 'superuser',
     isDelete: false,
   };
@@ -20,10 +20,11 @@ describe('Comment Entity', () => {
       delete missingDate.date;
       const missingUsername = { ...dummyPayload };
       delete missingUsername.username;
+      const missingIsDelete = { ...dummyPayload };
+      delete missingIsDelete.isDelete;
 
       const emptyId = { ...dummyPayload, id: '' };
       const emptyContent = { ...dummyPayload, content: '' };
-      const emptyDate = { ...dummyPayload, date: '' };
       const emptyUsername = { ...dummyPayload, username: '' };
 
       expect(() => new Comment(missingId))
@@ -38,8 +39,6 @@ describe('Comment Entity', () => {
         .toThrow('COMMENT.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
       expect(() => new Comment(emptyContent))
         .toThrow('COMMENT.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
-      expect(() => new Comment(emptyDate))
-        .toThrow('COMMENT.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
       expect(() => new Comment(emptyUsername))
         .toThrow('COMMENT.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
     });
@@ -47,23 +46,29 @@ describe('Comment Entity', () => {
     it('should throw error when payload property does not meet data type specification', () => {
       const idNotString = { ...dummyPayload, id: 123 };
       const contentNotString = { ...dummyPayload, content: ['Komentar'] };
-      const dateNotString = { ...dummyPayload, date: 2025 };
+      const dateNotStringOrObject = { ...dummyPayload, date: 2025 };
       const usernameNotString = { ...dummyPayload, username: true };
+      const isDeleteNotBoolean = { ...dummyPayload, isDelete: 'delete' };
 
       expect(() => new Comment(idNotString))
         .toThrow('COMMENT.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
       expect(() => new Comment(contentNotString))
         .toThrow('COMMENT.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
-      expect(() => new Comment(dateNotString))
+      expect(() => new Comment(dateNotStringOrObject))
         .toThrow('COMMENT.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
       expect(() => new Comment(usernameNotString))
         .toThrow('COMMENT.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
+      expect(() => new Comment(isDeleteNotBoolean))
+        .toThrow('COMMENT.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
     });
 
-    it('should throw error when date string is not valid', () => {
-      const invalidDateString = { ...dummyPayload, date: 'date' };
+    it('should throw error when date is not valid', () => {
+      const dateString = { ...dummyPayload, date: 'date' };
+      const dateObj = { ...dummyPayload, date: new Date('date') };
 
-      expect(() => new Comment(invalidDateString))
+      expect(() => new Comment(dateString))
+        .toThrow('COMMENT.DATE_INVALID');
+      expect(() => new Comment(dateObj))
         .toThrow('COMMENT.DATE_INVALID');
     });
   });
