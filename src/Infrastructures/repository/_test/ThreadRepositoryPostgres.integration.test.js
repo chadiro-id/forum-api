@@ -4,6 +4,7 @@ const { usersTable, threadsTable } = require('../../../../tests/helper/postgres'
 const NewThread = require('../../../Domains/threads/entities/NewThread');
 const AddedThread = require('../../../Domains/threads/entities/AddedThread');
 const NotFoundError = require('../../../Commons/exceptions/NotFoundError');
+const DetailThread = require('../../../Domains/threads/entities/DetailThread');
 
 describe('[Integration] ThreadRepositoryPostgres', () => {
   let threadRepo;
@@ -65,6 +66,29 @@ describe('[Integration] ThreadRepositoryPostgres', () => {
       await expect(threadRepo.verifyThreadExists('thread-123'))
         .resolves
         .not.toThrow(NotFoundError);
+    });
+  });
+
+  describe('getThreadById', () => {
+    it('should throw NotFoundError when the id is not exists', async () => {
+      await expect(threadRepo.getThreadById('thread-123'))
+        .rejects
+        .toThrow(NotFoundError);
+    });
+
+    it('should return the DetailThread entity correctly', async () => {
+      const { created_at: date } = await threadsTable.add({ owner: currentUser.id });
+
+      const thread = await threadRepo.getThreadById('thread-123');
+
+      expect(thread).toStrictEqual(new DetailThread({
+        id: 'thread-123',
+        title: 'Sebuah thread',
+        body: 'Isi thread',
+        date,
+        owner: currentUser.id,
+        comments: []
+      }));
     });
   });
 });
