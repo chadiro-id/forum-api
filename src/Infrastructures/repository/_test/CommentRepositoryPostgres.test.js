@@ -1,3 +1,5 @@
+const AuthorizationError = require('../../../Commons/exceptions/AuthorizationError');
+const NotFoundError = require('../../../Commons/exceptions/NotFoundError');
 const CommentRepository = require('../../../Domains/comments/CommentRepository');
 const AddedComment = require('../../../Domains/comments/entities/AddedComment');
 const Comment = require('../../../Domains/comments/entities/Comment');
@@ -133,6 +135,98 @@ describe('CommentRepositoryPostgres', () => {
           date: comment3.created_at,
           isDelete: comment3.is_delete
         }));
+      });
+    });
+
+    describe('softDeleteCommentById', () => {
+      it('should throw NotFoundError when the given id is not exists', async () => {
+        mockPool.query.mockResolvedValue({
+          rows: [], rowCount: 0
+        });
+
+        await expect(commentRepo.softDeleteCommentById('comment-123'))
+          .rejects.toThrow(NotFoundError);
+
+        expect(mockPool.query).toHaveBeenCalledTimes(1);
+        expect(mockPool.query).toHaveBeenCalledWith(
+          expect.objectContaining({
+            text: expect.stringContaining('is_delete = TRUE'),
+            values: ['comment-123']
+          })
+        );
+      });
+
+      it('should not throw NotFoundError when the given id is exists', async () => {
+        mockPool.query.mockResolvedValue({
+          rows: [{ id: 'comment-123' }],
+          rowCount: 1
+        });
+
+        await expect(commentRepo.softDeleteCommentById('comment-123'))
+          .resolves.not.toThrow(NotFoundError);
+
+        expect(mockPool.query).toHaveBeenCalledTimes(1);
+        expect(mockPool.query).toHaveBeenCalledWith(
+          expect.objectContaining({
+            text: expect.stringContaining('is_delete = TRUE'),
+            values: ['comment-123']
+          })
+        );
+      });
+    });
+
+    describe('verifyCommentOwner', () => {
+      it('should throw NotFoundError when the comment id is not exists', async () => {
+        mockPool.query.mockResolvedValue({
+          rows: [], rowCount: 0
+        });
+
+        await expect(commentRepo.verifyCommentOwner('comment-123', 'user-123'))
+          .rejects.toThrow(NotFoundError);
+
+        expect(mockPool.query).toHaveBeenCalledTimes(1);
+        expect(mockPool.query).toHaveBeenCalledWith(
+          expect.objectContaining({
+            text: expect.stringContaining('SELECT'),
+            values: ['comment-123'],
+          })
+        );
+      });
+
+      it('should throw AuthorizationError when the given owner is not match', async () => {
+        mockPool.query.mockResolvedValue({
+          rows: [{ owner_id: 'user-123' }],
+          rowCount: 1
+        });
+
+        await expect(commentRepo.verifyCommentOwner('comment-123', 'user-456'))
+          .rejects.toThrow(AuthorizationError);
+
+        expect(mockPool.query).toHaveBeenCalledTimes(1);
+        expect(mockPool.query).toHaveBeenCalledWith(
+          expect.objectContaining({
+            text: expect.stringContaining('SELECT'),
+            values: ['comment-123'],
+          })
+        );
+      });
+
+      it('should not throw error when the id and owner is match', async () => {
+        mockPool.query.mockResolvedValue({
+          rows: [{ owner_id: 'user-123' }],
+          rowCount: 1
+        });
+
+        await expect(commentRepo.verifyCommentOwner('comment-123', 'user-123'))
+          .resolves.not.toThrow();
+
+        expect(mockPool.query).toHaveBeenCalledTimes(1);
+        expect(mockPool.query).toHaveBeenCalledWith(
+          expect.objectContaining({
+            text: expect.stringContaining('SELECT'),
+            values: ['comment-123'],
+          })
+        );
       });
     });
   });
