@@ -7,12 +7,12 @@ const threads = (pool) => {
     owner = 'user-123'
   }) => {
     const query = {
-      text: 'INSERT INTO threads (id, title, body, owner_id) VALUES ($1, $2, $3, $4) RETURNING id',
+      text: 'INSERT INTO threads (id, title, body, owner_id) VALUES ($1, $2, $3, $4) RETURNING id, created_at',
       values: [id, title, body, owner]
     };
 
     const result = await pool.query(query);
-    return result.rows[0].id;
+    return result.rows[0];
   };
 
   const findById = async (id) => {
