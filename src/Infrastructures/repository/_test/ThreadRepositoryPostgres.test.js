@@ -5,7 +5,7 @@ const NewThread = require('../../../Domains/threads/entities/NewThread');
 const ThreadRepository = require('../../../Domains/threads/ThreadRepository');
 const ThreadRepositoryPostgres = require('../ThreadRepositoryPostgres');
 
-describe('ThreadRepositoryPostgres', () => {
+describe('[Unit] ThreadRepositoryPostgres', () => {
   it('must be an instance of ThreadRepository', () => {
     const threadRepo = new ThreadRepositoryPostgres({}, () => '');
     expect(threadRepo).toBeInstanceOf(ThreadRepository);

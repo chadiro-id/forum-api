@@ -6,7 +6,7 @@ const Comment = require('../../../Domains/comments/entities/Comment');
 const NewComment = require('../../../Domains/comments/entities/NewComment');
 const CommentRepositoryPostgres = require('../CommentRepositoryPostgres');
 
-describe('CommentRepositoryPostgres', () => {
+describe('[Unit] CommentRepositoryPostgres', () => {
   it('must be an instance of CommentRepository', () => {
     const repo = new CommentRepositoryPostgres({}, () => '');
     expect(repo).toBeInstanceOf(CommentRepository);

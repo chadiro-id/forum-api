@@ -6,7 +6,7 @@ const Reply = require('../../../Domains/replies/entities/Reply');
 const ReplyRepository = require('../../../Domains/replies/ReplyRepository');
 const ReplyRepositoryPostgres = require('../ReplyRepositoryPostgres');
 
-describe('ReplyRepositoryPostgres', () => {
+describe('[Unit] ReplyRepositoryPostgres', () => {
   it('must be an instance of ReplyRepository', () => {
     const replyRepositoryPostgres = new ReplyRepositoryPostgres({}, () => '');
     expect(replyRepositoryPostgres).toBeInstanceOf(ReplyRepository);
