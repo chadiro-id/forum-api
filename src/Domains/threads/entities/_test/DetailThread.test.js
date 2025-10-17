@@ -99,7 +99,7 @@ describe('DetailThread Entity', () => {
       expect(username).toEqual(payload.username);
     });
 
-    it('should correctly create the entity and not contain extra property', () => {
+    it('should not contain extra property', () => {
       const extraPayload = { ...dummyPayload, extra: 'Something extra' };
 
       const detailThread = new DetailThread(extraPayload);
@@ -109,6 +109,8 @@ describe('DetailThread Entity', () => {
       expect(detailThread.body).toEqual(extraPayload.body);
       expect(detailThread.date).toEqual(extraPayload.date);
       expect(detailThread.username).toEqual(extraPayload.username);
+
+      expect(detailThread.extra).toBeUndefined();
     });
   });
 
