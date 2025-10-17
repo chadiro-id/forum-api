@@ -156,21 +156,23 @@ describe('Comment Entity', () => {
       const replies = comment.replies;
 
       expect(replies).toHaveLength(1);
+      expect(replies[0]).toBeInstanceOf(Reply);
     });
+  });
 
-    it('should correctly serialize JSON', () => {
-      const comment = new Comment({ ...dummyPayload });
+  describe('JSON Serialization', () => {
+    it('should serialize to JSON correctly', () => {
+      const payload = { ...dummyPayload };
+      const comment = new Comment(payload);
 
-      const jsonString = JSON.stringify(comment);
-      const jsonObj = JSON.parse(jsonString);
+      const json = comment.toJSON();
 
-      expect(jsonObj).toEqual({
-        id: dummyPayload.id,
-        content: dummyPayload.content,
-        date: dummyPayload.date,
-        username: dummyPayload.username,
-        replies: [],
-      });
+      expect(json.isDelete).toBeUndefined();
+      expect(json.id).toEqual(payload.id);
+      expect(json.content).toEqual(payload.content);
+      expect(json.date).toEqual(payload.date);
+      expect(json.username).toEqual(payload.username);
+      expect(json.replies).toEqual([]);
     });
   });
 });
