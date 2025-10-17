@@ -95,15 +95,17 @@ describe('DetailThread Entity', () => {
 
   describe('Correct payload', () => {
     it('should correctly create the entity', () => {
-      const payload = { ...dummyPayload };
+      const comment = new Comment({ ...dummyComment });
+      const payload = { ...dummyPayload, comments: [comment] };
 
-      const { id, title, body, date, username } = new DetailThread(payload);
+      const { id, title, body, date, username, comments } = new DetailThread(payload);
 
       expect(id).toEqual(payload.id);
       expect(title).toEqual(payload.title);
       expect(body).toEqual(payload.body);
       expect(date).toEqual(payload.date);
       expect(username).toEqual(payload.username);
+      expect(comments).toEqual([]);
     });
 
     it('should not contain extra property', () => {
