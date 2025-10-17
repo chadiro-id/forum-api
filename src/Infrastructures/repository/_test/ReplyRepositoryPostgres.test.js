@@ -1,3 +1,4 @@
+const AuthorizationError = require('../../../Commons/exceptions/AuthorizationError');
 const NotFoundError = require('../../../Commons/exceptions/NotFoundError');
 const AddedReply = require('../../../Domains/replies/entities/AddedReply');
 const NewReply = require('../../../Domains/replies/entities/NewReply');
@@ -165,6 +166,61 @@ describe('ReplyRepositoryPostgres', () => {
           expect.objectContaining({
             text: expect.stringContaining('is_delete = TRUE'),
             values: ['reply-123']
+          })
+        );
+      });
+    });
+
+    describe('verifyReplyOwner', () => {
+      it('should throw NotFoundError when the reply id is not exists', async () => {
+        mockPool.query.mockResolvedValue({
+          rows: [], rowCount: 0
+        });
+
+        await expect(repo.verifyReplyOwner('reply-123', 'user-123'))
+          .rejects.toThrow(NotFoundError);
+
+        expect(mockPool.query).toHaveBeenCalledTimes(1);
+        expect(mockPool.query).toHaveBeenCalledWith(
+          expect.objectContaining({
+            text: expect.stringContaining('SELECT'),
+            values: ['reply-123'],
+          })
+        );
+      });
+
+      it('should throw AuthorizationError when the given owner is not match', async () => {
+        mockPool.query.mockResolvedValue({
+          rows: [{ owner_id: 'user-123' }],
+          rowCount: 1
+        });
+
+        await expect(repo.verifyReplyOwner('reply-123', 'user-456'))
+          .rejects.toThrow(AuthorizationError);
+
+        expect(mockPool.query).toHaveBeenCalledTimes(1);
+        expect(mockPool.query).toHaveBeenCalledWith(
+          expect.objectContaining({
+            text: expect.stringContaining('SELECT'),
+            values: ['reply-123'],
+          })
+        );
+      });
+
+      it('should not throw error when the id and owner is match', async () => {
+        mockPool.query.mockResolvedValue({
+          rows: [{ owner_id: 'user-123' }],
+          rowCount: 1
+        });
+
+        await expect(repo.verifyReplyOwner('reply-123', 'user-123'))
+          .resolves.not.toThrow();
+
+        expect(mockPool.query).toHaveBeenCalledTimes(1);
+        expect(mockPool.query).toHaveBeenCalledWith(
+          expect.objectContaining({
+            text: expect.stringContaining('SELECT'),
+            values: ['reply-123'],
           })
         );
       });
