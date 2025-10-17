@@ -98,4 +98,20 @@ describe('[Integration] CommentRepositoryPostgres', () => {
       expect(comments[0].is_delete).toBe(true);
     });
   });
+
+  describe('verifyCommentExists', () => {
+    it('should throw NotFoundError when the id is not exists', async () => {
+      await expect(commentRepo.verifyCommentExists('comment-123'))
+        .rejects
+        .toThrow(NotFoundError);
+    });
+
+    it('should not throw NotFoundError when the id is exists', async () => {
+      await commentsTable.add({ threadId: thread.id, owner: currentUser.id });
+
+      await expect(commentRepo.verifyCommentExists('comment-123'))
+        .resolves
+        .not.toThrow(NotFoundError);
+    });
+  });
 });
