@@ -75,6 +75,13 @@ describe('DetailThread Entity', () => {
         .toThrow('DETAIL_THREAD.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
     });
 
+    it('should throw error when title has char more than 255', () => {
+      const payload = { ...dummyPayload, title: 'Sebuah thread'.repeat(25) };
+
+      expect(() => new DetailThread(payload))
+        .toThrow('DETAIL_THREAD.TITLE_EXCEDD_CHAR_LIMIT');
+    });
+
     it('should throw error when date is not valid', () => {
       const dateString = { ...dummyPayload, date: 'Date' };
       const dateObj = { ...dummyPayload, date: new Date('date') };
