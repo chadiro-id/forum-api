@@ -31,13 +31,13 @@ afterAll(async () => {
 
 describe('Replies Endpoints', () => {
   let thread;
-  let commentId;
+  let comment;
   let authorizationUserA;
   let authorizationUserB;
 
   beforeAll(async () => {
     thread = await threadsTable.add({ owner: userA.id });
-    commentId = await commentsTable.add({ threadId: thread.id, owner: userA.id });
+    comment = await commentsTable.add({ threadId: thread.id, owner: userA.id });
 
     authorizationUserA = {
       Authorization: `Bearer ${userAuthA.accessToken}`
@@ -62,7 +62,7 @@ describe('Replies Endpoints', () => {
 
   describe('POST /threads/{threadId}/comments/{commentId}/replies', () => {
     it('should response 401 when request with no authentication', async () => {
-      const endpoint = `/threads/${thread.id}/comments/${commentId}/replies`;
+      const endpoint = `/threads/${thread.id}/comments/${comment.id}/replies`;
       const response = await serverTest.post(endpoint, {
         payload: { content: 'Sebuah balasan' }
       });
@@ -74,7 +74,7 @@ describe('Replies Endpoints', () => {
     });
 
     it('should response 404 when thread does not exists', async () => {
-      const endpoint = `/threads/xxx/comments/${commentId}/replies`;
+      const endpoint = `/threads/xxx/comments/${comment.id}/replies`;
       const options = {
         headers: { ...authorizationUserA },
         payload: { content: 'Sebuah balasan' },
@@ -106,7 +106,7 @@ describe('Replies Endpoints', () => {
     });
 
     it('should response 400 when payload not contain needed property', async () => {
-      const endpoint = `/threads/${thread.id}/comments/${commentId}/replies`;
+      const endpoint = `/threads/${thread.id}/comments/${comment.id}/replies`;
       const options = {
         headers: { ...authorizationUserA },
         payload: { contents: 'Incorrect property name' }
@@ -122,7 +122,7 @@ describe('Replies Endpoints', () => {
     });
 
     it('should response 400 when payload has wrong data type', async () => {
-      const endpoint = `/threads/${thread.id}/comments/${commentId}/replies`;
+      const endpoint = `/threads/${thread.id}/comments/${comment.id}/replies`;
       const options = {
         headers: { ...authorizationUserA },
         payload: { content: 123 }
@@ -138,7 +138,7 @@ describe('Replies Endpoints', () => {
     });
 
     it('should response 201 and the persisted reply', async () => {
-      const endpoint = `/threads/${thread.id}/comments/${commentId}/replies`;
+      const endpoint = `/threads/${thread.id}/comments/${comment.id}/replies`;
       const options = {
         headers: { ...authorizationUserA },
         payload: { content: 'Sebuah balasan' }
@@ -162,8 +162,8 @@ describe('Replies Endpoints', () => {
     let replyUserB;
 
     beforeAll(async () => {
-      replyUserA = await repliesTable.add({ id: 'reply-123', commentId, owner: userA.id });
-      replyUserB = await repliesTable.add({ id: 'reply-456', commentId, owner: userB.id });
+      replyUserA = await repliesTable.add({ id: 'reply-123', commentId: comment.id, owner: userA.id });
+      replyUserB = await repliesTable.add({ id: 'reply-456', commentId: comment.id, owner: userB.id });
     });
 
     afterAll(async () => {
@@ -171,7 +171,7 @@ describe('Replies Endpoints', () => {
     });
 
     it('should response 401 when delete reply without authentication', async () => {
-      const endpoint = `/threads/${thread.id}/comments/${commentId}/replies/${replyUserA}`;
+      const endpoint = `/threads/${thread.id}/comments/${comment.id}/replies/${replyUserA.id}`;
 
       const response = await serverTest.delete(endpoint);
 
@@ -182,7 +182,7 @@ describe('Replies Endpoints', () => {
     });
 
     it('should response 404 when delete reply that not exists', async () => {
-      const endpoint = `/threads/${thread.id}/comments/${commentId}/replies/xxx`;
+      const endpoint = `/threads/${thread.id}/comments/${comment.id}/replies/xxx`;
       const options = {
         headers: { ...authorizationUserB }
       };
@@ -197,7 +197,7 @@ describe('Replies Endpoints', () => {
     });
 
     it('should response 403 when delete reply by not authorized user', async () => {
-      const endpoint = `/threads/${thread.id}/comments/${commentId}/replies/${replyUserB}`;
+      const endpoint = `/threads/${thread.id}/comments/${comment.id}/replies/${replyUserB.id}`;
       const options = {
         headers: { ...authorizationUserA }
       };
@@ -212,7 +212,7 @@ describe('Replies Endpoints', () => {
     });
 
     it('should response 200 when delete reply by authorized user', async () => {
-      const endpoint = `/threads/${thread.id}/comments/${commentId}/replies/${replyUserA}`;
+      const endpoint = `/threads/${thread.id}/comments/${comment.id}/replies/${replyUserA.id}`;
       const options = {
         headers: { ...authorizationUserA }
       };
