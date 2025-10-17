@@ -167,8 +167,11 @@ describe('DetailThread Entity', () => {
 
   describe('JSON Serialization', () => {
     it('should correctly serialize to JSON', () => {
+      const comment = new Comment({ ...dummyComment });
       const payload = { ...dummyPayload };
+
       const thread = new DetailThread(payload);
+      thread.comments = [comment];
 
       const json = thread.toJSON();
 
@@ -177,6 +180,8 @@ describe('DetailThread Entity', () => {
       expect(json.body).toEqual(payload.body);
       expect(json.date).toEqual(payload.date);
       expect(json.username).toEqual(payload.username);
+      expect(json.comments).toHaveLength(1);
+      expect(json.comments[0]).toBeInstanceOf(Comment);
     });
   });
 });
