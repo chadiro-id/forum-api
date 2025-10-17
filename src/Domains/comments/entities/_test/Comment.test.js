@@ -77,15 +77,24 @@ describe('Comment Entity', () => {
     it('should correctly create the entity', () => {
       const payload = { ...dummyPayload };
 
-      const { id, content, date, username } = new Comment(payload);
+      const { id, content, date, username, replies } = new Comment(payload);
 
       expect(id).toEqual(payload.id);
       expect(content).toEqual(payload.content);
       expect(date).toEqual(payload.date);
       expect(username).toEqual(payload.username);
+      expect(replies).toEqual([]);
     });
 
-    it('should correctly create the entity and not contain extra property', () => {
+    it('should not reveal original content value when isDelete equal to TRUE', () => {
+      const payload = { ...dummyPayload, isDelete: true };
+
+      const { content } = new Comment(payload);
+
+      expect(content).toEqual('**komentar telah dihapus**');
+    });
+
+    it('should not contain extra property', () => {
       const extraPayload = { ...dummyPayload, extra: 'Something extra' };
 
       const comment = new Comment(extraPayload);
@@ -94,6 +103,8 @@ describe('Comment Entity', () => {
       expect(comment.content).toEqual(extraPayload.content);
       expect(comment.date).toEqual(extraPayload.date);
       expect(comment.username).toEqual(extraPayload.username);
+      expect(comment.replies).toBeInstanceOf(Array);
+      expect(comment.replies).toHaveLength(0);
 
       expect(comment.extra).toBeUndefined();
     });
