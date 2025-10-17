@@ -1,11 +1,11 @@
 const pool = require('../../database/postgres/pool');
 const AuthenticationTokenManager = require('../../../Applications/security/AuthenticationTokenManager');
 const container = require('../../containers/container');
-const serverTest = require('../../../../tests/server');
+const serverTest = require('../../../../tests/helper/ServerTestHelper');
 const { usersTable, authenticationsTable } = require('../../../../tests/helper/postgres');
 
 beforeAll(async () => {
-  await serverTest.init();
+  await serverTest.setup();
 });
 
 afterAll(async () => {

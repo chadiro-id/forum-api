@@ -1,9 +1,9 @@
 const pool = require('../../database/postgres/pool');
-const serverTest = require('../../../../tests/server');
+const serverTest = require('../../../../tests/helper/ServerTestHelper');
 const { usersTable } = require('../../../../tests/helper/postgres');
 
 beforeAll(async () => {
-  await serverTest.init();
+  await serverTest.setup();
   await usersTable.add({ id: 'user-1000', username: 'superuser' });
 });
 
