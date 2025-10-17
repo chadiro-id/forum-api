@@ -89,9 +89,10 @@ describe('Reply Entity', () => {
     it('should correctly create the entity', () => {
       const payload = { ...dummyPayload };
 
-      const { id, content, date, username } = new Reply(payload);
+      const { id, commentId, content, date, username } = new Reply(payload);
 
       expect(id).toEqual(payload.id);
+      expect(commentId).toEqual(payload.commentId);
       expect(content).toEqual(payload.content);
       expect(date).toEqual(payload.date);
       expect(username).toEqual(payload.username);
@@ -103,6 +104,7 @@ describe('Reply Entity', () => {
       const reply = new Reply(extraPayload);
 
       expect(reply.id).toEqual(extraPayload.id);
+      expect(reply.commentId).toEqual(extraPayload.commentId);
       expect(reply.content).toEqual(extraPayload.content);
       expect(reply.date).toEqual(extraPayload.date);
       expect(reply.username).toEqual(extraPayload.username);
