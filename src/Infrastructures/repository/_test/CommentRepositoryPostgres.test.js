@@ -175,6 +175,39 @@ describe('CommentRepositoryPostgres', () => {
       });
     });
 
+    describe('verifyCommentExists', () => {
+      it('should throw NotFoundError when the id is not exists', async () => {
+        mockPool.query.mockResolvedValue({
+          rows: [], rowCount: 0
+        });
+
+        await expect(commentRepo.verifyCommentExists('comment-123'))
+          .rejects.toThrow(NotFoundError);
+
+        expect(mockPool.query).toHaveBeenCalledTimes(1);
+        expect(mockPool.query).toHaveBeenCalledWith({
+          text: expect.stringContaining('SELECT id FROM'),
+          values: ['comment-123'],
+        });
+      });
+
+      it('should not throw NotFoundError when the id is exists', async () => {
+        mockPool.query.mockResolvedValue({
+          rows: [{ id: 'comment-123' }],
+          rowCount: 1,
+        });
+
+        await expect(commentRepo.verifyCommentExists('comment-123'))
+          .resolves.not.toThrow(NotFoundError);
+
+        expect(mockPool.query).toHaveBeenCalledTimes(1);
+        expect(mockPool.query).toHaveBeenCalledWith({
+          text: expect.stringContaining('SELECT id FROM'),
+          values: ['comment-123'],
+        });
+      });
+    });
+
     describe('verifyCommentOwner', () => {
       it('should throw NotFoundError when the comment id is not exists', async () => {
         mockPool.query.mockResolvedValue({
