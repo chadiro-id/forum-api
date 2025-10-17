@@ -5,7 +5,7 @@ describe('Reply Entity', () => {
     id: 'reply-123',
     commentId: 'comment-123',
     content: 'Sebuah balasan',
-    date: '2025-10-15T02:08:54.384Z',
+    date: new Date('2025-10-15T02:08:54.384Z'),
     username: 'superuser',
     isDelete: false,
   };
@@ -14,19 +14,25 @@ describe('Reply Entity', () => {
     it('should throw error when payload not contain needed property', () => {
       const missingId = { ...dummyPayload };
       delete missingId.id;
+      const missingCommentId = { ...dummyPayload };
+      delete missingCommentId.commentId;
       const missingContent = { ...dummyPayload };
       delete missingContent.content;
       const missingDate = { ...dummyPayload };
       delete missingDate.date;
       const missingUsername = { ...dummyPayload };
       delete missingUsername.username;
+      const missingIsDelete = { ...dummyPayload };
+      delete missingIsDelete.isDelete;
 
       const emptyId = { ...dummyPayload, id: '' };
+      const emptyCommentId = { ...dummyPayload, commentId: '' };
       const emptyContent = { ...dummyPayload, content: '' };
-      const emptyDate = { ...dummyPayload, date: '' };
       const emptyUsername = { ...dummyPayload, username: '' };
 
       expect(() => new Reply(missingId))
+        .toThrow('REPLY.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
+      expect(() => new Reply(missingCommentId))
         .toThrow('REPLY.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
       expect(() => new Reply(missingContent))
         .toThrow('REPLY.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
@@ -34,11 +40,13 @@ describe('Reply Entity', () => {
         .toThrow('REPLY.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
       expect(() => new Reply(missingUsername))
         .toThrow('REPLY.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
+      expect(() => new Reply(missingIsDelete))
+        .toThrow('REPLY.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
       expect(() => new Reply(emptyId))
         .toThrow('REPLY.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
-      expect(() => new Reply(emptyContent))
+      expect(() => new Reply(emptyCommentId))
         .toThrow('REPLY.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
-      expect(() => new Reply(emptyDate))
+      expect(() => new Reply(emptyContent))
         .toThrow('REPLY.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
       expect(() => new Reply(emptyUsername))
         .toThrow('REPLY.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
@@ -46,22 +54,27 @@ describe('Reply Entity', () => {
 
     it('should throw error when payload property does not meet data type specification', () => {
       const idNotString = { ...dummyPayload, id: 123 };
+      const commentIdNotString = { ...dummyPayload, commentId: {} };
       const contentNotString = { ...dummyPayload, content: ['Balasan'] };
-      const dateNotString = { ...dummyPayload, date: 2025 };
       const usernameNotString = { ...dummyPayload, username: true };
+      const dateNotStringOrObject = { ...dummyPayload, date: 2025 };
+      const isDeleteNotBoolean = { ...dummyPayload, isDelete: 'delete' };
 
       expect(() => new Reply(idNotString))
         .toThrow('REPLY.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
+      expect(() => new Reply(commentIdNotString))
+        .toThrow('REPLY.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
       expect(() => new Reply(contentNotString))
         .toThrow('REPLY.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
-      expect(() => new Reply(dateNotString))
-        .toThrow('REPLY.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
       expect(() => new Reply(usernameNotString))
+        .toThrow('REPLY.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
+      expect(() => new Reply(dateNotStringOrObject))
+        .toThrow('REPLY.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
+      expect(() => new Reply(isDeleteNotBoolean))
         .toThrow('REPLY.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
     });
 
     it('should throw error when date is not valid', () => {
-
       const dateString = { ...dummyPayload, date: 'date' };
       const dateObj = { ...dummyPayload, date: new Date('date') };
 
