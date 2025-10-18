@@ -27,6 +27,21 @@ describe('DeleteAuthenticationUseCase', () => {
         .rejects
         .toThrow('DELETE_AUTHENTICATION_USE_CASE.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
     });
+
+    it('should propagate error when checkAvalibilityToken fails', async () => {
+      mockAuthRepo.checkAvailabilityToken.mockRejectedValue(new Error('checking fails'));
+
+      const useCase = new DeleteAuthenticationUseCase({
+        authenticationRepository: mockAuthRepo,
+      });
+
+      await expect(useCase.execute({ refreshToken: 'refresh_token' }))
+        .rejects.toThrow();
+
+      expect(mockAuthRepo.checkAvailabilityToken).toHaveBeenCalledTimes(1);
+      expect(mockAuthRepo.checkAvailabilityToken).toHaveBeenCalledWith('refresh_token');
+      expect(mockAuthRepo.deleteToken).not.toHaveBeenCalled();
+    });
   });
 
   describe('Successful executions', () => {
