@@ -60,6 +60,26 @@ describe('AddAuthenticationUseCase', () => {
       expect(mockUserRepo.getIdByUsername).not.toHaveBeenCalled();
       expect(mockAuthRepo.addToken).not.toHaveBeenCalled();
     });
+
+    it('should propagate error when comparePassword fails', async () => {
+      mockUserRepo.getPasswordByUsername.mockResolvedValue('encrypted_password');
+      mockPasswordHash.comparePassword.mockRejectedValue(new Error('compare password fails'));
+
+      const useCase = new AddAuthenticationUseCase({
+        userRepository: mockUserRepo,
+        authenticationRepository: mockAuthRepo,
+        authenticationTokenManager: mockTokenManager,
+        passwordHash: mockPasswordHash,
+      });
+
+      await expect(useCase.execute({ ...dummyPayload })).rejects.toThrow();
+
+      expect(mockUserRepo.getPasswordByUsername).toHaveBeenCalledWith(dummyPayload.username);
+      expect(mockPasswordHash.comparePassword).toHaveBeenCalledTimes(1);
+      expect(mockPasswordHash.comparePassword).toHaveBeenCalledWith(dummyPayload.password, 'encrypted_password');
+      expect(mockUserRepo.getIdByUsername).not.toHaveBeenCalled();
+      expect(mockAuthRepo.addToken).not.toHaveBeenCalled();
+    });
   });
 
   describe('Successful executions', () => {
