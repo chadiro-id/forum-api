@@ -1,6 +1,4 @@
 const AddUserUseCase = require('../AddUserUseCase');
-// const PasswordHash = require('../../../security/PasswordHash');
-// const UserRepository = require('../../../../Domains/users/UserRepository');
 const RegisterUser = require('../../../../Domains/users/entities/RegisterUser');
 const RegisteredUser = require('../../../../Domains/users/entities/RegisteredUser');
 
@@ -46,8 +44,7 @@ describe('AddUserUseCase', () => {
         passwordHash: mockPasswordHash,
       });
 
-      await expect(useCase.execute({ ...dummyPayload }))
-        .rejects.toThrow();
+      await expect(useCase.execute({ ...dummyPayload })).rejects.toThrow();
 
       expect(mockUserRepo.verifyAvailableUsername).toHaveBeenCalledTimes(1);
       expect(mockUserRepo.verifyAvailableUsername).toHaveBeenCalledWith(dummyPayload.username);
@@ -64,8 +61,7 @@ describe('AddUserUseCase', () => {
         passwordHash: mockPasswordHash,
       });
 
-      await expect(useCase.execute({ ...dummyPayload }))
-        .rejects.toThrow();
+      await expect(useCase.execute({ ...dummyPayload })).rejects.toThrow();
 
       expect(mockUserRepo.verifyAvailableUsername).toHaveBeenCalledTimes(1);
       expect(mockUserRepo.verifyAvailableUsername).toHaveBeenCalledWith(dummyPayload.username);
