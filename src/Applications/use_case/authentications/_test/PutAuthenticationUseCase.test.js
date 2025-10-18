@@ -1,68 +1,65 @@
-const AuthenticationRepository = require('../../../../Domains/authentications/AuthenticationRepository');
-const AuthenticationTokenManager = require('../../../security/AuthenticationTokenManager');
 const PutAuthenticationUseCase = require('../PutAuthenticationUseCase');
 
 describe('PutAuthenticationUseCase', () => {
-  describe('when executed with bad payload', () => {
-    it('should throw error if payload not contain refresh token', async () => {
-      const useCasePayload = { bad: 'not_contain_refresh_token' };
-      const putAuthenticationUseCase = new PutAuthenticationUseCase({});
+  let mockAuthRepo;
+  let mockTokenManager;
 
-      await expect(putAuthenticationUseCase.execute(useCasePayload))
-        .rejects.toThrow('PUT_AUTHENTICATION_USE_CASE.PAYLOAD_NOT_CONTAIN_REFRESH_TOKEN');
-    });
+  beforeEach(() => {
+    mockAuthRepo = {
+      checkAvailabilityToken: jest.fn(),
+    };
+    mockTokenManager = {
+      verifyRefreshToken: jest.fn(),
+      createAccessToken: jest.fn(),
+      decodePayload: jest.fn(),
+    };
+  });
 
-    it('should throw error if refresh token is not a string', async () => {
-      const useCasePayload = { refreshToken: 123 };
+  afterEach(() => jest.clearAllMocks());
 
-      const putAuthenticationUseCase = new PutAuthenticationUseCase({});
+  describe('Failure cases', () => {
+    it('should throw error when payload not provided correctly', async () => {
+      const useCase = new PutAuthenticationUseCase({});
 
-      await expect(putAuthenticationUseCase.execute(useCasePayload))
-        .rejects.toThrow('PUT_AUTHENTICATION_USE_CASE.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
-    });
-
-    it('should throw error if refresh token is an empty string', async () => {
-      const useCasePayload = { refreshToken: '' };
-
-      const putAuthenticationUseCase = new PutAuthenticationUseCase({});
-
-      await expect(putAuthenticationUseCase.execute(useCasePayload))
-        .rejects.toThrow('PUT_AUTHENTICATION_USE_CASE.PAYLOAD_NOT_CONTAIN_REFRESH_TOKEN');
+      await expect(useCase.execute()).rejects.toThrow();
+      await expect(useCase.execute({}))
+        .rejects
+        .toThrow('PUT_AUTHENTICATION_USE_CASE.PAYLOAD_NOT_CONTAIN_REFRESH_TOKEN');
+      await expect(useCase.execute({ refreshToken: '' }))
+        .rejects
+        .toThrow('PUT_AUTHENTICATION_USE_CASE.PAYLOAD_NOT_CONTAIN_REFRESH_TOKEN');
+      await expect(useCase.execute({ refreshToken: 123 }))
+        .rejects
+        .toThrow('PUT_AUTHENTICATION_USE_CASE.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
     });
   });
 
-  describe('when executed with correct payload', () => {
+  describe('Successful executions', () => {
     it('should orchestrating the put authentication action correctly', async () => {
-      const useCasePayload = { refreshToken: 'some_refresh_token' };
+      const payload = { refreshToken: 'some_refresh_token' };
 
-      const mockAuthenticationRepository = new AuthenticationRepository();
-      const mockAuthenticationTokenManager = new AuthenticationTokenManager();
+      mockTokenManager.verifyRefreshToken.mockResolvedValue();
+      mockAuthRepo.checkAvailabilityToken.mockResolvedValue();
+      mockTokenManager.decodePayload.mockResolvedValue({ username: 'johndoe', id: 'user-123' });
+      mockTokenManager.createAccessToken.mockResolvedValue('new_access_token');
 
-      mockAuthenticationTokenManager.verifyRefreshToken = jest.fn()
-        .mockImplementation(() => Promise.resolve());
-      mockAuthenticationRepository.checkAvailabilityToken = jest.fn()
-        .mockImplementation(() => Promise.resolve());
-      mockAuthenticationTokenManager.decodePayload = jest.fn()
-        .mockImplementation(() => Promise.resolve({ username: 'forumapi', id: 'user-123' }));
-      mockAuthenticationTokenManager.createAccessToken = jest.fn()
-        .mockImplementation(() => Promise.resolve('some_new_access_token'));
-
-      const putAuthenticationUseCase = new PutAuthenticationUseCase({
-        authenticationRepository: mockAuthenticationRepository,
-        authenticationTokenManager: mockAuthenticationTokenManager,
+      const useCase = new PutAuthenticationUseCase({
+        authenticationRepository: mockAuthRepo,
+        authenticationTokenManager: mockTokenManager,
       });
 
-      const accessToken = await putAuthenticationUseCase.execute(useCasePayload);
+      const accessToken = await useCase.execute(payload);
 
-      expect(mockAuthenticationTokenManager.verifyRefreshToken)
-        .toHaveBeenCalledWith(useCasePayload.refreshToken);
-      expect(mockAuthenticationRepository.checkAvailabilityToken)
-        .toHaveBeenCalledWith(useCasePayload.refreshToken);
-      expect(mockAuthenticationTokenManager.decodePayload)
-        .toHaveBeenCalledWith(useCasePayload.refreshToken);
-      expect(mockAuthenticationTokenManager.createAccessToken)
-        .toHaveBeenCalledWith({ username: 'forumapi', id: 'user-123' });
-      expect(accessToken).toEqual('some_new_access_token');
+      expect(mockTokenManager.verifyRefreshToken).toHaveBeenCalledTimes(1);
+      expect(mockTokenManager.verifyRefreshToken).toHaveBeenCalledWith(payload.refreshToken);
+      expect(mockAuthRepo.checkAvailabilityToken).toHaveBeenCalledTimes(1);
+      expect(mockAuthRepo.checkAvailabilityToken).toHaveBeenCalledWith(payload.refreshToken);
+      expect(mockTokenManager.decodePayload).toHaveBeenCalledTimes(1);
+      expect(mockTokenManager.decodePayload).toHaveBeenCalledWith(payload.refreshToken);
+      expect(mockTokenManager.createAccessToken).toHaveBeenCalledTimes(1);
+      expect(mockTokenManager.createAccessToken).toHaveBeenCalledWith({ username: 'johndoe', id: 'user-123' });
+
+      expect(accessToken).toEqual('new_access_token');
     });
   });
 });
