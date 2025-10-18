@@ -67,6 +67,22 @@ describe('DeleteCommentUseCase', () => {
       await expect(useCase.execute(ownerNotString))
         .rejects.toThrow('DELETE_COMMENT_USE_CASE.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
     });
+
+    it('should propagate error when thread not exists', async () => {
+      mockThreadRepo.verifyThreadExists.mockRejectedValue(new Error('thread not found'));
+
+      const useCase = new DeleteCommentUseCase({
+        threadRepository: mockThreadRepo,
+        commentRepository: mockCommentRepo,
+      });
+
+      await expect(useCase.execute({ ...dummyPayload })).rejects.toThrow();
+
+      expect(mockThreadRepo.verifyThreadExists).toHaveBeenCalledTimes(1);
+      expect(mockThreadRepo.verifyThreadExists).toHaveBeenCalledWith(dummyPayload.threadId);
+      expect(mockCommentRepo.verifyCommentOwner).not.toHaveBeenCalled();
+      expect(mockCommentRepo.softDeleteCommentById).not.toHaveBeenCalled();
+    });
   });
 
   describe('Successful executions', () => {
