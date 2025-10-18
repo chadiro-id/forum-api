@@ -17,7 +17,7 @@ const replies = (pool) => {
 
   const findById = async (id) => {
     const query = {
-      text: 'SELECT id FROM replies WHERE id = $1',
+      text: 'SELECT * FROM replies WHERE id = $1',
       values: [id],
     };
 
