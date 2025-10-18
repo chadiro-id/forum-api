@@ -9,6 +9,7 @@ const ReplyRepositoryPostgres = require('../ReplyRepositoryPostgres');
 const NewReply = require('../../../Domains/replies/entities/NewReply');
 const AddedReply = require('../../../Domains/replies/entities/AddedReply');
 const Reply = require('../../../Domains/replies/entities/Reply');
+const NotFoundError = require('../../../Commons/exceptions/NotFoundError');
 
 describe('[Integration] ReplyRepositoryPostgres', () => {
   let replyRepo;
@@ -113,6 +114,25 @@ describe('[Integration] ReplyRepositoryPostgres', () => {
         date: replyC.created_at,
         isDelete: false,
       }));
+    });
+  });
+
+  describe('softDeleteReplyById', () => {
+    it('should throw NotFoundError when id is not exists', async () => {
+      await expect(replyRepo.softDeleteReplyById('reply-123'))
+        .rejects
+        .toThrow(NotFoundError);
+    });
+
+    it('should resolves and update delete status of reply', async () => {
+      await repliesTable.add({ commentId: commentB.id, owner: userA.id });
+
+      await expect(replyRepo.softDeleteReplyById('reply-123'))
+        .resolves
+        .not.toThrow(NotFoundError);
+
+      const replies = await repliesTable.findById('reply-123');
+      expect(replies[0].is_delete).toBe(true);
     });
   });
 });
