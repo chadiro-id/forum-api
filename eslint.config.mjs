@@ -1,33 +1,33 @@
-import js from "@eslint/js";
-import globals from "globals";
-import { defineConfig } from "eslint/config";
-import daStyle from "eslint-config-dicodingacademy";
-import pluginJest from "eslint-plugin-jest";
+import js from '@eslint/js';
+import globals from 'globals';
+import { defineConfig } from 'eslint/config';
+import daStyle from 'eslint-config-dicodingacademy';
+import pluginJest from 'eslint-plugin-jest';
 
 export default defineConfig([
   {
-    files: ["**/*.{js,mjs,cjs}"],
+    files: ['**/*.{js,mjs,cjs}'],
     plugins: { js },
-    extends: ["js/recommended"],
+    extends: ['js/recommended'],
     languageOptions: { globals: globals.node }
   },
   {
-    files: ["**/*.js"],
+    files: ['**/*.js'],
     extends: [daStyle],
-    languageOptions: { sourceType: "commonjs" },
+    languageOptions: { sourceType: 'commonjs' },
     rules: {
-      "no-unused-vars": ["error", {
-        "argsIgnorePattern": "^_",
-        "caughtErrorsIgnorePattern": "^ignore",
+      'no-unused-vars': ['error', {
+        'argsIgnorePattern': '^_',
+        'caughtErrorsIgnorePattern': '^ignore',
       }],
-      "camelcase": ["error", {
-        allow: ["owner_id", "thread_id", "comment_id", "created_at", "is_delete"]
-      }]
-    }
+      'camelcase': ['error', {
+        allow: ['owner_id', 'thread_id', 'comment_id', 'created_at', 'is_delete']
+      }],
+    },
   },
   {
-    files: ["**/*.test.js", "jest.setup.js"],
+    files: ['**/*.test.js', './jest.setup.js'],
     plugins: { jest: pluginJest },
     languageOptions: { globals: pluginJest.environments.globals.globals },
-  }
+  },
 ]);
