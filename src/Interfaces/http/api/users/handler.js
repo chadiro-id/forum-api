@@ -1,15 +1,18 @@
 const AddUserUseCase = require('../../../../Applications/use_case/users/AddUserUseCase');
 
 class UsersHandler {
-  constructor(container) {
+  constructor(container, validator) {
     this._container = container;
+    this._validator = validator;
 
     this.postUserHandler = this.postUserHandler.bind(this);
   }
 
   async postUserHandler(request, h) {
-    const addUserUseCase = this._container.getInstance(AddUserUseCase.name);
-    const addedUser = await addUserUseCase.execute(request.payload);
+    this._validator.validateRegisterUserPayload(request.payload);
+    const useCase = this._container.getInstance(AddUserUseCase.name);
+
+    const addedUser = await useCase.execute(request.payload);
 
     const response = h.response({
       status: 'success',
