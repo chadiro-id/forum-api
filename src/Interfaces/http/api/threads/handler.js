@@ -1,22 +1,23 @@
 const AddThreadUseCase = require('../../../../Applications/use_case/threads/AddThreadUseCase');
 const GetDetailThreadUseCase = require('../../../../Applications/use_case/threads/GetDetailThreadUseCase');
-const InvariantError = require('../../../../Commons/exceptions/InvariantError');
 
 class ThreadsHandler {
-  constructor(container) {
+  constructor(container, validator) {
     this._container = container;
+    this._validator = validator;
 
     this.postThreadHandler = this.postThreadHandler.bind(this);
     this.getThreadHandler = this.getThreadHandler.bind(this);
   }
 
   async postThreadHandler(request, h) {
-    this._validatePayload(request.payload);
+    this._validator.validatePostThreadPayload(request.payload);
+
     const { id: owner } = request.auth.credentials;
     const { title, body } = request.payload;
 
-    const addThreadUseCase = this._container.getInstance(AddThreadUseCase.name);
-    const addedThread = await addThreadUseCase.execute({ title, body, owner });
+    const useCase = this._container.getInstance(AddThreadUseCase.name);
+    const addedThread = await useCase.execute({ title, body, owner });
 
     const response = h.response({
       status: 'success',
@@ -43,25 +44,6 @@ class ThreadsHandler {
     });
 
     return response;
-  }
-
-  _validatePayload(payload) {
-    const { title, body } = payload;
-
-    if (!title || !body) {
-      throw new InvariantError('Judul dan isi wajib di isi');
-    }
-
-    if (
-      typeof title !== 'string'
-      || typeof body !== 'string'
-    ) {
-      throw new InvariantError('Judul dan isi harus berupa text');
-    }
-
-    if (title.length > 255) {
-      throw new InvariantError('Panjang judul maksimal 255 karakter');
-    }
   }
 }
 
