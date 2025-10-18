@@ -1,23 +1,21 @@
 const AddCommentUseCase = require('../../../../Applications/use_case/comments/AddCommentUseCase');
 const DeleteCommentUseCase = require('../../../../Applications/use_case/comments/DeleteCommentUseCase');
-const InvariantError = require('../../../../Commons/exceptions/InvariantError');
 
 class CommentsHandler {
-  constructor(container) {
+  constructor(container, validator) {
     this._container = container;
+    this._validator = validator;
 
     this.postCommentHandler = this.postCommentHandler.bind(this);
     this.deleteCommentHandler = this.deleteCommentHandler.bind(this);
   }
 
   async postCommentHandler(request, h) {
+    this._validator.validatePostCommentPayload(request.payload);
+
     const { threadId } = request.params;
     const { id: owner } = request.auth.credentials;
-
     const { content } = request.payload;
-    if (!content || typeof content !== 'string') {
-      throw new InvariantError('Komentar harus di isi dengan benar');
-    }
 
     const useCase = this._container.getInstance(AddCommentUseCase.name);
     const addedComment = await useCase.execute({ threadId, owner, content });
