@@ -14,7 +14,7 @@ class AddUserUseCase {
     entity.password = await this._passwordHash.hash(entity.password);
 
     const registeredUser = this._userRepository.addUser(entity);
-    if (registeredUser instanceof RegisteredUser) {
+    if (registeredUser instanceof RegisteredUser === false) {
       throw new Error('ADD_USER_USE_CASE.REGISTERED_USER_MUST_BE_INSTANCE_OF_REGISTERED_USER_ENTITY');
     }
 
