@@ -2,13 +2,16 @@ const Hapi = require('@hapi/hapi');
 const Jwt = require('@hapi/jwt');
 const config = require('../../Commons/config');
 const ClientError = require('../../Commons/exceptions/ClientError');
-const DomainErrorTranslator = require('../../Commons/exceptions/DomainErrorTranslator');
+// const DomainErrorTranslator = require('../../Commons/exceptions/DomainErrorTranslator');
 
 const users = require('../../Interfaces/http/api/users');
 const authentications = require('../../Interfaces/http/api/authentications');
 const threads = require('../../Interfaces/http/api/threads');
 const comments = require('../../Interfaces/http/api/comments');
 const replies = require('../../Interfaces/http/api/replies');
+
+const usersValidator = require('../validator/users');
+const authenticationsValidator = require('../validator/authentications');
 
 const createServer = async (container) => {
   const server = Hapi.server({
@@ -42,11 +45,17 @@ const createServer = async (container) => {
   await server.register([
     {
       plugin: users,
-      options: { container },
+      options: {
+        container,
+        validator: usersValidator,
+      },
     },
     {
       plugin: authentications,
-      options: { container },
+      options: {
+        container,
+        validator: authenticationsValidator,
+      },
     },
     {
       plugin: threads,
@@ -66,19 +75,33 @@ const createServer = async (container) => {
     const { response } = request;
 
     if (response instanceof Error) {
-      const translatedError = DomainErrorTranslator.translate(response);
+      // const translatedError = DomainErrorTranslator.translate(response);
 
-      if (translatedError instanceof ClientError) {
+      // if (translatedError instanceof ClientError) {
+      //   const newResponse = h.response({
+      //     status: 'fail',
+      //     message: translatedError.message,
+      //   });
+
+      //   newResponse.code(translatedError.statusCode);
+      //   return newResponse;
+      // }
+
+      // if (!translatedError.isServer) {
+      //   return h.continue;
+      // }
+
+      if (response instanceof ClientError) {
         const newResponse = h.response({
           status: 'fail',
-          message: translatedError.message,
+          message: response.message,
         });
 
-        newResponse.code(translatedError.statusCode);
+        newResponse.code(response.statusCode);
         return newResponse;
       }
 
-      if (!translatedError.isServer) {
+      if (!response.isServer) {
         return h.continue;
       }
 
