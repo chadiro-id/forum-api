@@ -78,7 +78,7 @@ describe('AddUserUseCase', () => {
       }));
     });
 
-    it('should throw error when the addedUser not an instance of AddedUser entity', async () => {
+    it('should throw error when the registeredUser not an instance of RegisteredUser entity', async () => {
       mockUserRepo.verifyAvailableUsername.mockResolvedValue();
       mockPasswordHash.hash.mockResolvedValue('encrypted_password');
       mockUserRepo.addUser.mockResolvedValue({
@@ -94,7 +94,7 @@ describe('AddUserUseCase', () => {
 
       await expect(useCase.execute({ ...dummyPayload }))
         .rejects
-        .toThrow('ADD_USER_USE_CASE.ADDED_USER_MUST_BE_INSTANCE_OF_ADDED_USER_ENTITY');
+        .toThrow('ADD_USER_USE_CASE.REGISTERED_USER_MUST_BE_INSTANCE_OF_REGISTERED_USER_ENTITY');
 
       expect(mockUserRepo.verifyAvailableUsername).toHaveBeenCalledTimes(1);
       expect(mockUserRepo.verifyAvailableUsername).toHaveBeenCalledWith(dummyPayload.username);
