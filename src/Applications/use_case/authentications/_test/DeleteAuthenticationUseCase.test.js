@@ -42,6 +42,22 @@ describe('DeleteAuthenticationUseCase', () => {
       expect(mockAuthRepo.checkAvailabilityToken).toHaveBeenCalledWith('refresh_token');
       expect(mockAuthRepo.deleteToken).not.toHaveBeenCalled();
     });
+
+    it('should propagate error when deleteToken fails', async () => {
+      mockAuthRepo.checkAvailabilityToken.mockResolvedValue();
+      mockAuthRepo.deleteToken.mockRejectedValue(new Error('delete token fails'));
+
+      const useCase = new DeleteAuthenticationUseCase({
+        authenticationRepository: mockAuthRepo,
+      });
+
+      await expect(useCase.execute({ refreshToken: 'refresh_token' }))
+        .rejects.toThrow();
+
+      expect(mockAuthRepo.checkAvailabilityToken).toHaveBeenCalledWith('refresh_token');
+      expect(mockAuthRepo.deleteToken).toHaveBeenCalledTimes(1);
+      expect(mockAuthRepo.deleteToken).toHaveBeenCalledWith('refresh_token');
+    });
   });
 
   describe('Successful executions', () => {
