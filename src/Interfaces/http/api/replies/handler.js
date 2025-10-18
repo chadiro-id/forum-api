@@ -1,23 +1,21 @@
 const AddReplyUseCase = require('../../../../Applications/use_case/replies/AddReplyUseCase');
 const DeleteReplyUseCase = require('../../../../Applications/use_case/replies/DeleteReplyUseCase');
-const InvariantError = require('../../../../Commons/exceptions/InvariantError');
 
 class RepliesHandler {
-  constructor(container) {
+  constructor(container, validator) {
     this._container = container;
+    this._validator = validator;
 
     this.postReplyHandler = this.postReplyHandler.bind(this);
     this.deleteReplyHandler = this.deleteReplyHandler.bind(this);
   }
 
   async postReplyHandler(request, h) {
+    this._validator.validatePostReplyPayload(request.payload);
+
     const { threadId, commentId } = request.params;
     const { id: owner } = request.auth.credentials;
-
     const { content } = request.payload;
-    if (!content || typeof content !== 'string') {
-      throw new InvariantError('Balasan harus di isi dengan benar');
-    }
 
     const useCase = this._container.getInstance(AddReplyUseCase.name);
     const addedReply = await useCase.execute({ threadId, commentId, owner, content });
