@@ -33,6 +33,16 @@ describe('AddAuthenticationUseCase', () => {
     jest.clearAllMocks();
   });
 
+  describe('Failure cases', () => {
+    it('should throw error when payload not provided correctly', async () => {
+      const useCase = new AddAuthenticationUseCase({});
+
+      await expect(useCase.execute()).rejects.toThrow();
+      await expect(useCase.execute([])).rejects.toThrow();
+      await expect(useCase.execute({})).rejects.toThrow();
+    });
+  });
+
   describe('Successful executions', () => {
     it('should orchestrating the add authentication action correctly', async () => {
       mockUserRepo.getPasswordByUsername.mockResolvedValue('encrypted_password');
