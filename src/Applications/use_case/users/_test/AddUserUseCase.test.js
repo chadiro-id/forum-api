@@ -1,6 +1,6 @@
 const AddUserUseCase = require('../AddUserUseCase');
-const PasswordHash = require('../../../security/PasswordHash');
-const UserRepository = require('../../../../Domains/users/UserRepository');
+// const PasswordHash = require('../../../security/PasswordHash');
+// const UserRepository = require('../../../../Domains/users/UserRepository');
 const RegisterUser = require('../../../../Domains/users/entities/RegisterUser');
 const RegisteredUser = require('../../../../Domains/users/entities/RegisteredUser');
 
@@ -39,7 +39,7 @@ describe('AddUserUseCase', () => {
     });
 
     it('should propagate error when username already taken', async () => {
-      mockUserRepo.verifyAvailableUsername.mockRejectedValue(new Error());
+      mockUserRepo.verifyAvailableUsername.mockRejectedValue(new Error('username already taken'));
 
       const useCase = new AddUserUseCase({
         userRepository: mockUserRepo,
@@ -57,7 +57,7 @@ describe('AddUserUseCase', () => {
     it('should propagate error when addUser fails', async () => {
       mockUserRepo.verifyAvailableUsername.mockResolvedValue();
       mockPasswordHash.hash.mockResolvedValue('encrypted_password');
-      mockUserRepo.addUser.mockRejectedValue(new Error());
+      mockUserRepo.addUser.mockRejectedValue(new Error('Add user fails'));
 
       const useCase = new AddUserUseCase({
         userRepository: mockUserRepo,
@@ -110,47 +110,33 @@ describe('AddUserUseCase', () => {
 
   describe('Successful execution', () => {
     it('should orchestrating the add user action correctly', async () => {
-      const useCasePayload = {
-        username: 'johndoe',
-        password: 'super_secret',
-        fullname: 'John Doe',
-      };
-
-      const mockRegisteredUser = new RegisteredUser({
+      mockUserRepo.verifyAvailableUsername.mockResolvedValue();
+      mockPasswordHash.hash.mockResolvedValue('encrypted_password');
+      mockUserRepo.addUser.mockResolvedValue(new RegisteredUser({
         id: 'user-123',
-        username: useCasePayload.username,
-        fullname: useCasePayload.fullname,
-      });
-
-      const mockUserRepository = new UserRepository();
-      const mockPasswordHash = new PasswordHash();
-
-      mockUserRepository.verifyAvailableUsername = jest.fn()
-        .mockImplementation(() => Promise.resolve());
-      mockPasswordHash.hash = jest.fn()
-        .mockImplementation(() => Promise.resolve('encrypted_password'));
-      mockUserRepository.addUser = jest.fn()
-        .mockImplementation(() => Promise.resolve(mockRegisteredUser));
+        username: dummyPayload.username,
+        fullname: dummyPayload.fullname,
+      }));
 
       const useCase = new AddUserUseCase({
-        userRepository: mockUserRepository,
+        userRepository: mockUserRepo,
         passwordHash: mockPasswordHash,
       });
 
-      const registeredUser = await useCase.execute(useCasePayload);
+      const registeredUser = await useCase.execute({ ...dummyPayload });
 
       expect(registeredUser).toStrictEqual(new RegisteredUser({
         id: 'user-123',
-        username: useCasePayload.username,
-        fullname: useCasePayload.fullname,
+        username: dummyPayload.username,
+        fullname: dummyPayload.fullname,
       }));
 
-      expect(mockUserRepository.verifyAvailableUsername).toHaveBeenCalledWith(useCasePayload.username);
-      expect(mockPasswordHash.hash).toHaveBeenCalledWith(useCasePayload.password);
-      expect(mockUserRepository.addUser).toHaveBeenCalledWith(new RegisterUser({
-        username: useCasePayload.username,
+      expect(mockUserRepo.verifyAvailableUsername).toHaveBeenCalledWith(dummyPayload.username);
+      expect(mockPasswordHash.hash).toHaveBeenCalledWith(dummyPayload.password);
+      expect(mockUserRepo.addUser).toHaveBeenCalledWith(new RegisterUser({
+        username: dummyPayload.username,
         password: 'encrypted_password',
-        fullname: useCasePayload.fullname,
+        fullname: dummyPayload.fullname,
       }));
     });
   });
