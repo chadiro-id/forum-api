@@ -3,8 +3,8 @@ const routes = require('./routes');
 
 module.exports = {
   name: 'replies',
-  register: async (server, { container }) => {
-    const handler = new RepliesHandler(container);
+  register: async (server, { container, validator }) => {
+    const handler = new RepliesHandler(container, validator);
     server.route(routes(handler));
   }
 };
