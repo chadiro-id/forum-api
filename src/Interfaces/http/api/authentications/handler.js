@@ -3,8 +3,9 @@ const PutAuthenticationUseCase = require('../../../../Applications/use_case/auth
 const DeleteAuthenticationUseCase = require('../../../../Applications/use_case/authentications/DeleteAuthenticationUseCase');
 
 class AuthenticationsHandler {
-  constructor(container) {
+  constructor(container, validator) {
     this._container = container;
+    this._validator = validator;
 
     this.postAuthenticationHandler = this.postAuthenticationHandler.bind(this);
     this.putAuthenticationHandler = this.putAuthenticationHandler.bind(this);
@@ -12,6 +13,7 @@ class AuthenticationsHandler {
   }
 
   async postAuthenticationHandler(request, h) {
+    this._validator.validateUserLoginPayload(request.payload);
     const addAuthenticationUseCase = this._container.getInstance(AddAuthenticationUseCase.name);
 
     const { accessToken, refreshToken } = await addAuthenticationUseCase.execute(request.payload);
@@ -29,6 +31,7 @@ class AuthenticationsHandler {
   }
 
   async putAuthenticationHandler(request) {
+    this._validator.validatePutAuthenticationPayload(request.payload);
     const putAuthenticationUseCase = this._container.getInstance(PutAuthenticationUseCase.name);
 
     const accessToken = await putAuthenticationUseCase.execute(request.payload);
@@ -41,6 +44,7 @@ class AuthenticationsHandler {
   }
 
   async deleteAuthenticationHandler(request) {
+    this._validator.validateDeleteAuthenticationPayload(request.payload);
     const deleteAuthenticationUseCase = this._container.getInstance(DeleteAuthenticationUseCase.name);
 
     await deleteAuthenticationUseCase.execute(request.payload);
