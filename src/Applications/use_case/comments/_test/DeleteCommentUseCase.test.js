@@ -1,5 +1,3 @@
-const CommentRepository = require('../../../../Domains/comments/CommentRepository');
-const ThreadRepository = require('../../../../Domains/threads/ThreadRepository');
 const DeleteCommentUseCase = require('../DeleteCommentUseCase');
 
 describe('DeleteCommentUseCase', () => {
@@ -9,7 +7,24 @@ describe('DeleteCommentUseCase', () => {
     owner: 'user-123',
   };
 
-  describe('fails executions', () => {
+  let mockThreadRepo;
+  let mockCommentRepo;
+
+  beforeEach(() => {
+    mockThreadRepo = {
+      verifyThreadExists: jest.fn(),
+    };
+    mockCommentRepo = {
+      verifyCommentOwner: jest.fn(),
+      softDeleteCommentById: jest.fn(),
+    };
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  describe('Failure cases', () => {
     it('should throw error when payload not contain needed property', async () => {
       const missingThreadId = { ...dummyPayload };
       delete missingThreadId.threadId;
@@ -38,7 +53,7 @@ describe('DeleteCommentUseCase', () => {
         .rejects.toThrow('DELETE_COMMENT_USE_CASE.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
     });
 
-    it('should thow error when payload property does not meet data type specification', async () => {
+    it('should throw error when payload property does not meet data type specification', async () => {
       const threadIdNotString = { ...dummyPayload, threadId: 123 };
       const commentIdNotString = { ...dummyPayload, commentId: [1, 2, 3] };
       const ownerNotString = { ...dummyPayload, owner: true };
@@ -54,29 +69,26 @@ describe('DeleteCommentUseCase', () => {
     });
   });
 
-  describe('Successfull executions', () => {
+  describe('Successful executions', () => {
     it('should correctly orchestracting the delete comment action', async () => {
-      const mockThreadRepository = new ThreadRepository();
-      const mockCommentRepository = new CommentRepository();
-
-      mockThreadRepository.verifyThreadExists = jest.fn().mockResolvedValue();
-      mockCommentRepository.verifyCommentOwner = jest.fn().mockResolvedValue();
-      mockCommentRepository.softDeleteCommentById = jest.fn().mockResolvedValue();
+      mockThreadRepo.verifyThreadExists.mockResolvedValue();
+      mockCommentRepo.verifyCommentOwner.mockResolvedValue();
+      mockCommentRepo.softDeleteCommentById.mockResolvedValue();
 
       const useCase = new DeleteCommentUseCase({
-        threadRepository: mockThreadRepository,
-        commentRepository: mockCommentRepository,
+        threadRepository: mockThreadRepo,
+        commentRepository: mockCommentRepo,
       });
 
       await expect(useCase.execute({ ...dummyPayload }))
         .resolves.not.toThrow();
 
-      expect(mockThreadRepository.verifyThreadExists).toHaveBeenCalledTimes(1);
-      expect(mockThreadRepository.verifyThreadExists).toHaveBeenCalledWith(dummyPayload.threadId);
-      expect(mockCommentRepository.verifyCommentOwner).toHaveBeenCalledTimes(1);
-      expect(mockCommentRepository.verifyCommentOwner).toHaveBeenCalledWith(dummyPayload.commentId, dummyPayload.owner);
-      expect(mockCommentRepository.softDeleteCommentById).toHaveBeenCalledTimes(1);
-      expect(mockCommentRepository.softDeleteCommentById).toHaveBeenCalledWith(dummyPayload.commentId);
+      expect(mockThreadRepo.verifyThreadExists).toHaveBeenCalledTimes(1);
+      expect(mockThreadRepo.verifyThreadExists).toHaveBeenCalledWith(dummyPayload.threadId);
+      expect(mockCommentRepo.verifyCommentOwner).toHaveBeenCalledTimes(1);
+      expect(mockCommentRepo.verifyCommentOwner).toHaveBeenCalledWith(dummyPayload.commentId, dummyPayload.owner);
+      expect(mockCommentRepo.softDeleteCommentById).toHaveBeenCalledTimes(1);
+      expect(mockCommentRepo.softDeleteCommentById).toHaveBeenCalledWith(dummyPayload.commentId);
     });
   });
 });
