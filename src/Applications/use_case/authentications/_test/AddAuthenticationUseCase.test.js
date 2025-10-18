@@ -41,6 +41,25 @@ describe('AddAuthenticationUseCase', () => {
       await expect(useCase.execute([])).rejects.toThrow();
       await expect(useCase.execute({})).rejects.toThrow();
     });
+
+    it('should propagate error when getPasswordByUsername fails', async () => {
+      mockUserRepo.getPasswordByUsername.mockRejectedValue(new Error('get password fails'));
+
+      const useCase = new AddAuthenticationUseCase({
+        userRepository: mockUserRepo,
+        authenticationRepository: mockAuthRepo,
+        authenticationTokenManager: mockTokenManager,
+        passwordHash: mockPasswordHash,
+      });
+
+      await expect(useCase.execute({ ...dummyPayload })).rejects.toThrow();
+
+      expect(mockUserRepo.getPasswordByUsername).toHaveBeenCalledTimes(1);
+      expect(mockUserRepo.getPasswordByUsername).toHaveBeenCalledWith(dummyPayload.username);
+      expect(mockPasswordHash.comparePassword).not.toHaveBeenCalled();
+      expect(mockUserRepo.getIdByUsername).not.toHaveBeenCalled();
+      expect(mockAuthRepo.addToken).not.toHaveBeenCalled();
+    });
   });
 
   describe('Successful executions', () => {
