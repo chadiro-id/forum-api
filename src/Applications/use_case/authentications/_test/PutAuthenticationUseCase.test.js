@@ -32,6 +32,23 @@ describe('PutAuthenticationUseCase', () => {
         .rejects
         .toThrow('PUT_AUTHENTICATION_USE_CASE.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
     });
+
+    it('should propagate error when refresh token verifications fails', async () => {
+      mockTokenManager.verifyRefreshToken.mockRejectedValue(new Error('verifications fails'));
+
+      const useCase = new PutAuthenticationUseCase({
+        authenticationRepository: mockAuthRepo,
+        authenticationTokenManager: mockTokenManager,
+      });
+
+      await expect(useCase.execute({ refreshToken: 'refresh_token' })).rejects.toThrow();
+
+      expect(mockTokenManager.verifyRefreshToken).toHaveBeenCalledTimes(1);
+      expect(mockTokenManager.verifyRefreshToken).toHaveBeenCalledWith('refresh_token');
+      expect(mockAuthRepo.checkAvailabilityToken).not.toHaveBeenCalled();
+      expect(mockTokenManager.decodePayload).not.toHaveBeenCalled();
+      expect(mockTokenManager.createAccessToken).not.toHaveBeenCalled();
+    });
   });
 
   describe('Successful executions', () => {
