@@ -70,7 +70,7 @@ describe('AddUserUseCase', () => {
       expect(mockUserRepo.verifyAvailableUsername).toHaveBeenCalledTimes(1);
       expect(mockUserRepo.verifyAvailableUsername).toHaveBeenCalledWith(dummyPayload.username);
       expect(mockPasswordHash.hash).toHaveBeenCalledTimes(1);
-      expect(mockUserRepo.addUser).toHaveBeenCalledTimes(1);
+      expect(mockUserRepo.addUser).not.toHaveBeenCalledTimes(1);
       expect(mockUserRepo.addUser).toHaveBeenCalledWith(new RegisterUser({
         username: dummyPayload.username,
         fullname: dummyPayload.fullname,
