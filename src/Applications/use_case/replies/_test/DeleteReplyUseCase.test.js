@@ -1,6 +1,3 @@
-const CommentRepository = require('../../../../Domains/comments/CommentRepository');
-const ReplyRepository = require('../../../../Domains/replies/ReplyRepository');
-const ThreadRepository = require('../../../../Domains/threads/ThreadRepository');
 const DeleteReplyUseCase = require('../DeleteReplyUseCase');
 
 describe('DeleteReplyUseCase', () => {
@@ -11,7 +8,26 @@ describe('DeleteReplyUseCase', () => {
     owner: 'user-123',
   };
 
-  describe('Fails execution', () => {
+  let mockThreadRepo;
+  let mockCommentRepo;
+  let mockReplyRepo;
+
+  beforeEach(() => {
+    mockThreadRepo = {
+      verifyThreadExists: jest.fn(),
+    };
+    mockCommentRepo = {
+      verifyCommentExists: jest.fn(),
+    };
+    mockReplyRepo = {
+      verifyReplyOwner: jest.fn(),
+      softDeleteReplyById: jest.fn(),
+    };
+  });
+
+  afterEach(() => jest.clearAllMocks());
+
+  describe('Failure cases', () => {
     it('should throw error when payload not contain needed property', async () => {
       const missingThreadId = { ...dummyPayload };
       delete missingThreadId.threadId;
@@ -67,32 +83,27 @@ describe('DeleteReplyUseCase', () => {
 
   describe('Successfull execution', () => {
     it('should correctly orchestrating the delete reply action', async () => {
-      const mockThreadRepository = new ThreadRepository();
-      const mockCommentRepository = new CommentRepository();
-      const mockReplyRepository = new ReplyRepository();
-
-      mockThreadRepository.verifyThreadExists = jest.fn().mockResolvedValue();
-      mockCommentRepository.verifyCommentExists = jest.fn().mockResolvedValue();
-      mockReplyRepository.verifyReplyOwner = jest.fn().mockResolvedValue();
-      mockReplyRepository.softDeleteReplyById = jest.fn().mockResolvedValue();
+      mockThreadRepo.verifyThreadExists.mockResolvedValue();
+      mockCommentRepo.verifyCommentExists.mockResolvedValue();
+      mockReplyRepo.verifyReplyOwner.mockResolvedValue();
+      mockReplyRepo.softDeleteReplyById.mockResolvedValue();
 
       const useCase = new DeleteReplyUseCase({
-        threadRepository: mockThreadRepository,
-        commentRepository: mockCommentRepository,
-        replyRepository: mockReplyRepository,
+        threadRepository: mockThreadRepo,
+        commentRepository: mockCommentRepo,
+        replyRepository: mockReplyRepo,
       });
 
-      await expect(useCase.execute({ ...dummyPayload }))
-        .resolves.not.toThrow();
+      await expect(useCase.execute({ ...dummyPayload })).resolves.not.toThrow();
 
-      expect(mockThreadRepository.verifyThreadExists).toHaveBeenCalledTimes(1);
-      expect(mockThreadRepository.verifyThreadExists).toHaveBeenCalledWith(dummyPayload.threadId);
-      expect(mockCommentRepository.verifyCommentExists).toHaveBeenCalledTimes(1);
-      expect(mockCommentRepository.verifyCommentExists).toHaveBeenCalledWith(dummyPayload.commentId);
-      expect(mockReplyRepository.verifyReplyOwner).toHaveBeenCalledTimes(1);
-      expect(mockReplyRepository.verifyReplyOwner).toHaveBeenCalledWith(dummyPayload.replyId, dummyPayload.owner);
-      expect(mockReplyRepository.softDeleteReplyById).toHaveBeenCalledTimes(1);
-      expect(mockReplyRepository.softDeleteReplyById).toHaveBeenCalledWith(dummyPayload.replyId);
+      expect(mockThreadRepo.verifyThreadExists).toHaveBeenCalledTimes(1);
+      expect(mockThreadRepo.verifyThreadExists).toHaveBeenCalledWith(dummyPayload.threadId);
+      expect(mockCommentRepo.verifyCommentExists).toHaveBeenCalledTimes(1);
+      expect(mockCommentRepo.verifyCommentExists).toHaveBeenCalledWith(dummyPayload.commentId);
+      expect(mockReplyRepo.verifyReplyOwner).toHaveBeenCalledTimes(1);
+      expect(mockReplyRepo.verifyReplyOwner).toHaveBeenCalledWith(dummyPayload.replyId, dummyPayload.owner);
+      expect(mockReplyRepo.softDeleteReplyById).toHaveBeenCalledTimes(1);
+      expect(mockReplyRepo.softDeleteReplyById).toHaveBeenCalledWith(dummyPayload.replyId);
     });
   });
 });
