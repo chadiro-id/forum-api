@@ -20,6 +20,23 @@ describe('GetDetailThreadUseCase', () => {
   afterEach(() => jest.clearAllMocks());
 
   describe('Failure cases', () => {
+    it('should propagate error when getThreadById fails', async () => {
+      mockThreadRepo.getThreadById.mockRejectedValue(new Error('get thread by id fails'));
+
+      const useCase = new GetDetailThreadUseCase({
+        threadRepository: mockThreadRepo,
+        commentRepository: mockCommentRepo,
+        replyRepository: mockReplyRepo,
+      });
+
+      await expect(useCase.execute('thread-123')).rejects.toThrow();
+
+      expect(mockThreadRepo.getThreadById).toHaveBeenCalledTimes(1);
+      expect(mockThreadRepo.getThreadById).toHaveBeenCalledWith('thread-123');
+      expect(mockCommentRepo.getCommentsByThreadId).not.toHaveBeenCalled();
+      expect(mockReplyRepo.getRepliesByCommentIds).not.toHaveBeenCalled();
+    });
+
     it('should throw error when returned thread not instance of DetailThread entity', async () => {
       mockThreadRepo.getThreadById.mockResolvedValue({
         id: 'thread-123',
