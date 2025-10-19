@@ -13,18 +13,20 @@ describe('HTTP server', () => {
   });
 
   it('should handle server error correctly', async () => {
-    const requestPayload = {
-      username: 'forumapi',
-      password: 'super_secret',
-      fullname: 'Forum Api',
-    };
-
     const server = await createServer({});
 
+    server.route([{
+      method: 'GET',
+      path: '/error',
+      handler: () => {
+        let error;
+        return error.trigger();
+      }
+    }]);
+
     const response = await server.inject({
-      method: 'POST',
-      url: '/users',
-      payload: requestPayload,
+      method: 'GET',
+      url: '/error',
     });
 
     const responseJson = JSON.parse(response.payload);
