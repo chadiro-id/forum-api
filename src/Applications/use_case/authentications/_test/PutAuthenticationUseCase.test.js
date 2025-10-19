@@ -49,6 +49,24 @@ describe('PutAuthenticationUseCase', () => {
       expect(mockTokenManager.decodePayload).not.toHaveBeenCalled();
       expect(mockTokenManager.createAccessToken).not.toHaveBeenCalled();
     });
+
+    it('should propagate error when checkAvailabilityToken fails', async () => {
+      mockTokenManager.verifyRefreshToken.mockResolvedValue();
+      mockAuthRepo.checkAvailabilityToken.mockRejectedValue(new Error('checking fails'));
+
+      const useCase = new PutAuthenticationUseCase({
+        authenticationRepository: mockAuthRepo,
+        authenticationTokenManager: mockTokenManager,
+      });
+
+      await expect(useCase.execute({ refreshToken: 'refresh_token' })).rejects.toThrow();
+
+      expect(mockTokenManager.verifyRefreshToken).toHaveBeenCalledWith('refresh_token');
+      expect(mockAuthRepo.checkAvailabilityToken).toHaveBeenCalledTimes(1);
+      expect(mockAuthRepo.checkAvailabilityToken).toHaveBeenCalledWith('refresh_token');
+      expect(mockTokenManager.decodePayload).not.toHaveBeenCalled();
+      expect(mockTokenManager.createAccessToken).not.toHaveBeenCalled();
+    });
   });
 
   describe('Successful executions', () => {
