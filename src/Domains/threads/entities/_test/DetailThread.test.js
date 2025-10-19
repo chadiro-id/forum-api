@@ -79,7 +79,7 @@ describe('DetailThread Entity', () => {
       const payload = { ...dummyPayload, title: 'Sebuah thread'.repeat(25) };
 
       expect(() => new DetailThread(payload))
-        .toThrow('DETAIL_THREAD.TITLE_EXCEDD_CHAR_LIMIT');
+        .toThrow('DETAIL_THREAD.TITLE_EXCEED_CHAR_LIMIT');
     });
 
     it('should throw error when date is not valid', () => {
@@ -187,7 +187,7 @@ describe('DetailThread Entity', () => {
       expect(json.id).toEqual(payload.id);
       expect(json.title).toEqual(payload.title);
       expect(json.body).toEqual(payload.body);
-      expect(json.date).toEqual(payload.date);
+      expect(json.date).toEqual(payload.date.toISOString());
       expect(json.username).toEqual(payload.username);
       expect(json.comments).toHaveLength(1);
       expect(json.comments[0]).toBeInstanceOf(Comment);

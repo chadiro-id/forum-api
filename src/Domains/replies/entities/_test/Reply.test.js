@@ -133,7 +133,7 @@ describe('Reply Entity', () => {
 
       expect(json.id).toEqual(payload.id);
       expect(json.content).toEqual(payload.content);
-      expect(json.date).toEqual(payload.date);
+      expect(json.date).toEqual(payload.date.toISOString());
       expect(json.username).toEqual(payload.username);
     });
   });

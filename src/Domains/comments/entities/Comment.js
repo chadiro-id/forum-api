@@ -82,7 +82,9 @@ class Comment {
       id: this.id,
       content: this.content,
       username: this.username,
-      date: this.date,
+      date: this.date instanceof Date
+        ? this.date.toISOString()
+        : this.date,
       replies: this.replies,
     };
   }

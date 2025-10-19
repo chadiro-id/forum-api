@@ -60,7 +60,9 @@ class Reply {
       id: this.id,
       username: this.username,
       content: this.content,
-      date: this.date,
+      date: this.date instanceof Date
+        ? this.date.toISOString()
+        : this.date,
     };
   }
 }

@@ -32,7 +32,7 @@ class DetailThread {
     }
 
     if (title.length > 255) {
-      throw new Error('DETAIL_THREAD.TITLE_EXCEDD_CHAR_LIMIT');
+      throw new Error('DETAIL_THREAD.TITLE_EXCEED_CHAR_LIMIT');
     }
 
     if (Number.isNaN(Date.parse(date))) {
@@ -83,7 +83,9 @@ class DetailThread {
       title: this.title,
       body: this.body,
       username: this.username,
-      date: this.date,
+      date: this.date instanceof Date
+        ? this.date.toISOString()
+        : this.date,
       comments: this.comments,
     };
   }
