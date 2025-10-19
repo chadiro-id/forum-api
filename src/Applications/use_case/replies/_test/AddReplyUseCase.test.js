@@ -37,6 +37,23 @@ describe('AddReplyUseCase', () => {
       await expect(useCase.execute({ ...dummyPayload, content: 123 })).rejects.toThrow();
     });
 
+    it('should propagate error when thread not exists', async () => {
+      mockThreadRepo.verifyThreadExists.mockRejectedValue(new Error('thread not found'));
+
+      const useCase = new AddReplyUseCase({
+        threadRepository: mockThreadRepo,
+        commentRepository: mockCommentRepo,
+        replyRepository: mockReplyRepo,
+      });
+
+      await expect(useCase.execute({ ...dummyPayload })).rejects.toThrow();
+
+      expect(mockThreadRepo.verifyThreadExists).toHaveBeenCalledTimes(1);
+      expect(mockThreadRepo.verifyThreadExists).toHaveBeenCalledWith(dummyPayload.threadId);
+      expect(mockCommentRepo.verifyCommentExists).not.toHaveBeenCalled();
+      expect(mockReplyRepo.addReply).not.toHaveBeenCalled();
+    });
+
     it('should throw error when the addedReply is not instance of AddedReply entity', async () => {
       mockThreadRepo.verifyThreadExists.mockResolvedValue();
       mockCommentRepo.verifyCommentExists.mockResolvedValue();
