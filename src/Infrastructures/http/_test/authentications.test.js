@@ -27,8 +27,6 @@ describe('Authentications Endpoints', () => {
   });
 
   afterEach(async () => {
-    // await authenticationsTable.clean();
-    // await usersTable.clean();
     await serverTest.stop();
   });
 
