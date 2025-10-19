@@ -54,6 +54,24 @@ describe('AddReplyUseCase', () => {
       expect(mockReplyRepo.addReply).not.toHaveBeenCalled();
     });
 
+    it('should propagate error when comment not exists', async () => {
+      mockThreadRepo.verifyThreadExists.mockResolvedValue();
+      mockCommentRepo.verifyCommentExists.mockRejectedValue(new Error('comment not found'));
+
+      const useCase = new AddReplyUseCase({
+        threadRepository: mockThreadRepo,
+        commentRepository: mockCommentRepo,
+        replyRepository: mockReplyRepo,
+      });
+
+      await expect(useCase.execute({ ...dummyPayload })).rejects.toThrow();
+
+      expect(mockThreadRepo.verifyThreadExists).toHaveBeenCalledWith(dummyPayload.threadId);
+      expect(mockCommentRepo.verifyCommentExists).toHaveBeenCalledTimes(1);
+      expect(mockCommentRepo.verifyCommentExists).toHaveBeenCalledWith(dummyPayload.commentId);
+      expect(mockReplyRepo.addReply).not.toHaveBeenCalled();
+    });
+
     it('should throw error when the addedReply is not instance of AddedReply entity', async () => {
       mockThreadRepo.verifyThreadExists.mockResolvedValue();
       mockCommentRepo.verifyCommentExists.mockResolvedValue();
