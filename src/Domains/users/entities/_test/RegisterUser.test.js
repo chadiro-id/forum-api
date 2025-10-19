@@ -58,15 +58,8 @@ describe('RegisterUser Entity', () => {
     });
 
     it('should throw error when username contains restricted character', () => {
-      const usernameContainWhiteSpace = {
-        ...dummyPayload,
-        username: 'forum api',
-      };
-
-      const usernameContainSymbol = {
-        ...dummyPayload,
-        username: '$forumapi',
-      };
+      const usernameContainWhiteSpace = { ...dummyPayload, username: 'forum api' };
+      const usernameContainSymbol = { ...dummyPayload, username: '$forumapi' };
 
       expect(() => new RegisterUser(usernameContainWhiteSpace))
         .toThrow('REGISTER_USER.USERNAME_CONTAIN_RESTRICTED_CHARACTER');

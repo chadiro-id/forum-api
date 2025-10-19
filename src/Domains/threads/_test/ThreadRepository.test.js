@@ -5,10 +5,13 @@ describe('ThreadRepository', () => {
     const threadRepository = new ThreadRepository();
 
     await expect(threadRepository.addThread({}))
-      .rejects.toThrow('THREAD_REPOSITORY.METHOD_NOT_IMPLEMENTED');
+      .rejects
+      .toThrow('THREAD_REPOSITORY.METHOD_NOT_IMPLEMENTED');
     await expect(threadRepository.getThreadById(''))
-      .rejects.toThrow('THREAD_REPOSITORY.METHOD_NOT_IMPLEMENTED');
+      .rejects
+      .toThrow('THREAD_REPOSITORY.METHOD_NOT_IMPLEMENTED');
     await expect(threadRepository.verifyThreadExists(''))
-      .rejects.toThrow('THREAD_REPOSITORY.METHOD_NOT_IMPLEMENTED');
+      .rejects
+      .toThrow('THREAD_REPOSITORY.METHOD_NOT_IMPLEMENTED');
   });
 });

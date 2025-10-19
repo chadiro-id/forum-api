@@ -5,14 +5,19 @@ describe('ReplyRepository', () => {
     const replyRepository = new ReplyRepository();
 
     await expect(replyRepository.addReply({}))
-      .rejects.toThrow('REPLY_REPOSITORY.METHOD_NOT_IMPLEMENTED');
+      .rejects
+      .toThrow('REPLY_REPOSITORY.METHOD_NOT_IMPLEMENTED');
     await expect(replyRepository.getRepliesByCommentIds([]))
-      .rejects.toThrow('REPLY_REPOSITORY.METHOD_NOT_IMPLEMENTED');
+      .rejects
+      .toThrow('REPLY_REPOSITORY.METHOD_NOT_IMPLEMENTED');
     await expect(replyRepository.softDeleteReplyById(''))
-      .rejects.toThrow('REPLY_REPOSITORY.METHOD_NOT_IMPLEMENTED');
+      .rejects
+      .toThrow('REPLY_REPOSITORY.METHOD_NOT_IMPLEMENTED');
     await expect(replyRepository.verifyReplyExists(''))
-      .rejects.toThrow('REPLY_REPOSITORY.METHOD_NOT_IMPLEMENTED');
+      .rejects
+      .toThrow('REPLY_REPOSITORY.METHOD_NOT_IMPLEMENTED');
     await expect(replyRepository.verifyReplyOwner('', ''))
-      .rejects.toThrow('REPLY_REPOSITORY.METHOD_NOT_IMPLEMENTED');
+      .rejects
+      .toThrow('REPLY_REPOSITORY.METHOD_NOT_IMPLEMENTED');
   });
 });

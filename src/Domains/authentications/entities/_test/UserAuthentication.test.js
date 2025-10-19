@@ -27,14 +27,8 @@ describe('UserAuthentication Entity', () => {
     });
 
     it('should throw error when payload property does not meet data type specification', () => {
-      const accessTokenNotString = {
-        ...dummyPayload,
-        accessToken: 123,
-      };
-      const refreshTokenNotString = {
-        ...dummyPayload,
-        refreshToken: true,
-      };
+      const accessTokenNotString = { ...dummyPayload, accessToken: 123 };
+      const refreshTokenNotString = { ...dummyPayload, refreshToken: true };
 
       expect(() => new UserAuthentication(accessTokenNotString))
         .toThrow('USER_AUTHENTICATION.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
