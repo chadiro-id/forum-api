@@ -116,6 +116,26 @@ describe('DeleteReplyUseCase', () => {
       expect(mockReplyRepo.verifyReplyOwner).not.toHaveBeenCalled();
       expect(mockReplyRepo.softDeleteReplyById).not.toHaveBeenCalled();
     });
+
+    it('should propagate error when owner verification fails', async () => {
+      mockThreadRepo.verifyThreadExists.mockResolvedValue();
+      mockCommentRepo.verifyCommentExists.mockResolvedValue();
+      mockReplyRepo.verifyReplyOwner.mockRejectedValue(new Error('verification fails'));
+
+      const useCase = new DeleteReplyUseCase({
+        threadRepository: mockThreadRepo,
+        commentRepository: mockCommentRepo,
+        replyRepository: mockReplyRepo,
+      });
+
+      await expect(useCase.execute({ ...dummyPayload })).rejects.toThrow();
+
+      expect(mockThreadRepo.verifyThreadExists).toHaveBeenCalledWith(dummyPayload.threadId);
+      expect(mockCommentRepo.verifyCommentExists).toHaveBeenCalledWith(dummyPayload.commentId);
+      expect(mockReplyRepo.verifyReplyOwner).toHaveBeenCalledTimes(1);
+      expect(mockReplyRepo.verifyReplyOwner).toHaveBeenCalledWith(dummyPayload.replyId, dummyPayload.owner);
+      expect(mockReplyRepo.softDeleteReplyById).not.toHaveBeenCalled();
+    });
   });
 
   describe('Successfull executions', () => {
