@@ -7,6 +7,7 @@ const AddedComment = require('../../Domains/comments/entities/AddedComment');
 class CommentRepositoryPostgres extends CommentRepository {
   constructor(pool, idGenerator) {
     super();
+
     this._pool = pool;
     this._idGenerator = idGenerator;
   }
@@ -29,7 +30,6 @@ class CommentRepositoryPostgres extends CommentRepository {
     };
 
     const result = await this._pool.query(query);
-
     return this._transformToAddedComment(result.rows[0]);
   }
 
@@ -53,7 +53,6 @@ class CommentRepositoryPostgres extends CommentRepository {
     };
 
     const result = await this._pool.query(query);
-
     return result.rows.map((row) => this._transformToComment(row));
   }
 

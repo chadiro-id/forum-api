@@ -14,14 +14,13 @@ describe('[Unit] ReplyRepositoryPostgres', () => {
 
   describe('Methods and Pool Query', () => {
     let mockPool;
-    let repo;
+    let replyRepo;
 
     beforeEach(() => {
       mockPool = {
         query: jest.fn(),
       };
-
-      repo = new ReplyRepositoryPostgres(mockPool, () => '123');
+      replyRepo = new ReplyRepositoryPostgres(mockPool, () => '123');
     });
 
     afterEach(() => {
@@ -35,7 +34,7 @@ describe('[Unit] ReplyRepositoryPostgres', () => {
           rowCount: 1,
         });
 
-        const addedReply = await repo.addReply(new NewReply({
+        const addedReply = await replyRepo.addReply(new NewReply({
           commentId: 'comment-123',
           content: 'Sebuah balasan',
           owner: 'user-123',
@@ -92,7 +91,7 @@ describe('[Unit] ReplyRepositoryPostgres', () => {
           rowCount: 3,
         });
 
-        const replies = await repo.getRepliesByCommentIds(['comment-101', 'comment-102']);
+        const replies = await replyRepo.getRepliesByCommentIds(['comment-101', 'comment-102']);
 
         expect(mockPool.query).toHaveBeenCalledTimes(1);
         expect(mockPool.query).toHaveBeenCalledWith(
@@ -137,7 +136,7 @@ describe('[Unit] ReplyRepositoryPostgres', () => {
           rows: [], rowCount: 0
         });
 
-        await expect(repo.softDeleteReplyById('reply-123'))
+        await expect(replyRepo.softDeleteReplyById('reply-123'))
           .rejects.toThrow(NotFoundError);
 
         expect(mockPool.query).toHaveBeenCalledTimes(1);
@@ -155,7 +154,7 @@ describe('[Unit] ReplyRepositoryPostgres', () => {
           rowCount: 1
         });
 
-        await expect(repo.softDeleteReplyById('reply-123'))
+        await expect(replyRepo.softDeleteReplyById('reply-123'))
           .resolves.not.toThrow(NotFoundError);
 
         expect(mockPool.query).toHaveBeenCalledTimes(1);
@@ -174,7 +173,7 @@ describe('[Unit] ReplyRepositoryPostgres', () => {
           rows: [], rowCount: 0
         });
 
-        await expect(repo.verifyReplyOwner('reply-123', 'user-123'))
+        await expect(replyRepo.verifyReplyOwner('reply-123', 'user-123'))
           .rejects.toThrow(NotFoundError);
 
         expect(mockPool.query).toHaveBeenCalledTimes(1);
@@ -192,7 +191,7 @@ describe('[Unit] ReplyRepositoryPostgres', () => {
           rowCount: 1
         });
 
-        await expect(repo.verifyReplyOwner('reply-123', 'user-456'))
+        await expect(replyRepo.verifyReplyOwner('reply-123', 'user-456'))
           .rejects.toThrow(AuthorizationError);
 
         expect(mockPool.query).toHaveBeenCalledTimes(1);
@@ -210,7 +209,7 @@ describe('[Unit] ReplyRepositoryPostgres', () => {
           rowCount: 1
         });
 
-        await expect(repo.verifyReplyOwner('reply-123', 'user-123'))
+        await expect(replyRepo.verifyReplyOwner('reply-123', 'user-123'))
           .resolves.not.toThrow();
 
         expect(mockPool.query).toHaveBeenCalledTimes(1);

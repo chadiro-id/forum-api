@@ -1,15 +1,15 @@
 const pool = require('../../database/postgres/pool');
-const {
-  usersTable,
-  threadsTable,
-  commentsTable,
-} = require('../../../../tests/helper/postgres');
 const CommentRepositoryPostgres = require('../CommentRepositoryPostgres');
 const NewComment = require('../../../Domains/comments/entities/NewComment');
 const AddedComment = require('../../../Domains/comments/entities/AddedComment');
 const Comment = require('../../../Domains/comments/entities/Comment');
 const NotFoundError = require('../../../Commons/exceptions/NotFoundError');
 const AuthorizationError = require('../../../Commons/exceptions/AuthorizationError');
+const {
+  usersTable,
+  threadsTable,
+  commentsTable,
+} = require('../../../../tests/helper/postgres');
 
 describe('[Integration] CommentRepositoryPostgres', () => {
   let commentRepo;

@@ -5,6 +5,7 @@ const UserRepository = require('../../Domains/users/UserRepository');
 class UserRepositoryPostgres extends UserRepository {
   constructor(pool, idGenerator) {
     super();
+
     this._pool = pool;
     this._idGenerator = idGenerator;
   }
@@ -19,7 +20,6 @@ class UserRepositoryPostgres extends UserRepository {
     };
 
     const result = await this._pool.query(query);
-
     return new RegisteredUser({ ...result.rows[0] });
   }
 

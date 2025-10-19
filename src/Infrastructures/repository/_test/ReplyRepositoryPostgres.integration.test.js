@@ -1,16 +1,16 @@
 const pool = require('../../database/postgres/pool');
-const {
-  usersTable,
-  threadsTable,
-  commentsTable,
-  repliesTable,
-} = require('../../../../tests/helper/postgres');
 const ReplyRepositoryPostgres = require('../ReplyRepositoryPostgres');
 const NewReply = require('../../../Domains/replies/entities/NewReply');
 const AddedReply = require('../../../Domains/replies/entities/AddedReply');
 const Reply = require('../../../Domains/replies/entities/Reply');
 const NotFoundError = require('../../../Commons/exceptions/NotFoundError');
 const AuthorizationError = require('../../../Commons/exceptions/AuthorizationError');
+const {
+  usersTable,
+  threadsTable,
+  commentsTable,
+  repliesTable,
+} = require('../../../../tests/helper/postgres');
 
 describe('[Integration] ReplyRepositoryPostgres', () => {
   let replyRepo;
