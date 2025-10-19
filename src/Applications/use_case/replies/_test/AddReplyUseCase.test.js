@@ -2,14 +2,14 @@ const AddedReply = require('../../../../Domains/replies/entities/AddedReply');
 const NewReply = require('../../../../Domains/replies/entities/NewReply');
 const AddReplyUseCase = require('../AddReplyUseCase');
 
-describe('AddReplyUseCase', () => {
-  const dummyPayload = {
-    threadId: 'thread-123',
-    commentId: 'comment-123',
-    content: 'Sebuah balasan',
-    owner: 'user-123',
-  };
+const dummyPayload = {
+  threadId: 'thread-123',
+  commentId: 'comment-123',
+  content: 'Sebuah balasan',
+  owner: 'user-123',
+};
 
+describe('AddReplyUseCase', () => {
   let mockThreadRepo;
   let mockCommentRepo;
   let mockReplyRepo;

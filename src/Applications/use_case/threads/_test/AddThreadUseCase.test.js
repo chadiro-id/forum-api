@@ -2,13 +2,13 @@ const AddThreadUseCase = require('../AddThreadUseCase');
 const NewThread = require('../../../../Domains/threads/entities/NewThread');
 const AddedThread = require('../../../../Domains/threads/entities/AddedThread');
 
-describe('AddThreadUseCase', () => {
-  const dummyPayload = {
-    title: 'Sebuah thread',
-    body: 'Isi thread',
-    owner: 'user-123',
-  };
+const dummyPayload = {
+  title: 'Sebuah thread',
+  body: 'Isi thread',
+  owner: 'user-123',
+};
 
+describe('AddThreadUseCase', () => {
   let mockThreadRepo;
 
   beforeEach(() => {

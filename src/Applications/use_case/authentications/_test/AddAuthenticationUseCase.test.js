@@ -1,12 +1,12 @@
 const UserAuthentication = require('../../../../Domains/authentications/entities/UserAuthentication');
 const AddAuthenticationUseCase = require('../AddAuthenticationUseCase');
 
-describe('AddAuthenticationUseCase', () => {
-  const dummyPayload = {
-    username: 'johndoe',
-    password: 'secret^_123',
-  };
+const dummyPayload = {
+  username: 'johndoe',
+  password: 'secret^_123',
+};
 
+describe('AddAuthenticationUseCase', () => {
   let mockUserRepo;
   let mockAuthRepo;
   let mockTokenManager;

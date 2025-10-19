@@ -28,7 +28,7 @@ const dummyComments = [
   },
   {
     id: 'comment-103',
-    content: 'Sebuah komentar ',
+    content: 'Sebuah komentar 3',
     date: new Date('2025-10-19T08:30:54.384Z'),
     username: 'whoami',
     isDelete: true,

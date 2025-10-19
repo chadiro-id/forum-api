@@ -9,6 +9,7 @@ class DeleteCommentUseCase {
 
   async execute(payload) {
     this._verifyPayload(payload);
+
     const { threadId, commentId, owner } = payload;
 
     await this._threadRepository.verifyThreadExists(threadId);

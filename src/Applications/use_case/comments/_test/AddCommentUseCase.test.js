@@ -2,13 +2,13 @@ const AddedComment = require('../../../../Domains/comments/entities/AddedComment
 const NewComment = require('../../../../Domains/comments/entities/NewComment');
 const AddCommentUseCase = require('../AddCommentUseCase');
 
-describe('AddCommentUseCase', () => {
-  const dummyPayload = {
-    threadId: 'thread-123',
-    content: 'Sebuah komentar',
-    owner: 'user-123',
-  };
+const dummyPayload = {
+  threadId: 'thread-123',
+  content: 'Sebuah komentar',
+  owner: 'user-123',
+};
 
+describe('AddCommentUseCase', () => {
   let mockThreadRepo;
   let mockCommentRepo;
 

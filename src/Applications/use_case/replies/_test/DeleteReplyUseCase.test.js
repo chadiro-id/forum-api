@@ -1,13 +1,13 @@
 const DeleteReplyUseCase = require('../DeleteReplyUseCase');
 
-describe('DeleteReplyUseCase', () => {
-  const dummyPayload = {
-    threadId: 'thread-123',
-    commentId: 'comment-123',
-    replyId: 'reply-123',
-    owner: 'user-123',
-  };
+const dummyPayload = {
+  threadId: 'thread-123',
+  commentId: 'comment-123',
+  replyId: 'reply-123',
+  owner: 'user-123',
+};
 
+describe('DeleteReplyUseCase', () => {
   let mockThreadRepo;
   let mockCommentRepo;
   let mockReplyRepo;
@@ -44,22 +44,31 @@ describe('DeleteReplyUseCase', () => {
       const emptyOwner = { ...dummyPayload, owner: '' };
 
       const useCase = new DeleteReplyUseCase({});
+
       await expect(useCase.execute(missingThreadId))
-        .rejects.toThrow('DELETE_REPLY_USE_CASE.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
+        .rejects
+        .toThrow('DELETE_REPLY_USE_CASE.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
       await expect(useCase.execute(missingCommentId))
-        .rejects.toThrow('DELETE_REPLY_USE_CASE.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
+        .rejects
+        .toThrow('DELETE_REPLY_USE_CASE.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
       await expect(useCase.execute(missingReplyId))
-        .rejects.toThrow('DELETE_REPLY_USE_CASE.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
+        .rejects
+        .toThrow('DELETE_REPLY_USE_CASE.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
       await expect(useCase.execute(missingOwner))
-        .rejects.toThrow('DELETE_REPLY_USE_CASE.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
+        .rejects
+        .toThrow('DELETE_REPLY_USE_CASE.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
       await expect(useCase.execute(emptyThreadId))
-        .rejects.toThrow('DELETE_REPLY_USE_CASE.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
+        .rejects
+        .toThrow('DELETE_REPLY_USE_CASE.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
       await expect(useCase.execute(emptyCommentId))
-        .rejects.toThrow('DELETE_REPLY_USE_CASE.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
+        .rejects
+        .toThrow('DELETE_REPLY_USE_CASE.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
       await expect(useCase.execute(emptyReplyId))
-        .rejects.toThrow('DELETE_REPLY_USE_CASE.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
+        .rejects
+        .toThrow('DELETE_REPLY_USE_CASE.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
       await expect(useCase.execute(emptyOwner))
-        .rejects.toThrow('DELETE_REPLY_USE_CASE.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
+        .rejects
+        .toThrow('DELETE_REPLY_USE_CASE.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
     });
 
     it('should throw error when payload property does not meet data type specification', async () => {
@@ -71,13 +80,17 @@ describe('DeleteReplyUseCase', () => {
       const useCase = new DeleteReplyUseCase({});
 
       await expect(useCase.execute(threadIdNotString))
-        .rejects.toThrow('DELETE_REPLY_USE_CASE.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
+        .rejects
+        .toThrow('DELETE_REPLY_USE_CASE.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
       await expect(useCase.execute(commentIdNotString))
-        .rejects.toThrow('DELETE_REPLY_USE_CASE.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
+        .rejects
+        .toThrow('DELETE_REPLY_USE_CASE.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
       await expect(useCase.execute(replyIdNotString))
-        .rejects.toThrow('DELETE_REPLY_USE_CASE.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
+        .rejects
+        .toThrow('DELETE_REPLY_USE_CASE.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
       await expect(useCase.execute(ownerNotString))
-        .rejects.toThrow('DELETE_REPLY_USE_CASE.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
+        .rejects
+        .toThrow('DELETE_REPLY_USE_CASE.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
     });
 
     it('should propagate error when thread not exists', async () => {
