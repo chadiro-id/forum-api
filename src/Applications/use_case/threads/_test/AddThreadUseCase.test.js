@@ -29,6 +29,23 @@ describe('AddThreadUseCase', () => {
       await expect(useCase.execute({})).rejects.toThrow();
     });
 
+    it('should propagate error when add thread fails', async () => {
+      mockThreadRepo.addThread.mockRejectedValue(new Error('add thead fails'));
+
+      const useCase = new AddThreadUseCase({
+        threadRepository: mockThreadRepo,
+      });
+
+      await expect(useCase.execute({ ...dummyPayload })).rejects.toThrow();
+
+      expect(mockThreadRepo.addThread).toHaveBeenCalledTimes(1);
+      expect(mockThreadRepo.addThread).toHaveBeenCalledWith(new NewThread({
+        title: dummyPayload.title,
+        body: dummyPayload.body,
+        owner: dummyPayload.owner,
+      }));
+    });
+
     it('should throw error when addedThread is not instance of AddedThread entity', async () => {
       mockThreadRepo.addThread.mockResolvedValue({
         id: 'thread-123',
