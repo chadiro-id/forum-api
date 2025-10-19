@@ -1,3 +1,4 @@
+const DetailThread = require('../../../../Domains/threads/entities/DetailThread');
 const GetDetailThreadUseCase = require('../GetDetailThreadUseCase');
 
 describe('GetDetailThreadUseCase', () => {
@@ -60,6 +61,31 @@ describe('GetDetailThreadUseCase', () => {
       expect(mockThreadRepo.getThreadById).toHaveBeenCalledTimes(1);
       expect(mockThreadRepo.getThreadById).toHaveBeenCalledWith('thread-123');
       expect(mockCommentRepo.getCommentsByThreadId).not.toHaveBeenCalled();
+      expect(mockReplyRepo.getRepliesByCommentIds).not.toHaveBeenCalled();
+    });
+
+    it('should propagate error when getCommentsByThreadId fails', async () => {
+      mockThreadRepo.getThreadById.mockResolvedValue(new DetailThread({
+        id: 'thread-123',
+        title: 'Sebuah thread',
+        body: 'Isi thread',
+        date: new Date(2025, 10, 19, 8),
+        username: 'johndoe',
+        comments: [],
+      }));
+      mockCommentRepo.getCommentsByThreadId.mockRejectedValue(new Error('get comments by thread id fails'));
+
+      const useCase = new GetDetailThreadUseCase({
+        threadRepository: mockThreadRepo,
+        commentRepository: mockCommentRepo,
+        replyRepository: mockReplyRepo,
+      });
+
+      await expect(useCase.execute('thread-123')).rejects.toThrow();
+
+      expect(mockThreadRepo.getThreadById).toHaveBeenCalledWith('thread-123');
+      expect(mockCommentRepo.getCommentsByThreadId).toHaveBeenCalledTimes(1);
+      expect(mockCommentRepo.getCommentsByThreadId).toHaveBeenCalledWith('thread-123');
       expect(mockReplyRepo.getRepliesByCommentIds).not.toHaveBeenCalled();
     });
   });
