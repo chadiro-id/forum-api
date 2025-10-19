@@ -11,49 +11,55 @@ const dummyThread = {
   username: 'johndoe',
   comments: [],
 };
-
-const dummyComment1 = {
-  id: 'comment-101',
-  content: 'Sebuah komentar 1',
-  date: new Date('2025-10-19T08:10:54.384Z'),
-  username: 'johndoe',
-  isDelete: false,
-};
-
-const dummyComment2 = {
-  id: 'comment-102',
-  content: 'Sebuah komentar 2',
-  date: new Date('2025-10-19T08:20:54.384Z'),
-  username: 'whoami',
-  isDelete: true,
-};
-
-const dummyReply1 = {
-  id: 'reply-101',
-  commentId: 'comment-101',
-  content: 'Sebuah balasan 1',
-  username: 'whoami',
-  date: new Date('2025-10-19T08:21:54.384Z'),
-  isDelete: false,
-};
-
-const dummyReply2 = {
-  id: 'reply-102',
-  commentId: 'comment-102',
-  content: 'Sebuah balasan 2',
-  username: 'johndoe',
-  date: new Date('2025-10-19T08:22:54.384Z'),
-  isDelete: true,
-};
-
-const dummyReply3 = {
-  id: 'reply-103',
-  commentId: 'comment-101',
-  content: 'Sebuah balasan 3',
-  username: 'johndoe',
-  date: new Date('2025-10-19T08:23:54.384Z'),
-  isDelete: false,
-};
+const dummyComments = [
+  {
+    id: 'comment-101',
+    content: 'Sebuah komentar 1',
+    date: new Date('2025-10-19T08:10:54.384Z'),
+    username: 'johndoe',
+    isDelete: false,
+  },
+  {
+    id: 'comment-102',
+    content: 'Sebuah komentar 2',
+    date: new Date('2025-10-19T08:20:54.384Z'),
+    username: 'whoami',
+    isDelete: true,
+  },
+  {
+    id: 'comment-103',
+    content: 'Sebuah komentar ',
+    date: new Date('2025-10-19T08:30:54.384Z'),
+    username: 'whoami',
+    isDelete: true,
+  },
+];
+const dummyReplies = [
+  {
+    id: 'reply-101',
+    commentId: 'comment-101',
+    content: 'Sebuah balasan 1',
+    username: 'whoami',
+    date: new Date('2025-10-19T08:21:54.384Z'),
+    isDelete: false,
+  },
+  {
+    id: 'reply-102',
+    commentId: 'comment-102',
+    content: 'Sebuah balasan 2',
+    username: 'johndoe',
+    date: new Date('2025-10-19T08:22:54.384Z'),
+    isDelete: true,
+  },
+  {
+    id: 'reply-103',
+    commentId: 'comment-101',
+    content: 'Sebuah balasan 3',
+    username: 'johndoe',
+    date: new Date('2025-10-19T08:23:54.384Z'),
+    isDelete: false,
+  },
+];
 
 describe('GetDetailThreadUseCase', () => {
   let mockThreadRepo;
@@ -130,8 +136,8 @@ describe('GetDetailThreadUseCase', () => {
     });
 
     it('should propagate error when getRepliesByCommentIds fails', async () => {
-      const comment1 = new Comment({ ...dummyComment1 });
-      const comment2 = new Comment({ ...dummyComment2 });
+      const comment1 = new Comment({ ...dummyComments[0] });
+      const comment2 = new Comment({ ...dummyComments[1] });
 
       mockThreadRepo.getThreadById.mockResolvedValue(new DetailThread({ ...dummyThread }));
       mockCommentRepo.getCommentsByThreadId.mockResolvedValue([comment1, comment2]);
@@ -155,16 +161,20 @@ describe('GetDetailThreadUseCase', () => {
 
   describe('Successful executions', () => {
     it('should correctly orchestrating the get detail thread action', async () => {
-      const comment1 = new Comment({ ...dummyComment1 });
-      const comment2 = new Comment({ ...dummyComment2 });
-
-      const reply1 = new Reply({ ...dummyReply1 });
-      const reply2 = new Reply({ ...dummyReply2 });
-      const reply3 = new Reply({ ...dummyReply3 });
+      const comments = [
+        new Comment({ ...dummyComments[0] }),
+        new Comment({ ...dummyComments[1] }),
+        new Comment({ ...dummyComments[2] }),
+      ];
+      const replies = [
+        new Reply({ ...dummyReplies[0] }),
+        new Reply({ ...dummyReplies[1] }),
+        new Reply({ ...dummyReplies[2] }),
+      ];
 
       mockThreadRepo.getThreadById.mockResolvedValue(new DetailThread({ ...dummyThread }));
-      mockCommentRepo.getCommentsByThreadId.mockResolvedValue([comment1, comment2]);
-      mockReplyRepo.getRepliesByCommentIds.mockResolvedValue([reply1, reply2, reply3]);
+      mockCommentRepo.getCommentsByThreadId.mockResolvedValue([...comments]);
+      mockReplyRepo.getRepliesByCommentIds.mockResolvedValue([...replies]);
 
       const useCase = new GetDetailThreadUseCase({
         threadRepository: mockThreadRepo,
@@ -179,57 +189,49 @@ describe('GetDetailThreadUseCase', () => {
       expect(mockCommentRepo.getCommentsByThreadId).toHaveBeenCalledTimes(1);
       expect(mockCommentRepo.getCommentsByThreadId).toHaveBeenCalledWith('thread-123');
       expect(mockReplyRepo.getRepliesByCommentIds).toHaveBeenCalledTimes(1);
-      expect(mockReplyRepo.getRepliesByCommentIds).toHaveBeenCalledWith([comment1.id, comment2.id]);
+      expect(mockReplyRepo.getRepliesByCommentIds).toHaveBeenCalledWith([...comments.map((c) => c.id)]);
 
       expect(detailThread).toBeInstanceOf(DetailThread);
-      expect(detailThread.id).toEqual(dummyThread.id);
-      expect(detailThread.title).toEqual(dummyThread.title);
-      expect(detailThread.body).toEqual(dummyThread.body);
-      expect(detailThread.date).toEqual(dummyThread.date);
-      expect(detailThread.username).toEqual(dummyThread.username);
-      expect(detailThread.comments).toHaveLength(2);
+      expect(detailThread).toMatchObject({
+        id: dummyThread.id,
+        title: dummyThread.title,
+        body: dummyThread.body,
+        username: dummyThread.username,
+        date: dummyThread.date,
+      });
+      expect(detailThread.comments).toHaveLength(3);
 
-      const [threadComment1, threadComment2] = detailThread.comments;
+      const [c1, c2, c3] = detailThread.comments;
 
-      expect(threadComment1).toBeInstanceOf(Comment);
-      expect(threadComment1.id).toEqual(dummyComment1.id);
-      expect(threadComment1.content).toEqual(dummyComment1.content);
-      expect(threadComment1.date).toEqual(dummyComment1.date);
-      expect(threadComment1.username).toEqual(dummyComment1.username);
-      expect(threadComment1.isDelete).toBeUndefined();
-      expect(threadComment1.replies).toHaveLength(2);
+      expect(c1.replies).toHaveLength(2);
+      expect(c2.replies).toHaveLength(1);
+      expect(c3.replies).toHaveLength(0);
 
-      expect(threadComment2).toBeInstanceOf(Comment);
-      expect(threadComment2.id).toEqual(dummyComment2.id);
-      expect(threadComment2.content).toEqual('**komentar telah dihapus**');
-      expect(threadComment2.date).toEqual(dummyComment2.date);
-      expect(threadComment2.username).toEqual(dummyComment2.username);
-      expect(threadComment2.isDelete).toBeUndefined();
-      expect(threadComment2.replies).toHaveLength(1);
+      const expectComment = (comment, source) => {
+        expect(comment).toBeInstanceOf(Comment);
+        expect(comment.id).toEqual(source.id);
+        expect(comment.username).toEqual(source.username);
+        expect(comment.date).toEqual(source.date);
+        const expectedContent = source.isDelete ? '**komentar telah dihapus**' : source.content;
+        expect(comment.content).toEqual(expectedContent);
+      };
 
-      const [commentReply1, commentReply3] = threadComment1.replies;
-      const [commentReply2] = threadComment2.replies;
+      expectComment(c1, dummyComments[0]);
+      expectComment(c2, dummyComments[1]);
+      expectComment(c3, dummyComments[2]);
 
-      expect(commentReply1).toBeInstanceOf(Reply);
-      expect(commentReply1.id).toEqual(reply1.id);
-      expect(commentReply1.content).toEqual(reply1.content);
-      expect(commentReply1.date).toEqual(reply1.date);
-      expect(commentReply1.username).toEqual(reply1.username);
-      expect(commentReply1.isDelete).toBeUndefined();
+      const expectReply = (reply, source) => {
+        expect(reply).toBeInstanceOf(Reply);
+        expect(reply.id).toEqual(source.id);
+        expect(reply.username).toEqual(source.username);
+        expect(reply.date).toEqual(source.date);
+        const expectedContent = source.isDelete ? '**balasan telah dihapus**' : source.content;
+        expect(reply.content).toEqual(expectedContent);
+      };
 
-      expect(commentReply2).toBeInstanceOf(Reply);
-      expect(commentReply2.id).toEqual(reply2.id);
-      expect(commentReply2.content).toEqual('**balasan telah dihapus**');
-      expect(commentReply2.date).toEqual(reply2.date);
-      expect(commentReply2.username).toEqual(reply2.username);
-      expect(commentReply2.isDelete).toBeUndefined();
-
-      expect(commentReply3).toBeInstanceOf(Reply);
-      expect(commentReply3.id).toEqual(reply3.id);
-      expect(commentReply3.content).toEqual(reply3.content);
-      expect(commentReply3.date).toEqual(reply3.date);
-      expect(commentReply3.username).toEqual(reply3.username);
-      expect(commentReply3.isDelete).toBeUndefined();
+      expectReply(c1.replies[0], dummyReplies[0]);
+      expectReply(c1.replies[1], dummyReplies[2]);
+      expectReply(c2.replies[0], dummyReplies[1]);
     });
   });
 });
