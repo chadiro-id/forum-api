@@ -1,40 +1,49 @@
-const CommentRepository = require('../../../../Domains/comments/CommentRepository');
-const ReplyRepository = require('../../../../Domains/replies/ReplyRepository');
-const ThreadRepository = require('../../../../Domains/threads/ThreadRepository');
 const GetDetailThreadUseCase = require('../GetDetailThreadUseCase');
 
 describe('GetDetailThreadUseCase', () => {
-  describe('Fails execution', () => {
-    it('should throw error when the returned thread from repo is not instance of DetailThread entity', async () => {
-      const mockThreadRepository = new ThreadRepository();
-      const mockCommentRepository = new CommentRepository();
-      const mockReplyRepository = new ReplyRepository();
+  let mockThreadRepo;
+  let mockCommentRepo;
+  let mockReplyRepo;
 
-      mockThreadRepository.getThreadById = jest.fn().mockResolvedValue({
+  beforeEach(() => {
+    mockThreadRepo = {
+      getThreadById: jest.fn(),
+    };
+    mockCommentRepo = {
+      getCommentsByThreadId: jest.fn(),
+    };
+    mockReplyRepo = {
+      getRepliesByCommentIds: jest.fn(),
+    };
+  });
+
+  afterEach(() => jest.clearAllMocks());
+
+  describe('Failure cases', () => {
+    it('should throw error when returned thread not instance of DetailThread entity', async () => {
+      mockThreadRepo.getThreadById.mockResolvedValue({
         id: 'thread-123',
         title: 'Sebuah thread',
         body: 'Isi thread',
-        date: new Date(),
+        date: new Date(2025, 10, 19, 8),
         username: 'johndoe',
         comments: [],
       });
-      mockCommentRepository.getCommentsByThreadId = jest.fn();
-      mockReplyRepository.getRepliesByCommentIds = jest.fn();
 
       const useCase = new GetDetailThreadUseCase({
-        threadRepository: mockThreadRepository,
-        commentRepository: mockCommentRepository,
-        replyRepository: mockReplyRepository,
+        threadRepository: mockThreadRepo,
+        commentRepository: mockCommentRepo,
+        replyRepository: mockReplyRepo,
       });
 
       await expect(useCase.execute('thread-123'))
         .rejects
         .toThrow('GET_DETAIL_THREAD_USE_CASE.DETAIL_THREAD_MUST_BE_INSTANCE_OF_DETAIL_THREAD_ENTITY');
 
-      expect(mockThreadRepository.getThreadById).toHaveBeenCalledTimes(1);
-      expect(mockThreadRepository.getThreadById).toHaveBeenCalledWith('thread-123');
-      expect(mockCommentRepository.getCommentsByThreadId).not.toHaveBeenCalled();
-      expect(mockReplyRepository.getRepliesByCommentIds).not.toHaveBeenCalled();
+      expect(mockThreadRepo.getThreadById).toHaveBeenCalledTimes(1);
+      expect(mockThreadRepo.getThreadById).toHaveBeenCalledWith('thread-123');
+      expect(mockCommentRepo.getCommentsByThreadId).not.toHaveBeenCalled();
+      expect(mockReplyRepo.getRepliesByCommentIds).not.toHaveBeenCalled();
     });
   });
 });
