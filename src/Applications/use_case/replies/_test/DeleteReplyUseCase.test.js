@@ -97,9 +97,28 @@ describe('DeleteReplyUseCase', () => {
       expect(mockReplyRepo.verifyReplyOwner).not.toHaveBeenCalled();
       expect(mockReplyRepo.softDeleteReplyById).not.toHaveBeenCalled();
     });
+
+    it('should propagate error when comment not exists', async () => {
+      mockThreadRepo.verifyThreadExists.mockResolvedValue();
+      mockCommentRepo.verifyCommentExists.mockRejectedValue(new Error('comment not found'));
+
+      const useCase = new DeleteReplyUseCase({
+        threadRepository: mockThreadRepo,
+        commentRepository: mockCommentRepo,
+        replyRepository: mockReplyRepo,
+      });
+
+      await expect(useCase.execute({ ...dummyPayload })).rejects.toThrow();
+
+      expect(mockThreadRepo.verifyThreadExists).toHaveBeenCalledWith(dummyPayload.threadId);
+      expect(mockCommentRepo.verifyCommentExists).toHaveBeenCalledTimes(1);
+      expect(mockCommentRepo.verifyCommentExists).toHaveBeenCalledWith(dummyPayload.commentId);
+      expect(mockReplyRepo.verifyReplyOwner).not.toHaveBeenCalled();
+      expect(mockReplyRepo.softDeleteReplyById).not.toHaveBeenCalled();
+    });
   });
 
-  describe('Successfull execution', () => {
+  describe('Successfull executions', () => {
     it('should correctly orchestrating the delete reply action', async () => {
       mockThreadRepo.verifyThreadExists.mockResolvedValue();
       mockCommentRepo.verifyCommentExists.mockResolvedValue();
