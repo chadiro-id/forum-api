@@ -7,14 +7,15 @@
     "start": "node src/app.js",
     "start:dev": "nodemon src/app.js",
     "test": "jest -i",
-    "test:watch": "jest --watch-all --coverage -i",
-    "test:watch:change": "jest --watch -i",
+    "test:watch": "jest --watch -i",
+    "test:watch:all": "jest --watchAll --coverage -i",
     "test:unit": "jest --config=jest.unit.config.js -i",
     "test:unit:quiet": "SILENT_TEST_LOGS=true jest --config=jest.unit.config.js -i",
     "test:integration": "jest --config=jest.integration.config.js -i",
     "migrate": "node-pg-migrate -m database/migrations",
     "migrate:test": "node-pg-migrate -m database/migrations --envPath .env.test",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
   },
   "keywords": [],
   "author": "",
