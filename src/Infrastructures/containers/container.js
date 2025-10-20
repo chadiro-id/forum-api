@@ -40,7 +40,7 @@ container.register([
         },
         {
           concrete: config.tokenize.refreshTokenKey,
-        }
+        },
       ],
     },
   },
