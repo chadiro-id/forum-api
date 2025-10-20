@@ -125,7 +125,7 @@ describe('[Integration] ReplyRepositoryPostgres', () => {
         .toThrow(NotFoundError);
     });
 
-    it('should resolves and update delete status of reply', async () => {
+    it('should resolves and update delete status correctly', async () => {
       await repliesTable.add({ commentId: commentB.id, owner: userA.id });
 
       await expect(replyRepo.softDeleteReplyById('reply-123'))
