@@ -27,6 +27,13 @@ describe('[Mock-Base Integration] UserRepositoryPostgres', () => {
     });
 
     describe('addUser', () => {
+      it('should propagate error when database fails', async () => {
+        mockPool.query.mockRejectedValue(new Error('Database fails'));
+
+        await expect(userRepo.addUser({}))
+          .rejects.toThrow();
+      });
+
       it('should persist the registerUser and return the registeredUser correctly', async () => {
         mockPool.query.mockResolvedValue({
           rows: [{ id: 'user-123', username: 'johndoe', fullname: 'John Doe' }],
@@ -60,6 +67,13 @@ describe('[Mock-Base Integration] UserRepositoryPostgres', () => {
     });
 
     describe('verifyAvailableUsername', () => {
+      it('should propagate error when database fails', async () => {
+        mockPool.query.mockRejectedValue(new Error('Database fails'));
+
+        await expect(userRepo.verifyAvailableUsername({}))
+          .rejects.toThrow();
+      });
+
       it('should throw InvariantError when the username is not available', async () => {
         mockPool.query.mockResolvedValue({
           rows: [{ username: 'johndoe' }],
@@ -85,6 +99,13 @@ describe('[Mock-Base Integration] UserRepositoryPostgres', () => {
     });
 
     describe('getPasswordByUsername', () => {
+      it('should propagate error when database fails', async () => {
+        mockPool.query.mockRejectedValue(new Error('Database fails'));
+
+        await expect(userRepo.getPasswordByUsername({}))
+          .rejects.toThrow();
+      });
+
       it('should throw InvariantError when username not exists', async () => {
         mockPool.query.mockResolvedValue({
           rows: [], rowCount: 0
@@ -111,6 +132,13 @@ describe('[Mock-Base Integration] UserRepositoryPostgres', () => {
     });
 
     describe('getIdByUsername', () => {
+      it('should propagate error when database fails', async () => {
+        mockPool.query.mockRejectedValue(new Error('Database fails'));
+
+        await expect(userRepo.getIdByUsername({}))
+          .rejects.toThrow();
+      });
+
       it('should throw InvariantError when username not exists', async () => {
         mockPool.query.mockResolvedValue({
           rows: [], rowCount: 0
