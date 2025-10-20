@@ -177,20 +177,25 @@ describe('DetailThread Entity', () => {
   describe('JSON Serialization', () => {
     it('should correctly serialize to JSON', () => {
       const comment = new Comment({ ...dummyComment });
-      const payload = { ...dummyPayload };
+      const payload1 = { ...dummyPayload };
+      const payload2 = { ...dummyPayload, date: '2025-10-15T02:08:54.384Z' };
 
-      const thread = new DetailThread(payload);
-      thread.comments = [comment];
+      const thread1 = new DetailThread(payload1);
+      thread1.comments = [comment];
+      const thread2 = new DetailThread(payload2);
 
-      const json = thread.toJSON();
+      const json1 = thread1.toJSON();
+      const json2 = thread2.toJSON();
 
-      expect(json.id).toEqual(payload.id);
-      expect(json.title).toEqual(payload.title);
-      expect(json.body).toEqual(payload.body);
-      expect(json.date).toEqual(payload.date.toISOString());
-      expect(json.username).toEqual(payload.username);
-      expect(json.comments).toHaveLength(1);
-      expect(json.comments[0]).toBeInstanceOf(Comment);
+      expect(json1.id).toEqual(payload1.id);
+      expect(json1.title).toEqual(payload1.title);
+      expect(json1.body).toEqual(payload1.body);
+      expect(json1.date).toEqual(payload1.date.toISOString());
+      expect(json1.username).toEqual(payload1.username);
+      expect(json1.comments).toHaveLength(1);
+      expect(json1.comments[0]).toBeInstanceOf(Comment);
+
+      expect(json2.date).toEqual(new Date(payload2.date).toISOString());
     });
   });
 });

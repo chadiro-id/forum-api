@@ -123,18 +123,24 @@ describe('Reply Entity', () => {
 
   describe('JSON Serialization', () => {
     it('should serialize to JSON correctly', () => {
-      const payload = { ...dummyPayload };
+      const payload1 = { ...dummyPayload };
+      const payload2 = { ...dummyPayload, date: '2025-10-15T02:08:54.384Z' };
 
-      const reply = new Reply(payload);
-      const json = reply.toJSON();
+      const reply1 = new Reply(payload1);
+      const reply2 = new Reply(payload2);
 
-      expect(json.isDelete).toBeUndefined();
-      expect(json.commentId).toBeUndefined();
+      const json1 = reply1.toJSON();
+      const json2 = reply2.toJSON();
 
-      expect(json.id).toEqual(payload.id);
-      expect(json.content).toEqual(payload.content);
-      expect(json.date).toEqual(payload.date.toISOString());
-      expect(json.username).toEqual(payload.username);
+      expect(json1.isDelete).toBeUndefined();
+      expect(json1.commentId).toBeUndefined();
+
+      expect(json1.id).toEqual(payload1.id);
+      expect(json1.content).toEqual(payload1.content);
+      expect(json1.date).toEqual(payload1.date.toISOString());
+      expect(json1.username).toEqual(payload1.username);
+
+      expect(json2.date).toEqual(new Date(payload2.date).toISOString());
     });
   });
 });

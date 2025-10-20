@@ -193,17 +193,23 @@ describe('Comment Entity', () => {
 
   describe('JSON Serialization', () => {
     it('should serialize to JSON correctly', () => {
-      const payload = { ...dummyPayload };
-      const comment = new Comment(payload);
+      const payload1 = { ...dummyPayload };
+      const payload2 = { ...dummyPayload, date: '2025-10-15T02:08:54.384Z' };
 
-      const json = comment.toJSON();
+      const comment1 = new Comment(payload1);
+      const comment2 = new Comment(payload2);
 
-      expect(json.isDelete).toBeUndefined();
-      expect(json.id).toEqual(payload.id);
-      expect(json.content).toEqual(payload.content);
-      expect(json.date).toEqual(payload.date.toISOString());
-      expect(json.username).toEqual(payload.username);
-      expect(json.replies).toEqual([]);
+      const json1 = comment1.toJSON();
+      const json2 = comment2.toJSON();
+
+      expect(json1.isDelete).toBeUndefined();
+      expect(json1.id).toEqual(payload1.id);
+      expect(json1.content).toEqual(payload1.content);
+      expect(json1.date).toEqual(payload1.date.toISOString());
+      expect(json1.username).toEqual(payload1.username);
+      expect(json1.replies).toEqual([]);
+
+      expect(json2.date).toEqual(new Date(payload2.date).toISOString());
     });
   });
 });
