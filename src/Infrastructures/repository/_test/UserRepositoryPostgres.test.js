@@ -3,14 +3,15 @@ const RegisteredUser = require('../../../Domains/users/entities/RegisteredUser')
 const RegisterUser = require('../../../Domains/users/entities/RegisterUser');
 const UserRepository = require('../../../Domains/users/UserRepository');
 const UserRepositoryPostgres = require('../UserRepositoryPostgres');
+const { assertQueryCalled } = require('../../../../tests/utils/repository.test-util');
 
-describe('[Unit] UserRepositoryPostgres', () => {
+describe('[Mock-Base Integration] UserRepositoryPostgres', () => {
   it('must be an instance of UserRepository', () => {
     const repo = new UserRepositoryPostgres({}, () => '');
     expect(repo).toBeInstanceOf(UserRepository);
   });
 
-  describe('Methods and Pool Query', () => {
+  describe('Postgres Interaction', () => {
     let mockPool;
     let userRepo;
 
@@ -68,13 +69,7 @@ describe('[Unit] UserRepositoryPostgres', () => {
         await expect(userRepo.verifyAvailableUsername('johndoe'))
           .rejects.toThrow(InvariantError);
 
-        expect(mockPool.query).toHaveBeenCalledTimes(1);
-        expect(mockPool.query).toHaveBeenCalledWith(
-          expect.objectContaining({
-            text: expect.stringContaining('SELECT username FROM users'),
-            values: ['johndoe']
-          })
-        );
+        assertQueryCalled(mockPool.query, 'SELECT username FROM users', ['johndoe']);
       });
 
       it('should not throw InvariantError when the username is available', async () => {
@@ -85,13 +80,7 @@ describe('[Unit] UserRepositoryPostgres', () => {
         await expect(userRepo.verifyAvailableUsername('johndoe'))
           .resolves.not.toThrow(InvariantError);
 
-        expect(mockPool.query).toHaveBeenCalledTimes(1);
-        expect(mockPool.query).toHaveBeenCalledWith(
-          expect.objectContaining({
-            text: expect.stringContaining('SELECT username FROM users'),
-            values: ['johndoe']
-          })
-        );
+        assertQueryCalled(mockPool.query, 'SELECT username FROM users', ['johndoe']);
       });
     });
 
@@ -104,13 +93,7 @@ describe('[Unit] UserRepositoryPostgres', () => {
         await expect(userRepo.getPasswordByUsername('johndoe'))
           .rejects.toThrow(InvariantError);
 
-        expect(mockPool.query).toHaveBeenCalledTimes(1);
-        expect(mockPool.query).toHaveBeenCalledWith(
-          expect.objectContaining({
-            text: expect.stringContaining('SELECT password FROM users'),
-            values: ['johndoe']
-          })
-        );
+        assertQueryCalled(mockPool.query, 'SELECT password FROM users', ['johndoe']);
       });
 
       it('should correctly pool.query and return the password related to username', async () => {
@@ -121,13 +104,8 @@ describe('[Unit] UserRepositoryPostgres', () => {
 
         const password = await userRepo.getPasswordByUsername('johndoe');
 
-        expect(mockPool.query).toHaveBeenCalledTimes(1);
-        expect(mockPool.query).toHaveBeenCalledWith(
-          expect.objectContaining({
-            text: expect.stringContaining('SELECT password FROM users'),
-            values: ['johndoe']
-          })
-        );
+        assertQueryCalled(mockPool.query, 'SELECT password FROM users', ['johndoe']);
+
         expect(password).toEqual('supersecret');
       });
     });
@@ -141,13 +119,7 @@ describe('[Unit] UserRepositoryPostgres', () => {
         await expect(userRepo.getIdByUsername('johndoe'))
           .rejects.toThrow(InvariantError);
 
-        expect(mockPool.query).toHaveBeenCalledTimes(1);
-        expect(mockPool.query).toHaveBeenCalledWith(
-          expect.objectContaining({
-            text: expect.stringContaining('SELECT id FROM users'),
-            values: ['johndoe']
-          })
-        );
+        assertQueryCalled(mockPool.query, 'SELECT id FROM users', ['johndoe']);
       });
 
       it('should correctly pool.query and return the id related to username', async () => {
@@ -158,13 +130,7 @@ describe('[Unit] UserRepositoryPostgres', () => {
 
         const id = await userRepo.getIdByUsername('johndoe');
 
-        expect(mockPool.query).toHaveBeenCalledTimes(1);
-        expect(mockPool.query).toHaveBeenCalledWith(
-          expect.objectContaining({
-            text: expect.stringContaining('SELECT id FROM users'),
-            values: ['johndoe']
-          })
-        );
+        assertQueryCalled(mockPool.query, 'SELECT id FROM users', ['johndoe']);
 
         expect(id).toEqual('user-123');
       });
