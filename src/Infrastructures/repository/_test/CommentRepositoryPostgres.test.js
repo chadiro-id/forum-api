@@ -28,22 +28,14 @@ describe('[Mock-Based Integration] CommentRepositoryPostgres', () => {
       jest.clearAllMocks();
     });
 
-    it('should throw error when database fails', async () => {
-      mockPool.query.mockRejectedValue(new Error('Database fails'));
-
-      await expect(commentRepo.addComment({}))
-        .rejects.toThrow('Database fails');
-      await expect(commentRepo.getCommentsByThreadId(''))
-        .rejects.toThrow('Database fails');
-      await expect(commentRepo.softDeleteCommentById(''))
-        .rejects.toThrow('Database fails');
-      await expect(commentRepo.verifyCommentExists(''))
-        .rejects.toThrow('Database fails');
-      await expect(commentRepo.verifyCommentOwner('', ''))
-        .rejects.toThrow('Database fails');
-    });
-
     describe('addComment', () => {
+      it('should propagate error when database fails', async () => {
+        mockPool.query.mockRejectedValue(new Error('Database fails'));
+
+        await expect(commentRepo.addComment({}))
+          .rejects.toThrow('Database fails');
+      });
+
       it('should persist the comment and return the added comment correctly', async () => {
         mockPool.query.mockResolvedValue({
           rows: [{ id: 'comment-123', content: 'Sebuah komentar', owner_id: 'user-123' }],
@@ -77,6 +69,13 @@ describe('[Mock-Based Integration] CommentRepositoryPostgres', () => {
     });
 
     describe('getCommentsByThreadId', () => {
+      it('should propagate error when database fails', async () => {
+        mockPool.query.mockRejectedValue(new Error('Database fails'));
+
+        await expect(commentRepo.getCommentsByThreadId({}))
+          .rejects.toThrow('Database fails');
+      });
+
       it('should correctly pool.query and return the comments related to the given thread id', async () => {
         const comment1 = {
           id: 'comment-001',
@@ -135,6 +134,13 @@ describe('[Mock-Based Integration] CommentRepositoryPostgres', () => {
     });
 
     describe('softDeleteCommentById', () => {
+      it('should propagate error when database fails', async () => {
+        mockPool.query.mockRejectedValue(new Error('Database fails'));
+
+        await expect(commentRepo.softDeleteCommentById({}))
+          .rejects.toThrow('Database fails');
+      });
+
       it('should throw NotFoundError when the given id is not exists', async () => {
         mockPool.query.mockResolvedValue({
           rows: [], rowCount: 0
@@ -164,6 +170,13 @@ describe('[Mock-Based Integration] CommentRepositoryPostgres', () => {
     });
 
     describe('verifyCommentExists', () => {
+      it('should propagate error when database fails', async () => {
+        mockPool.query.mockRejectedValue(new Error('Database fails'));
+
+        await expect(commentRepo.verifyCommentExists({}))
+          .rejects.toThrow('Database fails');
+      });
+
       it('should throw NotFoundError when the id is not exists', async () => {
         mockPool.query.mockResolvedValue({
           rows: [], rowCount: 0
@@ -189,6 +202,13 @@ describe('[Mock-Based Integration] CommentRepositoryPostgres', () => {
     });
 
     describe('verifyCommentOwner', () => {
+      it('should propagate error when database fails', async () => {
+        mockPool.query.mockRejectedValue(new Error('Database fails'));
+
+        await expect(commentRepo.verifyCommentOwner({}))
+          .rejects.toThrow('Database fails');
+      });
+
       it('should throw NotFoundError when the comment id is not exists', async () => {
         mockPool.query.mockResolvedValue({
           rows: [], rowCount: 0
