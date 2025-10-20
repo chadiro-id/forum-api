@@ -66,7 +66,9 @@ describe('[Integration] CommentRepositoryPostgres', () => {
     });
 
     it('should return thread comments correctly', async () => {
-      const { id, created_at: date } = await commentsTable.add({ threadId: thread.id, owner: currentUser.id });
+      const {
+        id, created_at: date
+      } = await commentsTable.add({ threadId: thread.id, owner: currentUser.id });
 
       const comments = await commentRepo.getCommentsByThreadId(thread.id);
 
