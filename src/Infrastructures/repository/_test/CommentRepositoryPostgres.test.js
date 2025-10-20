@@ -6,13 +6,25 @@ const Comment = require('../../../Domains/comments/entities/Comment');
 const NewComment = require('../../../Domains/comments/entities/NewComment');
 const CommentRepositoryPostgres = require('../CommentRepositoryPostgres');
 
-describe('[Unit] CommentRepositoryPostgres', () => {
+const assertQueryCalled = (
+  query, queryTextPart, queryValues
+) => {
+  expect(query).toHaveBeenCalledTimes(1);
+  expect(query).toHaveBeenCalledWith(
+    expect.objectContaining({
+      text: expect.stringContaining(queryTextPart),
+      values: queryValues,
+    })
+  );
+};
+
+describe('[Mock-Based Integration] CommentRepositoryPostgres', () => {
   it('must be an instance of CommentRepository', () => {
     const repo = new CommentRepositoryPostgres({}, () => '');
     expect(repo).toBeInstanceOf(CommentRepository);
   });
 
-  describe('Methods and Pool Query', () => {
+  describe('Postgres Interaction', () => {
     let mockPool;
     let commentRepo;
 
@@ -106,13 +118,8 @@ describe('[Unit] CommentRepositoryPostgres', () => {
 
         const comments = await commentRepo.getCommentsByThreadId('thread-123');
 
-        expect(mockPool.query).toHaveBeenCalledTimes(1);
-        expect(mockPool.query).toHaveBeenCalledWith(
-          expect.objectContaining({
-            text: expect.stringContaining('SELECT'),
-            values: ['thread-123'],
-          })
-        );
+        assertQueryCalled(mockPool.query, 'SELECT', ['thread-123']);
+
         expect(comments).toHaveLength(3);
         expect(comments[0]).toEqual(new Comment({
           id: comment1.id,
@@ -147,12 +154,8 @@ describe('[Unit] CommentRepositoryPostgres', () => {
         await expect(commentRepo.softDeleteCommentById('comment-123'))
           .rejects.toThrow(NotFoundError);
 
-        expect(mockPool.query).toHaveBeenCalledTimes(1);
-        expect(mockPool.query).toHaveBeenCalledWith(
-          expect.objectContaining({
-            text: expect.stringContaining('is_delete = TRUE'),
-            values: ['comment-123']
-          })
+        assertQueryCalled(
+          mockPool.query, 'UPDATE comments SET is_delete = TRUE', ['comment-123']
         );
       });
 
@@ -165,12 +168,8 @@ describe('[Unit] CommentRepositoryPostgres', () => {
         await expect(commentRepo.softDeleteCommentById('comment-123'))
           .resolves.not.toThrow(NotFoundError);
 
-        expect(mockPool.query).toHaveBeenCalledTimes(1);
-        expect(mockPool.query).toHaveBeenCalledWith(
-          expect.objectContaining({
-            text: expect.stringContaining('is_delete = TRUE'),
-            values: ['comment-123']
-          })
+        assertQueryCalled(
+          mockPool.query, 'UPDATE comments SET is_delete = TRUE', ['comment-123']
         );
       });
     });
@@ -184,11 +183,7 @@ describe('[Unit] CommentRepositoryPostgres', () => {
         await expect(commentRepo.verifyCommentExists('comment-123'))
           .rejects.toThrow(NotFoundError);
 
-        expect(mockPool.query).toHaveBeenCalledTimes(1);
-        expect(mockPool.query).toHaveBeenCalledWith({
-          text: expect.stringContaining('SELECT id FROM'),
-          values: ['comment-123'],
-        });
+        assertQueryCalled(mockPool.query, 'SELECT id FROM', ['comment-123']);
       });
 
       it('should not throw NotFoundError when the id is exists', async () => {
@@ -200,11 +195,7 @@ describe('[Unit] CommentRepositoryPostgres', () => {
         await expect(commentRepo.verifyCommentExists('comment-123'))
           .resolves.not.toThrow(NotFoundError);
 
-        expect(mockPool.query).toHaveBeenCalledTimes(1);
-        expect(mockPool.query).toHaveBeenCalledWith({
-          text: expect.stringContaining('SELECT id FROM'),
-          values: ['comment-123'],
-        });
+        assertQueryCalled(mockPool.query, 'SELECT id FROM', ['comment-123']);
       });
     });
 
@@ -217,12 +208,8 @@ describe('[Unit] CommentRepositoryPostgres', () => {
         await expect(commentRepo.verifyCommentOwner('comment-123', 'user-123'))
           .rejects.toThrow(NotFoundError);
 
-        expect(mockPool.query).toHaveBeenCalledTimes(1);
-        expect(mockPool.query).toHaveBeenCalledWith(
-          expect.objectContaining({
-            text: expect.stringContaining('SELECT'),
-            values: ['comment-123'],
-          })
+        assertQueryCalled(
+          mockPool.query, 'SELECT owner_id FROM comments', ['comment-123']
         );
       });
 
@@ -235,12 +222,8 @@ describe('[Unit] CommentRepositoryPostgres', () => {
         await expect(commentRepo.verifyCommentOwner('comment-123', 'user-456'))
           .rejects.toThrow(AuthorizationError);
 
-        expect(mockPool.query).toHaveBeenCalledTimes(1);
-        expect(mockPool.query).toHaveBeenCalledWith(
-          expect.objectContaining({
-            text: expect.stringContaining('SELECT'),
-            values: ['comment-123'],
-          })
+        assertQueryCalled(
+          mockPool.query, 'SELECT owner_id FROM comments', ['comment-123']
         );
       });
 
@@ -253,12 +236,8 @@ describe('[Unit] CommentRepositoryPostgres', () => {
         await expect(commentRepo.verifyCommentOwner('comment-123', 'user-123'))
           .resolves.not.toThrow();
 
-        expect(mockPool.query).toHaveBeenCalledTimes(1);
-        expect(mockPool.query).toHaveBeenCalledWith(
-          expect.objectContaining({
-            text: expect.stringContaining('SELECT'),
-            values: ['comment-123'],
-          })
+        assertQueryCalled(
+          mockPool.query, 'SELECT owner_id FROM comments', ['comment-123']
         );
       });
     });
