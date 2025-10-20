@@ -29,6 +29,13 @@ describe('[Mock-Based Integration] ReplyRepositoryPostgres', () => {
     });
 
     describe('addReply', () => {
+      it('should propagate error when database fails', async () => {
+        mockPool.query.mockRejectedValue(new Error('Database fails'));
+
+        await expect(replyRepo.addReply({}))
+          .rejects.toThrow('Database fails');
+      });
+
       it('should persist the new reply and return the added reply', async () => {
         mockPool.query.mockResolvedValue({
           rows: [{ id: 'reply-123', content: 'Sebuah balasan', owner_id: 'user-123' }],
@@ -61,6 +68,13 @@ describe('[Mock-Based Integration] ReplyRepositoryPostgres', () => {
     });
 
     describe('getRepliesByCommentIds', () => {
+      it('should propagate error when database fails', async () => {
+        mockPool.query.mockRejectedValue(new Error('Database fails'));
+
+        await expect(replyRepo.getRepliesByCommentIds({}))
+          .rejects.toThrow('Database fails');
+      });
+
       it('should correctly pool.query and return the replies related to the given ids', async () => {
         const reply1 = {
           id: 'reply-101',
@@ -128,6 +142,13 @@ describe('[Mock-Based Integration] ReplyRepositoryPostgres', () => {
     });
 
     describe('softDeleteReplyById', () => {
+      it('should propagate error when database fails', async () => {
+        mockPool.query.mockRejectedValue(new Error('Database fails'));
+
+        await expect(replyRepo.softDeleteReplyById({}))
+          .rejects.toThrow('Database fails');
+      });
+
       it('should throw NotFoundError when the given id is not exists', async () => {
         mockPool.query.mockResolvedValue({
           rows: [], rowCount: 0
@@ -157,6 +178,13 @@ describe('[Mock-Based Integration] ReplyRepositoryPostgres', () => {
     });
 
     describe('verifyReplyOwner', () => {
+      it('should propagate error when database fails', async () => {
+        mockPool.query.mockRejectedValue(new Error('Database fails'));
+
+        await expect(replyRepo.verifyReplyOwner({}))
+          .rejects.toThrow('Database fails');
+      });
+
       it('should throw NotFoundError when the reply id is not exists', async () => {
         mockPool.query.mockResolvedValue({
           rows: [], rowCount: 0
