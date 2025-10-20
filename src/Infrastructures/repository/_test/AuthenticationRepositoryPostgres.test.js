@@ -25,6 +25,13 @@ describe('[Mock-Based Integration] AuthenticationRepositoryPostgres', () => {
     });
 
     describe('addToken', () => {
+      it('should propagate error when database fails', async () => {
+        mockPool.query.mockRejectedValue(new Error('Database fails'));
+
+        await expect(authenticationRepo.addToken({}))
+          .rejects.toThrow();
+      });
+
       it('should correctly persist the token', async () => {
         mockPool.query.mockResolvedValue();
 
@@ -38,6 +45,13 @@ describe('[Mock-Based Integration] AuthenticationRepositoryPostgres', () => {
     });
 
     describe('checkAvailibilityToken', () => {
+      it('should propagate error when database fails', async () => {
+        mockPool.query.mockRejectedValue(new Error('Database fails'));
+
+        await expect(authenticationRepo.checkAvailabilityToken({}))
+          .rejects.toThrow();
+      });
+
       it('should throw InvariantError when token not exists', async () => {
         mockPool.query.mockResolvedValue({
           rows: [], rowCount: 0
@@ -67,6 +81,13 @@ describe('[Mock-Based Integration] AuthenticationRepositoryPostgres', () => {
     });
 
     describe('deleteToken', () => {
+      it('should propagate error when database fails', async () => {
+        mockPool.query.mockRejectedValue(new Error('Database fails'));
+
+        await expect(authenticationRepo.deleteToken({}))
+          .rejects.toThrow();
+      });
+
       it('should resolve and call pool.query correctly', async () => {
         mockPool.query.mockResolvedValue();
 
