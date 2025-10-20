@@ -1,6 +1,7 @@
 /* istanbul ignore file */
 const { createContainer } = require('instances-container');
 
+const config = require('../../Commons/config');
 const bcrypt = require('bcrypt');
 const Jwt = require('@hapi/jwt');
 
@@ -34,6 +35,12 @@ container.register([
         {
           concrete: Jwt.token,
         },
+        {
+          concrete: config.tokenize.accessTokenKey,
+        },
+        {
+          concrete: config.tokenize.refreshTokenKey,
+        }
       ],
     },
   },
