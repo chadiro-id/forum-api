@@ -7,7 +7,7 @@ const registerUserSchema = Joi.object({
     'any.required': 'username wajib diisi',
     'string.empty': 'username tidak boleh kosong',
     'string.max': 'username maksimal {#limit} karakter',
-    'string.pattern': 'tidak dapat membuat user baru karena username mengandung karakter terlarang',
+    'string.pattern.base': 'tidak dapat membuat user baru karena username mengandung karakter terlarang',
   }),
   password: customJoi.string().required().label('password'),
   fullname: customJoi.string().required().label('fullname'),
