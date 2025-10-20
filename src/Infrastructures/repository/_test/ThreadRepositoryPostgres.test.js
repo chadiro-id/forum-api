@@ -27,18 +27,14 @@ describe('[Mock-Based Integration] ThreadRepositoryPostgres', () => {
       jest.clearAllMocks();
     });
 
-    it('should throw error when database fails', async () => {
-      mockPool.query.mockRejectedValue(new Error('Database fails'));
-
-      await expect(threadRepo.addThread({}))
-        .rejects.toThrow('Database fails');
-      await expect(threadRepo.verifyThreadExists(''))
-        .rejects.toThrow('Database fails');
-      await expect(threadRepo.getThreadById(''))
-        .rejects.toThrow('Database fails');
-    });
-
     describe('addThread', () => {
+      it('should propagate error when database fails', async () => {
+        mockPool.query.mockRejectedValue(new Error('Database fails'));
+
+        await expect(threadRepo.addThread({}))
+          .rejects.toThrow();
+      });
+
       it('should persist the new thread and return the added thread correctly', async () => {
         mockPool.query.mockResolvedValue({
           rows: [{ id: 'thread-123', title: 'Sebuah thread', owner_id: 'user-123' }],
@@ -72,6 +68,13 @@ describe('[Mock-Based Integration] ThreadRepositoryPostgres', () => {
     });
 
     describe('verifyThreadExists', () => {
+      it('should propagate error when database fails', async () => {
+        mockPool.query.mockRejectedValue(new Error('Database fails'));
+
+        await expect(threadRepo.verifyThreadExists({}))
+          .rejects.toThrow();
+      });
+
       it('should throw NotFoundError when the id is not exists', async () => {
         mockPool.query.mockResolvedValue({
           rows: [], rowCount: 0
@@ -97,6 +100,13 @@ describe('[Mock-Based Integration] ThreadRepositoryPostgres', () => {
     });
 
     describe('getThreadById', () => {
+      it('should propagate error when database fails', async () => {
+        mockPool.query.mockRejectedValue(new Error('Database fails'));
+
+        await expect(threadRepo.getThreadById({}))
+          .rejects.toThrow();
+      });
+
       it('should throw NotFoundError when the id is not exists', async () => {
         mockPool.query.mockResolvedValue({
           rows: [], rowCount: 0
