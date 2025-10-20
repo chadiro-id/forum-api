@@ -2,13 +2,25 @@ const InvariantError = require('../../../Commons/exceptions/InvariantError');
 const AuthenticationRepository = require('../../../Domains/authentications/AuthenticationRepository');
 const AuthenticationRepositoryPostgres = require('../AuthenticationRepositoryPostgres');
 
-describe('[Unit] AuthenticationRepositoryPostgres', () => {
+const assertQueryCalled = (
+  query, queryTextPart, queryValues
+) => {
+  expect(query).toHaveBeenCalledTimes(1);
+  expect(query).toHaveBeenCalledWith(
+    expect.objectContaining({
+      text: expect.stringContaining(queryTextPart),
+      values: queryValues,
+    })
+  );
+};
+
+describe('[Mock-Based Integration] AuthenticationRepositoryPostgres', () => {
   it('must be an instance of AuthenticationRepository', () => {
     const repo = new AuthenticationRepositoryPostgres({}, () => '');
     expect(repo).toBeInstanceOf(AuthenticationRepository);
   });
 
-  describe('Methods and Pool Query', () => {
+  describe('Postgres Interaction', () => {
     let mockPool;
     let authenticationRepo;
 
@@ -30,12 +42,8 @@ describe('[Unit] AuthenticationRepositoryPostgres', () => {
         await expect(authenticationRepo.addToken('token'))
           .resolves.not.toThrow();
 
-        expect(mockPool.query).toHaveBeenCalledTimes(1);
-        expect(mockPool.query).toHaveBeenCalledWith(
-          expect.objectContaining({
-            text: expect.stringContaining('INSERT INTO authentications'),
-            values: ['token']
-          })
+        assertQueryCalled(
+          mockPool.query, 'INSERT INTO authentications', ['token']
         );
       });
     });
@@ -49,12 +57,8 @@ describe('[Unit] AuthenticationRepositoryPostgres', () => {
         await expect(authenticationRepo.checkAvailabilityToken('token'))
           .rejects.toThrow(InvariantError);
 
-        expect(mockPool.query).toHaveBeenCalledTimes(1);
-        expect(mockPool.query).toHaveBeenCalledWith(
-          expect.objectContaining({
-            text: expect.stringContaining('SELECT token FROM authentications'),
-            values: ['token']
-          })
+        assertQueryCalled(
+          mockPool.query, 'SELECT token FROM authentications', ['token']
         );
       });
 
@@ -67,12 +71,8 @@ describe('[Unit] AuthenticationRepositoryPostgres', () => {
         await expect(authenticationRepo.checkAvailabilityToken('token'))
           .resolves.not.toThrow(InvariantError);
 
-        expect(mockPool.query).toHaveBeenCalledTimes(1);
-        expect(mockPool.query).toHaveBeenCalledWith(
-          expect.objectContaining({
-            text: expect.stringContaining('SELECT token FROM authentications'),
-            values: ['token']
-          })
+        assertQueryCalled(
+          mockPool.query, 'SELECT token FROM authentications', ['token']
         );
       });
     });
@@ -84,12 +84,8 @@ describe('[Unit] AuthenticationRepositoryPostgres', () => {
         await expect(authenticationRepo.deleteToken('token'))
           .resolves.not.toThrow();
 
-        expect(mockPool.query).toHaveBeenCalledTimes(1);
-        expect(mockPool.query).toHaveBeenCalledWith(
-          expect.objectContaining({
-            text: expect.stringContaining('DELETE FROM authentications WHERE token'),
-            values: ['token']
-          })
+        assertQueryCalled(
+          mockPool.query, 'DELETE FROM authentications WHERE token', ['token']
         );
       });
     });
