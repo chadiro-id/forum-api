@@ -1,18 +1,7 @@
 const InvariantError = require('../../../Commons/exceptions/InvariantError');
 const AuthenticationRepository = require('../../../Domains/authentications/AuthenticationRepository');
 const AuthenticationRepositoryPostgres = require('../AuthenticationRepositoryPostgres');
-
-const assertQueryCalled = (
-  query, queryTextPart, queryValues
-) => {
-  expect(query).toHaveBeenCalledTimes(1);
-  expect(query).toHaveBeenCalledWith(
-    expect.objectContaining({
-      text: expect.stringContaining(queryTextPart),
-      values: queryValues,
-    })
-  );
-};
+const { assertQueryCalled } = require('../../../../tests/utils/repository.test-util');
 
 describe('[Mock-Based Integration] AuthenticationRepositoryPostgres', () => {
   it('must be an instance of AuthenticationRepository', () => {
