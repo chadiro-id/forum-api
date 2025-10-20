@@ -4,14 +4,15 @@ const DetailThread = require('../../../Domains/threads/entities/DetailThread');
 const NewThread = require('../../../Domains/threads/entities/NewThread');
 const ThreadRepository = require('../../../Domains/threads/ThreadRepository');
 const ThreadRepositoryPostgres = require('../ThreadRepositoryPostgres');
+const { assertQueryCalled } = require('../../../../tests/utils/repository.test-util');
 
-describe('[Unit] ThreadRepositoryPostgres', () => {
+describe('[Mock-Based Integration] ThreadRepositoryPostgres', () => {
   it('must be an instance of ThreadRepository', () => {
     const threadRepo = new ThreadRepositoryPostgres({}, () => '');
     expect(threadRepo).toBeInstanceOf(ThreadRepository);
   });
 
-  describe('Methods and Pool Query', () => {
+  describe('Postgres Interaction', () => {
     let mockPool;
     let threadRepo;
 
@@ -79,13 +80,7 @@ describe('[Unit] ThreadRepositoryPostgres', () => {
         await expect(threadRepo.verifyThreadExists('thread-123'))
           .rejects.toThrow(NotFoundError);
 
-        expect(mockPool.query).toHaveBeenCalledTimes(1);
-        expect(mockPool.query).toHaveBeenCalledWith(
-          expect.objectContaining({
-            text: expect.stringContaining('SELECT id FROM threads'),
-            values: ['thread-123'],
-          })
-        );
+        assertQueryCalled(mockPool.query, 'SELECT id FROM threads', ['thread-123']);
       });
 
       it('should not throw error when the id is exists', async () => {
@@ -97,13 +92,7 @@ describe('[Unit] ThreadRepositoryPostgres', () => {
         await expect(threadRepo.verifyThreadExists('thread-123'))
           .resolves.not.toThrow();
 
-        expect(mockPool.query).toHaveBeenCalledTimes(1);
-        expect(mockPool.query).toHaveBeenCalledWith(
-          expect.objectContaining({
-            text: expect.stringContaining('SELECT id FROM threads'),
-            values: ['thread-123'],
-          })
-        );
+        assertQueryCalled(mockPool.query, 'SELECT id FROM threads', ['thread-123']);
       });
     });
 
@@ -116,13 +105,7 @@ describe('[Unit] ThreadRepositoryPostgres', () => {
         await expect(threadRepo.getThreadById('thread-123'))
           .rejects.toThrow(NotFoundError);
 
-        expect(mockPool.query).toHaveBeenCalledTimes(1);
-        expect(mockPool.query).toHaveBeenCalledWith(
-          expect.objectContaining({
-            text: expect.stringContaining('SELECT'),
-            values: ['thread-123'],
-          })
-        );
+        assertQueryCalled(mockPool.query, 'SELECT', ['thread-123']);
       });
 
       it('should correctly pool.query and return the thread related to the given id', async () => {
@@ -139,13 +122,7 @@ describe('[Unit] ThreadRepositoryPostgres', () => {
 
         const thread = await threadRepo.getThreadById('thread-123');
 
-        expect(mockPool.query).toHaveBeenCalledTimes(1);
-        expect(mockPool.query).toHaveBeenCalledWith(
-          expect.objectContaining({
-            text: expect.stringContaining('SELECT'),
-            values: ['thread-123']
-          })
-        );
+        assertQueryCalled(mockPool.query, 'SELECT', ['thread-123']);
 
         expect(thread).toEqual(new DetailThread({
           id: 'thread-123',
