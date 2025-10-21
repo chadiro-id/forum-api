@@ -9,7 +9,7 @@ class UsersHandler {
   }
 
   async postUserHandler(request, h) {
-    this._validator.validateRegisterUser(request.payload);
+    this._validator.validatePostUser(request.payload);
     const useCase = this._container.getInstance(AddUserUseCase.name);
 
     const addedUser = await useCase.execute(request.payload);
