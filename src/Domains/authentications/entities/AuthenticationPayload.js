@@ -1,5 +1,19 @@
 class AuthenticationPayload {
-  constructor() {}
+  constructor(payload) {
+    this._verifyPayload(payload);
+  }
+
+  _verifyPayload(payload) {
+    const { id, username } = payload;
+
+    if (!id || !username) {
+      throw new Error('AUTHENTICATION_PAYLOAD.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
+    }
+
+    if (typeof id !== 'string' || typeof username !== 'string') {
+      throw new Error('AUTHENTICATION_PAYLOAD.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
+    }
+  }
 }
 
 module.exports = AuthenticationPayload;
