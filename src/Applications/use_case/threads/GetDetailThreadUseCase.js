@@ -12,12 +12,15 @@ class GetDetailThreadUseCase {
   }
 
   async execute(threadId) {
-    const thread = await this._threadRepository.getThreadById(threadId);
+    const [thread, comments] = await Promise.all([
+      this._threadRepository.getThreadById(threadId),
+      this._commentRepository.getCommentsByThreadId(threadId)
+    ]);
+
     if (thread instanceof DetailThread === false) {
       throw new Error('GET_DETAIL_THREAD_USE_CASE.DETAIL_THREAD_MUST_BE_INSTANCE_OF_DETAIL_THREAD_ENTITY');
     }
 
-    const comments = await this._commentRepository.getCommentsByThreadId(threadId);
     const commentIds = comments.map(({ id }) => id);
 
     const replies = await this._replyRepository.getRepliesByCommentIds(commentIds);
@@ -31,16 +34,10 @@ class GetDetailThreadUseCase {
     return thread;
   }
 
-  _groupRepliesByCommentId(repliesArray) {
+  _groupRepliesByCommentId(repliesArray = []) {
     return repliesArray.reduce((acc, reply) => {
       const commentId = reply.commentId;
-
-      if (!acc[commentId]) {
-        acc[commentId] = [];
-      }
-
-      acc[commentId].push(reply);
-
+      (acc[commentId] ||= []).push(reply);
       return acc;
     }, {});
   }
