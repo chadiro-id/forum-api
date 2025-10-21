@@ -35,9 +35,7 @@ describe('UserAuthentication Entity', () => {
       expect(() => new UserAuthentication(refreshTokenNotString))
         .toThrow('USER_AUTHENTICATION.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
     });
-  });
 
-  describe('Correct payload', () => {
     it('should throw error when refresh token is equal to access token', () => {
       const payload = { ...dummyPayload };
       payload.refreshToken = dummyPayload.accessToken;
@@ -45,7 +43,9 @@ describe('UserAuthentication Entity', () => {
       expect(() => new UserAuthentication(payload))
         .toThrow('USER_AUTHENTICATION.REFRESH_TOKEN_EQUAL_TO_ACCESS_TOKEN');
     });
+  });
 
+  describe('Correct payload', () => {
     it('should correctly create the entity', () => {
       const payload = { ...dummyPayload };
 
