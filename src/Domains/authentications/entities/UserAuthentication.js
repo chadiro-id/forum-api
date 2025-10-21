@@ -16,6 +16,10 @@ class UserAuthentication {
     if (typeof accessToken !== 'string' || typeof refreshToken !== 'string') {
       throw new Error('USER_AUTHENTICATION.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
     }
+
+    if (refreshToken === accessToken) {
+      throw new Error('USER_AUTHENTICATION.REFRESH_TOKEN_EQUAL_TO_ACCESS_TOKEN');
+    }
   }
 }
 
