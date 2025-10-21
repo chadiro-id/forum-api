@@ -11,6 +11,7 @@ const dummyPayload = {
 describe('AddUserUseCase', () => {
   let mockUserRepo;
   let mockPasswordHash;
+  let addUserUseCase;
 
   beforeEach(() => {
     mockUserRepo = {
@@ -20,6 +21,11 @@ describe('AddUserUseCase', () => {
     mockPasswordHash = {
       hash: jest.fn(),
     };
+
+    addUserUseCase = new AddUserUseCase({
+      userRepository: mockUserRepo,
+      passwordHash: mockPasswordHash,
+    });
   });
 
   afterEach(() => {
@@ -38,12 +44,7 @@ describe('AddUserUseCase', () => {
     it('should propagate error when username already taken', async () => {
       mockUserRepo.verifyAvailableUsername.mockRejectedValue(new Error('username already taken'));
 
-      const useCase = new AddUserUseCase({
-        userRepository: mockUserRepo,
-        passwordHash: mockPasswordHash,
-      });
-
-      await expect(useCase.execute({ ...dummyPayload })).rejects.toThrow();
+      await expect(addUserUseCase.execute({ ...dummyPayload })).rejects.toThrow();
 
       expect(mockUserRepo.verifyAvailableUsername).toHaveBeenCalledTimes(1);
       expect(mockUserRepo.verifyAvailableUsername).toHaveBeenCalledWith(dummyPayload.username);
@@ -55,12 +56,7 @@ describe('AddUserUseCase', () => {
       mockPasswordHash.hash.mockResolvedValue('encrypted_password');
       mockUserRepo.addUser.mockRejectedValue(new Error('Add user fails'));
 
-      const useCase = new AddUserUseCase({
-        userRepository: mockUserRepo,
-        passwordHash: mockPasswordHash,
-      });
-
-      await expect(useCase.execute({ ...dummyPayload })).rejects.toThrow();
+      await expect(addUserUseCase.execute({ ...dummyPayload })).rejects.toThrow();
 
       expect(mockUserRepo.verifyAvailableUsername).toHaveBeenCalledTimes(1);
       expect(mockUserRepo.verifyAvailableUsername).toHaveBeenCalledWith(dummyPayload.username);
@@ -82,12 +78,7 @@ describe('AddUserUseCase', () => {
         fullname: dummyPayload.fullname,
       });
 
-      const useCase = new AddUserUseCase({
-        userRepository: mockUserRepo,
-        passwordHash: mockPasswordHash,
-      });
-
-      await expect(useCase.execute({ ...dummyPayload }))
+      await expect(addUserUseCase.execute({ ...dummyPayload }))
         .rejects
         .toThrow('ADD_USER_USE_CASE.REGISTERED_USER_MUST_BE_INSTANCE_OF_REGISTERED_USER_ENTITY');
 
@@ -113,12 +104,7 @@ describe('AddUserUseCase', () => {
         fullname: dummyPayload.fullname,
       }));
 
-      const useCase = new AddUserUseCase({
-        userRepository: mockUserRepo,
-        passwordHash: mockPasswordHash,
-      });
-
-      const registeredUser = await useCase.execute({ ...dummyPayload });
+      const registeredUser = await addUserUseCase.execute({ ...dummyPayload });
 
       expect(registeredUser).toStrictEqual(new RegisteredUser({
         id: 'user-123',
