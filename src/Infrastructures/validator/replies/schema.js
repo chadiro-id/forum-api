@@ -1,8 +1,8 @@
 const customJoi = require('../customJoi');
 
 const addReplySchema = customJoi.object({
-  content: customJoi.string().label('Isi balasan'),
-}).label('Balasan');
+  content: customJoi.string().required().label('Isi balasan'),
+});
 
 module.exports = {
   addReplySchema,

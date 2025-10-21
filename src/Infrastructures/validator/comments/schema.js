@@ -1,8 +1,8 @@
-const { customJoi } = require('../customJoi');
+const customJoi = require('../customJoi');
 
 const addCommentSchema = customJoi.object({
-  content: customJoi.string().label('Isi komentar'),
-}).label('Komentar');
+  content: customJoi.string().required().label('Isi komentar'),
+});
 
 module.exports = {
   addCommentSchema,
