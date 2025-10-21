@@ -33,4 +33,26 @@ describe('AuthenticationPayload Entity', () => {
         .toThrow('AUTHENTICATION_PAYLOAD.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
     });
   });
+
+  describe('Correct payload', () => {
+    it('should correctly create the entity', () => {
+      const payload = { ...dummyPayload };
+
+      const { id, username } = new AuthenticationPayload(payload);
+
+      expect(id).toEqual(payload.id);
+      expect(username).toEqual(payload.username);
+    });
+
+    it('should correctly create the entity and not contain extra property', () => {
+      const payload = { ...dummyPayload, extra: 'ekstra' };
+
+      const { id, username, extra } = new AuthenticationPayload(payload);
+
+      expect(id).toEqual(payload.id);
+      expect(username).toEqual(payload.username);
+
+      expect(extra).toBeUndefined();
+    });
+  });
 });
