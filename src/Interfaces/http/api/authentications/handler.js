@@ -13,10 +13,10 @@ class AuthenticationsHandler {
   }
 
   async postAuthenticationHandler(request, h) {
-    this._validator.validateUserLoginPayload(request.payload);
-    const addAuthenticationUseCase = this._container.getInstance(AddAuthenticationUseCase.name);
+    this._validator.validatePostAuthentication(request.payload);
+    const useCase = this._container.getInstance(AddAuthenticationUseCase.name);
 
-    const { accessToken, refreshToken } = await addAuthenticationUseCase.execute(request.payload);
+    const { accessToken, refreshToken } = await useCase.execute(request.payload);
 
     const response = h.response({
       status: 'success',
@@ -31,10 +31,10 @@ class AuthenticationsHandler {
   }
 
   async putAuthenticationHandler(request) {
-    this._validator.validatePutAuthenticationPayload(request.payload);
-    const putAuthenticationUseCase = this._container.getInstance(PutAuthenticationUseCase.name);
+    this._validator.validatePutAuthentication(request.payload);
+    const useCase = this._container.getInstance(PutAuthenticationUseCase.name);
 
-    const accessToken = await putAuthenticationUseCase.execute(request.payload);
+    const accessToken = await useCase.execute(request.payload);
     return {
       status: 'success',
       data: {
@@ -44,10 +44,10 @@ class AuthenticationsHandler {
   }
 
   async deleteAuthenticationHandler(request) {
-    this._validator.validateDeleteAuthenticationPayload(request.payload);
-    const deleteAuthenticationUseCase = this._container.getInstance(DeleteAuthenticationUseCase.name);
+    this._validator.validateDeleteAuthentication(request.payload);
+    const useCase = this._container.getInstance(DeleteAuthenticationUseCase.name);
 
-    await deleteAuthenticationUseCase.execute(request.payload);
+    await useCase.execute(request.payload);
 
     return {
       status: 'success',
