@@ -9,11 +9,7 @@ const threads = require('../../Interfaces/http/api/threads');
 const comments = require('../../Interfaces/http/api/comments');
 const replies = require('../../Interfaces/http/api/replies');
 
-const usersValidator = require('../validator/users');
-const authenticationsValidator = require('../validator/authentications');
-const threadsValidator = require('../validator/threads');
-const commentsValidator = require('../validator/comments');
-const repliesValidator = require('../validator/replies');
+const validator = require('../validator');
 
 const createServer = async (container) => {
   const server = Hapi.server({
@@ -49,35 +45,35 @@ const createServer = async (container) => {
       plugin: users,
       options: {
         container,
-        validator: usersValidator,
+        validator: validator.users,
       },
     },
     {
       plugin: authentications,
       options: {
         container,
-        validator: authenticationsValidator,
+        validator: validator.authentications,
       },
     },
     {
       plugin: threads,
       options: {
         container,
-        validator: threadsValidator,
+        validator: validator.threads,
       },
     },
     {
       plugin: comments,
       options: {
         container,
-        validator: commentsValidator,
+        validator: validator.comments,
       },
     },
     {
       plugin: replies,
       options: {
         container,
-        validator: repliesValidator,
+        validator: validator.replies,
       },
     },
   ]);
