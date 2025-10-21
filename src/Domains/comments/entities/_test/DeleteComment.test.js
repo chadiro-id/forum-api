@@ -47,4 +47,16 @@ describe('DeleteComment Entity', () => {
         .toThrow('DELETE_COMMENT.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
     });
   });
+
+  describe('Correct payload', () => {
+    it('should correctly create the entity', () => {
+      const payload = { ...dummyPayload };
+
+      const deleteComment = new DeleteComent(payload);
+
+      expect(deleteComment.threadId).toEqual(payload.threadId);
+      expect(deleteComment.commentId).toEqual(payload.commentId);
+      expect(deleteComment.owner).toEqual(payload.owner);
+    });
+  });
 });
