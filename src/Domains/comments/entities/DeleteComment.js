@@ -1,6 +1,10 @@
 class DeleteComent {
   constructor(payload) {
     this._verifyPayload(payload);
+
+    this.threadId = payload.threadId;
+    this.commentId = payload.commentId;
+    this.owner = payload.owner;
   }
 
   _verifyPayload(payload) {
