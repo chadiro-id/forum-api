@@ -11,7 +11,7 @@ class CommentsHandler {
   }
 
   async postCommentHandler(request, h) {
-    this._validator.validatePostCommentPayload(request.payload);
+    this._validator.validatePostComment(request.payload);
 
     const { threadId } = request.params;
     const { id: owner } = request.auth.credentials;
