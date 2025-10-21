@@ -1,4 +1,3 @@
-/* istanbul ignore file */
 const { createContainer } = require('instances-container');
 
 const config = require('../../Commons/config');
