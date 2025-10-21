@@ -38,6 +38,14 @@ describe('UserAuthentication Entity', () => {
   });
 
   describe('Correct payload', () => {
+    it('should throw error when refresh token is equal to access token', () => {
+      const payload = { ...dummyPayload };
+      payload.refreshToken = dummyPayload.accessToken;
+
+      expect(() => new UserAuthentication(payload))
+        .toThrow('USER_AUTHENTICATION.REFRESH_TOKEN_EQUAL_TO_ACCESS_TOKEN');
+    });
+
     it('should correctly create the entity', () => {
       const payload = { ...dummyPayload };
 
