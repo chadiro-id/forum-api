@@ -10,8 +10,6 @@ const BcryptPasswordHash = require('../security/BcryptPasswordHash');
 const AuthenticationTokenManager = require('../../Applications/security/AuthenticationTokenManager');
 const JwtTokenManager = require('../security/JwtTokenManager');
 
-// const repositoryContainer = require('./repositoryContainer');
-// const useCaseContainer = require('./useCaseContainer');
 const usersContainer = require('./users.container');
 const authenticationsContainer = require('./authentications.container');
 const threadsContainer = require('./threads.container');
@@ -51,8 +49,6 @@ container.register([
   },
 ]);
 
-// repositoryContainer.setup(container);
-// useCaseContainer.setup(container);
 usersContainer.setup(container);
 authenticationsContainer.setup(container);
 threadsContainer.setup(container);
