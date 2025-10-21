@@ -11,7 +11,7 @@ class ThreadsHandler {
   }
 
   async postThreadHandler(request, h) {
-    this._validator.validatePostThreadPayload(request.payload);
+    this._validator.validatePostThread(request.payload);
 
     const { id: owner } = request.auth.credentials;
     const { title, body } = request.payload;
