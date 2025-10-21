@@ -58,4 +58,17 @@ describe('DeleteReply Entity', () => {
         .toThrow('DELETE_REPLY.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
     });
   });
+
+  describe('Correct payload', () => {
+    it('should correctly create the entity', () => {
+      const payload = { ...dummyPayload };
+
+      const deleteReply = new DeleteReply(payload);
+
+      expect(deleteReply.threadId).toEqual(payload.threadId);
+      expect(deleteReply.commentId).toEqual(payload.commentId);
+      expect(deleteReply.replyId).toEqual(payload.replyId);
+      expect(deleteReply.owner).toEqual(payload.owner);
+    });
+  });
 });
