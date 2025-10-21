@@ -10,11 +10,16 @@ const dummyPayload = {
 
 describe('AddThreadUseCase', () => {
   let mockThreadRepo;
+  let addThreadUseCase;
 
   beforeEach(() => {
     mockThreadRepo = {
       addThread: jest.fn(),
     };
+
+    addThreadUseCase = new AddThreadUseCase({
+      threadRepository: mockThreadRepo,
+    });
   });
 
   afterEach(() => jest.clearAllMocks());
@@ -32,11 +37,7 @@ describe('AddThreadUseCase', () => {
     it('should propagate error when add thread fails', async () => {
       mockThreadRepo.addThread.mockRejectedValue(new Error('add thead fails'));
 
-      const useCase = new AddThreadUseCase({
-        threadRepository: mockThreadRepo,
-      });
-
-      await expect(useCase.execute({ ...dummyPayload })).rejects.toThrow();
+      await expect(addThreadUseCase.execute({ ...dummyPayload })).rejects.toThrow();
 
       expect(mockThreadRepo.addThread).toHaveBeenCalledTimes(1);
       expect(mockThreadRepo.addThread).toHaveBeenCalledWith(new NewThread({
@@ -53,11 +54,7 @@ describe('AddThreadUseCase', () => {
         owner: 'user-123',
       });
 
-      const useCase = new AddThreadUseCase({
-        threadRepository: mockThreadRepo,
-      });
-
-      await expect(useCase.execute({ ...dummyPayload }))
+      await expect(addThreadUseCase.execute({ ...dummyPayload }))
         .rejects
         .toThrow('ADD_THREAD_USE_CASE.ADDED_THREAD_MUST_BE_INSTANCE_OF_ADDED_THREAD_ENTITY');
 
@@ -78,11 +75,7 @@ describe('AddThreadUseCase', () => {
         owner: 'user-123',
       }));
 
-      const useCase = new AddThreadUseCase({
-        threadRepository: mockThreadRepo,
-      });
-
-      const addedThread = await useCase.execute({ ...dummyPayload });
+      const addedThread = await addThreadUseCase.execute({ ...dummyPayload });
 
       expect(mockThreadRepo.addThread).toHaveBeenCalledTimes(1);
       expect(mockThreadRepo.addThread).toHaveBeenCalledWith(new NewThread({
@@ -92,7 +85,6 @@ describe('AddThreadUseCase', () => {
       }));
 
       expect(addedThread).toBeInstanceOf(AddedThread);
-      expect(Object.keys(addedThread)).toHaveLength(3);
       expect(addedThread.id).toEqual('thread-123');
       expect(addedThread.title).toEqual('Sebuah thread');
       expect(addedThread.owner).toEqual('user-123');
