@@ -55,7 +55,7 @@ describe('Users Endpoints', () => {
       expect(response.statusCode).toEqual(400);
       expect(responseJson.status).toEqual('fail');
       expect(responseJson.message).toEqual(
-        expect.stringContaining('data tidak lengkap')
+        expect.stringContaining('wajib diisi')
       );
     });
 
@@ -73,7 +73,7 @@ describe('Users Endpoints', () => {
       expect(response.statusCode).toEqual(400);
       expect(responseJson.status).toEqual('fail');
       expect(responseJson.message).toEqual(
-        expect.stringContaining('tipe data tidak sesuai')
+        expect.stringContaining('harus berupa teks')
       );
     });
 

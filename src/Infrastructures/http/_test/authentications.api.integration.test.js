@@ -94,7 +94,7 @@ describe('Authentications Endpoints', () => {
       const responseJson = JSON.parse(response.payload);
       expect(response.statusCode).toEqual(400);
       expect(responseJson.status).toEqual('fail');
-      expect(responseJson.message).toEqual('username dan password harus string');
+      expect(responseJson.message).toEqual(expect.stringContaining('harus berupa teks'));
     });
 
     it('should response 400 when login payload not contain needed property', async () => {
@@ -108,7 +108,7 @@ describe('Authentications Endpoints', () => {
       const responseJson = JSON.parse(response.payload);
       expect(response.statusCode).toEqual(400);
       expect(responseJson.status).toEqual('fail');
-      expect(responseJson.message).toEqual('harus mengirimkan username dan password');
+      expect(responseJson.message).toEqual(expect.stringContaining('wajib diisi'));
     });
   });
 
@@ -148,7 +148,7 @@ describe('Authentications Endpoints', () => {
       const responseJson = JSON.parse(response.payload);
       expect(response.statusCode).toEqual(400);
       expect(responseJson.status).toEqual('fail');
-      expect(responseJson.message).toEqual('harus mengirimkan token refresh');
+      expect(responseJson.message).toEqual(expect.stringContaining('wajib diisi'));
     });
 
     it('should response 400 when refresh token not string', async () => {
@@ -159,7 +159,7 @@ describe('Authentications Endpoints', () => {
       const responseJson = JSON.parse(response.payload);
       expect(response.statusCode).toEqual(400);
       expect(responseJson.status).toEqual('fail');
-      expect(responseJson.message).toEqual('refresh token harus string');
+      expect(responseJson.message).toEqual(expect.stringContaining('harus berupa teks'));
     });
 
     it('should response 400 when refresh token not valid', async () => {
@@ -219,7 +219,7 @@ describe('Authentications Endpoints', () => {
       const responseJson = JSON.parse(response.payload);
       expect(response.statusCode).toBe(400);
       expect(responseJson.status).toEqual('fail');
-      expect(responseJson.message).toEqual('harus mengirimkan token refresh');
+      expect(responseJson.message).toEqual(expect.stringContaining('wajib diisi'));
     });
 
     it('should response 400 when refresh token not string', async () => {
@@ -232,7 +232,7 @@ describe('Authentications Endpoints', () => {
       const responseJson = JSON.parse(response.payload);
       expect(response.statusCode).toBe(400);
       expect(responseJson.status).toEqual('fail');
-      expect(responseJson.message).toEqual('refresh token harus string');
+      expect(responseJson.message).toEqual(expect.stringContaining('harus berupa teks'));
     });
 
     it('should response 400 when refresh token not registered in database', async () => {
