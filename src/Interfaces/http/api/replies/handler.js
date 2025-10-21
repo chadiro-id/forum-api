@@ -11,7 +11,7 @@ class RepliesHandler {
   }
 
   async postReplyHandler(request, h) {
-    this._validator.validatePostReplyPayload(request.payload);
+    this._validator.validatePostReply(request.payload);
 
     const { threadId, commentId } = request.params;
     const { id: owner } = request.auth.credentials;
