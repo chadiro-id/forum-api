@@ -65,6 +65,7 @@ describe('GetDetailThreadUseCase', () => {
   let mockThreadRepo;
   let mockCommentRepo;
   let mockReplyRepo;
+  let getDetailThreadUseCase;
 
   beforeEach(() => {
     mockThreadRepo = {
@@ -76,66 +77,89 @@ describe('GetDetailThreadUseCase', () => {
     mockReplyRepo = {
       getRepliesByCommentIds: jest.fn(),
     };
+
+    getDetailThreadUseCase = new GetDetailThreadUseCase({
+      threadRepository: mockThreadRepo,
+      commentRepository: mockCommentRepo,
+      replyRepository: mockReplyRepo,
+    });
   });
 
   afterEach(() => jest.clearAllMocks());
 
-  describe('Failure cases', () => {
-    it('should propagate error when getThreadById fails', async () => {
-      mockThreadRepo.getThreadById.mockRejectedValue(new Error('get thread by id fails'));
+  describe('Concurrent executions', () => {
+    it('should call thread and comment repositories concurrently', async () => {
+      const threadId = 'thread-123';
 
-      const useCase = new GetDetailThreadUseCase({
-        threadRepository: mockThreadRepo,
-        commentRepository: mockCommentRepo,
-        replyRepository: mockReplyRepo,
+      jest.useFakeTimers();
+
+      let threadCalled = false;
+      let commentCalled = false;
+
+      mockThreadRepo.getThreadById.mockImplementation(async () => {
+        threadCalled = true;
+        return new DetailThread({ ...dummyThread });
       });
 
-      await expect(useCase.execute('thread-123')).rejects.toThrow();
+      mockCommentRepo.getCommentsByThreadId.mockImplementation(async () => {
+        commentCalled = true;
+        return [];
+      });
+
+      const promise = getDetailThreadUseCase.execute(threadId);
+
+      await jest.runAllTimersAsync();
+      await promise;
+
+      expect(threadCalled).toBe(true);
+      expect(commentCalled).toBe(true);
 
       expect(mockThreadRepo.getThreadById).toHaveBeenCalledTimes(1);
+      expect(mockThreadRepo.getThreadById).toHaveBeenCalledWith(threadId);
+      expect(mockCommentRepo.getCommentsByThreadId).toHaveBeenCalledTimes(1);
+      expect(mockCommentRepo.getCommentsByThreadId).toHaveBeenCalledWith(threadId);
+
+      jest.useRealTimers();
+    });
+  });
+
+  describe('Failure cases', () => {
+    it('should propagate error when thread repository fails', async () => {
+      mockThreadRepo.getThreadById.mockRejectedValue(new Error('get thread by id fails'));
+      mockCommentRepo.getCommentsByThreadId.mockResolvedValue([]);
+
+      await expect(getDetailThreadUseCase.execute('thread-123')).rejects.toThrow();
+
       expect(mockThreadRepo.getThreadById).toHaveBeenCalledWith('thread-123');
-      expect(mockCommentRepo.getCommentsByThreadId).not.toHaveBeenCalled();
+      expect(mockCommentRepo.getCommentsByThreadId).toHaveBeenCalled();
       expect(mockReplyRepo.getRepliesByCommentIds).not.toHaveBeenCalled();
     });
 
-    it('should throw error when returned thread not instance of DetailThread entity', async () => {
+    it('should propagate error when comment repository fails', async () => {
+      mockThreadRepo.getThreadById.mockResolvedValue(new DetailThread({ ...dummyThread }));
+      mockCommentRepo.getCommentsByThreadId.mockRejectedValue(new Error('get comments by thread id fails'));
+
+      await expect(getDetailThreadUseCase.execute('thread-123')).rejects.toThrow();
+
+      expect(mockThreadRepo.getThreadById).toHaveBeenCalledWith('thread-123');
+      expect(mockCommentRepo.getCommentsByThreadId).toHaveBeenCalledWith('thread-123');
+      expect(mockReplyRepo.getRepliesByCommentIds).not.toHaveBeenCalled();
+    });
+
+    it('should throw error when thread not instance of DetailThread entity', async () => {
       mockThreadRepo.getThreadById.mockResolvedValue({ ...dummyThread });
+      mockCommentRepo.getCommentsByThreadId.mockResolvedValue([]);
 
-      const useCase = new GetDetailThreadUseCase({
-        threadRepository: mockThreadRepo,
-        commentRepository: mockCommentRepo,
-        replyRepository: mockReplyRepo,
-      });
-
-      await expect(useCase.execute('thread-123'))
+      await expect(getDetailThreadUseCase.execute('thread-123'))
         .rejects
         .toThrow('GET_DETAIL_THREAD_USE_CASE.DETAIL_THREAD_MUST_BE_INSTANCE_OF_DETAIL_THREAD_ENTITY');
 
       expect(mockThreadRepo.getThreadById).toHaveBeenCalledTimes(1);
       expect(mockThreadRepo.getThreadById).toHaveBeenCalledWith('thread-123');
-      expect(mockCommentRepo.getCommentsByThreadId).not.toHaveBeenCalled();
       expect(mockReplyRepo.getRepliesByCommentIds).not.toHaveBeenCalled();
     });
 
-    it('should propagate error when getCommentsByThreadId fails', async () => {
-      mockThreadRepo.getThreadById.mockResolvedValue(new DetailThread({ ...dummyThread }));
-      mockCommentRepo.getCommentsByThreadId.mockRejectedValue(new Error('get comments by thread id fails'));
-
-      const useCase = new GetDetailThreadUseCase({
-        threadRepository: mockThreadRepo,
-        commentRepository: mockCommentRepo,
-        replyRepository: mockReplyRepo,
-      });
-
-      await expect(useCase.execute('thread-123')).rejects.toThrow();
-
-      expect(mockThreadRepo.getThreadById).toHaveBeenCalledWith('thread-123');
-      expect(mockCommentRepo.getCommentsByThreadId).toHaveBeenCalledTimes(1);
-      expect(mockCommentRepo.getCommentsByThreadId).toHaveBeenCalledWith('thread-123');
-      expect(mockReplyRepo.getRepliesByCommentIds).not.toHaveBeenCalled();
-    });
-
-    it('should propagate error when getRepliesByCommentIds fails', async () => {
+    it('should propagate error when reply repository fails', async () => {
       const comment1 = new Comment({ ...dummyComments[0] });
       const comment2 = new Comment({ ...dummyComments[1] });
 
@@ -143,16 +167,9 @@ describe('GetDetailThreadUseCase', () => {
       mockCommentRepo.getCommentsByThreadId.mockResolvedValue([comment1, comment2]);
       mockReplyRepo.getRepliesByCommentIds.mockRejectedValue(new Error('get replies fails'));
 
-      const useCase = new GetDetailThreadUseCase({
-        threadRepository: mockThreadRepo,
-        commentRepository: mockCommentRepo,
-        replyRepository: mockReplyRepo,
-      });
-
-      await expect(useCase.execute('thread-123')).rejects.toThrow();
+      await expect(getDetailThreadUseCase.execute('thread-123')).rejects.toThrow();
 
       expect(mockThreadRepo.getThreadById).toHaveBeenCalledWith('thread-123');
-      expect(mockCommentRepo.getCommentsByThreadId).toHaveBeenCalledTimes(1);
       expect(mockCommentRepo.getCommentsByThreadId).toHaveBeenCalledWith('thread-123');
       expect(mockReplyRepo.getRepliesByCommentIds).toHaveBeenCalledTimes(1);
       expect(mockReplyRepo.getRepliesByCommentIds).toHaveBeenCalledWith([comment1.id, comment2.id]);
@@ -176,13 +193,7 @@ describe('GetDetailThreadUseCase', () => {
       mockCommentRepo.getCommentsByThreadId.mockResolvedValue([...comments]);
       mockReplyRepo.getRepliesByCommentIds.mockResolvedValue([...replies]);
 
-      const useCase = new GetDetailThreadUseCase({
-        threadRepository: mockThreadRepo,
-        commentRepository: mockCommentRepo,
-        replyRepository: mockReplyRepo,
-      });
-
-      const detailThread = await useCase.execute('thread-123');
+      const detailThread = await getDetailThreadUseCase.execute('thread-123');
 
       expect(mockThreadRepo.getThreadById).toHaveBeenCalledTimes(1);
       expect(mockThreadRepo.getThreadById).toHaveBeenCalledWith('thread-123');
