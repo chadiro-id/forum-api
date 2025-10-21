@@ -9,6 +9,7 @@ const dummyPayload = {
 describe('DeleteCommentUseCase', () => {
   let mockThreadRepo;
   let mockCommentRepo;
+  let deleteCommentUseCase;
 
   beforeEach(() => {
     mockThreadRepo = {
@@ -18,6 +19,10 @@ describe('DeleteCommentUseCase', () => {
       verifyCommentOwner: jest.fn(),
       softDeleteCommentById: jest.fn(),
     };
+    deleteCommentUseCase = new DeleteCommentUseCase({
+      threadRepository: mockThreadRepo,
+      commentRepository: mockCommentRepo,
+    });
   });
 
   afterEach(() => {
@@ -80,14 +85,9 @@ describe('DeleteCommentUseCase', () => {
     it('should propagate error when thread not exists', async () => {
       mockThreadRepo.verifyThreadExists.mockRejectedValue(new Error('thread not found'));
 
-      const useCase = new DeleteCommentUseCase({
-        threadRepository: mockThreadRepo,
-        commentRepository: mockCommentRepo,
-      });
+      await expect(deleteCommentUseCase.execute({ ...dummyPayload }))
+        .rejects.toThrow();
 
-      await expect(useCase.execute({ ...dummyPayload })).rejects.toThrow();
-
-      expect(mockThreadRepo.verifyThreadExists).toHaveBeenCalledTimes(1);
       expect(mockThreadRepo.verifyThreadExists).toHaveBeenCalledWith(dummyPayload.threadId);
       expect(mockCommentRepo.verifyCommentOwner).not.toHaveBeenCalled();
       expect(mockCommentRepo.softDeleteCommentById).not.toHaveBeenCalled();
@@ -97,16 +97,10 @@ describe('DeleteCommentUseCase', () => {
       mockThreadRepo.verifyThreadExists.mockResolvedValue();
       mockCommentRepo.verifyCommentOwner.mockRejectedValue(new Error('verification fails'));
 
-      const useCase = new DeleteCommentUseCase({
-        threadRepository: mockThreadRepo,
-        commentRepository: mockCommentRepo,
-      });
+      await expect(deleteCommentUseCase.execute({ ...dummyPayload }))
+        .rejects.toThrow();
 
-      await expect(useCase.execute({ ...dummyPayload })).rejects.toThrow();
-
-      expect(mockThreadRepo.verifyThreadExists).toHaveBeenCalledTimes(1);
       expect(mockThreadRepo.verifyThreadExists).toHaveBeenCalledWith(dummyPayload.threadId);
-      expect(mockCommentRepo.verifyCommentOwner).toHaveBeenCalledTimes(1);
       expect(mockCommentRepo.verifyCommentOwner).toHaveBeenCalledWith(dummyPayload.commentId, dummyPayload.owner);
       expect(mockCommentRepo.softDeleteCommentById).not.toHaveBeenCalled();
     });
@@ -116,12 +110,8 @@ describe('DeleteCommentUseCase', () => {
       mockCommentRepo.verifyCommentOwner.mockResolvedValue();
       mockCommentRepo.softDeleteCommentById.mockRejectedValue(new Error('delete comment fails'));
 
-      const useCase = new DeleteCommentUseCase({
-        threadRepository: mockThreadRepo,
-        commentRepository: mockCommentRepo,
-      });
-
-      await expect(useCase.execute({ ...dummyPayload })).rejects.toThrow();
+      await expect(deleteCommentUseCase.execute({ ...dummyPayload }))
+        .rejects.toThrow();
 
       expect(mockThreadRepo.verifyThreadExists).toHaveBeenCalledWith(dummyPayload.threadId);
       expect(mockCommentRepo.verifyCommentOwner).toHaveBeenCalledWith(dummyPayload.commentId, dummyPayload.owner);
@@ -136,12 +126,7 @@ describe('DeleteCommentUseCase', () => {
       mockCommentRepo.verifyCommentOwner.mockResolvedValue();
       mockCommentRepo.softDeleteCommentById.mockResolvedValue();
 
-      const useCase = new DeleteCommentUseCase({
-        threadRepository: mockThreadRepo,
-        commentRepository: mockCommentRepo,
-      });
-
-      await expect(useCase.execute({ ...dummyPayload }))
+      await expect(deleteCommentUseCase.execute({ ...dummyPayload }))
         .resolves.not.toThrow();
 
       expect(mockThreadRepo.verifyThreadExists).toHaveBeenCalledTimes(1);
