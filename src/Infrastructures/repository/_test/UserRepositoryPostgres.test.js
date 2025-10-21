@@ -3,7 +3,7 @@ const RegisteredUser = require('../../../Domains/users/entities/RegisteredUser')
 const RegisterUser = require('../../../Domains/users/entities/RegisterUser');
 const UserRepository = require('../../../Domains/users/UserRepository');
 const UserRepositoryPostgres = require('../UserRepositoryPostgres');
-const { assertQueryCalled } = require('../../../../tests/utils/repository.test-util');
+const { assertQueryCalled } = require('../../../../tests/helper/assertionsHelper');
 
 describe('[Mock-Base Integration] UserRepositoryPostgres', () => {
   it('must be an instance of UserRepository', () => {

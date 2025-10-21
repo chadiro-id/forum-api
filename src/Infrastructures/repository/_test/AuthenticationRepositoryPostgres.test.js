@@ -1,7 +1,7 @@
 const InvariantError = require('../../../Commons/exceptions/InvariantError');
 const AuthenticationRepository = require('../../../Domains/authentications/AuthenticationRepository');
 const AuthenticationRepositoryPostgres = require('../AuthenticationRepositoryPostgres');
-const { assertQueryCalled } = require('../../../../tests/utils/repository.test-util');
+const { assertQueryCalled } = require('../../../../tests/helper/assertionsHelper');
 
 describe('[Mock-Based Integration] AuthenticationRepositoryPostgres', () => {
   it('must be an instance of AuthenticationRepository', () => {

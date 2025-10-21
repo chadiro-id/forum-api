@@ -4,7 +4,7 @@ const DetailThread = require('../../../Domains/threads/entities/DetailThread');
 const NewThread = require('../../../Domains/threads/entities/NewThread');
 const ThreadRepository = require('../../../Domains/threads/ThreadRepository');
 const ThreadRepositoryPostgres = require('../ThreadRepositoryPostgres');
-const { assertQueryCalled } = require('../../../../tests/utils/repository.test-util');
+const { assertQueryCalled } = require('../../../../tests/helper/assertionsHelper');
 
 describe('[Mock-Based Integration] ThreadRepositoryPostgres', () => {
   it('must be an instance of ThreadRepository', () => {

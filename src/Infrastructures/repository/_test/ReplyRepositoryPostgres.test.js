@@ -5,7 +5,7 @@ const NewReply = require('../../../Domains/replies/entities/NewReply');
 const Reply = require('../../../Domains/replies/entities/Reply');
 const ReplyRepository = require('../../../Domains/replies/ReplyRepository');
 const ReplyRepositoryPostgres = require('../ReplyRepositoryPostgres');
-const { assertQueryCalled } = require('../../../../tests/utils/repository.test-util');
+const { assertQueryCalled } = require('../../../../tests/helper/assertionsHelper');
 
 describe('[Mock-Based Integration] ReplyRepositoryPostgres', () => {
   it('must be an instance of ReplyRepository', () => {
