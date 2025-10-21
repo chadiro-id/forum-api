@@ -20,26 +20,26 @@ describe('[Integration] AuthenticationRepositoryPostgres', () => {
   });
 
   describe('addToken', () => {
-    it('should correctly persist the token into database', async () => {
+    it('should correctly persist token into database', async () => {
       const token = 'token';
-
       await authenticationRepo.addToken(token);
 
       const tokens = await authenticationsTable.findToken(token);
+
       expect(tokens).toHaveLength(1);
       expect(tokens[0].token).toBe(token);
     });
   });
 
   describe('checkAvailabilityToken', () => {
-    it('should throw InvariantError when the token not exists', async () => {
+    it('should throw InvariantError when token not exists', async () => {
       const token = 'token';
 
       await expect(authenticationRepo.checkAvailabilityToken(token))
         .rejects.toThrow(InvariantError);
     });
 
-    it('should not throw error when the token exists', async () => {
+    it('should not throw error when token exists', async () => {
       const token = 'token';
       await authenticationsTable.addToken(token);
 
@@ -49,7 +49,7 @@ describe('[Integration] AuthenticationRepositoryPostgres', () => {
   });
 
   describe('deleteToken', () => {
-    it('should correctly delete the token from database', async () => {
+    it('should correctly delete token from database', async () => {
       const token = 'token';
       await authenticationsTable.addToken(token);
 
