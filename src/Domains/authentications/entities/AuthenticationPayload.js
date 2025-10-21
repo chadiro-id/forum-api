@@ -1,6 +1,9 @@
 class AuthenticationPayload {
   constructor(payload) {
     this._verifyPayload(payload);
+
+    this.id = payload.id;
+    this.username = payload.username;
   }
 
   _verifyPayload(payload) {
