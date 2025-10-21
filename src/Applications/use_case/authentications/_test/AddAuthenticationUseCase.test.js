@@ -11,6 +11,7 @@ describe('AddAuthenticationUseCase', () => {
   let mockAuthRepo;
   let mockTokenManager;
   let mockPasswordHash;
+  let addAuthenticationUseCase;
 
   beforeEach(() => {
     mockUserRepo = {
@@ -27,6 +28,13 @@ describe('AddAuthenticationUseCase', () => {
     mockPasswordHash = {
       comparePassword: jest.fn(),
     };
+
+    addAuthenticationUseCase = new AddAuthenticationUseCase({
+      userRepository: mockUserRepo,
+      authenticationRepository: mockAuthRepo,
+      authenticationTokenManager: mockTokenManager,
+      passwordHash: mockPasswordHash,
+    });
   });
 
   afterEach(() => {
@@ -45,14 +53,7 @@ describe('AddAuthenticationUseCase', () => {
     it('should propagate error when getPasswordByUsername fails', async () => {
       mockUserRepo.getPasswordByUsername.mockRejectedValue(new Error('get password fails'));
 
-      const useCase = new AddAuthenticationUseCase({
-        userRepository: mockUserRepo,
-        authenticationRepository: mockAuthRepo,
-        authenticationTokenManager: mockTokenManager,
-        passwordHash: mockPasswordHash,
-      });
-
-      await expect(useCase.execute({ ...dummyPayload })).rejects.toThrow();
+      await expect(addAuthenticationUseCase.execute({ ...dummyPayload })).rejects.toThrow();
 
       expect(mockUserRepo.getPasswordByUsername).toHaveBeenCalledTimes(1);
       expect(mockUserRepo.getPasswordByUsername).toHaveBeenCalledWith(dummyPayload.username);
@@ -65,14 +66,7 @@ describe('AddAuthenticationUseCase', () => {
       mockUserRepo.getPasswordByUsername.mockResolvedValue('encrypted_password');
       mockPasswordHash.comparePassword.mockRejectedValue(new Error('compare password fails'));
 
-      const useCase = new AddAuthenticationUseCase({
-        userRepository: mockUserRepo,
-        authenticationRepository: mockAuthRepo,
-        authenticationTokenManager: mockTokenManager,
-        passwordHash: mockPasswordHash,
-      });
-
-      await expect(useCase.execute({ ...dummyPayload })).rejects.toThrow();
+      await expect(addAuthenticationUseCase.execute({ ...dummyPayload })).rejects.toThrow();
 
       expect(mockUserRepo.getPasswordByUsername).toHaveBeenCalledWith(dummyPayload.username);
       expect(mockPasswordHash.comparePassword).toHaveBeenCalledTimes(1);
@@ -86,14 +80,7 @@ describe('AddAuthenticationUseCase', () => {
       mockPasswordHash.comparePassword.mockResolvedValue();
       mockUserRepo.getIdByUsername.mockRejectedValue(new Error('get user id fails'));
 
-      const useCase = new AddAuthenticationUseCase({
-        userRepository: mockUserRepo,
-        authenticationRepository: mockAuthRepo,
-        authenticationTokenManager: mockTokenManager,
-        passwordHash: mockPasswordHash,
-      });
-
-      await expect(useCase.execute({ ...dummyPayload })).rejects.toThrow();
+      await expect(addAuthenticationUseCase.execute({ ...dummyPayload })).rejects.toThrow();
 
       expect(mockUserRepo.getPasswordByUsername).toHaveBeenCalledWith(dummyPayload.username);
       expect(mockPasswordHash.comparePassword).toHaveBeenCalledWith(dummyPayload.password, 'encrypted_password');
@@ -110,14 +97,7 @@ describe('AddAuthenticationUseCase', () => {
       mockTokenManager.createRefreshToken.mockResolvedValue('refresh_token');
       mockAuthRepo.addToken.mockRejectedValue(new Error('add token fails'));
 
-      const useCase = new AddAuthenticationUseCase({
-        userRepository: mockUserRepo,
-        authenticationRepository: mockAuthRepo,
-        authenticationTokenManager: mockTokenManager,
-        passwordHash: mockPasswordHash,
-      });
-
-      await expect(useCase.execute({ ...dummyPayload })).rejects.toThrow();
+      await expect(addAuthenticationUseCase.execute({ ...dummyPayload })).rejects.toThrow();
 
       expect(mockUserRepo.getPasswordByUsername).toHaveBeenCalledWith(dummyPayload.username);
       expect(mockPasswordHash.comparePassword).toHaveBeenCalledWith(dummyPayload.password, 'encrypted_password');
@@ -144,14 +124,7 @@ describe('AddAuthenticationUseCase', () => {
       mockUserRepo.getIdByUsername.mockResolvedValue('user-123');
       mockAuthRepo.addToken.mockResolvedValue();
 
-      const useCase = new AddAuthenticationUseCase({
-        userRepository: mockUserRepo,
-        authenticationRepository: mockAuthRepo,
-        authenticationTokenManager: mockTokenManager,
-        passwordHash: mockPasswordHash,
-      });
-
-      const actualUserAuthentication = await useCase.execute({ ...dummyPayload });
+      const actualUserAuthentication = await addAuthenticationUseCase.execute({ ...dummyPayload });
 
       expect(actualUserAuthentication).toStrictEqual(new UserAuthentication({
         accessToken: 'access_token',

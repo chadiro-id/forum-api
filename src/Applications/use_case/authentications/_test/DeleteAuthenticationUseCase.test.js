@@ -2,12 +2,16 @@ const DeleteAuthenticationUseCase = require('../DeleteAuthenticationUseCase');
 
 describe('DeleteAuthenticationUseCase', () => {
   let mockAuthRepo;
+  let deleteAuthenticationUseCase;
 
   beforeEach(() => {
     mockAuthRepo = {
       checkAvailabilityToken: jest.fn(),
       deleteToken: jest.fn(),
     };
+    deleteAuthenticationUseCase = new DeleteAuthenticationUseCase({
+      authenticationRepository: mockAuthRepo,
+    });
   });
 
   afterEach(() => jest.clearAllMocks());
@@ -31,11 +35,7 @@ describe('DeleteAuthenticationUseCase', () => {
     it('should propagate error when checkAvalibilityToken fails', async () => {
       mockAuthRepo.checkAvailabilityToken.mockRejectedValue(new Error('checking fails'));
 
-      const useCase = new DeleteAuthenticationUseCase({
-        authenticationRepository: mockAuthRepo,
-      });
-
-      await expect(useCase.execute({ refreshToken: 'refresh_token' }))
+      await expect(deleteAuthenticationUseCase.execute({ refreshToken: 'refresh_token' }))
         .rejects.toThrow();
 
       expect(mockAuthRepo.checkAvailabilityToken).toHaveBeenCalledTimes(1);
@@ -47,11 +47,7 @@ describe('DeleteAuthenticationUseCase', () => {
       mockAuthRepo.checkAvailabilityToken.mockResolvedValue();
       mockAuthRepo.deleteToken.mockRejectedValue(new Error('delete token fails'));
 
-      const useCase = new DeleteAuthenticationUseCase({
-        authenticationRepository: mockAuthRepo,
-      });
-
-      await expect(useCase.execute({ refreshToken: 'refresh_token' }))
+      await expect(deleteAuthenticationUseCase.execute({ refreshToken: 'refresh_token' }))
         .rejects.toThrow();
 
       expect(mockAuthRepo.checkAvailabilityToken).toHaveBeenCalledWith('refresh_token');
@@ -67,11 +63,7 @@ describe('DeleteAuthenticationUseCase', () => {
       mockAuthRepo.checkAvailabilityToken.mockResolvedValue();
       mockAuthRepo.deleteToken.mockResolvedValue();
 
-      const useCase = new DeleteAuthenticationUseCase({
-        authenticationRepository: mockAuthRepo,
-      });
-
-      await expect(useCase.execute(payload)).resolves.not.toThrow();
+      await expect(deleteAuthenticationUseCase.execute(payload)).resolves.not.toThrow();
 
       expect(mockAuthRepo.checkAvailabilityToken).toHaveBeenCalledTimes(1);
       expect(mockAuthRepo.checkAvailabilityToken).toHaveBeenCalledWith(payload.refreshToken);

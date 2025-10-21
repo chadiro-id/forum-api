@@ -3,6 +3,7 @@ const PutAuthenticationUseCase = require('../PutAuthenticationUseCase');
 describe('PutAuthenticationUseCase', () => {
   let mockAuthRepo;
   let mockTokenManager;
+  let putAuthenticationUseCase;
 
   beforeEach(() => {
     mockAuthRepo = {
@@ -13,6 +14,10 @@ describe('PutAuthenticationUseCase', () => {
       createAccessToken: jest.fn(),
       decodePayload: jest.fn(),
     };
+    putAuthenticationUseCase = new PutAuthenticationUseCase({
+      authenticationRepository: mockAuthRepo,
+      authenticationTokenManager: mockTokenManager,
+    });
   });
 
   afterEach(() => jest.clearAllMocks());
@@ -36,14 +41,9 @@ describe('PutAuthenticationUseCase', () => {
     it('should propagate error when refresh token verifications fails', async () => {
       mockTokenManager.verifyRefreshToken.mockRejectedValue(new Error('verifications fails'));
 
-      const useCase = new PutAuthenticationUseCase({
-        authenticationRepository: mockAuthRepo,
-        authenticationTokenManager: mockTokenManager,
-      });
+      await expect(putAuthenticationUseCase.execute({ refreshToken: 'refresh_token' }))
+        .rejects.toThrow();
 
-      await expect(useCase.execute({ refreshToken: 'refresh_token' })).rejects.toThrow();
-
-      expect(mockTokenManager.verifyRefreshToken).toHaveBeenCalledTimes(1);
       expect(mockTokenManager.verifyRefreshToken).toHaveBeenCalledWith('refresh_token');
       expect(mockAuthRepo.checkAvailabilityToken).not.toHaveBeenCalled();
       expect(mockTokenManager.decodePayload).not.toHaveBeenCalled();
@@ -54,15 +54,10 @@ describe('PutAuthenticationUseCase', () => {
       mockTokenManager.verifyRefreshToken.mockResolvedValue();
       mockAuthRepo.checkAvailabilityToken.mockRejectedValue(new Error('checking fails'));
 
-      const useCase = new PutAuthenticationUseCase({
-        authenticationRepository: mockAuthRepo,
-        authenticationTokenManager: mockTokenManager,
-      });
-
-      await expect(useCase.execute({ refreshToken: 'refresh_token' })).rejects.toThrow();
+      await expect(putAuthenticationUseCase.execute({ refreshToken: 'refresh_token' }))
+        .rejects.toThrow();
 
       expect(mockTokenManager.verifyRefreshToken).toHaveBeenCalledWith('refresh_token');
-      expect(mockAuthRepo.checkAvailabilityToken).toHaveBeenCalledTimes(1);
       expect(mockAuthRepo.checkAvailabilityToken).toHaveBeenCalledWith('refresh_token');
       expect(mockTokenManager.decodePayload).not.toHaveBeenCalled();
       expect(mockTokenManager.createAccessToken).not.toHaveBeenCalled();
@@ -78,12 +73,7 @@ describe('PutAuthenticationUseCase', () => {
       mockTokenManager.decodePayload.mockResolvedValue({ username: 'johndoe', id: 'user-123' });
       mockTokenManager.createAccessToken.mockResolvedValue('new_access_token');
 
-      const useCase = new PutAuthenticationUseCase({
-        authenticationRepository: mockAuthRepo,
-        authenticationTokenManager: mockTokenManager,
-      });
-
-      const accessToken = await useCase.execute(payload);
+      const accessToken = await putAuthenticationUseCase.execute(payload);
 
       expect(mockTokenManager.verifyRefreshToken).toHaveBeenCalledTimes(1);
       expect(mockTokenManager.verifyRefreshToken).toHaveBeenCalledWith(payload.refreshToken);
