@@ -2,7 +2,7 @@
 
 Sebuah REST API forum (Node.js + Hapi) yang terstruktur mengikuti prinsip Clean Architecture.
 
-## Ringkasan cepat
+## Ringkasan
 - Menjalankan server: lihat [package.json](package.json) scripts (`start`, `start:dev`).
 - Server dibuat di: [`src/app.js`](src/app.js) -> [`src/Infrastructures/http/server.js`](src/Infrastructures/http/server.js).
 - Dependency injection / container ada di: [`src/Infrastructures/containers/container.js`](src/Infrastructures/containers/container.js).
@@ -16,6 +16,9 @@ Sebuah REST API forum (Node.js + Hapi) yang terstruktur mengikuti prinsip Clean 
 
 ## Instalasi
 1. Clone repo.
+   ```sh
+   https://github.com/chadiro-id/forum-api.git
+   ```
 2. Install dependency:
    ```sh
    npm install
