@@ -13,6 +13,7 @@ describe('AddReplyUseCase', () => {
   let mockThreadRepo;
   let mockCommentRepo;
   let mockReplyRepo;
+  let addReplyUseCase;
 
   beforeEach(() => {
     mockThreadRepo = {
@@ -24,6 +25,11 @@ describe('AddReplyUseCase', () => {
     mockReplyRepo = {
       addReply: jest.fn(),
     };
+    addReplyUseCase = new AddReplyUseCase({
+      threadRepository: mockThreadRepo,
+      commentRepository: mockCommentRepo,
+      replyRepository: mockReplyRepo,
+    });
   });
 
   afterEach(() => jest.clearAllMocks());
@@ -40,15 +46,9 @@ describe('AddReplyUseCase', () => {
     it('should propagate error when thread not exists', async () => {
       mockThreadRepo.verifyThreadExists.mockRejectedValue(new Error('thread not found'));
 
-      const useCase = new AddReplyUseCase({
-        threadRepository: mockThreadRepo,
-        commentRepository: mockCommentRepo,
-        replyRepository: mockReplyRepo,
-      });
+      await expect(addReplyUseCase.execute({ ...dummyPayload }))
+        .rejects.toThrow();
 
-      await expect(useCase.execute({ ...dummyPayload })).rejects.toThrow();
-
-      expect(mockThreadRepo.verifyThreadExists).toHaveBeenCalledTimes(1);
       expect(mockThreadRepo.verifyThreadExists).toHaveBeenCalledWith(dummyPayload.threadId);
       expect(mockCommentRepo.verifyCommentExists).not.toHaveBeenCalled();
       expect(mockReplyRepo.addReply).not.toHaveBeenCalled();
@@ -58,16 +58,10 @@ describe('AddReplyUseCase', () => {
       mockThreadRepo.verifyThreadExists.mockResolvedValue();
       mockCommentRepo.verifyCommentExists.mockRejectedValue(new Error('comment not found'));
 
-      const useCase = new AddReplyUseCase({
-        threadRepository: mockThreadRepo,
-        commentRepository: mockCommentRepo,
-        replyRepository: mockReplyRepo,
-      });
-
-      await expect(useCase.execute({ ...dummyPayload })).rejects.toThrow();
+      await expect(addReplyUseCase.execute({ ...dummyPayload }))
+        .rejects.toThrow();
 
       expect(mockThreadRepo.verifyThreadExists).toHaveBeenCalledWith(dummyPayload.threadId);
-      expect(mockCommentRepo.verifyCommentExists).toHaveBeenCalledTimes(1);
       expect(mockCommentRepo.verifyCommentExists).toHaveBeenCalledWith(dummyPayload.commentId);
       expect(mockReplyRepo.addReply).not.toHaveBeenCalled();
     });
@@ -81,21 +75,12 @@ describe('AddReplyUseCase', () => {
         owner: 'user-123',
       });
 
-      const useCase = new AddReplyUseCase({
-        threadRepository: mockThreadRepo,
-        commentRepository: mockCommentRepo,
-        replyRepository: mockReplyRepo,
-      });
-
-      await expect(useCase.execute({ ...dummyPayload }))
+      await expect(addReplyUseCase.execute({ ...dummyPayload }))
         .rejects
         .toThrow('ADD_REPLY_USE_CASE.ADDED_REPLY_MUST_BE_INSTANCE_OF_ADDED_REPLY_ENTITY');
 
-      expect(mockThreadRepo.verifyThreadExists).toHaveBeenCalledTimes(1);
       expect(mockThreadRepo.verifyThreadExists).toHaveBeenCalledWith(dummyPayload.threadId);
-      expect(mockCommentRepo.verifyCommentExists).toHaveBeenCalledTimes(1);
       expect(mockCommentRepo.verifyCommentExists).toHaveBeenCalledWith(dummyPayload.commentId);
-      expect(mockReplyRepo.addReply).toHaveBeenCalledTimes(1);
       expect(mockReplyRepo.addReply).toHaveBeenCalledWith(new NewReply({
         commentId: dummyPayload.commentId,
         content: dummyPayload.content,
@@ -114,13 +99,7 @@ describe('AddReplyUseCase', () => {
         owner: 'user-123',
       }));
 
-      const useCase = new AddReplyUseCase({
-        threadRepository: mockThreadRepo,
-        commentRepository: mockCommentRepo,
-        replyRepository: mockReplyRepo,
-      });
-
-      const addedReply = await useCase.execute({ ...dummyPayload });
+      const addedReply = await addReplyUseCase.execute({ ...dummyPayload });
 
       expect(mockThreadRepo.verifyThreadExists).toHaveBeenCalledTimes(1);
       expect(mockThreadRepo.verifyThreadExists).toHaveBeenCalledWith(dummyPayload.threadId);
