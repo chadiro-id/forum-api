@@ -7,11 +7,11 @@ let initialized;
 
 const inject = async (method, url, options) => {
   if (typeof url !== 'string') {
-    throw new Error('SERVER_TEST.INVALID_URL');
+    throw new Error('SERVER_TEST.URL_MUST_BE_STRING');
   }
 
   if (typeof options !== 'object') {
-    throw new Error('SERVER_TEST.OPTIONS_MUST_BE_AN_OBJECT');
+    throw new Error('SERVER_TEST.OPTIONS_MUST_BE_OBJECT');
   }
 
   return server.inject({
@@ -22,14 +22,15 @@ const inject = async (method, url, options) => {
 };
 
 exports.setup = async () => {
-  if (!server) {
-    server = await createServer(container);
+  if (server) {
+    server = null;
   }
+  server = await createServer(container);
 };
 
 exports.init = async () => {
   if (!server) {
-    throw new Error('SERVER_TEST.NOT_FOUND');
+    throw new Error('SERVER_TEST.SERVER_HAS_NOT_SETUP_YET');
   }
 
   if (initialized) return;
@@ -39,7 +40,7 @@ exports.init = async () => {
 
 exports.stop = async () => {
   if (!server) {
-    throw new Error('SERVER_TEST.NOT_FOUND');
+    throw new Error('SERVER_TEST.SERVER_NOT_SETUP_YET');
   }
 
   await server.stop();
