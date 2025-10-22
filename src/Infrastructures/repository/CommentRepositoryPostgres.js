@@ -84,6 +84,26 @@ class CommentRepositoryPostgres extends CommentRepository {
     }
   }
 
+  async verifyDeleteComment(id, threadId, owner) {
+    const query = {
+      text: 'SELECT thread_id, owner_id FROM comments WHERE id = $1',
+      values: [id],
+    };
+
+    const result = await this._pool.query(query);
+    if (!result.rows.length) {
+      throw new NotFoundError('Komentar tidak ada, id tidak ditemukan');
+    }
+
+    if (result.rows[0].thread_id !== threadId) {
+      throw new NotFoundError('Komentar untuk thread tidak ditemukan, id tidak terkait');
+    }
+
+    if (result.rows[0].owner_id !== owner) {
+      throw new AuthorizationError('Anda tidak memiliki hak akses');
+    }
+  }
+
   async verifyCommentExists(id) {
     const query = {
       text: 'SELECT id FROM comments WHERE id = $1',
