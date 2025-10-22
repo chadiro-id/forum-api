@@ -1,3 +1,5 @@
+const AuthenticationPayload = require('../../../Domains/authentications/entities/AuthenticationPayload');
+
 class PutAuthenticationUseCase {
   constructor({
     authenticationRepository,
@@ -17,7 +19,8 @@ class PutAuthenticationUseCase {
 
     const { username, id } = await this._authenticationTokenManager.decodePayload(refreshToken);
 
-    return this._authenticationTokenManager.createAccessToken({ username, id });
+    const authenticationPayload = new AuthenticationPayload({ id, username });
+    return this._authenticationTokenManager.createAccessToken(authenticationPayload);
   }
 
   _verifyPayload(payload) {

@@ -1,5 +1,6 @@
 const UserLogin = require('../../../Domains/authentications/entities/UserLogin');
 const UserAuthentication = require('../../../Domains/authentications/entities/UserAuthentication');
+const AuthenticationPayload = require('../../../Domains/authentications/entities/AuthenticationPayload');
 
 class AddAuthenticationUseCase {
   constructor({
@@ -22,8 +23,9 @@ class AddAuthenticationUseCase {
 
     const id = await this._userRepository.getIdByUsername(username);
 
-    const accessToken = await this._authenticationTokenManager.createAccessToken({ username, id });
-    const refreshToken = await this._authenticationTokenManager.createRefreshToken({ username, id });
+    const authenticationPayload = new AuthenticationPayload({ id, username });
+    const accessToken = await this._authenticationTokenManager.createAccessToken(authenticationPayload);
+    const refreshToken = await this._authenticationTokenManager.createRefreshToken(authenticationPayload);
 
     const userAuthentication = new UserAuthentication({ accessToken, refreshToken });
     await this._authenticationRepository.addToken(userAuthentication.refreshToken);
