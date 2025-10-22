@@ -54,7 +54,7 @@ describe('AddReplyUseCase', () => {
       expect(mockReplyRepo.addReply).not.toHaveBeenCalled();
     });
 
-    it('should propagate error when comment not exists', async () => {
+    it('should propagate error when comment verification fails', async () => {
       mockThreadRepo.verifyThreadExists.mockResolvedValue();
       mockCommentRepo.verifyCommentBelongToThread.mockRejectedValue(new Error('comment not found'));
 
