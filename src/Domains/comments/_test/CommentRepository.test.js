@@ -4,22 +4,25 @@ describe('CommentRepository', () => {
   it('should throw error with properly message when abstract method invoked', async () => {
     const commentRepository = new CommentRepository();
 
-    await expect(commentRepository.addComment({}))
+    await expect(commentRepository.addComment())
       .rejects
       .toThrow('COMMENT_REPOSITORY.METHOD_NOT_IMPLEMENTED');
-    await expect(commentRepository.getCommentsByThreadId(''))
+    await expect(commentRepository.getCommentsByThreadId())
       .rejects
       .toThrow('COMMENT_REPOSITORY.METHOD_NOT_IMPLEMENTED');
-    await expect(commentRepository.verifyCommentBelongToThread('', ''))
+    await expect(commentRepository.verifyDeleteComment())
       .rejects
       .toThrow('COMMENT_REPOSITORY.METHOD_NOT_IMPLEMENTED');
-    await expect(commentRepository.verifyCommentExists(''))
+    await expect(commentRepository.verifyCommentBelongToThread())
       .rejects
       .toThrow('COMMENT_REPOSITORY.METHOD_NOT_IMPLEMENTED');
-    await expect(commentRepository.verifyCommentOwner(''))
+    await expect(commentRepository.verifyCommentExists())
       .rejects
       .toThrow('COMMENT_REPOSITORY.METHOD_NOT_IMPLEMENTED');
-    await expect(commentRepository.softDeleteCommentById(''))
+    await expect(commentRepository.verifyCommentOwner())
+      .rejects
+      .toThrow('COMMENT_REPOSITORY.METHOD_NOT_IMPLEMENTED');
+    await expect(commentRepository.softDeleteCommentById())
       .rejects
       .toThrow('COMMENT_REPOSITORY.METHOD_NOT_IMPLEMENTED');
   });
