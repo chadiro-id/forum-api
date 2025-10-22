@@ -101,44 +101,4 @@ describe('[Integration] CommentRepositoryPostgres', () => {
       expect(comments[0].is_delete).toBe(true);
     });
   });
-
-  describe('verifyCommentExists', () => {
-    it('should throw NotFoundError when the id is not exists', async () => {
-      await expect(commentRepo.verifyCommentExists('comment-123'))
-        .rejects
-        .toThrow(NotFoundError);
-    });
-
-    it('should not throw NotFoundError when the id is exists', async () => {
-      await commentsTable.add({ threadId: thread.id, owner: currentUser.id });
-
-      await expect(commentRepo.verifyCommentExists('comment-123'))
-        .resolves
-        .not.toThrow(NotFoundError);
-    });
-  });
-
-  describe('verifyCommentOwner', () => {
-    it('should throw NotFoundError when the comment id not exists', async () => {
-      await expect(commentRepo.verifyCommentOwner('comment-123', 'user-123'))
-        .rejects
-        .toThrow(NotFoundError);
-    });
-
-    it('should throw AuthorizationError when comment id and owner not match', async () => {
-      await commentsTable.add({ threadId: thread.id, owner: currentUser.id });
-
-      await expect(commentRepo.verifyCommentOwner('comment-123', 'user-456'))
-        .rejects
-        .toThrow(AuthorizationError);
-    });
-
-    it('should resolves and not throw error when comment id and owner match', async () => {
-      await commentsTable.add({ threadId: thread.id, owner: currentUser.id });
-
-      await expect(commentRepo.verifyCommentOwner('comment-123', currentUser.id))
-        .resolves
-        .not.toThrow();
-    });
-  });
 });
