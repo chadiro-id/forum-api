@@ -78,21 +78,6 @@ describe('DeleteReplyUseCase', () => {
       expect(mockReplyRepo.softDeleteReplyById).not.toHaveBeenCalled();
     });
 
-    // it('should propagate error when owner verification fails', async () => {
-    //   mockThreadRepo.verifyThreadExists.mockResolvedValue();
-    //   mockCommentRepo.verifyCommentBelongToThread.mockResolvedValue();
-    //   mockReplyRepo.verifyReplyBelongToComment.mockResolvedValue();
-    //   mockReplyRepo.verifyReplyOwner.mockRejectedValue(new Error('verification fails'));
-
-    //   await expect(deleteReplyUseCase.execute({ ...dummyPayload })).rejects.toThrow();
-
-    //   expect(mockThreadRepo.verifyThreadExists).toHaveBeenCalledWith(dummyPayload.threadId);
-    //   expect(mockCommentRepo.verifyCommentBelongToThread).toHaveBeenCalledWith(dummyPayload.commentId, dummyPayload.threadId);
-    //   expect(mockReplyRepo.verifyReplyBelongToComment).toHaveBeenCalledWith(dummyPayload.replyId, dummyPayload.commentId);
-    //   expect(mockReplyRepo.verifyReplyOwner).toHaveBeenCalledWith(dummyPayload.replyId, dummyPayload.owner);
-    //   expect(mockReplyRepo.softDeleteReplyById).not.toHaveBeenCalled();
-    // });
-
     it('should propagate error when delete reply fails', async () => {
       mockThreadRepo.verifyThreadExists.mockResolvedValue();
       mockCommentRepo.verifyCommentBelongToThread.mockResolvedValue();
