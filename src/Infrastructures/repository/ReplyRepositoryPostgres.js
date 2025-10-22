@@ -84,6 +84,26 @@ class ReplyRepositoryPostgres extends ReplyRepository {
     }
   }
 
+  async verifyDeleteReply(id, commentId, owner) {
+    const query = {
+      text: 'SELECT comment_id, owner_id FROM replies WHERE id = $1',
+      values: [id],
+    };
+
+    const result = await this._pool.query(query);
+    if (!result.rows.length) {
+      throw new NotFoundError('Balasan tidak ada, id tidak ditemukan');
+    }
+
+    if (result.rows[0].comment_id !== commentId) {
+      throw new NotFoundError('Balasan untuk komentar tidak ditemukan, id tidak terkait');
+    }
+
+    if (result.rows[0].owner_id !== owner) {
+      throw new AuthorizationError('Anda tidak memiliki hak akses');
+    }
+  }
+
   async verifyReplyOwner(id, owner) {
     const query = {
       text: 'SELECT owner_id FROM replies WHERE id = $1',
