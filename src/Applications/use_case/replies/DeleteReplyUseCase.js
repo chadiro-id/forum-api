@@ -16,8 +16,7 @@ class DeleteReplyUseCase {
 
     await this._threadRepository.verifyThreadExists(threadId);
     await this._commentRepository.verifyCommentBelongToThread(commentId, threadId);
-    await this._replyRepository.verifyReplyBelongToComment(replyId, commentId);
-    await this._replyRepository.verifyReplyOwner(replyId, owner);
+    await this._replyRepository.verifyDeleteReply(replyId, commentId, owner);
     await this._replyRepository.softDeleteReplyById(replyId);
   }
 }
