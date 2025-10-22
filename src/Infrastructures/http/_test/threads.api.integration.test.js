@@ -68,7 +68,7 @@ describe('Threads Endpoints', () => {
       expect(responseJson.message).toEqual('Missing authentication');
     });
 
-    it('should response 400 when request payload not contain needed property', async () => {
+    it('should response 400 when payload not contain needed property', async () => {
       const options = {
         headers: { ...authorizationUserA },
         payload: {}
@@ -83,7 +83,7 @@ describe('Threads Endpoints', () => {
       expect(responseJson.message).not.toBe('');
     });
 
-    it('should response 400 when request payload does not meet data type specification', async () => {
+    it('should response 400 when payload does not meet data type specification', async () => {
       const options = {
         headers: { ...authorizationUserA },
         payload: { ...dummyPayload, body: 123 },
@@ -201,12 +201,12 @@ describe('Threads Endpoints', () => {
       const comment2options = {
         headers: { ...authorizationUserB }
       };
-      await serverTest.delete(comment2endpoint, comment2options);
-
-      const reply2endpoint = `/threads/${thread.id}/comments/${commentB.id}/replies/${replyX.id}`;
+      const reply2endpoint = `/threads/${thread.id}/comments/${commentA.id}/replies/${replyX.id}`;
       const reply2options = {
         headers: { ...authorizationUserA }
       };
+
+      await serverTest.delete(comment2endpoint, comment2options);
       await serverTest.delete(reply2endpoint, reply2options);
 
       const response = await serverTest.get(`/threads/${thread.id}`);
