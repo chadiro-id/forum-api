@@ -68,6 +68,22 @@ class CommentRepositoryPostgres extends CommentRepository {
     }
   }
 
+  async verifyCommentBelongToThread(commentId, threadId) {
+    const query = {
+      text: 'SELECT thread_id FROM comments WHERE id = $1',
+      values: [commentId],
+    };
+
+    const result = await this._pool.query(query);
+    if (!result.rows.length) {
+      throw new NotFoundError('Komentar tidak ada, id tidak ditemukan');
+    }
+
+    if (result.rows[0].thread_id !== threadId) {
+      throw new NotFoundError('Komentar untuk thread tidak ditemukan, id tidak terkait');
+    }
+  }
+
   async verifyCommentExists(id) {
     const query = {
       text: 'SELECT id FROM comments WHERE id = $1',
