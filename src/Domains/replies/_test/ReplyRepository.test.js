@@ -13,6 +13,9 @@ describe('ReplyRepository', () => {
     await expect(replyRepository.softDeleteReplyById(''))
       .rejects
       .toThrow('REPLY_REPOSITORY.METHOD_NOT_IMPLEMENTED');
+    await expect(replyRepository.verifyReplyBelongToComment('', ''))
+      .rejects
+      .toThrow('REPLY_REPOSITORY.METHOD_NOT_IMPLEMENTED');
     await expect(replyRepository.verifyReplyExists(''))
       .rejects
       .toThrow('REPLY_REPOSITORY.METHOD_NOT_IMPLEMENTED');
