@@ -77,7 +77,7 @@ describe('Comments Endpoints', () => {
       expect(responseJson.message).toEqual('Missing authentication');
     });
 
-    it('should response 404 when request for a thread that does not exists', async () => {
+    it('should response 404 when thread not exists', async () => {
       const options = {
         headers: { ...authorizationUserA },
         payload: { content: 'Sebuah komentar' },
@@ -92,7 +92,7 @@ describe('Comments Endpoints', () => {
       expect(responseJson.message).not.toBe('');
     });
 
-    it('should response 400 when request payload not contain needed property', async () => {
+    it('should response 400 when payload not contain needed property', async () => {
       const options = {
         headers: { ...authorizationUserA },
         payload: { contents: 'Incorrect content property' },
@@ -107,7 +107,7 @@ describe('Comments Endpoints', () => {
       expect(responseJson.message).not.toBe('');
     });
 
-    it('should response 400 when request payload has wrong data type', async () => {
+    it('should response 400 when payload has wrong data type', async () => {
       const options = {
         headers: { ...authorizationUserA },
         payload: { content: ['Sebuah komentar'] },
@@ -154,7 +154,7 @@ describe('Comments Endpoints', () => {
       await commentsTable.clean();
     });
 
-    it('should response 401 when delete comment without authentication', async () => {
+    it('should response 401 when request with no authentication', async () => {
       const endpoint = `/threads/${thread.id}/comments/${commentUserA.id}`;
 
       const response = await serverTest.delete(endpoint);
@@ -165,7 +165,22 @@ describe('Comments Endpoints', () => {
       expect(responseJson.message).toEqual('Missing authentication');
     });
 
-    it('should response 404 when delete comment that not exists', async () => {
+    it('should response 404 when thread not exists', async () => {
+      const endpoint = `/threads/xxx/comments/${commentUserB.id}`;
+      const options = {
+        headers: { ...authorizationUserB }
+      };
+
+      const response = await serverTest.delete(endpoint, options);
+
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toBe(404);
+      expect(responseJson.status).toEqual('fail');
+      expect(responseJson.message).toEqual(expect.any(String));
+      expect(responseJson.message.trim()).not.toBe('');
+    });
+
+    it('should response 404 when comment not exists', async () => {
       const endpoint = `/threads/${thread.id}/comments/xxx`;
       const options = {
         headers: { ...authorizationUserB }
@@ -180,7 +195,7 @@ describe('Comments Endpoints', () => {
       expect(responseJson.message.trim()).not.toBe('');
     });
 
-    it('should response 403 when delete comment by not authorized user', async () => {
+    it('should response 403 when user not authorized', async () => {
       const endpoint = `/threads/${thread.id}/comments/${commentUserB.id}`;
       const options = {
         headers: { ...authorizationUserA }
@@ -195,7 +210,7 @@ describe('Comments Endpoints', () => {
       expect(responseJson.message.trim()).not.toBe('');
     });
 
-    it('should response 200 when delete comment by authorized user', async () => {
+    it('should response 200 when everything is ok', async () => {
       const endpoint = `/threads/${thread.id}/comments/${commentUserA.id}`;
       const options = {
         headers: { ...authorizationUserA }
