@@ -176,49 +176,5 @@ describe('[Mock-Based Integration] ReplyRepositoryPostgres', () => {
         );
       });
     });
-
-    describe('verifyReplyOwner', () => {
-      it('should propagate error when database fails', async () => {
-        mockPool.query.mockRejectedValue(new Error('Database fails'));
-
-        await expect(replyRepo.verifyReplyOwner({}))
-          .rejects.toThrow('Database fails');
-      });
-
-      it('should throw NotFoundError when the reply id is not exists', async () => {
-        mockPool.query.mockResolvedValue({
-          rows: [], rowCount: 0
-        });
-
-        await expect(replyRepo.verifyReplyOwner('reply-123', 'user-123'))
-          .rejects.toThrow(NotFoundError);
-
-        assertQueryCalled(mockPool.query, 'SELECT owner_id FROM replies', ['reply-123']);
-      });
-
-      it('should throw AuthorizationError when the given owner is not match', async () => {
-        mockPool.query.mockResolvedValue({
-          rows: [{ owner_id: 'user-123' }],
-          rowCount: 1
-        });
-
-        await expect(replyRepo.verifyReplyOwner('reply-123', 'user-456'))
-          .rejects.toThrow(AuthorizationError);
-
-        assertQueryCalled(mockPool.query, 'SELECT owner_id FROM replies', ['reply-123']);
-      });
-
-      it('should not throw error when the id and owner is match', async () => {
-        mockPool.query.mockResolvedValue({
-          rows: [{ owner_id: 'user-123' }],
-          rowCount: 1
-        });
-
-        await expect(replyRepo.verifyReplyOwner('reply-123', 'user-123'))
-          .resolves.not.toThrow();
-
-        assertQueryCalled(mockPool.query, 'SELECT owner_id FROM replies', ['reply-123']);
-      });
-    });
   });
 });

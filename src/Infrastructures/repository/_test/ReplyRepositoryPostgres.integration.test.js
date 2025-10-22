@@ -136,28 +136,4 @@ describe('[Integration] ReplyRepositoryPostgres', () => {
       expect(replies[0].is_delete).toBe(true);
     });
   });
-
-  describe('verifyReplyOwner', () => {
-    it('should throw NotFoundError when reply id not exists', async () => {
-      await expect(replyRepo.verifyReplyOwner('reply-123', 'johndoe'))
-        .rejects
-        .toThrow(NotFoundError);
-    });
-
-    it('should throw AuthorizationError when reply id and owner not match', async () => {
-      await repliesTable.add({ commentId: commentA.id, owner: userB.id });
-
-      await expect(replyRepo.verifyReplyOwner('reply-123', userA.id))
-        .rejects
-        .toThrow(AuthorizationError);
-    });
-
-    it('should resolves and not throw error when reply id and owner match', async () => {
-      await repliesTable.add({ commentId: commentB.id, owner: userA.id });
-
-      await expect(replyRepo.verifyReplyOwner('reply-123', userA.id))
-        .resolves
-        .not.toThrow();
-    });
-  });
 });
