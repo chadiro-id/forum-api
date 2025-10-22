@@ -20,7 +20,7 @@ describe('AddReplyUseCase', () => {
       verifyThreadExists: jest.fn(),
     };
     mockCommentRepo = {
-      verifyCommentExists: jest.fn(),
+      verifyCommentBelongToThread: jest.fn(),
     };
     mockReplyRepo = {
       addReply: jest.fn(),
@@ -50,25 +50,25 @@ describe('AddReplyUseCase', () => {
         .rejects.toThrow();
 
       expect(mockThreadRepo.verifyThreadExists).toHaveBeenCalledWith(dummyPayload.threadId);
-      expect(mockCommentRepo.verifyCommentExists).not.toHaveBeenCalled();
+      expect(mockCommentRepo.verifyCommentBelongToThread).not.toHaveBeenCalled();
       expect(mockReplyRepo.addReply).not.toHaveBeenCalled();
     });
 
     it('should propagate error when comment not exists', async () => {
       mockThreadRepo.verifyThreadExists.mockResolvedValue();
-      mockCommentRepo.verifyCommentExists.mockRejectedValue(new Error('comment not found'));
+      mockCommentRepo.verifyCommentBelongToThread.mockRejectedValue(new Error('comment not found'));
 
       await expect(addReplyUseCase.execute({ ...dummyPayload }))
         .rejects.toThrow();
 
       expect(mockThreadRepo.verifyThreadExists).toHaveBeenCalledWith(dummyPayload.threadId);
-      expect(mockCommentRepo.verifyCommentExists).toHaveBeenCalledWith(dummyPayload.commentId);
+      expect(mockCommentRepo.verifyCommentBelongToThread).toHaveBeenCalledWith(dummyPayload.commentId, dummyPayload.threadId);
       expect(mockReplyRepo.addReply).not.toHaveBeenCalled();
     });
 
     it('should throw error when the addedReply is not instance of AddedReply entity', async () => {
       mockThreadRepo.verifyThreadExists.mockResolvedValue();
-      mockCommentRepo.verifyCommentExists.mockResolvedValue();
+      mockCommentRepo.verifyCommentBelongToThread.mockResolvedValue();
       mockReplyRepo.addReply.mockResolvedValue({
         id: 'reply-123',
         content: 'Sebuah balasan',
@@ -80,7 +80,7 @@ describe('AddReplyUseCase', () => {
         .toThrow('ADD_REPLY_USE_CASE.ADDED_REPLY_MUST_BE_INSTANCE_OF_ADDED_REPLY_ENTITY');
 
       expect(mockThreadRepo.verifyThreadExists).toHaveBeenCalledWith(dummyPayload.threadId);
-      expect(mockCommentRepo.verifyCommentExists).toHaveBeenCalledWith(dummyPayload.commentId);
+      expect(mockCommentRepo.verifyCommentBelongToThread).toHaveBeenCalledWith(dummyPayload.commentId, dummyPayload.threadId);
       expect(mockReplyRepo.addReply).toHaveBeenCalledWith(new NewReply({
         commentId: dummyPayload.commentId,
         content: dummyPayload.content,
@@ -92,7 +92,7 @@ describe('AddReplyUseCase', () => {
   describe('Successful executions', () => {
     it('should correctly orchestrating the add reply action', async () => {
       mockThreadRepo.verifyThreadExists.mockResolvedValue();
-      mockCommentRepo.verifyCommentExists.mockResolvedValue();
+      mockCommentRepo.verifyCommentBelongToThread.mockResolvedValue();
       mockReplyRepo.addReply.mockResolvedValue(new AddedReply({
         id: 'reply-123',
         content: 'Sebuah balasan',
@@ -103,8 +103,8 @@ describe('AddReplyUseCase', () => {
 
       expect(mockThreadRepo.verifyThreadExists).toHaveBeenCalledTimes(1);
       expect(mockThreadRepo.verifyThreadExists).toHaveBeenCalledWith(dummyPayload.threadId);
-      expect(mockCommentRepo.verifyCommentExists).toHaveBeenCalledTimes(1);
-      expect(mockCommentRepo.verifyCommentExists).toHaveBeenCalledWith(dummyPayload.commentId);
+      expect(mockCommentRepo.verifyCommentBelongToThread).toHaveBeenCalledTimes(1);
+      expect(mockCommentRepo.verifyCommentBelongToThread).toHaveBeenCalledWith(dummyPayload.commentId, dummyPayload.threadId);
       expect(mockReplyRepo.addReply).toHaveBeenCalledTimes(1);
       expect(mockReplyRepo.addReply).toHaveBeenCalledWith(new NewReply({
         commentId: dummyPayload.commentId,
