@@ -108,4 +108,46 @@ describe('[Integration] CommentRepositoryPostgres', () => {
         .rejects.toThrow(NotFoundError);
     });
   });
+
+  describe('verifyDeleteComment', () => {
+    let authorizedUser;
+    let unauthorizedUser;
+    let commentId;
+    let otherThread;
+
+    beforeAll(async () => {
+      authorizedUser = user;
+      unauthorizedUser = await usersTable.add({ username: 'unauthorized', id: 'user-999' });
+      otherThread = await threadsTable.add({ owner: unauthorizedUser.id, id: 'thread-999' });
+    });
+
+    beforeEach(async () => {
+      const { id } = await commentsTable.add({
+        threadId: thread.id,
+        owner: authorizedUser.id,
+        content: 'Comment for deletion',
+      });
+      commentId = id;
+    });
+
+    it('should correctly resolve and not throw error when authorized', async () => {
+      await expect(commentRepo.verifyDeleteComment(commentId, thread.id, authorizedUser.id))
+        .resolves.not.toThrow();
+    });
+
+    it('should throw NotFoundError when comment id not exists', async () => {
+      await expect(commentRepo.verifyDeleteComment('nonexistent-id', thread.id, authorizedUser.id))
+        .rejects.toThrow(NotFoundError);
+    });
+
+    it('should throw NotFoundError when comment id not belong to thread', async () => {
+      await expect(commentRepo.verifyDeleteComment(commentId, otherThread.id, authorizedUser.id))
+        .rejects.toThrow(NotFoundError);
+    });
+
+    it('should throw AuthorizationError when user is not the owner', async () => {
+      await expect(commentRepo.verifyDeleteComment(commentId, thread.id, unauthorizedUser.id))
+        .rejects.toThrow(AuthorizationError);
+    });
+  });
 });
