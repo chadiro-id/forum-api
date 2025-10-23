@@ -29,14 +29,7 @@ describe('[Mock-Based Integration] ReplyRepositoryPostgres', () => {
     });
 
     describe('addReply', () => {
-      it('should propagate error when database fails', async () => {
-        mockPool.query.mockRejectedValue(new Error('Database fails'));
-
-        await expect(replyRepo.addReply({}))
-          .rejects.toThrow('Database fails');
-      });
-
-      it('should persist the new reply and return the added reply', async () => {
+      it('should correctly persist the NewReply and return AddedReply', async () => {
         mockPool.query.mockResolvedValue({
           rows: [{ id: 'reply-123', content: 'Sebuah balasan', owner_id: 'user-123' }],
           rowCount: 1,
@@ -64,6 +57,13 @@ describe('[Mock-Based Integration] ReplyRepositoryPostgres', () => {
         expect(addedReply.id).toEqual('reply-123');
         expect(addedReply.content).toEqual('Sebuah balasan');
         expect(addedReply.owner).toEqual('user-123');
+      });
+
+      it('should propagate error when database fails', async () => {
+        mockPool.query.mockRejectedValue(new Error('Database fails'));
+
+        await expect(replyRepo.addReply({}))
+          .rejects.toThrow('Database fails');
       });
     });
 
