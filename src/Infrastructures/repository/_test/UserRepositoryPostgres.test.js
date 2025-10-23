@@ -66,39 +66,6 @@ describe('[Mock-Base Integration] UserRepositoryPostgres', () => {
       });
     });
 
-    describe('getPasswordByUsername', () => {
-      it('should propagate error when database fails', async () => {
-        mockPool.query.mockRejectedValue(new Error('Database fails'));
-
-        await expect(userRepo.getPasswordByUsername({}))
-          .rejects.toThrow();
-      });
-
-      it('should throw InvariantError when username not exists', async () => {
-        mockPool.query.mockResolvedValue({
-          rows: [], rowCount: 0
-        });
-
-        await expect(userRepo.getPasswordByUsername('johndoe'))
-          .rejects.toThrow(InvariantError);
-
-        assertQueryCalled(mockPool.query, 'SELECT password FROM users', ['johndoe']);
-      });
-
-      it('should correctly pool.query and return the password related to username', async () => {
-        mockPool.query.mockResolvedValue({
-          rows: [{ password: 'supersecret' }],
-          rowCount: 1,
-        });
-
-        const password = await userRepo.getPasswordByUsername('johndoe');
-
-        assertQueryCalled(mockPool.query, 'SELECT password FROM users', ['johndoe']);
-
-        expect(password).toEqual('supersecret');
-      });
-    });
-
     describe('getIdByUsername', () => {
       it('should propagate error when database fails', async () => {
         mockPool.query.mockRejectedValue(new Error('Database fails'));
@@ -129,6 +96,37 @@ describe('[Mock-Base Integration] UserRepositoryPostgres', () => {
         assertQueryCalled(mockPool.query, 'SELECT id FROM users', ['johndoe']);
 
         expect(id).toEqual('user-123');
+      });
+    });
+
+    describe('getPasswordByUsername', () => {
+      it('should correctly pool.query and return the password', async () => {
+        mockPool.query.mockResolvedValue({
+          rows: [{ password: 'supersecret' }],
+          rowCount: 1,
+        });
+
+        const password = await userRepo.getPasswordByUsername('johndoe');
+
+        assertQueryCalled(mockPool.query, 'SELECT password FROM users', ['johndoe']);
+
+        expect(password).toEqual('supersecret');
+      });
+
+      it('should throw InvariantError when username not exists', async () => {
+        mockPool.query.mockResolvedValue({
+          rows: [], rowCount: 0
+        });
+
+        await expect(userRepo.getPasswordByUsername('nonexistent-username'))
+          .rejects.toThrow(InvariantError);
+      });
+
+      it('should propagate error when database fails', async () => {
+        mockPool.query.mockRejectedValue(new Error('Database fails'));
+
+        await expect(userRepo.getPasswordByUsername({}))
+          .rejects.toThrow();
       });
     });
 
