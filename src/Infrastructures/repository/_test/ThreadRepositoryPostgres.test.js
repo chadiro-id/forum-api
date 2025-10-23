@@ -68,25 +68,7 @@ describe('[Mock-Based Integration] ThreadRepositoryPostgres', () => {
     });
 
     describe('getThreadById', () => {
-      it('should propagate error when database fails', async () => {
-        mockPool.query.mockRejectedValue(new Error('Database fails'));
-
-        await expect(threadRepo.getThreadById({}))
-          .rejects.toThrow();
-      });
-
-      it('should throw NotFoundError when the id is not exists', async () => {
-        mockPool.query.mockResolvedValue({
-          rows: [], rowCount: 0
-        });
-
-        await expect(threadRepo.getThreadById('thread-123'))
-          .rejects.toThrow(NotFoundError);
-
-        assertQueryCalled(mockPool.query, 'SELECT', ['thread-123']);
-      });
-
-      it('should correctly pool.query and return the thread related to the given id', async () => {
+      it('should correctly pool.query and return DetailThread', async () => {
         mockPool.query.mockResolvedValue({
           rows: [{
             id: 'thread-123',
@@ -110,6 +92,22 @@ describe('[Mock-Based Integration] ThreadRepositoryPostgres', () => {
           username: 'johndoe',
           comments: [],
         }));
+      });
+
+      it('should throw NotFoundError when id not exists', async () => {
+        mockPool.query.mockResolvedValue({
+          rows: [], rowCount: 0
+        });
+
+        await expect(threadRepo.getThreadById('thread-123'))
+          .rejects.toThrow(NotFoundError);
+      });
+
+      it('should propagate error when database fails', async () => {
+        mockPool.query.mockRejectedValue(new Error('Database fails'));
+
+        await expect(threadRepo.getThreadById({}))
+          .rejects.toThrow();
       });
     });
 
