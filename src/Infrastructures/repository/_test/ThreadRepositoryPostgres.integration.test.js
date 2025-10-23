@@ -53,22 +53,6 @@ describe('[Integration] ThreadRepositoryPostgres', () => {
     });
   });
 
-  describe('verifyThreadExists', () => {
-    it('should throw NotFoundError when the id is not exists', async () => {
-      await expect(threadRepo.verifyThreadExists('nonexistent-thread-id'))
-        .rejects
-        .toThrow(NotFoundError);
-    });
-
-    it('should not throw NotFoundError when the id is exists', async () => {
-      await threadsTable.add({ owner_id: user.id });
-
-      await expect(threadRepo.verifyThreadExists('thread-001'))
-        .resolves
-        .not.toThrow(NotFoundError);
-    });
-  });
-
   describe('getThreadById', () => {
     it('should throw NotFoundError when the id is not exists', async () => {
       await expect(threadRepo.getThreadById('nonexistent-thread-id'))
@@ -88,6 +72,22 @@ describe('[Integration] ThreadRepositoryPostgres', () => {
         date,
         username: user.username,
       }));
+    });
+  });
+
+  describe('verifyThreadExists', () => {
+    it('should correctly resolve and not throw error', async () => {
+      await threadsTable.add({ owner_id: user.id });
+
+      await expect(threadRepo.verifyThreadExists('thread-001'))
+        .resolves
+        .not.toThrow();
+    });
+
+    it('should throw NotFoundError when id not exists', async () => {
+      await expect(threadRepo.verifyThreadExists('nonexistent-thread-id'))
+        .rejects
+        .toThrow(NotFoundError);
     });
   });
 });
