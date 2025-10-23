@@ -27,14 +27,7 @@ describe('[Mock-Base Integration] UserRepositoryPostgres', () => {
     });
 
     describe('addUser', () => {
-      it('should propagate error when database fails', async () => {
-        mockPool.query.mockRejectedValue(new Error('Database fails'));
-
-        await expect(userRepo.addUser({}))
-          .rejects.toThrow();
-      });
-
-      it('should persist the registerUser and return the registeredUser correctly', async () => {
+      it('should correctly persist the RegisterUser and return RegisteredUser', async () => {
         mockPool.query.mockResolvedValue({
           rows: [{ id: 'user-123', username: 'johndoe', fullname: 'John Doe' }],
           rowCount: 1,
@@ -63,6 +56,13 @@ describe('[Mock-Base Integration] UserRepositoryPostgres', () => {
           username: 'johndoe',
           fullname: 'John Doe',
         }));
+      });
+
+      it('should propagate error when database fails', async () => {
+        mockPool.query.mockRejectedValue(new Error('Database fails'));
+
+        await expect(userRepo.addUser({}))
+          .rejects.toThrow();
       });
     });
 
