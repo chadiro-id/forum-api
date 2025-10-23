@@ -39,17 +39,18 @@ describe('[Integration] CommentRepositoryPostgres', () => {
         owner: user.id,
         content: 'Sebuah komentar',
       });
+      const expectedAddedComment = new AddedComment({
+        id: 'comment-123',
+        content: 'Sebuah komentar',
+        owner: user.id,
+      });
 
       const addedComment = await commentRepo.addComment(newComment);
 
       const comments = await commentsTable.findById('comment-123');
       expect(comments).toHaveLength(1);
 
-      expect(addedComment).toStrictEqual(new AddedComment({
-        id: 'comment-123',
-        content: 'Sebuah komentar',
-        owner: user.id,
-      }));
+      expect(addedComment).toStrictEqual(expectedAddedComment);
     });
   });
 
