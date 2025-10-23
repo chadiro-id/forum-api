@@ -13,13 +13,13 @@ const {
 
 describe('[Integration] CommentRepositoryPostgres', () => {
   let commentRepo;
-  let currentUser;
+  let user;
   let thread;
 
   beforeAll(async () => {
     commentRepo = new CommentRepositoryPostgres(pool, () => '123');
-    currentUser = await usersTable.add({ username: 'johndoe' });
-    thread = await threadsTable.add({ owner: currentUser.id });
+    user = await usersTable.add({ username: 'johndoe' });
+    thread = await threadsTable.add({ owner: user.id });
   });
 
   beforeEach(async () => {
@@ -33,28 +33,22 @@ describe('[Integration] CommentRepositoryPostgres', () => {
   });
 
   describe('addComment', () => {
-    let newComment;
-
-    beforeAll(() => {
-      newComment = new NewComment({
+    it('should correctly persist the NewComment and return AddedComment', async () => {
+      const newComment = new NewComment({
         threadId: thread.id,
-        owner: currentUser.id,
+        owner: user.id,
         content: 'Sebuah komentar',
       });
-    });
 
-    it('should persist the NewComment', async () => {
-      await commentRepo.addComment(newComment);
+      const addedComment = await commentRepo.addComment(newComment);
+
       const comments = await commentsTable.findById('comment-123');
       expect(comments).toHaveLength(1);
-    });
 
-    it('should return AddedComment', async () => {
-      const addedComment = await commentRepo.addComment(newComment);
       expect(addedComment).toStrictEqual(new AddedComment({
         id: 'comment-123',
         content: 'Sebuah komentar',
-        owner: currentUser.id,
+        owner: user.id,
       }));
     });
   });
@@ -68,7 +62,7 @@ describe('[Integration] CommentRepositoryPostgres', () => {
     it('should return thread comments correctly', async () => {
       const {
         id, created_at: date
-      } = await commentsTable.add({ threadId: thread.id, owner: currentUser.id });
+      } = await commentsTable.add({ threadId: thread.id, owner: user.id });
 
       const comments = await commentRepo.getCommentsByThreadId(thread.id);
 
@@ -76,7 +70,7 @@ describe('[Integration] CommentRepositoryPostgres', () => {
       expect(comments[0]).toStrictEqual(new Comment({
         id,
         content: 'Sebuah komentar',
-        username: currentUser.username,
+        username: user.username,
         date,
         isDelete: false,
       }));
@@ -85,7 +79,7 @@ describe('[Integration] CommentRepositoryPostgres', () => {
 
   describe('softDeleteCommentById', () => {
     it('should correctly resolve and update is delete to true', async () => {
-      await commentsTable.add({ threadId: thread.id, owner: currentUser.id });
+      await commentsTable.add({ threadId: thread.id, owner: user.id });
 
       await expect(commentRepo.softDeleteCommentById('comment-123'))
         .resolves
@@ -96,7 +90,7 @@ describe('[Integration] CommentRepositoryPostgres', () => {
     });
 
     it('should throw NotFoundError when id not exists', async () => {
-      await expect(commentRepo.softDeleteCommentById('comment-123'))
+      await expect(commentRepo.softDeleteCommentById('nonexistent-comment-id'))
         .rejects
         .toThrow(NotFoundError);
     });
@@ -104,7 +98,7 @@ describe('[Integration] CommentRepositoryPostgres', () => {
 
   describe('verifyCommentBelongToThread', () => {
     it('should correctly resolve and not throw error', async () => {
-      await commentsTable.add({ threadId: thread.id, owner: currentUser.id });
+      await commentsTable.add({ threadId: thread.id, owner: user.id });
       await expect(commentRepo.verifyCommentBelongToThread('comment-123', thread.id))
         .resolves.not.toThrow();
     });
