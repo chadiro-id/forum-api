@@ -52,6 +52,40 @@ describe('[Integration] CommentRepositoryPostgres', () => {
 
       expect(addedComment).toStrictEqual(expectedAddedComment);
     });
+
+    it('should propagate error when id is exists', async () => {
+      await commentsTable.add({ id: 'comment-123', thread_id: thread.id, owner_id: user.id });
+      const newComment = new NewComment({
+        threadId: thread.id,
+        owner: user.id,
+        content: 'Sebuah komentar',
+      });
+
+      await expect(commentRepo.addComment(newComment))
+        .rejects.toThrow();
+    });
+
+    it('should propagate error when thread not exists', async () => {
+      const newComment = new NewComment({
+        threadId: 'nonexistent-thread-id',
+        owner: user.id,
+        content: 'Sebuah komentar',
+      });
+
+      await expect(commentRepo.addComment(newComment))
+        .rejects.toThrow();
+    });
+
+    it('should propagate error when owner not exists', async () => {
+      const newComment = new NewComment({
+        threadId: thread.id,
+        owner: 'nonexistent-user-id',
+        content: 'Sebuah komentar',
+      });
+
+      await expect(commentRepo.addComment(newComment))
+        .rejects.toThrow();
+    });
   });
 
   describe('getCommentsByThreadId', () => {
