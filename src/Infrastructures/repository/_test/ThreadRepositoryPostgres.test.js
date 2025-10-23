@@ -28,14 +28,7 @@ describe('[Mock-Based Integration] ThreadRepositoryPostgres', () => {
     });
 
     describe('addThread', () => {
-      it('should propagate error when database fails', async () => {
-        mockPool.query.mockRejectedValue(new Error('Database fails'));
-
-        await expect(threadRepo.addThread({}))
-          .rejects.toThrow();
-      });
-
-      it('should persist the new thread and return the added thread correctly', async () => {
+      it('should correctly persist the NewThread and return AddedThread', async () => {
         mockPool.query.mockResolvedValue({
           rows: [{ id: 'thread-123', title: 'Sebuah thread', owner_id: 'user-123' }],
           rowCount: 1,
@@ -64,6 +57,13 @@ describe('[Mock-Based Integration] ThreadRepositoryPostgres', () => {
         expect(addedThread.id).toEqual('thread-123');
         expect(addedThread.title).toEqual('Sebuah thread');
         expect(addedThread.owner).toEqual('user-123');
+      });
+
+      it('should propagate error when database fails', async () => {
+        mockPool.query.mockRejectedValue(new Error('Database fails'));
+
+        await expect(threadRepo.addThread({}))
+          .rejects.toThrow();
       });
     });
 
