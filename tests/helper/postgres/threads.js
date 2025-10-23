@@ -1,10 +1,10 @@
 /* istanbul ignore file */
 const threads = (pool) => {
   const add = async ({
-    id = 'thread-123',
+    id = 'thread-001',
     title = 'Sebuah thread',
     body = 'Isi thread',
-    owner = 'user-123'
+    owner = 'user-001'
   }) => {
     const query = {
       text: 'INSERT INTO threads (id, title, body, owner_id) VALUES ($1, $2, $3, $4) RETURNING id, created_at',

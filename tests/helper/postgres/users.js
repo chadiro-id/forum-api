@@ -1,10 +1,10 @@
 /* istanbul ignore file */
 const users = (pool) => {
   const add = async ({
-    id = 'user-123',
-    username = 'forumapi',
+    id = 'user-001',
+    username = 'johndoe',
     password = 'supersecret^_^@01',
-    fullname = 'Forum Api',
+    fullname = 'John Doe',
   }) => {
     const query = {
       text: 'INSERT INTO users VALUES($1, $2, $3, $4) RETURNING id, username',

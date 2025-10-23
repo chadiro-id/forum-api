@@ -1,9 +1,9 @@
 /* istanbul ignore file */
 const replies = (pool) => {
   const add = async ({
-    id = 'reply-123',
-    commentId = 'comment-123',
-    owner = 'user-123',
+    id = 'reply-001',
+    commentId = 'comment-001',
+    owner = 'user-001',
     content = 'Sebuah balasan',
   }) => {
     const query = {

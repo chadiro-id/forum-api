@@ -1,9 +1,9 @@
 /* istanbul ignore file */
 const comments = (pool) => {
   const add = async ({
-    id = 'comment-123',
-    threadId = 'thread-123',
-    owner = 'user-123',
+    id = 'comment-001',
+    threadId = 'thread-001',
+    owner = 'user-001',
     content = 'Sebuah komentar',
   }) => {
     const query = {
