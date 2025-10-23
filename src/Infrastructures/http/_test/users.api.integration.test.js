@@ -80,7 +80,7 @@ describe('Users Endpoints', () => {
     it('should response 400 when username more than 50 character', async () => {
       const requestPayload = {
         ...dummyPayload,
-        username: 'johndoejohndoejohndoejohndoejohndoejohndoejohndoejohndoe',
+        username: 'johndoe'.repeat(10),
       };
 
       const response = await serverTest.post('/users', {
