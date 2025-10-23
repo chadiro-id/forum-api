@@ -45,6 +45,29 @@ describe('[Integration] ThreadRepositoryPostgres', () => {
 
       expect(addedThread).toStrictEqual(expectedAddedThread);
     });
+
+    it('should propagate error when id is exists', async () => {
+      await threadsTable.add({ id: 'thread-123', owner_id: user.id });
+      const newThread = new NewThread({
+        title: 'Sebuah thread',
+        body: 'Isi thread',
+        owner: user.id,
+      });
+
+      await expect(threadRepo.addThread(newThread))
+        .rejects.toThrow();
+    });
+
+    it('should propagate error when owner not exists', async () => {
+      const newThread = new NewThread({
+        title: 'Sebuah thread',
+        body: 'Isi thread',
+        owner: 'nonexistent-user-id',
+      });
+
+      await expect(threadRepo.addThread(newThread))
+        .rejects.toThrow();
+    });
   });
 
   describe('getThreadById', () => {
