@@ -176,5 +176,57 @@ describe('[Mock-Based Integration] ReplyRepositoryPostgres', () => {
         );
       });
     });
+
+    describe('verifyDeleteReply', () => {
+      it('should correctly resolve and not throw error', async () => {
+        mockPool.query.mockResolvedValue({
+          rows: [{ comment_id: 'comment-123', owner_id: 'user-123' }],
+          rowCount: 1,
+        });
+
+        await expect(replyRepo.verifyDeleteReply('reply-123', 'comment-123', 'user-123'))
+          .resolves.not.toThrow();
+
+        assertQueryCalled(
+          mockPool.query, 'SELECT comment_id, owner_id FROM replies', ['reply-123']
+        );
+      });
+
+      it('should throw NotFoundError when reply not exists', async () => {
+        mockPool.query.mockResolvedValue({
+          rows: [], rowCount: 0
+        });
+
+        await expect(replyRepo.verifyDeleteReply('reply-123', 'comment-123', 'user-123'))
+          .rejects.toThrow(NotFoundError);
+      });
+
+      it('should throw NotFoundError when reply not belong to comment', async () => {
+        mockPool.query.mockResolvedValue({
+          rows: [{ comment_id: 'comment-123', owner_id: 'user-123' }],
+          rowCount: 1,
+        });
+
+        await expect(replyRepo.verifyDeleteReply('reply-123', 'other-thread-id', 'user-123'))
+          .rejects.toThrow(NotFoundError);
+      });
+
+      it('should throw AuthorizationError when user is not owner', async () => {
+        mockPool.query.mockResolvedValue({
+          rows: [{ comment_id: 'comment-123', owner_id: 'user-123' }],
+          rowCount: 1
+        });
+
+        await expect(replyRepo.verifyDeleteReply('reply-123', 'comment-123', 'other-user-id'))
+          .rejects.toThrow(AuthorizationError);
+      });
+
+      it('should propagate error when database fails', async () => {
+        mockPool.query.mockRejectedValue(new Error('Database fails'));
+
+        await expect(replyRepo.verifyDeleteReply('reply-123', 'comment-123', 'user-123'))
+          .rejects.toThrow('Database fails');
+      });
+    });
   });
 });
