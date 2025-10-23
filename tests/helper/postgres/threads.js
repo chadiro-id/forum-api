@@ -4,11 +4,11 @@ const threads = (pool) => {
     id = 'thread-001',
     title = 'Sebuah thread',
     body = 'Isi thread',
-    owner = 'user-001'
+    owner_id = 'user-001'
   }) => {
     const query = {
       text: 'INSERT INTO threads (id, title, body, owner_id) VALUES ($1, $2, $3, $4) RETURNING id, created_at',
-      values: [id, title, body, owner]
+      values: [id, title, body, owner_id]
     };
 
     const result = await pool.query(query);

@@ -2,13 +2,13 @@
 const comments = (pool) => {
   const add = async ({
     id = 'comment-001',
-    threadId = 'thread-001',
-    owner = 'user-001',
+    thread_id = 'thread-001',
+    owner_id = 'user-001',
     content = 'Sebuah komentar',
   }) => {
     const query = {
       text: 'INSERT INTO comments (id, thread_id, owner_id, content) VALUES ($1, $2, $3, $4) RETURNING id, created_at',
-      values: [id, threadId, owner, content],
+      values: [id, thread_id, owner_id, content],
     };
 
     const result = await pool.query(query);
