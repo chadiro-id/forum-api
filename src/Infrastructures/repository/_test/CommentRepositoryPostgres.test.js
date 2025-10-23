@@ -125,6 +125,15 @@ describe('[Mock-Based Integration] CommentRepositoryPostgres', () => {
         }));
       });
 
+      it('should return an empty array when no comment found', async () => {
+        mockPool.query.mockResolvedValue({
+          rows: [], rowCount: 0,
+        });
+
+        const comments = await commentRepo.getCommentsByThreadId('thread-id');
+        expect(comments).toEqual([]);
+      });
+
       it('should propagate error when database fails', async () => {
         mockPool.query.mockRejectedValue(new Error('Database fails'));
 
