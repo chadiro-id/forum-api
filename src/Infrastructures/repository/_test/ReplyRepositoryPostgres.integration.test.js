@@ -136,4 +136,36 @@ describe('[Integration] ReplyRepositoryPostgres', () => {
       expect(replies[0].is_delete).toBe(true);
     });
   });
+
+  describe('verifyDeleteReply', () => {
+    let replyId;
+
+    beforeEach(async () => {
+      const { id } = await repliesTable.add({
+        comment_id: commentA.id,
+        owner_id: userB.id,
+      });
+      replyId = id;
+    });
+
+    it('should correctly resolve and not throw error', async () => {
+      await expect(replyRepo.verifyDeleteReply(replyId, commentA.id, userB.id))
+        .resolves.not.toThrow();
+    });
+
+    it('should throw NotFoundError when reply not exists', async () => {
+      await expect(replyRepo.verifyDeleteReply('nonexistent-reply-id', commentA.id, userB.id))
+        .rejects.toThrow(NotFoundError);
+    });
+
+    it('should throw NotFoundError when reply not belong to comment', async () => {
+      await expect(replyRepo.verifyDeleteReply(replyId, commentB.id, userB.id))
+        .rejects.toThrow(NotFoundError);
+    });
+
+    it('should throw AuthorizationError when user is not owner', async () => {
+      await expect(replyRepo.verifyDeleteReply(replyId, commentA.id, userA.id))
+        .rejects.toThrow(AuthorizationError);
+    });
+  });
 });
