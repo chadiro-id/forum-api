@@ -52,22 +52,6 @@ describe('[Integration] UserRepositoryPostgres', () => {
     });
   });
 
-  describe('verifyAvailableUsername', () => {
-    it('should throw InvariantError when username not available', async () => {
-      await usersTable.add({ username: 'johndoe' });
-
-      await expect(userRepo.verifyAvailableUsername('johndoe'))
-        .rejects
-        .toThrow(InvariantError);
-    });
-
-    it('should not throw InvariantError when username available', async () => {
-      await expect(userRepo.verifyAvailableUsername('johndoe23'))
-        .resolves
-        .not.toThrow(InvariantError);
-    });
-  });
-
   describe('getPasswordByUsername', () => {
     it('should throw InvariantError when the given username not exists', () => {
       return expect(userRepo.getPasswordByUsername('johndoe'))
@@ -99,6 +83,22 @@ describe('[Integration] UserRepositoryPostgres', () => {
       const userId = await userRepo.getIdByUsername('johndoe');
 
       expect(userId).toEqual('user-321');
+    });
+  });
+
+  describe('verifyAvailableUsername', () => {
+    it('should resolve and not throw error when username available', async () => {
+      await expect(userRepo.verifyAvailableUsername('johndoe23'))
+        .resolves
+        .not.toThrow(InvariantError);
+    });
+
+    it('should throw InvariantError when username not available', async () => {
+      await usersTable.add({ username: 'johndoe' });
+
+      await expect(userRepo.verifyAvailableUsername('johndoe'))
+        .rejects
+        .toThrow(InvariantError);
     });
   });
 });
