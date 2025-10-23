@@ -29,14 +29,7 @@ describe('[Mock-Based Integration] CommentRepositoryPostgres', () => {
     });
 
     describe('addComment', () => {
-      it('should propagate error when database fails', async () => {
-        mockPool.query.mockRejectedValue(new Error('Database fails'));
-
-        await expect(commentRepo.addComment({}))
-          .rejects.toThrow('Database fails');
-      });
-
-      it('should persist the comment and return the added comment correctly', async () => {
+      it('should persist the comment and return the added comment', async () => {
         mockPool.query.mockResolvedValue({
           rows: [{ id: 'comment-123', content: 'Sebuah komentar', owner_id: 'user-123' }],
           rowCount: 1,
@@ -66,17 +59,17 @@ describe('[Mock-Based Integration] CommentRepositoryPostgres', () => {
           owner: 'user-123',
         }));
       });
-    });
 
-    describe('getCommentsByThreadId', () => {
       it('should propagate error when database fails', async () => {
         mockPool.query.mockRejectedValue(new Error('Database fails'));
 
-        await expect(commentRepo.getCommentsByThreadId({}))
+        await expect(commentRepo.addComment({}))
           .rejects.toThrow('Database fails');
       });
+    });
 
-      it('should correctly pool.query and return the comments related to the given thread id', async () => {
+    describe('getCommentsByThreadId', () => {
+      it('should correctly resolve and return the comments', async () => {
         const comment1 = {
           id: 'comment-001',
           content: 'Isi komentar 1',
@@ -131,17 +124,31 @@ describe('[Mock-Based Integration] CommentRepositoryPostgres', () => {
           isDelete: comment3.is_delete
         }));
       });
-    });
 
-    describe('softDeleteCommentById', () => {
       it('should propagate error when database fails', async () => {
         mockPool.query.mockRejectedValue(new Error('Database fails'));
 
-        await expect(commentRepo.softDeleteCommentById({}))
+        await expect(commentRepo.getCommentsByThreadId({}))
           .rejects.toThrow('Database fails');
       });
+    });
 
-      it('should throw NotFoundError when the given id is not exists', async () => {
+    describe('softDeleteCommentById', () => {
+      it('should correctly resolve and not throw error', async () => {
+        mockPool.query.mockResolvedValue({
+          rows: [{ id: 'comment-123' }],
+          rowCount: 1
+        });
+
+        await expect(commentRepo.softDeleteCommentById('comment-123'))
+          .resolves.not.toThrow();
+
+        assertQueryCalled(
+          mockPool.query, 'UPDATE comments SET is_delete = TRUE', ['comment-123']
+        );
+      });
+
+      it('should throw NotFoundError when id not exists', async () => {
         mockPool.query.mockResolvedValue({
           rows: [], rowCount: 0
         });
@@ -154,23 +161,16 @@ describe('[Mock-Based Integration] CommentRepositoryPostgres', () => {
         );
       });
 
-      it('should not throw NotFoundError when the given id is exists', async () => {
-        mockPool.query.mockResolvedValue({
-          rows: [{ id: 'comment-123' }],
-          rowCount: 1
-        });
+      it('should propagate error when database fails', async () => {
+        mockPool.query.mockRejectedValue(new Error('Database fails'));
 
-        await expect(commentRepo.softDeleteCommentById('comment-123'))
-          .resolves.not.toThrow(NotFoundError);
-
-        assertQueryCalled(
-          mockPool.query, 'UPDATE comments SET is_delete = TRUE', ['comment-123']
-        );
+        await expect(commentRepo.softDeleteCommentById({}))
+          .rejects.toThrow('Database fails');
       });
     });
 
     describe('verifyCommentBelongToThread', () => {
-      it('should resolve corectly', async () => {
+      it('should correctly resolve and not throw error', async () => {
         mockPool.query.mockResolvedValue({
           rows: [{ thread_id: 'thread-123' }], rowCount: 1
         });
@@ -192,7 +192,7 @@ describe('[Mock-Based Integration] CommentRepositoryPostgres', () => {
         assertQueryCalled(mockPool.query, 'SELECT thread_id FROM comments', ['comment-123']);
       });
 
-      it('should throw NotFoundError when id not belong to thread id', async () => {
+      it('should throw NotFoundError when id not belong to thread', async () => {
         mockPool.query.mockResolvedValue({
           rows: [{ thread_id: 'thread-123' }], rowCount: 1
         });
@@ -201,6 +201,13 @@ describe('[Mock-Based Integration] CommentRepositoryPostgres', () => {
           .rejects.toThrow(NotFoundError);
 
         assertQueryCalled(mockPool.query, 'SELECT thread_id FROM comments', ['comment-123']);
+      });
+
+      it('should propagate error when database fails', async () => {
+        mockPool.query.mockRejectedValue(new Error('Database fails'));
+
+        await expect(commentRepo.verifyCommentBelongToThread('', ''))
+          .rejects.toThrow('Database fails');
       });
     });
   });
