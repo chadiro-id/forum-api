@@ -34,6 +34,7 @@ describe('[Integration] CommentRepositoryPostgres', () => {
 
   describe('addComment', () => {
     let newComment;
+
     beforeAll(() => {
       newComment = new NewComment({
         threadId: thread.id,
@@ -106,6 +107,11 @@ describe('[Integration] CommentRepositoryPostgres', () => {
       await commentsTable.add({ threadId: thread.id, owner: currentUser.id });
       await expect(commentRepo.verifyCommentBelongToThread('comment-123', thread.id))
         .resolves.not.toThrow();
+    });
+
+    it('should throw NotFoundError when id not exists', async () => {
+      await expect(commentRepo.verifyCommentBelongToThread('nonexistent-comment-id', thread.id))
+        .rejects.toThrow(NotFoundError);
     });
   });
 });
