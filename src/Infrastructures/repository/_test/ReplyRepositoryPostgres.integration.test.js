@@ -119,13 +119,7 @@ describe('[Integration] ReplyRepositoryPostgres', () => {
   });
 
   describe('softDeleteReplyById', () => {
-    it('should throw NotFoundError when id is not exists', async () => {
-      await expect(replyRepo.softDeleteReplyById('nonexistent-reply-id'))
-        .rejects
-        .toThrow(NotFoundError);
-    });
-
-    it('should resolves and update delete status correctly', async () => {
+    it('should correctly resolve and not throw error', async () => {
       await repliesTable.add({ comment_id: commentB.id, owner_id: userA.id });
 
       await expect(replyRepo.softDeleteReplyById('reply-001'))
@@ -134,6 +128,12 @@ describe('[Integration] ReplyRepositoryPostgres', () => {
 
       const replies = await repliesTable.findById('reply-001');
       expect(replies[0].is_delete).toBe(true);
+    });
+
+    it('should throw NotFoundError when id not exists', async () => {
+      await expect(replyRepo.softDeleteReplyById('nonexistent-reply-id'))
+        .rejects
+        .toThrow(NotFoundError);
     });
   });
 
