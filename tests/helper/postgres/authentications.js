@@ -2,12 +2,12 @@
 const authentications = (pool) => {
   const addToken = async (token) => {
     const query = {
-      text: 'INSERT INTO authentications VALUES($1)',
+      text: 'INSERT INTO authentications VALUES($1) RETURNING token',
       values: [token],
     };
 
-    await pool.query(query);
-    return token;
+    const result = await pool.query(query);
+    return result.rows[0].token;
   };
 
   const findToken = async (token) => {
