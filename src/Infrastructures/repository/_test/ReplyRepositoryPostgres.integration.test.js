@@ -24,9 +24,9 @@ describe('[Integration] ReplyRepositoryPostgres', () => {
     replyRepo = new ReplyRepositoryPostgres(pool, () => '123');
     userA = await usersTable.add({ id: 'user-123', username: 'johndoe' });
     userB = await usersTable.add({ id: 'user-456', username: 'whoami' });
-    thread = await threadsTable.add({ owner: userA.id });
-    commentA = await commentsTable.add({ id: 'comment-123', threadId: thread.id, owner: userA.id });
-    commentB = await commentsTable.add({ id: 'comment-456', threadId: thread.id, owner: userB.id });
+    thread = await threadsTable.add({ owner_id: userA.id });
+    commentA = await commentsTable.add({ id: 'comment-123', thread_id: thread.id, owner_id: userA.id });
+    commentB = await commentsTable.add({ id: 'comment-456', thread_id: thread.id, owner_id: userB.id });
   });
 
   beforeEach(async () => {
@@ -64,8 +64,8 @@ describe('[Integration] ReplyRepositoryPostgres', () => {
 
       expect(addedReply).toStrictEqual(new AddedReply({
         id: 'reply-123',
-        content: 'Sebuah balasan',
-        owner: 'user-123',
+        content: newReply.content,
+        owner: newReply.owner,
       }));
     });
   });
@@ -79,13 +79,13 @@ describe('[Integration] ReplyRepositoryPostgres', () => {
 
     it('should correctly return replies related to comment ids', async () => {
       const replyA = await repliesTable.add({
-        id: 'reply-123', commentId: commentB.id, owner: userA.id
+        id: 'reply-001', comment_id: commentB.id, owner_id: userA.id
       });
       const replyB = await repliesTable.add({
-        id: 'reply-456', commentId: commentA.id, owner: userB.id
+        id: 'reply-002', comment_id: commentA.id, owner_id: userB.id
       });
       const replyC = await repliesTable.add({
-        id: 'reply-789', commentId: commentB.id, owner: userB.id
+        id: 'reply-003', comment_id: commentB.id, owner_id: userB.id
       });
 
       const replies = await replyRepo.getRepliesByCommentIds([commentA.id, commentB.id]);
@@ -120,19 +120,19 @@ describe('[Integration] ReplyRepositoryPostgres', () => {
 
   describe('softDeleteReplyById', () => {
     it('should throw NotFoundError when id is not exists', async () => {
-      await expect(replyRepo.softDeleteReplyById('reply-123'))
+      await expect(replyRepo.softDeleteReplyById('nonexistent-reply-id'))
         .rejects
         .toThrow(NotFoundError);
     });
 
     it('should resolves and update delete status correctly', async () => {
-      await repliesTable.add({ commentId: commentB.id, owner: userA.id });
+      await repliesTable.add({ comment_id: commentB.id, owner_id: userA.id });
 
-      await expect(replyRepo.softDeleteReplyById('reply-123'))
+      await expect(replyRepo.softDeleteReplyById('reply-001'))
         .resolves
         .not.toThrow(NotFoundError);
 
-      const replies = await repliesTable.findById('reply-123');
+      const replies = await repliesTable.findById('reply-001');
       expect(replies[0].is_delete).toBe(true);
     });
   });
