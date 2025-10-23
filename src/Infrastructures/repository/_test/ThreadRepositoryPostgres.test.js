@@ -67,38 +67,6 @@ describe('[Mock-Based Integration] ThreadRepositoryPostgres', () => {
       });
     });
 
-    describe('verifyThreadExists', () => {
-      it('should propagate error when database fails', async () => {
-        mockPool.query.mockRejectedValue(new Error('Database fails'));
-
-        await expect(threadRepo.verifyThreadExists({}))
-          .rejects.toThrow();
-      });
-
-      it('should throw NotFoundError when the id is not exists', async () => {
-        mockPool.query.mockResolvedValue({
-          rows: [], rowCount: 0
-        });
-
-        await expect(threadRepo.verifyThreadExists('thread-123'))
-          .rejects.toThrow(NotFoundError);
-
-        assertQueryCalled(mockPool.query, 'SELECT id FROM threads', ['thread-123']);
-      });
-
-      it('should not throw error when the id is exists', async () => {
-        mockPool.query.mockResolvedValue({
-          rows: [{ id: 'thread-123' }],
-          rowCount: 1,
-        });
-
-        await expect(threadRepo.verifyThreadExists('thread-123'))
-          .resolves.not.toThrow();
-
-        assertQueryCalled(mockPool.query, 'SELECT id FROM threads', ['thread-123']);
-      });
-    });
-
     describe('getThreadById', () => {
       it('should propagate error when database fails', async () => {
         mockPool.query.mockRejectedValue(new Error('Database fails'));
@@ -142,6 +110,36 @@ describe('[Mock-Based Integration] ThreadRepositoryPostgres', () => {
           username: 'johndoe',
           comments: [],
         }));
+      });
+    });
+
+    describe('verifyThreadExists', () => {
+      it('should correctly resolve and not throw error', async () => {
+        mockPool.query.mockResolvedValue({
+          rows: [{ id: 'thread-123' }],
+          rowCount: 1,
+        });
+
+        await expect(threadRepo.verifyThreadExists('thread-123'))
+          .resolves.not.toThrow();
+
+        assertQueryCalled(mockPool.query, 'SELECT id FROM threads', ['thread-123']);
+      });
+
+      it('should throw NotFoundError when thread not exists', async () => {
+        mockPool.query.mockResolvedValue({
+          rows: [], rowCount: 0
+        });
+
+        await expect(threadRepo.verifyThreadExists('thread-123'))
+          .rejects.toThrow(NotFoundError);
+      });
+
+      it('should propagate error when database fails', async () => {
+        mockPool.query.mockRejectedValue(new Error('Database fails'));
+
+        await expect(threadRepo.verifyThreadExists({}))
+          .rejects.toThrow();
       });
     });
   });
