@@ -17,9 +17,9 @@ let userAuthB;
 beforeAll(async () => {
   await serverTest.setup();
 
-  userA = await usersTable.add({ id: 'user-123', username: 'whoami' });
+  userA = await usersTable.add({ id: 'user-001', username: 'whoami' });
   userAuthA = await createAuthToken({ ...userA });
-  userB = await usersTable.add({ id: 'user-456', username: 'johndoe' });
+  userB = await usersTable.add({ id: 'user-002', username: 'johndoe' });
   userAuthB = await createAuthToken({ ...userB });
 });
 
@@ -36,8 +36,8 @@ describe('Replies Endpoints', () => {
   let authorizationUserB;
 
   beforeAll(async () => {
-    thread = await threadsTable.add({ owner: userA.id });
-    comment = await commentsTable.add({ threadId: thread.id, owner: userA.id });
+    thread = await threadsTable.add({ owner_id: userA.id });
+    comment = await commentsTable.add({ thread_id: thread.id, owner_id: userA.id });
 
     authorizationUserA = {
       Authorization: `Bearer ${userAuthA.accessToken}`
@@ -162,8 +162,8 @@ describe('Replies Endpoints', () => {
     let replyUserB;
 
     beforeAll(async () => {
-      replyUserA = await repliesTable.add({ id: 'reply-123', commentId: comment.id, owner: userA.id });
-      replyUserB = await repliesTable.add({ id: 'reply-456', commentId: comment.id, owner: userB.id });
+      replyUserA = await repliesTable.add({ id: 'reply-001', comment_id: comment.id, owner_id: userA.id });
+      replyUserB = await repliesTable.add({ id: 'reply-002', comment_id: comment.id, owner_id: userB.id });
     });
 
     afterAll(async () => {
