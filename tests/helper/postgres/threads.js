@@ -17,18 +17,7 @@ const threads = (pool) => {
 
   const findById = async (id) => {
     const query = {
-      text: `
-      SELECT
-        t.id, t.title, t.body, t.created_at, u.username
-      FROM
-        threads t
-      LEFT JOIN
-        users u
-      ON
-        u.id = t.owner_id
-      WHERE
-        t.id = $1
-      `,
+      text: 'SELECT * FROM threads WHERE id = $1',
       values: [id],
     };
 
