@@ -68,14 +68,7 @@ describe('[Mock-Based Integration] ReplyRepositoryPostgres', () => {
     });
 
     describe('getRepliesByCommentIds', () => {
-      it('should propagate error when database fails', async () => {
-        mockPool.query.mockRejectedValue(new Error('Database fails'));
-
-        await expect(replyRepo.getRepliesByCommentIds({}))
-          .rejects.toThrow('Database fails');
-      });
-
-      it('should correctly pool.query and return the replies related to the given ids', async () => {
+      it('should correctly pool.query and return the array of reply', async () => {
         const reply1 = {
           id: 'reply-101',
           comment_id: 'comment-101',
@@ -138,6 +131,22 @@ describe('[Mock-Based Integration] ReplyRepositoryPostgres', () => {
           username: reply3.username,
           isDelete: reply3.is_delete,
         }));
+      });
+
+      it('should return an empty array when no reply found', async () => {
+        mockPool.query.mockResolvedValue({
+          rows: [], rowCount: 0
+        });
+
+        const replies = await replyRepo.getRepliesByCommentIds(['comment-101', 'comment-102']);
+        expect(replies).toEqual([]);
+      });
+
+      it('should propagate error when database fails', async () => {
+        mockPool.query.mockRejectedValue(new Error('Database fails'));
+
+        await expect(replyRepo.getRepliesByCommentIds({}))
+          .rejects.toThrow('Database fails');
       });
     });
 
