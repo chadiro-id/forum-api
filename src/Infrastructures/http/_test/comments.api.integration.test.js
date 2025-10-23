@@ -16,8 +16,8 @@ let userAuthB;
 beforeAll(async () => {
   await serverTest.setup();
 
-  userA = await usersTable.add({ id: 'user-123', username: 'whoami' });
-  userB = await usersTable.add({ id: 'user-456', username: 'johndoe' });
+  userA = await usersTable.add({ id: 'user-001', username: 'whoami' });
+  userB = await usersTable.add({ id: 'user-002', username: 'johndoe' });
 
   userAuthA = await createAuthToken({ ...userA });
   userAuthB = await createAuthToken({ ...userB });
@@ -35,7 +35,7 @@ describe('Comments Endpoints', () => {
   let authorizationUserB;
 
   beforeAll(async () => {
-    thread = await threadsTable.add({ owner: userA.id });
+    thread = await threadsTable.add({ owner_id: userA.id });
 
     authorizationUserA = {
       Authorization: `Bearer ${userAuthA.accessToken}`,
@@ -146,8 +146,8 @@ describe('Comments Endpoints', () => {
     let commentUserB;
 
     beforeAll(async () => {
-      commentUserA = await commentsTable.add({ id: 'comment-123', threadId: thread.id, owner: userA.id });
-      commentUserB = await commentsTable.add({ id: 'comment-456', threadId: thread.id, owner: userB.id });
+      commentUserA = await commentsTable.add({ id: 'comment-001', thread_id: thread.id, owner_id: userA.id });
+      commentUserB = await commentsTable.add({ id: 'comment-002', thread_id: thread.id, owner_id: userB.id });
     });
 
     afterAll(async () => {
