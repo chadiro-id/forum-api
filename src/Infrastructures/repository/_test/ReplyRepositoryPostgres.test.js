@@ -142,27 +142,7 @@ describe('[Mock-Based Integration] ReplyRepositoryPostgres', () => {
     });
 
     describe('softDeleteReplyById', () => {
-      it('should propagate error when database fails', async () => {
-        mockPool.query.mockRejectedValue(new Error('Database fails'));
-
-        await expect(replyRepo.softDeleteReplyById({}))
-          .rejects.toThrow('Database fails');
-      });
-
-      it('should throw NotFoundError when the given id is not exists', async () => {
-        mockPool.query.mockResolvedValue({
-          rows: [], rowCount: 0
-        });
-
-        await expect(replyRepo.softDeleteReplyById('reply-123'))
-          .rejects.toThrow(NotFoundError);
-
-        assertQueryCalled(
-          mockPool.query, 'UPDATE replies SET is_delete = TRUE', ['reply-123']
-        );
-      });
-
-      it('should not throw NotFoundError when the given id is exists', async () => {
+      it('should correctly resolve and not thrown error', async () => {
         mockPool.query.mockResolvedValue({
           rows: [{ id: 'reply-123' }],
           rowCount: 1
@@ -174,6 +154,22 @@ describe('[Mock-Based Integration] ReplyRepositoryPostgres', () => {
         assertQueryCalled(
           mockPool.query, 'UPDATE replies SET is_delete = TRUE', ['reply-123']
         );
+      });
+
+      it('should throw NotFoundError when id not exists', async () => {
+        mockPool.query.mockResolvedValue({
+          rows: [], rowCount: 0
+        });
+
+        await expect(replyRepo.softDeleteReplyById('reply-123'))
+          .rejects.toThrow(NotFoundError);
+      });
+
+      it('should propagate error when database fails', async () => {
+        mockPool.query.mockRejectedValue(new Error('Database fails'));
+
+        await expect(replyRepo.softDeleteReplyById({}))
+          .rejects.toThrow('Database fails');
       });
     });
 
@@ -211,7 +207,7 @@ describe('[Mock-Based Integration] ReplyRepositoryPostgres', () => {
           .rejects.toThrow(NotFoundError);
       });
 
-      it('should throw AuthorizationError when user is not owner', async () => {
+      it('should throw AuthorizationError when user is not the owner', async () => {
         mockPool.query.mockResolvedValue({
           rows: [{ comment_id: 'comment-123', owner_id: 'user-123' }],
           rowCount: 1
