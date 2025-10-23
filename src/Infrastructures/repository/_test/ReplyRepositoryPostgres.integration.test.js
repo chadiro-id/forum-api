@@ -42,31 +42,24 @@ describe('[Integration] ReplyRepositoryPostgres', () => {
   });
 
   describe('addReply', () => {
-    let newReply;
-
-    beforeAll(() => {
-      newReply = new NewReply({
+    it('should correctly persist NewReply and return AddedReply', async () => {
+      const newReply = new NewReply({
         commentId: commentA.id,
         content: 'Sebuah balasan',
         owner: userA.id,
       });
-    });
-
-    it('should persist the NewReply entity correctly', async () => {
-      await replyRepo.addReply(newReply);
-
-      const replies = await repliesTable.findById('reply-123');
-      expect(replies).toHaveLength(1);
-    });
-
-    it('should return the AddedReply entity correctly', async () => {
-      const addedReply = await replyRepo.addReply(newReply);
-
-      expect(addedReply).toStrictEqual(new AddedReply({
+      const expectedAddedReply = new AddedReply({
         id: 'reply-123',
         content: newReply.content,
         owner: newReply.owner,
-      }));
+      });
+
+      const addedReply = await replyRepo.addReply(newReply);
+
+      const replies = await repliesTable.findById('reply-123');
+      expect(replies).toHaveLength(1);
+
+      expect(addedReply).toStrictEqual(expectedAddedReply);
     });
   });
 
