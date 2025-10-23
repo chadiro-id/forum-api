@@ -107,6 +107,19 @@ describe('[Integration] CommentRepositoryPostgres', () => {
       await expect(commentRepo.verifyCommentBelongToThread('nonexistent-comment-id', thread.id))
         .rejects.toThrow(NotFoundError);
     });
+
+    it('should throw NotFoundError when id not belong to thread', async () => {
+      const otherUser = await usersTable.add({ username: 'anotheruser', id: 'user-99' });
+      const otherThread = await threadsTable.add({ owner: otherUser.id, id: 'thread-99' });
+      const { id: otherCommentId } = await commentsTable.add({
+        threadId: otherThread.id,
+        owner: otherUser.id,
+        id: 'comment-999'
+      });
+
+      await expect(commentRepo.verifyCommentBelongToThread(otherCommentId, thread.id))
+        .rejects.toThrow(NotFoundError);
+    });
   });
 
   describe('verifyDeleteComment', () => {
