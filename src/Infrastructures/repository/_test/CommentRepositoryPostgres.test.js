@@ -168,5 +168,40 @@ describe('[Mock-Based Integration] CommentRepositoryPostgres', () => {
         );
       });
     });
+
+    describe('verifyCommentBelongToThread', () => {
+      it('should resolve corectly', async () => {
+        mockPool.query.mockResolvedValue({
+          rows: [{ thread_id: 'thread-123' }], rowCount: 1
+        });
+
+        await expect(commentRepo.verifyCommentBelongToThread('comment-123', 'thread-123'))
+          .resolves.not.toThrow();
+
+        assertQueryCalled(mockPool.query, 'SELECT thread_id FROM comments', ['comment-123']);
+      });
+
+      it('should throw NotFoundError when id not exists', async () => {
+        mockPool.query.mockResolvedValue({
+          rows: [], rowCount: 0
+        });
+
+        await expect(commentRepo.verifyCommentBelongToThread('comment-123', 'thread-123'))
+          .rejects.toThrow(NotFoundError);
+
+        assertQueryCalled(mockPool.query, 'SELECT thread_id FROM comments', ['comment-123']);
+      });
+
+      it('should throw NotFoundError when id not belong to thread id', async () => {
+        mockPool.query.mockResolvedValue({
+          rows: [{ thread_id: 'thread-123' }], rowCount: 1
+        });
+
+        await expect(commentRepo.verifyCommentBelongToThread('comment-123', 'thread-456'))
+          .rejects.toThrow(NotFoundError);
+
+        assertQueryCalled(mockPool.query, 'SELECT thread_id FROM comments', ['comment-123']);
+      });
+    });
   });
 });
