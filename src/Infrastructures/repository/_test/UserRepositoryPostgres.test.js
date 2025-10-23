@@ -67,25 +67,7 @@ describe('[Mock-Base Integration] UserRepositoryPostgres', () => {
     });
 
     describe('getIdByUsername', () => {
-      it('should propagate error when database fails', async () => {
-        mockPool.query.mockRejectedValue(new Error('Database fails'));
-
-        await expect(userRepo.getIdByUsername({}))
-          .rejects.toThrow();
-      });
-
-      it('should throw InvariantError when username not exists', async () => {
-        mockPool.query.mockResolvedValue({
-          rows: [], rowCount: 0
-        });
-
-        await expect(userRepo.getIdByUsername('johndoe'))
-          .rejects.toThrow(InvariantError);
-
-        assertQueryCalled(mockPool.query, 'SELECT id FROM users', ['johndoe']);
-      });
-
-      it('should correctly pool.query and return the id related to username', async () => {
+      it('should correctly pool.query and return the id', async () => {
         mockPool.query.mockResolvedValue({
           rows: [{ id: 'user-123' }],
           rowCount: 1,
@@ -96,6 +78,22 @@ describe('[Mock-Base Integration] UserRepositoryPostgres', () => {
         assertQueryCalled(mockPool.query, 'SELECT id FROM users', ['johndoe']);
 
         expect(id).toEqual('user-123');
+      });
+
+      it('should throw InvariantError when username not exists', async () => {
+        mockPool.query.mockResolvedValue({
+          rows: [], rowCount: 0
+        });
+
+        await expect(userRepo.getIdByUsername('johndoe'))
+          .rejects.toThrow(InvariantError);
+      });
+
+      it('should propagate error when database fails', async () => {
+        mockPool.query.mockRejectedValue(new Error('Database fails'));
+
+        await expect(userRepo.getIdByUsername({}))
+          .rejects.toThrow();
       });
     });
 
