@@ -29,7 +29,7 @@ describe('[Mock-Based Integration] CommentRepositoryPostgres', () => {
     });
 
     describe('addComment', () => {
-      it('should correctly persist the comment and return the added comment', async () => {
+      it('should correctly persist the NewComment and return AddedComment', async () => {
         mockPool.query.mockResolvedValue({
           rows: [{ id: 'comment-123', content: 'Sebuah komentar', owner_id: 'user-123' }],
           rowCount: 1,
@@ -69,7 +69,7 @@ describe('[Mock-Based Integration] CommentRepositoryPostgres', () => {
     });
 
     describe('getCommentsByThreadId', () => {
-      it('should correctly resolve and return the comments', async () => {
+      it('should correctly pool.query and return the array of comment', async () => {
         const comment1 = {
           id: 'comment-001',
           content: 'Isi komentar 1',
@@ -177,7 +177,7 @@ describe('[Mock-Based Integration] CommentRepositoryPostgres', () => {
         assertQueryCalled(mockPool.query, 'SELECT thread_id FROM comments', ['comment-123']);
       });
 
-      it('should throw NotFoundError when id not exists', async () => {
+      it('should throw NotFoundError when comment not exists', async () => {
         mockPool.query.mockResolvedValue({
           rows: [], rowCount: 0
         });
@@ -186,7 +186,7 @@ describe('[Mock-Based Integration] CommentRepositoryPostgres', () => {
           .rejects.toThrow(NotFoundError);
       });
 
-      it('should throw NotFoundError when id not belong to thread', async () => {
+      it('should throw NotFoundError when comment not belong to thread', async () => {
         mockPool.query.mockResolvedValue({
           rows: [{ thread_id: 'thread-123' }], rowCount: 1
         });
@@ -218,7 +218,7 @@ describe('[Mock-Based Integration] CommentRepositoryPostgres', () => {
         );
       });
 
-      it('should throw NotFoundError when id not exists', async () => {
+      it('should throw NotFoundError when comment not exists', async () => {
         mockPool.query.mockResolvedValue({
           rows: [], rowCount: 0
         });
@@ -227,7 +227,7 @@ describe('[Mock-Based Integration] CommentRepositoryPostgres', () => {
           .rejects.toThrow(NotFoundError);
       });
 
-      it('should throw NotFoundError when id not belong to thread', async () => {
+      it('should throw NotFoundError when comment not belong to thread', async () => {
         mockPool.query.mockResolvedValue({
           rows: [{ thread_id: 'thread-123', owner_id: 'user-123' }],
           rowCount: 1
@@ -237,7 +237,7 @@ describe('[Mock-Based Integration] CommentRepositoryPostgres', () => {
           .rejects.toThrow(NotFoundError);
       });
 
-      it('should throw AuthorizationError when user not authorized', async () => {
+      it('should throw AuthorizationError when user is not the owner', async () => {
         mockPool.query.mockResolvedValue({
           rows: [{ thread_id: 'thread-123', owner_id: 'user-123' }],
           rowCount: 1,
