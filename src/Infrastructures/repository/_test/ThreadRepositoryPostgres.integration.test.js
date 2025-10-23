@@ -8,11 +8,11 @@ const { usersTable, threadsTable } = require('../../../../tests/helper/postgres'
 
 describe('[Integration] ThreadRepositoryPostgres', () => {
   let threadRepo;
-  let currentUser;
+  let user;
 
   beforeAll(async () => {
     threadRepo = new ThreadRepositoryPostgres(pool, () => '123');
-    currentUser = await usersTable.add({ username: 'whoami' });
+    user = await usersTable.add({});
   });
 
   beforeEach(async () => {
@@ -32,7 +32,7 @@ describe('[Integration] ThreadRepositoryPostgres', () => {
       newThread = new NewThread({
         title: 'Sebuah thread',
         body: 'Isi thread',
-        owner: currentUser.id,
+        owner: user.id,
       });
     });
 
@@ -48,22 +48,22 @@ describe('[Integration] ThreadRepositoryPostgres', () => {
       expect(addedThread).toStrictEqual(new AddedThread({
         id: 'thread-123',
         title: 'Sebuah thread',
-        owner: currentUser.id,
+        owner: user.id,
       }));
     });
   });
 
   describe('verifyThreadExists', () => {
     it('should throw NotFoundError when the id is not exists', async () => {
-      await expect(threadRepo.verifyThreadExists('thread-123'))
+      await expect(threadRepo.verifyThreadExists('nonexistent-thread-id'))
         .rejects
         .toThrow(NotFoundError);
     });
 
     it('should not throw NotFoundError when the id is exists', async () => {
-      await threadsTable.add({ owner: currentUser.id });
+      await threadsTable.add({ owner_id: user.id });
 
-      await expect(threadRepo.verifyThreadExists('thread-123'))
+      await expect(threadRepo.verifyThreadExists('thread-001'))
         .resolves
         .not.toThrow(NotFoundError);
     });
@@ -71,22 +71,22 @@ describe('[Integration] ThreadRepositoryPostgres', () => {
 
   describe('getThreadById', () => {
     it('should throw NotFoundError when the id is not exists', async () => {
-      await expect(threadRepo.getThreadById('thread-123'))
+      await expect(threadRepo.getThreadById('nonexistent-thread-id'))
         .rejects
         .toThrow(NotFoundError);
     });
 
     it('should return the DetailThread entity correctly', async () => {
-      const { created_at: date } = await threadsTable.add({ owner: currentUser.id });
+      const { created_at: date } = await threadsTable.add({ owner_id: user.id });
 
-      const thread = await threadRepo.getThreadById('thread-123');
+      const thread = await threadRepo.getThreadById('thread-001');
 
       expect(thread).toStrictEqual(new DetailThread({
-        id: 'thread-123',
+        id: 'thread-001',
         title: 'Sebuah thread',
         body: 'Isi thread',
         date,
-        username: 'whoami',
+        username: user.username,
       }));
     });
   });
