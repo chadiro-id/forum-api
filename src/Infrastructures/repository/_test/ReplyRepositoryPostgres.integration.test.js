@@ -61,6 +61,40 @@ describe('[Integration] ReplyRepositoryPostgres', () => {
 
       expect(addedReply).toStrictEqual(expectedAddedReply);
     });
+
+    it('should propagate error when id is exists', async () => {
+      await repliesTable.add({ id: 'reply-123', comment_id: commentA.id, owner_id: userB.id });
+      const newReply = new NewReply({
+        commentId: commentA.id,
+        content: 'Sebuah balasan',
+        owner: userA.id,
+      });
+
+      await expect(replyRepo.addReply(newReply))
+        .rejects.toThrow();
+    });
+
+    it('should propagate error when comment not exists', async () => {
+      const newReply = new NewReply({
+        commentId: 'nonexistent-comment-id',
+        content: 'Sebuah balasan',
+        owner: userA.id,
+      });
+
+      await expect(replyRepo.addReply(newReply))
+        .rejects.toThrow();
+    });
+
+    it('should propagate error when owner not exists', async () => {
+      const newReply = new NewReply({
+        commentId: commentA.id,
+        content: 'Sebuah balasan',
+        owner: 'nonexistent-user-id',
+      });
+
+      await expect(replyRepo.addReply(newReply))
+        .rejects.toThrow();
+    });
   });
 
   describe('getRepliesByCommentIds', () => {
