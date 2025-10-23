@@ -80,13 +80,13 @@ describe('[Integration] CommentRepositoryPostgres', () => {
 
   describe('softDeleteCommentById', () => {
     it('should correctly resolve and update is delete to true', async () => {
-      await commentsTable.add({ threadId: thread.id, owner: user.id });
+      await commentsTable.add({ thread_id: thread.id, owner_id: user.id });
 
-      await expect(commentRepo.softDeleteCommentById('comment-123'))
+      await expect(commentRepo.softDeleteCommentById('comment-001'))
         .resolves
         .not.toThrow(NotFoundError);
 
-      const comments = await commentsTable.findById('comment-123');
+      const comments = await commentsTable.findById('comment-001');
       expect(comments[0].is_delete).toBe(true);
     });
 
@@ -99,8 +99,8 @@ describe('[Integration] CommentRepositoryPostgres', () => {
 
   describe('verifyCommentBelongToThread', () => {
     it('should correctly resolve and not throw error', async () => {
-      await commentsTable.add({ threadId: thread.id, owner: user.id });
-      await expect(commentRepo.verifyCommentBelongToThread('comment-123', thread.id))
+      await commentsTable.add({ thread_id: thread.id, owner_id: user.id });
+      await expect(commentRepo.verifyCommentBelongToThread('comment-001', thread.id))
         .resolves.not.toThrow();
     });
 
@@ -110,11 +110,11 @@ describe('[Integration] CommentRepositoryPostgres', () => {
     });
 
     it('should throw NotFoundError when id not belong to thread', async () => {
-      const otherUser = await usersTable.add({ username: 'anotheruser', id: 'user-99' });
-      const otherThread = await threadsTable.add({ owner: otherUser.id, id: 'thread-99' });
+      const otherUser = await usersTable.add({ username: 'anotheruser', id: 'user-010' });
+      const otherThread = await threadsTable.add({ owner_id: otherUser.id, id: 'thread-010' });
       const { id: otherCommentId } = await commentsTable.add({
-        threadId: otherThread.id,
-        owner: otherUser.id,
+        thread_id: otherThread.id,
+        owner_id: otherUser.id,
         id: 'comment-999'
       });
 
@@ -132,13 +132,13 @@ describe('[Integration] CommentRepositoryPostgres', () => {
     beforeAll(async () => {
       authorizedUser = user;
       unauthorizedUser = await usersTable.add({ username: 'unauthorized', id: 'user-999' });
-      otherThread = await threadsTable.add({ owner: unauthorizedUser.id, id: 'thread-999' });
+      otherThread = await threadsTable.add({ owner_id: unauthorizedUser.id, id: 'thread-999' });
     });
 
     beforeEach(async () => {
       const { id } = await commentsTable.add({
-        threadId: thread.id,
-        owner: authorizedUser.id,
+        thread_id: thread.id,
+        owner_id: authorizedUser.id,
         content: 'Comment for deletion',
       });
       commentId = id;
