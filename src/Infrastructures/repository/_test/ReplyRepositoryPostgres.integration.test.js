@@ -42,7 +42,7 @@ describe('[Integration] ReplyRepositoryPostgres', () => {
   });
 
   describe('addReply', () => {
-    it('should correctly persist NewReply and return AddedReply', async () => {
+    it('should correctly persist the NewReply and return AddedReply', async () => {
       const newReply = new NewReply({
         commentId: commentA.id,
         content: 'Sebuah balasan',
@@ -190,7 +190,7 @@ describe('[Integration] ReplyRepositoryPostgres', () => {
         .rejects.toThrow(NotFoundError);
     });
 
-    it('should throw AuthorizationError when user is not owner', async () => {
+    it('should throw AuthorizationError when user is not the owner', async () => {
       await expect(replyRepo.verifyDeleteReply(replyId, commentA.id, userA.id))
         .rejects.toThrow(AuthorizationError);
     });
