@@ -55,12 +55,7 @@ describe('[Integration] CommentRepositoryPostgres', () => {
   });
 
   describe('getCommentsByThreadId', () => {
-    it('should return empty array when thread has no comments', async () => {
-      const comments = await commentRepo.getCommentsByThreadId(thread.id);
-      expect(comments).toEqual([]);
-    });
-
-    it('should return thread comments correctly', async () => {
+    it('should correctly resolve and return the array of comment', async () => {
       const {
         id, created_at: date
       } = await commentsTable.add({ threadId: thread.id, owner: user.id });
@@ -76,10 +71,15 @@ describe('[Integration] CommentRepositoryPostgres', () => {
         isDelete: false,
       }));
     });
+
+    it('should return an empty array when no comment found', async () => {
+      const comments = await commentRepo.getCommentsByThreadId(thread.id);
+      expect(comments).toEqual([]);
+    });
   });
 
   describe('softDeleteCommentById', () => {
-    it('should correctly resolve and update is delete to true', async () => {
+    it('should correctly resolve and not throw error', async () => {
       await commentsTable.add({ thread_id: thread.id, owner_id: user.id });
 
       await expect(commentRepo.softDeleteCommentById('comment-001'))
@@ -104,12 +104,12 @@ describe('[Integration] CommentRepositoryPostgres', () => {
         .resolves.not.toThrow();
     });
 
-    it('should throw NotFoundError when id not exists', async () => {
+    it('should throw NotFoundError when comment not exists', async () => {
       await expect(commentRepo.verifyCommentBelongToThread('nonexistent-comment-id', thread.id))
         .rejects.toThrow(NotFoundError);
     });
 
-    it('should throw NotFoundError when id not belong to thread', async () => {
+    it('should throw NotFoundError when comment not belong to thread', async () => {
       const otherUser = await usersTable.add({ username: 'anotheruser', id: 'user-010' });
       const otherThread = await threadsTable.add({ owner_id: otherUser.id, id: 'thread-010' });
       const { id: otherCommentId } = await commentsTable.add({
@@ -144,17 +144,17 @@ describe('[Integration] CommentRepositoryPostgres', () => {
       commentId = id;
     });
 
-    it('should correctly resolve and not throw error when authorized', async () => {
+    it('should correctly resolve and not throw error', async () => {
       await expect(commentRepo.verifyDeleteComment(commentId, thread.id, authorizedUser.id))
         .resolves.not.toThrow();
     });
 
-    it('should throw NotFoundError when comment id not exists', async () => {
+    it('should throw NotFoundError when comment not exists', async () => {
       await expect(commentRepo.verifyDeleteComment('nonexistent-id', thread.id, authorizedUser.id))
         .rejects.toThrow(NotFoundError);
     });
 
-    it('should throw NotFoundError when comment id not belong to thread', async () => {
+    it('should throw NotFoundError when comment not belong to thread', async () => {
       await expect(commentRepo.verifyDeleteComment(commentId, otherThread.id, authorizedUser.id))
         .rejects.toThrow(NotFoundError);
     });
