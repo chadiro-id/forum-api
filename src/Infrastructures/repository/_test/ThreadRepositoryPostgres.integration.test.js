@@ -54,13 +54,7 @@ describe('[Integration] ThreadRepositoryPostgres', () => {
   });
 
   describe('getThreadById', () => {
-    it('should throw NotFoundError when the id is not exists', async () => {
-      await expect(threadRepo.getThreadById('nonexistent-thread-id'))
-        .rejects
-        .toThrow(NotFoundError);
-    });
-
-    it('should return the DetailThread entity correctly', async () => {
+    it('should correctly resolve and return the DetailThread', async () => {
       const { created_at: date } = await threadsTable.add({ owner_id: user.id });
 
       const thread = await threadRepo.getThreadById('thread-001');
@@ -72,6 +66,12 @@ describe('[Integration] ThreadRepositoryPostgres', () => {
         date,
         username: user.username,
       }));
+    });
+
+    it('should throw NotFoundError when id not exists', async () => {
+      await expect(threadRepo.getThreadById('nonexistent-thread-id'))
+        .rejects
+        .toThrow(NotFoundError);
     });
   });
 
