@@ -26,30 +26,24 @@ describe('[Integration] ThreadRepositoryPostgres', () => {
   });
 
   describe('addThread', () => {
-    let newThread;
-
-    beforeAll(() => {
-      newThread = new NewThread({
+    it('should correctly persist the NewThread and return AddedThread', async () => {
+      const newThread = new NewThread({
         title: 'Sebuah thread',
         body: 'Isi thread',
         owner: user.id,
       });
-    });
-
-    it('should persist the new thread entity correctly', async () => {
-      await threadRepo.addThread(newThread);
-
-      const thread = await threadsTable.findById('thread-123');
-      expect(thread).toHaveLength(1);
-    });
-
-    it('should return the added thread entity correctly', async () => {
-      const addedThread = await threadRepo.addThread(newThread);
-      expect(addedThread).toStrictEqual(new AddedThread({
+      const expectedAddedThread = new AddedThread({
         id: 'thread-123',
         title: 'Sebuah thread',
         owner: user.id,
-      }));
+      });
+
+      const addedThread = await threadRepo.addThread(newThread);
+
+      const thread = await threadsTable.findById('thread-123');
+      expect(thread).toHaveLength(1);
+
+      expect(addedThread).toStrictEqual(expectedAddedThread);
     });
   });
 
