@@ -34,22 +34,21 @@ describe('[Integration] CommentRepositoryPostgres', () => {
 
   describe('addComment', () => {
     let newComment;
-
     beforeAll(() => {
       newComment = new NewComment({
         threadId: thread.id,
-        content: 'Sebuah komentar',
         owner: currentUser.id,
+        content: 'Sebuah komentar',
       });
     });
 
-    it('should persist the NewComment entity', async () => {
+    it('should persist the NewComment', async () => {
       await commentRepo.addComment(newComment);
       const comments = await commentsTable.findById('comment-123');
       expect(comments).toHaveLength(1);
     });
 
-    it('should return AddedComment entity', async () => {
+    it('should return AddedComment', async () => {
       const addedComment = await commentRepo.addComment(newComment);
       expect(addedComment).toStrictEqual(new AddedComment({
         id: 'comment-123',
@@ -60,7 +59,7 @@ describe('[Integration] CommentRepositoryPostgres', () => {
   });
 
   describe('getCommentsByThreadId', () => {
-    it('should return an empty array when thread has no comments', async () => {
+    it('should return empty array when thread has no comments', async () => {
       const comments = await commentRepo.getCommentsByThreadId(thread.id);
       expect(comments).toEqual([]);
     });
@@ -84,13 +83,7 @@ describe('[Integration] CommentRepositoryPostgres', () => {
   });
 
   describe('softDeleteCommentById', () => {
-    it('should throw NotFoundError when id not exists', async () => {
-      await expect(commentRepo.softDeleteCommentById('comment-123'))
-        .rejects
-        .toThrow(NotFoundError);
-    });
-
-    it('should resolves and update delete status of comment', async () => {
+    it('should correctly resolve and update is delete to true', async () => {
       await commentsTable.add({ threadId: thread.id, owner: currentUser.id });
 
       await expect(commentRepo.softDeleteCommentById('comment-123'))
@@ -99,6 +92,20 @@ describe('[Integration] CommentRepositoryPostgres', () => {
 
       const comments = await commentsTable.findById('comment-123');
       expect(comments[0].is_delete).toBe(true);
+    });
+
+    it('should throw NotFoundError when id not exists', async () => {
+      await expect(commentRepo.softDeleteCommentById('comment-123'))
+        .rejects
+        .toThrow(NotFoundError);
+    });
+  });
+
+  describe('verifyCommentBelongToThread', () => {
+    it('should correctly resolve and not throw error', async () => {
+      await commentsTable.add({ threadId: thread.id, owner: currentUser.id });
+      await expect(commentRepo.verifyCommentBelongToThread('comment-123', thread.id))
+        .resolves.not.toThrow();
     });
   });
 });
