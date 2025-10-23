@@ -66,38 +66,6 @@ describe('[Mock-Base Integration] UserRepositoryPostgres', () => {
       });
     });
 
-    describe('verifyAvailableUsername', () => {
-      it('should propagate error when database fails', async () => {
-        mockPool.query.mockRejectedValue(new Error('Database fails'));
-
-        await expect(userRepo.verifyAvailableUsername({}))
-          .rejects.toThrow();
-      });
-
-      it('should throw InvariantError when the username is not available', async () => {
-        mockPool.query.mockResolvedValue({
-          rows: [{ username: 'johndoe' }],
-          rowCount: 1,
-        });
-
-        await expect(userRepo.verifyAvailableUsername('johndoe'))
-          .rejects.toThrow(InvariantError);
-
-        assertQueryCalled(mockPool.query, 'SELECT username FROM users', ['johndoe']);
-      });
-
-      it('should not throw InvariantError when the username is available', async () => {
-        mockPool.query.mockResolvedValue({
-          rows: [], rowCount: 0
-        });
-
-        await expect(userRepo.verifyAvailableUsername('johndoe'))
-          .resolves.not.toThrow(InvariantError);
-
-        assertQueryCalled(mockPool.query, 'SELECT username FROM users', ['johndoe']);
-      });
-    });
-
     describe('getPasswordByUsername', () => {
       it('should propagate error when database fails', async () => {
         mockPool.query.mockRejectedValue(new Error('Database fails'));
@@ -161,6 +129,36 @@ describe('[Mock-Base Integration] UserRepositoryPostgres', () => {
         assertQueryCalled(mockPool.query, 'SELECT id FROM users', ['johndoe']);
 
         expect(id).toEqual('user-123');
+      });
+    });
+
+    describe('verifyAvailableUsername', () => {
+      it('should resolve and not throw error when username is available', async () => {
+        mockPool.query.mockResolvedValue({
+          rows: [], rowCount: 0
+        });
+
+        await expect(userRepo.verifyAvailableUsername('johndoe'))
+          .resolves.not.toThrow(InvariantError);
+
+        assertQueryCalled(mockPool.query, 'SELECT username FROM users', ['johndoe']);
+      });
+
+      it('should throw InvariantError when username not available', async () => {
+        mockPool.query.mockResolvedValue({
+          rows: [{ username: 'johndoe' }],
+          rowCount: 1,
+        });
+
+        await expect(userRepo.verifyAvailableUsername('johndoe'))
+          .rejects.toThrow(InvariantError);
+      });
+
+      it('should propagate error when database fails', async () => {
+        mockPool.query.mockRejectedValue(new Error('Database fails'));
+
+        await expect(userRepo.verifyAvailableUsername({}))
+          .rejects.toThrow();
       });
     });
   });
