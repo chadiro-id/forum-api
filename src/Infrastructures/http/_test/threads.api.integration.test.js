@@ -16,9 +16,9 @@ let userAuthB;
 
 beforeAll(async () => {
   await serverTest.setup();
-  userA = await usersTable.add({ id: 'user-123', username: 'whoami' });
+  userA = await usersTable.add({ id: 'user-001', username: 'whoami' });
   userAuthA = await createAuthToken({ ...userA });
-  userB = await usersTable.add({ id: 'user-456', username: 'johndoe' });
+  userB = await usersTable.add({ id: 'user-002', username: 'johndoe' });
   userAuthB = await createAuthToken({ ...userB });
 });
 
@@ -140,11 +140,11 @@ describe('Threads Endpoints', () => {
     let replyX;
 
     beforeAll(async () => {
-      thread = await threadsTable.add({ owner: userA.id });
-      commentA = await commentsTable.add({ id: 'comment-123', threadId: thread.id, owner: userA.id });
-      commentB = await commentsTable.add({ id: 'comment-456', threadId: thread.id, owner: userB.id });
-      await repliesTable.add({ id: 'reply-123', commentId: commentA.id, owner: userB.id });
-      replyX = await repliesTable.add({ id: 'reply-456', commentId: commentA.id, owner: userA.id });
+      thread = await threadsTable.add({ owner_id: userA.id });
+      commentA = await commentsTable.add({ id: 'comment-001', thread_id: thread.id, owner_id: userA.id });
+      commentB = await commentsTable.add({ id: 'comment-002', thread_id: thread.id, owner_id: userB.id });
+      await repliesTable.add({ id: 'reply-001', comment_id: commentA.id, owner_id: userB.id });
+      replyX = await repliesTable.add({ id: 'reply-002', comment_id: commentA.id, owner_id: userA.id });
     });
 
     afterAll(async () => {
@@ -172,7 +172,7 @@ describe('Threads Endpoints', () => {
       const [comment1, comment2] = responseJson.data.thread.comments;
 
       expect(comment1).toEqual(expect.any(Object));
-      expect(comment1.id).toEqual('comment-123');
+      expect(comment1.id).toEqual(commentA.id);
       expect(comment1.username).toEqual(userA.username);
       expect(comment1.content).toEqual('Sebuah komentar');
       expect(Date.parse(comment1.date)).not.toBeNaN();
@@ -188,7 +188,7 @@ describe('Threads Endpoints', () => {
       );
 
       expect(comment2).toEqual(expect.any(Object));
-      expect(comment2.id).toEqual('comment-456');
+      expect(comment2.id).toEqual(commentB.id);
       expect(comment2.username).toEqual(userB.username);
       expect(comment2.content).toEqual('Sebuah komentar');
       expect(Date.parse(comment2.date)).not.toBeNaN();
