@@ -71,13 +71,7 @@ describe('[Integration] ReplyRepositoryPostgres', () => {
   });
 
   describe('getRepliesByCommentIds', () => {
-    it('should return an empty array when no reply found for related comment ids', async () => {
-      const replies = await replyRepo.getRepliesByCommentIds([commentA.id, commentB.id]);
-
-      expect(replies).toEqual([]);
-    });
-
-    it('should correctly return replies related to comment ids', async () => {
+    it('should correctly resolve and return the array of reply', async () => {
       const replyA = await repliesTable.add({
         id: 'reply-001', comment_id: commentB.id, owner_id: userA.id
       });
@@ -115,6 +109,12 @@ describe('[Integration] ReplyRepositoryPostgres', () => {
         date: replyC.created_at,
         isDelete: false,
       }));
+    });
+
+    it('should return an empty array when no reply found', async () => {
+      const replies = await replyRepo.getRepliesByCommentIds([commentA.id, commentB.id]);
+
+      expect(replies).toEqual([]);
     });
   });
 
