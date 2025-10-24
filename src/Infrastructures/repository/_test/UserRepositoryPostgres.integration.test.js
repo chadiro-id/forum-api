@@ -41,6 +41,30 @@ describe('[Integration] UserRepositoryPostgres', () => {
 
       expect(registeredUser).toStrictEqual(expectedRegisteredUser);
     });
+
+    it('should propagate error when id is exists', async () => {
+      await usersTable.add({ id: 'user-123', username: 'whoami' });
+      const registerUser = new RegisterUser({
+        username: 'johndoe',
+        password: 'secret_password',
+        fullname: 'John Doe',
+      });
+
+      await expect(userRepo.addUser(registerUser))
+        .rejects.toThrow();
+    });
+
+    it('should propagate error when username is exists', async () => {
+      await usersTable.add({ id: 'user-999', username: 'johndoe' });
+      const registerUser = new RegisterUser({
+        username: 'johndoe',
+        password: 'secret_password',
+        fullname: 'John Doe',
+      });
+
+      await expect(userRepo.addUser(registerUser))
+        .rejects.toThrow();
+    });
   });
 
   describe('getIdByUsername', () => {
