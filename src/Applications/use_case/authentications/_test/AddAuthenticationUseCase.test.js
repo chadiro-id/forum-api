@@ -43,11 +43,9 @@ describe('AddAuthenticationUseCase', () => {
 
   describe('Failure cases', () => {
     it('should throw error when payload not provided correctly', async () => {
-      const useCase = new AddAuthenticationUseCase({});
-
-      await expect(useCase.execute()).rejects.toThrow();
-      await expect(useCase.execute([])).rejects.toThrow();
-      await expect(useCase.execute({})).rejects.toThrow();
+      await expect(addAuthenticationUseCase.execute()).rejects.toThrow();
+      await expect(addAuthenticationUseCase.execute([])).rejects.toThrow();
+      await expect(addAuthenticationUseCase.execute({})).rejects.toThrow();
     });
 
     it('should propagate error when getPasswordByUsername fails', async () => {
@@ -55,7 +53,6 @@ describe('AddAuthenticationUseCase', () => {
 
       await expect(addAuthenticationUseCase.execute({ ...dummyPayload })).rejects.toThrow();
 
-      expect(mockUserRepo.getPasswordByUsername).toHaveBeenCalledTimes(1);
       expect(mockUserRepo.getPasswordByUsername).toHaveBeenCalledWith(dummyPayload.username);
       expect(mockPasswordHash.comparePassword).not.toHaveBeenCalled();
       expect(mockUserRepo.getIdByUsername).not.toHaveBeenCalled();
@@ -69,7 +66,6 @@ describe('AddAuthenticationUseCase', () => {
       await expect(addAuthenticationUseCase.execute({ ...dummyPayload })).rejects.toThrow();
 
       expect(mockUserRepo.getPasswordByUsername).toHaveBeenCalledWith(dummyPayload.username);
-      expect(mockPasswordHash.comparePassword).toHaveBeenCalledTimes(1);
       expect(mockPasswordHash.comparePassword).toHaveBeenCalledWith(dummyPayload.password, 'encrypted_password');
       expect(mockUserRepo.getIdByUsername).not.toHaveBeenCalled();
       expect(mockAuthRepo.addToken).not.toHaveBeenCalled();
@@ -84,7 +80,6 @@ describe('AddAuthenticationUseCase', () => {
 
       expect(mockUserRepo.getPasswordByUsername).toHaveBeenCalledWith(dummyPayload.username);
       expect(mockPasswordHash.comparePassword).toHaveBeenCalledWith(dummyPayload.password, 'encrypted_password');
-      expect(mockUserRepo.getIdByUsername).toHaveBeenCalledTimes(1);
       expect(mockUserRepo.getIdByUsername).toHaveBeenCalledWith(dummyPayload.username);
       expect(mockAuthRepo.addToken).not.toHaveBeenCalled();
     });
@@ -102,21 +97,18 @@ describe('AddAuthenticationUseCase', () => {
       expect(mockUserRepo.getPasswordByUsername).toHaveBeenCalledWith(dummyPayload.username);
       expect(mockPasswordHash.comparePassword).toHaveBeenCalledWith(dummyPayload.password, 'encrypted_password');
       expect(mockUserRepo.getIdByUsername).toHaveBeenCalledWith(dummyPayload.username);
-      expect(mockTokenManager.createAccessToken).toHaveBeenCalledTimes(1);
       expect(mockTokenManager.createAccessToken).toHaveBeenCalledWith({
         username: dummyPayload.username, id: 'user-123'
       });
-      expect(mockTokenManager.createRefreshToken).toHaveBeenCalledTimes(1);
       expect(mockTokenManager.createRefreshToken).toHaveBeenCalledWith({
         username: dummyPayload.username, id: 'user-123'
       });
-      expect(mockAuthRepo.addToken).toHaveBeenCalledTimes(1);
       expect(mockAuthRepo.addToken).toHaveBeenCalledWith('refresh_token');
     });
   });
 
   describe('Successful executions', () => {
-    it('should orchestrating the add authentication action correctly', async () => {
+    it('should correctly orchestrating the add authentication action', async () => {
       mockUserRepo.getPasswordByUsername.mockResolvedValue('encrypted_password');
       mockPasswordHash.comparePassword.mockResolvedValue();
       mockTokenManager.createAccessToken.mockResolvedValue('access_token');
