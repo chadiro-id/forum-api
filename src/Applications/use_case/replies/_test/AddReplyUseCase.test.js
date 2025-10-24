@@ -36,11 +36,12 @@ describe('AddReplyUseCase', () => {
 
   describe('Failure cases', () => {
     it('should throw error when payload not provided correctly', async () => {
-      const useCase = new AddReplyUseCase({});
-
-      await expect(useCase.execute()).rejects.toThrow();
-      await expect(useCase.execute({})).rejects.toThrow();
-      await expect(useCase.execute({ ...dummyPayload, content: 123 })).rejects.toThrow();
+      await expect(addReplyUseCase.execute())
+        .rejects.toThrow();
+      await expect(addReplyUseCase.execute({}))
+        .rejects.toThrow();
+      await expect(addReplyUseCase.execute({ ...dummyPayload, content: 123 }))
+        .rejects.toThrow();
     });
 
     it('should propagate error when thread not exists', async () => {
@@ -67,13 +68,20 @@ describe('AddReplyUseCase', () => {
     });
 
     it('should throw error when the addedReply is not instance of AddedReply entity', async () => {
+      const calledNewReply = new NewReply({
+        commentId: dummyPayload.commentId,
+        content: dummyPayload.content,
+        owner: dummyPayload.owner,
+      });
+      const mockAddedReply = {
+        id: 'reply-123',
+        content: dummyPayload.content,
+        owner: dummyPayload.owner,
+      };
+
       mockThreadRepo.verifyThreadExists.mockResolvedValue();
       mockCommentRepo.verifyCommentBelongToThread.mockResolvedValue();
-      mockReplyRepo.addReply.mockResolvedValue({
-        id: 'reply-123',
-        content: 'Sebuah balasan',
-        owner: 'user-123',
-      });
+      mockReplyRepo.addReply.mockResolvedValue(mockAddedReply);
 
       await expect(addReplyUseCase.execute({ ...dummyPayload }))
         .rejects
@@ -81,23 +89,31 @@ describe('AddReplyUseCase', () => {
 
       expect(mockThreadRepo.verifyThreadExists).toHaveBeenCalledWith(dummyPayload.threadId);
       expect(mockCommentRepo.verifyCommentBelongToThread).toHaveBeenCalledWith(dummyPayload.commentId, dummyPayload.threadId);
-      expect(mockReplyRepo.addReply).toHaveBeenCalledWith(new NewReply({
-        commentId: dummyPayload.commentId,
-        content: dummyPayload.content,
-        owner: dummyPayload.owner,
-      }));
+      expect(mockReplyRepo.addReply).toHaveBeenCalledWith(calledNewReply);
     });
   });
 
   describe('Successful executions', () => {
     it('should correctly orchestrating the add reply action', async () => {
+      const expectedAddedReply = new AddedReply({
+        id: 'reply-123',
+        content: dummyPayload.content,
+        owner: dummyPayload.owner,
+      });
+      const calledNewReply = new NewReply({
+        commentId: dummyPayload.commentId,
+        content: dummyPayload.content,
+        owner: dummyPayload.owner,
+      });
+      const mockAddedReply = new AddedReply({
+        id: 'reply-123',
+        content: dummyPayload.content,
+        owner: dummyPayload.owner,
+      });
+
       mockThreadRepo.verifyThreadExists.mockResolvedValue();
       mockCommentRepo.verifyCommentBelongToThread.mockResolvedValue();
-      mockReplyRepo.addReply.mockResolvedValue(new AddedReply({
-        id: 'reply-123',
-        content: 'Sebuah balasan',
-        owner: 'user-123',
-      }));
+      mockReplyRepo.addReply.mockResolvedValue(mockAddedReply);
 
       const addedReply = await addReplyUseCase.execute({ ...dummyPayload });
 
@@ -106,17 +122,9 @@ describe('AddReplyUseCase', () => {
       expect(mockCommentRepo.verifyCommentBelongToThread).toHaveBeenCalledTimes(1);
       expect(mockCommentRepo.verifyCommentBelongToThread).toHaveBeenCalledWith(dummyPayload.commentId, dummyPayload.threadId);
       expect(mockReplyRepo.addReply).toHaveBeenCalledTimes(1);
-      expect(mockReplyRepo.addReply).toHaveBeenCalledWith(new NewReply({
-        commentId: dummyPayload.commentId,
-        content: dummyPayload.content,
-        owner: dummyPayload.owner,
-      }));
+      expect(mockReplyRepo.addReply).toHaveBeenCalledWith(calledNewReply);
 
-      expect(addedReply).toStrictEqual(new AddedReply({
-        id: 'reply-123',
-        content: 'Sebuah balasan',
-        owner: 'user-123',
-      }));
+      expect(addedReply).toStrictEqual(expectedAddedReply);
     });
   });
 });
