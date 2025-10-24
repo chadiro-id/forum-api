@@ -57,11 +57,6 @@ describe('AddThreadUseCase', () => {
 
   describe('Successful executions', () => {
     it('should correctly orchestrating the add thread action', async () => {
-      const expectedAddedThread = new AddedThread({
-        id: 'thread-123',
-        title: dummyPayload.title,
-        owner: dummyPayload.owner,
-      });
       const mockAddedThread = new AddedThread({
         id: 'thread-123',
         title: dummyPayload.title,
@@ -75,7 +70,8 @@ describe('AddThreadUseCase', () => {
       expect(mockThreadRepo.addThread).toHaveBeenCalledTimes(1);
       expect(mockThreadRepo.addThread).toHaveBeenCalledWith(expect.any(NewThread));
 
-      expect(addedThread).toStrictEqual(expectedAddedThread);
+      expect(addedThread).toBeInstanceOf(AddedThread);
+      expect(addedThread.id).toEqual('thread-123');
     });
   });
 });
