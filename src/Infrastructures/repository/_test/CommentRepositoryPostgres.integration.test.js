@@ -89,21 +89,13 @@ describe('[Integration] CommentRepositoryPostgres', () => {
   });
 
   describe('getCommentsByThreadId', () => {
-    it('should correctly resolve and return the array of comment', async () => {
-      const {
-        id, created_at: date
-      } = await commentsTable.add({ thread_id: thread.id, owner_id: user.id });
+    it('should correctly resolve and return the array of Comment', async () => {
+      await commentsTable.add({ thread_id: thread.id, owner_id: user.id });
 
       const comments = await commentRepo.getCommentsByThreadId(thread.id);
 
       expect(comments).toHaveLength(1);
-      expect(comments[0]).toStrictEqual(new Comment({
-        id,
-        content: 'Sebuah komentar',
-        username: user.username,
-        date,
-        isDelete: false,
-      }));
+      expect(comments[0]).toBeInstanceOf(Comment);
     });
 
     it('should return all comments including soft-deleted ones', async () => {
@@ -118,7 +110,7 @@ describe('[Integration] CommentRepositoryPostgres', () => {
 
       expect(comments).toHaveLength(2);
       expect(comments[0].id).toEqual(rawComment1.id);
-      expect(comments[0].content).toEqual('Sebuah komentar');
+      expect(comments[0].content).toEqual(rawComment1.content);
       expect(comments[0].username).toEqual(user.username);
       expect(comments[0].date).toEqual(rawComment1.created_at);
 
