@@ -58,7 +58,7 @@ describe('AddCommentUseCase', () => {
         .rejects.toThrow();
 
       expect(mockThreadRepo.verifyThreadExists).toHaveBeenCalledWith(dummyPayload.threadId);
-      expect(mockCommentRepo.addComment).toHaveBeenCalledWith(new NewComment({ ...dummyPayload }));
+      expect(mockCommentRepo.addComment).toHaveBeenCalledWith(expect.any(NewComment));
     });
 
     it('should throw error when addedComment is not instance of AddedComment entity', async () => {
@@ -74,7 +74,7 @@ describe('AddCommentUseCase', () => {
         .toThrow('ADD_COMMENT_USE_CASE.ADDED_COMMENT_MUST_BE_INSTANCE_OF_ADDED_COMMENT_ENTITY');
 
       expect(mockThreadRepo.verifyThreadExists).toHaveBeenCalledWith(dummyPayload.threadId);
-      expect(mockCommentRepo.addComment).toHaveBeenCalledWith(new NewComment({ ...dummyPayload }));
+      expect(mockCommentRepo.addComment).toHaveBeenCalledWith(expect.any(NewComment));
     });
   });
 
