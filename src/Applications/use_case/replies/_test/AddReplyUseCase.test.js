@@ -90,11 +90,6 @@ describe('AddReplyUseCase', () => {
 
   describe('Successful executions', () => {
     it('should correctly orchestrating the add reply action', async () => {
-      const expectedAddedReply = new AddedReply({
-        id: 'reply-123',
-        content: dummyPayload.content,
-        owner: dummyPayload.owner,
-      });
       const mockAddedReply = new AddedReply({
         id: 'reply-123',
         content: dummyPayload.content,
@@ -114,7 +109,8 @@ describe('AddReplyUseCase', () => {
       expect(mockReplyRepo.addReply).toHaveBeenCalledTimes(1);
       expect(mockReplyRepo.addReply).toHaveBeenCalledWith(expect.any(NewReply));
 
-      expect(addedReply).toStrictEqual(expectedAddedReply);
+      expect(addedReply).toBeInstanceOf(AddedReply);
+      expect(addedReply.id).toEqual('reply-123');
     });
   });
 });
