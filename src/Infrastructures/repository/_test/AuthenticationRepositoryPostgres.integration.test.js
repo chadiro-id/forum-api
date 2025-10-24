@@ -32,11 +32,12 @@ describe('[Integration] AuthenticationRepositoryPostgres', () => {
   });
 
   describe('deleteToken', () => {
-    it('should correctly delete token from database', async () => {
+    it('should correctly resolve and not throw error', async () => {
       const token = 'token';
       await authenticationsTable.addToken(token);
 
-      await authenticationRepo.deleteToken(token);
+      await expect(authenticationRepo.deleteToken(token))
+        .resolves.not.toThrow();
 
       const tokens = await authenticationsTable.findToken(token);
       expect(tokens).toHaveLength(0);
