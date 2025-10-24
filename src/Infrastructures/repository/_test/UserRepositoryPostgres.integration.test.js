@@ -87,10 +87,10 @@ describe('[Integration] UserRepositoryPostgres', () => {
   });
 
   describe('verifyAvailableUsername', () => {
-    it('should resolve and not throw error when username available', async () => {
+    it('should correctly resolve and not throw error', async () => {
       await expect(userRepo.verifyAvailableUsername('johndoe23'))
         .resolves
-        .not.toThrow(InvariantError);
+        .not.toThrow();
     });
 
     it('should throw InvariantError when username not available', async () => {
