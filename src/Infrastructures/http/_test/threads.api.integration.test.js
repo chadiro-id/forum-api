@@ -186,7 +186,7 @@ describe('[Integration] Threads Endpoints', () => {
       expect(comment2.replies).toHaveLength(0);
     });
 
-    it('should response 200 and return deleted comment and reply correctly', async () => {
+    it('should handle soft-deleted comment and reply correctly', async () => {
       const comment2endpoint = `/threads/${thread.id}/comments/${commentB.id}`;
       const comment2options = {
         headers: { ...authorizationUserB }
