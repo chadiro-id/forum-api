@@ -52,24 +52,6 @@ describe('[Integration] UserRepositoryPostgres', () => {
     });
   });
 
-  describe('getPasswordByUsername', () => {
-    it('should throw InvariantError when the given username not exists', () => {
-      return expect(userRepo.getPasswordByUsername('johndoe'))
-        .rejects
-        .toThrow(InvariantError);
-    });
-
-    it('should correctly return the password related to username when exists', async () => {
-      await usersTable.add({
-        username: 'johndoe',
-        password: 'secret_password',
-      });
-
-      const password = await userRepo.getPasswordByUsername('johndoe');
-      expect(password).toBe('secret_password');
-    });
-  });
-
   describe('getIdByUsername', () => {
     it('should throw InvariantError when user not exists', async () => {
       await expect(userRepo.getIdByUsername('johndoe'))
@@ -83,6 +65,24 @@ describe('[Integration] UserRepositoryPostgres', () => {
       const userId = await userRepo.getIdByUsername('johndoe');
 
       expect(userId).toEqual('user-321');
+    });
+  });
+
+  describe('getPasswordByUsername', () => {
+    it('should correctly resolve and return the password', async () => {
+      await usersTable.add({
+        username: 'johndoe',
+        password: 'secret_password',
+      });
+
+      const password = await userRepo.getPasswordByUsername('johndoe');
+      expect(password).toBe('secret_password');
+    });
+
+    it('should throw InvariantError when username not exists', () => {
+      return expect(userRepo.getPasswordByUsername('johndoe'))
+        .rejects
+        .toThrow(InvariantError);
     });
   });
 
