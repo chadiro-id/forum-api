@@ -55,6 +55,25 @@ describe('Threads Endpoints', () => {
       body: 'Sebuah thread',
     };
 
+    it('should response 201 and return the persisted thread', async () => {
+      const options = {
+        headers: { ...authorizationUserA },
+        payload: { ...dummyPayload },
+      };
+
+      const response = await serverTest.post('/threads', options);
+
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toBe(201);
+      expect(responseJson.status).toBe('success');
+      expect(responseJson.data).toHaveProperty('addedThread');
+      expect(responseJson.data.addedThread).toEqual({
+        id: expect.stringContaining('thread-'),
+        title: dummyPayload.title,
+        owner: userA.id,
+      });
+    });
+
     it('should response 401 when request with no authentication', async () => {
       const options = {
         payload: { ...dummyPayload }
@@ -111,25 +130,6 @@ describe('Threads Endpoints', () => {
       expect(responseJson.status).toBe('fail');
       expect(responseJson.message).toEqual(expect.any(String));
       expect(responseJson.message).not.toBe('');
-    });
-
-    it('should response 201 and return the persisted thread', async () => {
-      const options = {
-        headers: { ...authorizationUserA },
-        payload: { ...dummyPayload },
-      };
-
-      const response = await serverTest.post('/threads', options);
-
-      const responseJson = JSON.parse(response.payload);
-      expect(response.statusCode).toBe(201);
-      expect(responseJson.status).toBe('success');
-      expect(responseJson.data).toHaveProperty('addedThread');
-      expect(responseJson.data.addedThread).toEqual({
-        id: expect.stringContaining('thread-'),
-        title: dummyPayload.title,
-        owner: userA.id,
-      });
     });
   });
 
