@@ -45,14 +45,7 @@ describe('[Mock-Based Integration] AuthenticationRepositoryPostgres', () => {
     });
 
     describe('deleteToken', () => {
-      it('should propagate error when database fails', async () => {
-        mockPool.query.mockRejectedValue(new Error('Database fails'));
-
-        await expect(authenticationRepo.deleteToken({}))
-          .rejects.toThrow();
-      });
-
-      it('should resolve and call pool.query correctly', async () => {
+      it('should correctly resolve and not throw error', async () => {
         mockPool.query.mockResolvedValue();
 
         await expect(authenticationRepo.deleteToken('token'))
@@ -61,6 +54,13 @@ describe('[Mock-Based Integration] AuthenticationRepositoryPostgres', () => {
         assertQueryCalled(
           mockPool.query, 'DELETE FROM authentications WHERE token', ['token']
         );
+      });
+
+      it('should propagate error when database fails', async () => {
+        mockPool.query.mockRejectedValue(new Error('Database fails'));
+
+        await expect(authenticationRepo.deleteToken({}))
+          .rejects.toThrow();
       });
     });
 
