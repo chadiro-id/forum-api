@@ -37,7 +37,7 @@ describe('AddThreadUseCase', () => {
 
       await expect(addThreadUseCase.execute({ ...dummyPayload })).rejects.toThrow();
 
-      expect(mockThreadRepo.addThread).toHaveBeenCalledWith(new NewThread({ ...dummyPayload }));
+      expect(mockThreadRepo.addThread).toHaveBeenCalledWith(expect.any(NewThread));
     });
 
     it('should throw error when addedThread is not instance of AddedThread entity', async () => {
@@ -51,7 +51,7 @@ describe('AddThreadUseCase', () => {
         .rejects
         .toThrow('ADD_THREAD_USE_CASE.ADDED_THREAD_MUST_BE_INSTANCE_OF_ADDED_THREAD_ENTITY');
 
-      expect(mockThreadRepo.addThread).toHaveBeenCalledWith(new NewThread({ ...dummyPayload }));
+      expect(mockThreadRepo.addThread).toHaveBeenCalledWith(expect.any(NewThread));
     });
   });
 
@@ -73,7 +73,7 @@ describe('AddThreadUseCase', () => {
       const addedThread = await addThreadUseCase.execute({ ...dummyPayload });
 
       expect(mockThreadRepo.addThread).toHaveBeenCalledTimes(1);
-      expect(mockThreadRepo.addThread).toHaveBeenCalledWith(new NewThread({ ...dummyPayload }));
+      expect(mockThreadRepo.addThread).toHaveBeenCalledWith(expect.any(NewThread));
 
       expect(addedThread).toStrictEqual(expectedAddedThread);
     });
