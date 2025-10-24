@@ -32,6 +32,15 @@ const comments = (pool) => {
     return result.rows;
   };
 
+  const softDeleteById = async (id) => {
+    const query = {
+      text: 'UPDATE comments SET is_delete = TRUE WHERE id = $1',
+      values: [id],
+    };
+
+    await pool.query(query);
+  };
+
   const clean = async () => {
     await pool.query('DELETE FROM comments WHERE 1=1');
   };
@@ -39,6 +48,7 @@ const comments = (pool) => {
   return {
     add,
     findById,
+    softDeleteById,
     clean,
   };
 };

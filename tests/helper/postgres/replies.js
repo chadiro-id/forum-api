@@ -33,6 +33,15 @@ const replies = (pool) => {
     return result.rows;
   };
 
+  const softDeleteById = async (id) => {
+    const query = {
+      text: 'UPDATE replies SET is_delete = TRUE WHERE id = $1',
+      values: [id],
+    };
+
+    await pool.query(query);
+  };
+
   const clean = async () => {
     await pool.query('DELETE FROM replies WHERE 1=1');
   };
@@ -40,6 +49,7 @@ const replies = (pool) => {
   return {
     add,
     findById,
+    softDeleteById,
     clean,
   };
 };
