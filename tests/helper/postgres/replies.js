@@ -5,10 +5,18 @@ const replies = (pool) => {
     comment_id = 'comment-001',
     owner_id = 'user-001',
     content = 'Sebuah balasan',
+    is_delete = false,
   }) => {
     const query = {
-      text: 'INSERT INTO replies (id, comment_id, owner_id, content) VALUES ($1, $2, $3, $4) RETURNING id, created_at',
-      values: [id, comment_id, owner_id, content],
+      text: `
+      INSERT INTO replies
+        (id, comment_id, owner_id, content, is_delete)
+      VALUES
+        ($1, $2, $3, $4, $5)
+      RETURNING
+        id, content, created_at
+      `,
+      values: [id, comment_id, owner_id, content, is_delete],
     };
 
     const result = await pool.query(query);
