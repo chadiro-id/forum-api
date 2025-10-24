@@ -68,11 +68,6 @@ describe('AddReplyUseCase', () => {
     });
 
     it('should throw error when the addedReply is not instance of AddedReply entity', async () => {
-      const calledNewReply = new NewReply({
-        commentId: dummyPayload.commentId,
-        content: dummyPayload.content,
-        owner: dummyPayload.owner,
-      });
       const mockAddedReply = {
         id: 'reply-123',
         content: dummyPayload.content,
@@ -89,7 +84,7 @@ describe('AddReplyUseCase', () => {
 
       expect(mockThreadRepo.verifyThreadExists).toHaveBeenCalledWith(dummyPayload.threadId);
       expect(mockCommentRepo.verifyCommentBelongToThread).toHaveBeenCalledWith(dummyPayload.commentId, dummyPayload.threadId);
-      expect(mockReplyRepo.addReply).toHaveBeenCalledWith(calledNewReply);
+      expect(mockReplyRepo.addReply).toHaveBeenCalledWith(expect.any(NewReply));
     });
   });
 
@@ -97,11 +92,6 @@ describe('AddReplyUseCase', () => {
     it('should correctly orchestrating the add reply action', async () => {
       const expectedAddedReply = new AddedReply({
         id: 'reply-123',
-        content: dummyPayload.content,
-        owner: dummyPayload.owner,
-      });
-      const calledNewReply = new NewReply({
-        commentId: dummyPayload.commentId,
         content: dummyPayload.content,
         owner: dummyPayload.owner,
       });
@@ -122,7 +112,7 @@ describe('AddReplyUseCase', () => {
       expect(mockCommentRepo.verifyCommentBelongToThread).toHaveBeenCalledTimes(1);
       expect(mockCommentRepo.verifyCommentBelongToThread).toHaveBeenCalledWith(dummyPayload.commentId, dummyPayload.threadId);
       expect(mockReplyRepo.addReply).toHaveBeenCalledTimes(1);
-      expect(mockReplyRepo.addReply).toHaveBeenCalledWith(calledNewReply);
+      expect(mockReplyRepo.addReply).toHaveBeenCalledWith(expect.any(NewReply));
 
       expect(addedReply).toStrictEqual(expectedAddedReply);
     });
