@@ -31,23 +31,6 @@ describe('[Integration] AuthenticationRepositoryPostgres', () => {
     });
   });
 
-  describe('checkAvailabilityToken', () => {
-    it('should throw InvariantError when token not exists', async () => {
-      const token = 'token';
-
-      await expect(authenticationRepo.checkAvailabilityToken(token))
-        .rejects.toThrow(InvariantError);
-    });
-
-    it('should not throw error when token exists', async () => {
-      const token = 'token';
-      await authenticationsTable.addToken(token);
-
-      await expect(authenticationRepo.checkAvailabilityToken(token))
-        .resolves.not.toThrow();
-    });
-  });
-
   describe('deleteToken', () => {
     it('should correctly delete token from database', async () => {
       const token = 'token';
@@ -57,6 +40,23 @@ describe('[Integration] AuthenticationRepositoryPostgres', () => {
 
       const tokens = await authenticationsTable.findToken(token);
       expect(tokens).toHaveLength(0);
+    });
+  });
+
+  describe('verifyTokenExists', () => {
+    it('should correctly resolve and not throw error', async () => {
+      const token = 'token';
+      await authenticationsTable.addToken(token);
+
+      await expect(authenticationRepo.verifyTokenExists(token))
+        .resolves.not.toThrow();
+    });
+
+    it('should throw InvariantError when token not exists', async () => {
+      const token = 'token';
+
+      await expect(authenticationRepo.verifyTokenExists(token))
+        .rejects.toThrow(InvariantError);
     });
   });
 });
