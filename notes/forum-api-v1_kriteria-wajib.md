@@ -8,17 +8,17 @@ API harus dapat menambahkan thread melalui *route*:
 - Method: __POST__
 - Path: __/threads__
 - Body Request:
-    ```
+    ```json
     {
-        "title": string,
-        "body": string,
+        "title": "string",
+        "body": "string",
     }
     ```
 
 Response yang harus dikembalikan:
 - Status Code: __201__
 - Response Body:
-    ```
+    ```json
     {
         "status": "success",
         "data": {
@@ -45,16 +45,16 @@ API harus dapat menambahkan __komentar__ pada *thread* melalui *route*:
 - Method: __POST__
 - Path: __/threads/{threadId}/comments__
 - Body Request:
-    ```
+    ```json
     {
-        "content": string,
+        "content": "string",
     }
     ```
 
 Response yang harus dikembalikan:
 - Status Code: __201__
 - Response Body:
-    ```
+    ```json
     {
         "status": "success",
         "data": {
@@ -89,7 +89,7 @@ API harus dapat menghapus __komentar__ pada *thread* melalui *route*:
 Response yang harus dikembalikan:
 - Status Code: __200__
 - Response Body:
-    ```
+    ```json
     {
         "status": "success",
     }
@@ -118,7 +118,7 @@ API harus dapat __mendapatkan__ detail *thread* melalui *route*:
 Response yang harus dikembalikan:
 - Status Code: __200__
 - Response Body:
-    ```
+    ```json
     {
         "status": "success",
         "data": {

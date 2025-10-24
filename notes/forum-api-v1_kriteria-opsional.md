@@ -6,16 +6,16 @@ API harus dapat menambahkan balasan pada komentar thread melalui route:
 - Method: __POST__
 - Path: __/threads/{threadId}/comments/{commentId}/replies__
 - Body Request:
-    ```
+    ```json
     {
-        "content": string
+        "content": "string"
     }
     ```
 
 Response yang harus dikembalikan:
 - Status Code: __201__
 - Response Body:
-    ```
+    ```json
     {
         "status": "success",
         "data": {
@@ -41,7 +41,7 @@ __Ketentuan:__
         - __status__: "fail"
         - __message__: Pesan yang sesuai
 - Balasan pada komentar thread harus ditampilkan pada setiap item __comments__ ketika mengakses *detail thread*. Contohnya seperti ini:
-    ```
+    ```json
     {
         "status": "success",
         "data": {
@@ -89,7 +89,7 @@ API harus dapat menghapus balasan pada komentar thread melalui *route*:
 Response yang harus dikembalikan:
 - Status Code: __200__
 - Response Body:
-    ```
+    ```json
     {
         "status": "success"
     }
