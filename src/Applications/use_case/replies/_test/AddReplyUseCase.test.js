@@ -86,6 +86,19 @@ describe('AddReplyUseCase', () => {
       expect(mockCommentRepo.verifyCommentBelongToThread).toHaveBeenCalledWith(dummyPayload.commentId, dummyPayload.threadId);
       expect(mockReplyRepo.addReply).toHaveBeenCalledWith(expect.any(NewReply));
     });
+
+    it('should propagate error when addReply fails', async () => {
+      mockThreadRepo.verifyThreadExists.mockResolvedValue();
+      mockCommentRepo.verifyCommentBelongToThread.mockResolvedValue();
+      mockReplyRepo.addReply.mockRejectedValue(new Error('DB fail'));
+
+      await expect(addReplyUseCase.execute({ ...dummyPayload }))
+        .rejects.toThrow('DB fail');
+
+      expect(mockThreadRepo.verifyThreadExists).toHaveBeenCalledWith(dummyPayload.threadId);
+      expect(mockCommentRepo.verifyCommentBelongToThread).toHaveBeenCalledWith(dummyPayload.commentId, dummyPayload.threadId);
+      expect(mockReplyRepo.addReply).toHaveBeenCalled();
+    });
   });
 
   describe('Successful executions', () => {
