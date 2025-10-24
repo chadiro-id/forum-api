@@ -89,16 +89,7 @@ describe('[Integration] CommentRepositoryPostgres', () => {
   });
 
   describe('getCommentsByThreadId', () => {
-    it('should correctly resolve and return the array of Comment', async () => {
-      await commentsTable.add({ thread_id: thread.id, owner_id: user.id });
-
-      const comments = await commentRepo.getCommentsByThreadId(thread.id);
-
-      expect(comments).toHaveLength(1);
-      expect(comments[0]).toBeInstanceOf(Comment);
-    });
-
-    it('should return all comments including soft-deleted ones', async () => {
+    it('should correctly resolve and return all comments including soft-deleted ones', async () => {
       const rawComment1 = await commentsTable.add({
         id: 'comment-101', thread_id: thread.id, owner_id: user.id
       });
@@ -109,11 +100,13 @@ describe('[Integration] CommentRepositoryPostgres', () => {
       const comments = await commentRepo.getCommentsByThreadId(thread.id);
 
       expect(comments).toHaveLength(2);
+      expect(comments[0]).toBeInstanceOf(Comment);
       expect(comments[0].id).toEqual(rawComment1.id);
       expect(comments[0].content).toEqual(rawComment1.content);
       expect(comments[0].username).toEqual(user.username);
       expect(comments[0].date).toEqual(rawComment1.created_at);
 
+      expect(comments[1]).toBeInstanceOf(Comment);
       expect(comments[1].id).toEqual(rawComment2.id);
       expect(comments[1].content).toEqual('**komentar telah dihapus**');
       expect(comments[1].username).toEqual(user.username);
