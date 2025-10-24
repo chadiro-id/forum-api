@@ -64,6 +64,24 @@ describe('Comments Endpoints', () => {
       endpoint = `/threads/${thread.id}/comments`;
     });
 
+    it('should response 201 and the persisted comment', async () => {
+      const options = {
+        headers: { ...authorizationUserA },
+        payload: { content: 'Sebuah komentar' },
+      };
+
+      const response = await serverTest.post(endpoint, options);
+
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toBe(201);
+      expect(responseJson.status).toBe('success');
+      expect(responseJson.data).toEqual(expect.any(Object));
+      expect(responseJson.data.addedComment).toEqual(expect.any(Object));
+      expect(responseJson.data.addedComment.id).toEqual(expect.stringContaining('comment-'));
+      expect(responseJson.data.addedComment.content).toEqual('Sebuah komentar');
+      expect(responseJson.data.addedComment.owner).toEqual(userA.id);
+    });
+
     it('should response 401 when request with no authentications', async () => {
       const options = {
         payload: { content: 'Sebuah komentar' }
@@ -121,24 +139,6 @@ describe('Comments Endpoints', () => {
       expect(responseJson.message).toEqual(expect.any(String));
       expect(responseJson.message).not.toBe('');
     });
-
-    it('should response 201 and the persisted comment', async () => {
-      const options = {
-        headers: { ...authorizationUserA },
-        payload: { content: 'Sebuah komentar' },
-      };
-
-      const response = await serverTest.post(endpoint, options);
-
-      const responseJson = JSON.parse(response.payload);
-      expect(response.statusCode).toBe(201);
-      expect(responseJson.status).toBe('success');
-      expect(responseJson.data).toEqual(expect.any(Object));
-      expect(responseJson.data.addedComment).toEqual(expect.any(Object));
-      expect(responseJson.data.addedComment.id).toEqual(expect.stringContaining('comment-'));
-      expect(responseJson.data.addedComment.content).toEqual('Sebuah komentar');
-      expect(responseJson.data.addedComment.owner).toEqual(userA.id);
-    });
   });
 
   describe('DELETE /threads/{threadId}/comments/{commentId}', () => {
@@ -152,6 +152,19 @@ describe('Comments Endpoints', () => {
 
     afterAll(async () => {
       await commentsTable.clean();
+    });
+
+    it('should response 200 and status "success"', async () => {
+      const endpoint = `/threads/${thread.id}/comments/${commentUserA.id}`;
+      const options = {
+        headers: { ...authorizationUserA }
+      };
+
+      const response = await serverTest.delete(endpoint, options);
+
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toBe(200);
+      expect(responseJson.status).toEqual('success');
     });
 
     it('should response 401 when request with no authentication', async () => {
@@ -208,19 +221,6 @@ describe('Comments Endpoints', () => {
       expect(responseJson.status).toEqual('fail');
       expect(responseJson.message).toEqual(expect.any(String));
       expect(responseJson.message.trim()).not.toBe('');
-    });
-
-    it('should response 200 when everything is ok', async () => {
-      const endpoint = `/threads/${thread.id}/comments/${commentUserA.id}`;
-      const options = {
-        headers: { ...authorizationUserA }
-      };
-
-      const response = await serverTest.delete(endpoint, options);
-
-      const responseJson = JSON.parse(response.payload);
-      expect(response.statusCode).toBe(200);
-      expect(responseJson.status).toEqual('success');
     });
   });
 });
