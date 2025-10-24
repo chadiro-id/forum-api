@@ -44,42 +44,6 @@ describe('[Mock-Based Integration] AuthenticationRepositoryPostgres', () => {
       });
     });
 
-    describe('checkAvailibilityToken', () => {
-      it('should propagate error when database fails', async () => {
-        mockPool.query.mockRejectedValue(new Error('Database fails'));
-
-        await expect(authenticationRepo.checkAvailabilityToken({}))
-          .rejects.toThrow();
-      });
-
-      it('should throw InvariantError when token not exists', async () => {
-        mockPool.query.mockResolvedValue({
-          rows: [], rowCount: 0
-        });
-
-        await expect(authenticationRepo.checkAvailabilityToken('token'))
-          .rejects.toThrow(InvariantError);
-
-        assertQueryCalled(
-          mockPool.query, 'SELECT token FROM authentications', ['token']
-        );
-      });
-
-      it('should resolves and not throw InvariantError when token exists', async () => {
-        mockPool.query.mockResolvedValue({
-          rows: [{ token: 'token' }],
-          rowCount: 1,
-        });
-
-        await expect(authenticationRepo.checkAvailabilityToken('token'))
-          .resolves.not.toThrow(InvariantError);
-
-        assertQueryCalled(
-          mockPool.query, 'SELECT token FROM authentications', ['token']
-        );
-      });
-    });
-
     describe('deleteToken', () => {
       it('should propagate error when database fails', async () => {
         mockPool.query.mockRejectedValue(new Error('Database fails'));
@@ -97,6 +61,38 @@ describe('[Mock-Based Integration] AuthenticationRepositoryPostgres', () => {
         assertQueryCalled(
           mockPool.query, 'DELETE FROM authentications WHERE token', ['token']
         );
+      });
+    });
+
+    describe('verifyTokenExists', () => {
+      it('should correctly resolve and not throw error', async () => {
+        mockPool.query.mockResolvedValue({
+          rows: [{ token: 'token' }],
+          rowCount: 1,
+        });
+
+        await expect(authenticationRepo.verifyTokenExists('token'))
+          .resolves.not.toThrow();
+
+        assertQueryCalled(
+          mockPool.query, 'SELECT token FROM authentications', ['token']
+        );
+      });
+
+      it('should throw InvariantError when token not exists', async () => {
+        mockPool.query.mockResolvedValue({
+          rows: [], rowCount: 0
+        });
+
+        await expect(authenticationRepo.verifyTokenExists('token'))
+          .rejects.toThrow(InvariantError);
+      });
+
+      it('should propagate error when database fails', async () => {
+        mockPool.query.mockRejectedValue(new Error('Database fails'));
+
+        await expect(authenticationRepo.verifyTokenExists('token'))
+          .rejects.toThrow();
       });
     });
   });
