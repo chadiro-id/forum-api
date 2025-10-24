@@ -22,33 +22,24 @@ describe('[Integration] UserRepositoryPostgres', () => {
   });
 
   describe('addUser', () => {
-    it('should persist register user entity correctly', async () => {
+    it('should correctly persist the RegisterUser and return RegisteredUser', async () => {
       const registerUser = new RegisterUser({
         username: 'johndoe',
         password: 'secret_password',
         fullname: 'John Doe',
       });
-
-      await userRepo.addUser(registerUser);
-
-      const users = await usersTable.findById('user-123');
-      expect(users).toHaveLength(1);
-    });
-
-    it('should return registered user entity correctly', async () => {
-      const registerUser = new RegisterUser({
+      const expectedRegisteredUser = new RegisteredUser({
+        id: 'user-123',
         username: 'johndoe',
-        password: 'secret_password',
         fullname: 'John Doe',
       });
 
       const registeredUser = await userRepo.addUser(registerUser);
 
-      expect(registeredUser).toStrictEqual(new RegisteredUser({
-        id: 'user-123',
-        username: 'johndoe',
-        fullname: 'John Doe',
-      }));
+      const users = await usersTable.findById('user-123');
+      expect(users).toHaveLength(1);
+
+      expect(registeredUser).toStrictEqual(expectedRegisteredUser);
     });
   });
 
@@ -61,7 +52,7 @@ describe('[Integration] UserRepositoryPostgres', () => {
       expect(userId).toEqual('user-321');
     });
 
-    it('should throw InvariantError when user not exists', async () => {
+    it('should throw InvariantError when username not exists', async () => {
       await expect(userRepo.getIdByUsername('johndoe'))
         .rejects
         .toThrow(InvariantError);
