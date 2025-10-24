@@ -33,7 +33,7 @@ describe('AddThreadUseCase', () => {
     });
 
     it('should propagate error when addThread fails', async () => {
-      mockThreadRepo.addThread.mockRejectedValue(new Error('add thead fails'));
+      mockThreadRepo.addThread.mockRejectedValue(new Error('add thread fails'));
 
       await expect(addThreadUseCase.execute({ ...dummyPayload })).rejects.toThrow();
 
