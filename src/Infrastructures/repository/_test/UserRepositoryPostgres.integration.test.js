@@ -53,18 +53,18 @@ describe('[Integration] UserRepositoryPostgres', () => {
   });
 
   describe('getIdByUsername', () => {
-    it('should throw InvariantError when user not exists', async () => {
-      await expect(userRepo.getIdByUsername('johndoe'))
-        .rejects
-        .toThrow(InvariantError);
-    });
-
-    it('should return user id correctly', async () => {
+    it('should correctly resolve and return the id', async () => {
       await usersTable.add({ id: 'user-321', username: 'johndoe' });
 
       const userId = await userRepo.getIdByUsername('johndoe');
 
       expect(userId).toEqual('user-321');
+    });
+
+    it('should throw InvariantError when user not exists', async () => {
+      await expect(userRepo.getIdByUsername('johndoe'))
+        .rejects
+        .toThrow(InvariantError);
     });
   });
 
