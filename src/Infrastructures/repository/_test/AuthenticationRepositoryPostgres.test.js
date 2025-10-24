@@ -25,14 +25,7 @@ describe('[Mock-Based Integration] AuthenticationRepositoryPostgres', () => {
     });
 
     describe('addToken', () => {
-      it('should propagate error when database fails', async () => {
-        mockPool.query.mockRejectedValue(new Error('Database fails'));
-
-        await expect(authenticationRepo.addToken({}))
-          .rejects.toThrow();
-      });
-
-      it('should correctly persist the token', async () => {
+      it('should correctly resolve and not throw error', async () => {
         mockPool.query.mockResolvedValue();
 
         await expect(authenticationRepo.addToken('token'))
@@ -41,6 +34,13 @@ describe('[Mock-Based Integration] AuthenticationRepositoryPostgres', () => {
         assertQueryCalled(
           mockPool.query, 'INSERT INTO authentications', ['token']
         );
+      });
+
+      it('should propagate error when database fails', async () => {
+        mockPool.query.mockRejectedValue(new Error('Database fails'));
+
+        await expect(authenticationRepo.addToken('token'))
+          .rejects.toThrow();
       });
     });
 
@@ -59,7 +59,7 @@ describe('[Mock-Based Integration] AuthenticationRepositoryPostgres', () => {
       it('should propagate error when database fails', async () => {
         mockPool.query.mockRejectedValue(new Error('Database fails'));
 
-        await expect(authenticationRepo.deleteToken({}))
+        await expect(authenticationRepo.deleteToken('token'))
           .rejects.toThrow();
       });
     });
