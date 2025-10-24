@@ -98,44 +98,37 @@ describe('[Integration] ReplyRepositoryPostgres', () => {
   });
 
   describe('getRepliesByCommentIds', () => {
-    it('should correctly resolve and return the array of reply', async () => {
-      const replyA = await repliesTable.add({
+    it('should correctly resolve and return all replies including soft-deleted ones', async () => {
+      const rawReply1 = await repliesTable.add({
         id: 'reply-001', comment_id: commentB.id, owner_id: userA.id
       });
-      const replyB = await repliesTable.add({
-        id: 'reply-002', comment_id: commentA.id, owner_id: userB.id
+      const rawReply2 = await repliesTable.add({
+        id: 'reply-002', comment_id: commentA.id, owner_id: userB.id, is_delete: true
       });
-      const replyC = await repliesTable.add({
+      const rawReply3 = await repliesTable.add({
         id: 'reply-003', comment_id: commentB.id, owner_id: userB.id
       });
 
       const replies = await replyRepo.getRepliesByCommentIds([commentA.id, commentB.id]);
 
       expect(replies).toHaveLength(3);
-      expect(replies[0]).toStrictEqual(new Reply({
-        id: replyA.id,
-        commentId: commentB.id,
-        content: 'Sebuah balasan',
-        username: userA.username,
-        date: replyA.created_at,
-        isDelete: false,
-      }));
-      expect(replies[1]).toStrictEqual(new Reply({
-        id: replyB.id,
-        commentId: commentA.id,
-        content: 'Sebuah balasan',
-        username: userB.username,
-        date: replyB.created_at,
-        isDelete: false,
-      }));
-      expect(replies[2]).toStrictEqual(new Reply({
-        id: replyC.id,
-        commentId: commentB.id,
-        content: 'Sebuah balasan',
-        username: userB.username,
-        date: replyC.created_at,
-        isDelete: false,
-      }));
+      expect(replies[0]).toBeInstanceOf(Reply);
+      expect(replies[0].id).toEqual(rawReply1.id);
+      expect(replies[0].content).toEqual(rawReply1.content);
+      expect(replies[0].username).toEqual(userA.username);
+      expect(replies[0].date).toEqual(rawReply1.created_at);
+
+      expect(replies[1]).toBeInstanceOf(Reply);
+      expect(replies[1].id).toEqual(rawReply2.id);
+      expect(replies[1].content).toEqual('**balasan telah dihapus**');
+      expect(replies[1].username).toEqual(userB.username);
+      expect(replies[1].date).toEqual(rawReply2.created_at);
+
+      expect(replies[2]).toBeInstanceOf(Reply);
+      expect(replies[2].id).toEqual(rawReply3.id);
+      expect(replies[2].content).toEqual(rawReply3.content);
+      expect(replies[2].username).toEqual(userB.username);
+      expect(replies[2].date).toEqual(rawReply3.created_at);
     });
 
     it('should return an empty array when no reply found', async () => {
