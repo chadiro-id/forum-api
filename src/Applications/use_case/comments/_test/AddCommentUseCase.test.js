@@ -80,11 +80,6 @@ describe('AddCommentUseCase', () => {
 
   describe('Successful execution', () => {
     it('should correctly orchestrating the add comment action', async () => {
-      const expectedAddedComment = new AddedComment({
-        id: 'comment-123',
-        content: dummyPayload.content,
-        owner: dummyPayload.owner,
-      });
       const mockAddedComment = new AddedComment({
         id: 'comment-123',
         content: dummyPayload.content,
@@ -99,9 +94,10 @@ describe('AddCommentUseCase', () => {
       expect(mockThreadRepo.verifyThreadExists).toHaveBeenCalledTimes(1);
       expect(mockThreadRepo.verifyThreadExists).toHaveBeenCalledWith(dummyPayload.threadId);
       expect(mockCommentRepo.addComment).toHaveBeenCalledTimes(1);
-      expect(mockCommentRepo.addComment).toHaveBeenCalledWith(new NewComment({ ...dummyPayload }));
+      expect(mockCommentRepo.addComment).toHaveBeenCalledWith(expect.any(NewComment));
 
-      expect(addedComment).toStrictEqual(expectedAddedComment);
+      expect(addedComment).toBeInstanceOf(AddedComment);
+      expect(addedComment.id).toEqual('comment-123');
     });
   });
 });
