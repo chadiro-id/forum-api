@@ -15,7 +15,7 @@ class PutAuthenticationUseCase {
     const { refreshToken } = payload;
 
     await this._authenticationTokenManager.verifyRefreshToken(refreshToken);
-    await this._authenticationRepository.checkAvailabilityToken(refreshToken);
+    await this._authenticationRepository.verifyTokenExists(refreshToken);
 
     const { username, id } = await this._authenticationTokenManager.decodePayload(refreshToken);
 

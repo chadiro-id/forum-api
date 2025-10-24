@@ -17,7 +17,16 @@ class AuthenticationRepositoryPostgres extends AuthenticationRepository {
     await this._pool.query(query);
   }
 
-  async checkAvailabilityToken(token) {
+  async deleteToken(token) {
+    const query = {
+      text: 'DELETE FROM authentications WHERE token = $1',
+      values: [token],
+    };
+
+    await this._pool.query(query);
+  }
+
+  async verifyTokenExists(token) {
     const query = {
       text: 'SELECT token FROM authentications WHERE token = $1',
       values: [token],
@@ -28,15 +37,6 @@ class AuthenticationRepositoryPostgres extends AuthenticationRepository {
     if (result.rows.length === 0) {
       throw new InvariantError('refresh token tidak ditemukan di database');
     }
-  }
-
-  async deleteToken(token) {
-    const query = {
-      text: 'DELETE FROM authentications WHERE token = $1',
-      values: [token],
-    };
-
-    await this._pool.query(query);
   }
 }
 
