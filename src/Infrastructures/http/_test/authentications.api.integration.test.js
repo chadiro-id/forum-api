@@ -12,7 +12,7 @@ afterAll(async () => {
   await pool.end();
 });
 
-describe('Authentications Endpoints', () => {
+describe('[Integration] Authentications Endpoints', () => {
   const loginUser = {
     username: 'johndoe',
     password: 'supersecret^_^007'

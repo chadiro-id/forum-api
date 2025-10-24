@@ -28,7 +28,7 @@ afterAll(async () => {
   await pool.end();
 });
 
-describe('Threads Endpoints', () => {
+describe('[Integration] Threads Endpoints', () => {
   let authorizationUserA;
   let authorizationUserB;
 

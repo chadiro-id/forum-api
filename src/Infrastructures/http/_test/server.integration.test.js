@@ -1,6 +1,6 @@
 const { createServer } = require('../server');
 
-describe('HTTP server', () => {
+describe('[Integration] HTTP server', () => {
   it('should response 404 when request unregistered route', async () => {
     const server = await createServer({});
 

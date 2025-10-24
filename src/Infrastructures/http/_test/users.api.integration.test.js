@@ -12,7 +12,7 @@ afterAll(async () => {
   await pool.end();
 });
 
-describe('Users Endpoints', () => {
+describe('[Integration] Users Endpoints', () => {
   beforeEach(async () => {
     await serverTest.init();
   });

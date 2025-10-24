@@ -29,7 +29,7 @@ afterAll(async () => {
   await pool.end();
 });
 
-describe('Replies Endpoints', () => {
+describe('[Integration] Replies Endpoints', () => {
   let thread;
   let comment;
   let authorizationUserA;
