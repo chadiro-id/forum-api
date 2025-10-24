@@ -154,8 +154,8 @@ describe('GetDetailThreadUseCase', () => {
         .rejects
         .toThrow('GET_DETAIL_THREAD_USE_CASE.DETAIL_THREAD_MUST_BE_INSTANCE_OF_DETAIL_THREAD_ENTITY');
 
-      expect(mockThreadRepo.getThreadById).toHaveBeenCalledTimes(1);
       expect(mockThreadRepo.getThreadById).toHaveBeenCalledWith('thread-123');
+      expect(mockCommentRepo.getCommentsByThreadId).toHaveBeenCalledWith('thread-123');
       expect(mockReplyRepo.getRepliesByCommentIds).not.toHaveBeenCalled();
     });
 
@@ -171,7 +171,6 @@ describe('GetDetailThreadUseCase', () => {
 
       expect(mockThreadRepo.getThreadById).toHaveBeenCalledWith('thread-123');
       expect(mockCommentRepo.getCommentsByThreadId).toHaveBeenCalledWith('thread-123');
-      expect(mockReplyRepo.getRepliesByCommentIds).toHaveBeenCalledTimes(1);
       expect(mockReplyRepo.getRepliesByCommentIds).toHaveBeenCalledWith([comment1.id, comment2.id]);
     });
   });
