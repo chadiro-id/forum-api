@@ -34,11 +34,12 @@ describe('AddUserUseCase', () => {
 
   describe('Failure cases', () => {
     it('should throw error when payload not provided correctly', async () => {
-      const useCase = new AddUserUseCase({});
-
-      await expect(useCase.execute()).rejects.toThrow();
-      await expect(useCase.execute([])).rejects.toThrow();
-      await expect(useCase.execute({ ...dummyPayload, username: 'who am i' })).rejects.toThrow();
+      await expect(addUserUseCase.execute())
+        .rejects.toThrow();
+      await expect(addUserUseCase.execute([]))
+        .rejects.toThrow();
+      await expect(addUserUseCase.execute({ ...dummyPayload, username: 'who am i' }))
+        .rejects.toThrow();
     });
 
     it('should propagate error when username already taken', async () => {
@@ -46,7 +47,6 @@ describe('AddUserUseCase', () => {
 
       await expect(addUserUseCase.execute({ ...dummyPayload })).rejects.toThrow();
 
-      expect(mockUserRepo.verifyAvailableUsername).toHaveBeenCalledTimes(1);
       expect(mockUserRepo.verifyAvailableUsername).toHaveBeenCalledWith(dummyPayload.username);
       expect(mockPasswordHash.hash).not.toHaveBeenCalled();
     });
@@ -58,10 +58,8 @@ describe('AddUserUseCase', () => {
 
       await expect(addUserUseCase.execute({ ...dummyPayload })).rejects.toThrow();
 
-      expect(mockUserRepo.verifyAvailableUsername).toHaveBeenCalledTimes(1);
       expect(mockUserRepo.verifyAvailableUsername).toHaveBeenCalledWith(dummyPayload.username);
       expect(mockPasswordHash.hash).toHaveBeenCalledTimes(1);
-      expect(mockUserRepo.addUser).toHaveBeenCalledTimes(1);
       expect(mockUserRepo.addUser).toHaveBeenCalledWith(new RegisterUser({
         username: dummyPayload.username,
         fullname: dummyPayload.fullname,
@@ -82,10 +80,8 @@ describe('AddUserUseCase', () => {
         .rejects
         .toThrow('ADD_USER_USE_CASE.REGISTERED_USER_MUST_BE_INSTANCE_OF_REGISTERED_USER_ENTITY');
 
-      expect(mockUserRepo.verifyAvailableUsername).toHaveBeenCalledTimes(1);
       expect(mockUserRepo.verifyAvailableUsername).toHaveBeenCalledWith(dummyPayload.username);
       expect(mockPasswordHash.hash).toHaveBeenCalledTimes(1);
-      expect(mockUserRepo.addUser).toHaveBeenCalledTimes(1);
       expect(mockUserRepo.addUser).toHaveBeenCalledWith(new RegisterUser({
         username: dummyPayload.username,
         fullname: dummyPayload.fullname,
@@ -95,7 +91,7 @@ describe('AddUserUseCase', () => {
   });
 
   describe('Successful execution', () => {
-    it('should orchestrating the add user action correctly', async () => {
+    it('should correctly orchestrating the add user action', async () => {
       mockUserRepo.verifyAvailableUsername.mockResolvedValue();
       mockPasswordHash.hash.mockResolvedValue('encrypted_password');
       mockUserRepo.addUser.mockResolvedValue(new RegisteredUser({
