@@ -32,11 +32,12 @@ describe('AddCommentUseCase', () => {
 
   describe('Failure cases', () => {
     it('should throw error when payload not provided correctly', async () => {
-      const useCase = new AddCommentUseCase({});
-
-      await expect(useCase.execute()).rejects.toThrow();
-      await expect(useCase.execute(123)).rejects.toThrow();
-      await expect(useCase.execute({ ...dummyPayload, content: true })).rejects.toThrow();
+      await expect(addCommentUseCase.execute())
+        .rejects.toThrow();
+      await expect(addCommentUseCase.execute(123))
+        .rejects.toThrow();
+      await expect(addCommentUseCase.execute({ ...dummyPayload, content: true }))
+        .rejects.toThrow();
     });
 
     it('should propagate error when thread not exists', async () => {
@@ -57,44 +58,38 @@ describe('AddCommentUseCase', () => {
         .rejects.toThrow();
 
       expect(mockThreadRepo.verifyThreadExists).toHaveBeenCalledWith(dummyPayload.threadId);
-      expect(mockCommentRepo.addComment).toHaveBeenCalledTimes(1);
-      expect(mockCommentRepo.addComment).toHaveBeenCalledWith(new NewComment({
-        threadId: dummyPayload.threadId,
-        content: dummyPayload.content,
-        owner: dummyPayload.owner,
-      }));
+      expect(mockCommentRepo.addComment).toHaveBeenCalledWith(new NewComment({ ...dummyPayload }));
     });
 
     it('should throw error when addedComment is not instance of AddedComment entity', async () => {
       mockThreadRepo.verifyThreadExists.mockResolvedValue();
       mockCommentRepo.addComment.mockResolvedValue({
         id: 'comment-123',
-        content: 'Sebuah komentar',
-        owner: 'user-123',
+        content: dummyPayload.content,
+        owner: dummyPayload.owner,
       });
 
       await expect(addCommentUseCase.execute({ ...dummyPayload }))
         .rejects
         .toThrow('ADD_COMMENT_USE_CASE.ADDED_COMMENT_MUST_BE_INSTANCE_OF_ADDED_COMMENT_ENTITY');
 
-      expect(mockThreadRepo.verifyThreadExists).toHaveBeenCalledTimes(1);
       expect(mockThreadRepo.verifyThreadExists).toHaveBeenCalledWith(dummyPayload.threadId);
-      expect(mockCommentRepo.addComment).toHaveBeenCalledTimes(1);
-      expect(mockCommentRepo.addComment).toHaveBeenCalledWith(new NewComment({
-        threadId: dummyPayload.threadId,
-        content: dummyPayload.content,
-        owner: dummyPayload.owner,
-      }));
+      expect(mockCommentRepo.addComment).toHaveBeenCalledWith(new NewComment({ ...dummyPayload }));
     });
   });
 
   describe('Successful execution', () => {
     it('should correctly orchestrating the add comment action', async () => {
+      const expectedAddedComment = new AddedComment({
+        id: 'comment-123',
+        content: dummyPayload.content,
+        owner: dummyPayload.owner,
+      });
       mockThreadRepo.verifyThreadExists.mockResolvedValue();
       mockCommentRepo.addComment.mockResolvedValue(new AddedComment({
         id: 'comment-123',
-        content: 'Sebuah komentar',
-        owner: 'user-123',
+        content: dummyPayload.content,
+        owner: dummyPayload.owner,
       }));
 
       const addedComment = await addCommentUseCase.execute({ ...dummyPayload });
@@ -102,17 +97,9 @@ describe('AddCommentUseCase', () => {
       expect(mockThreadRepo.verifyThreadExists).toHaveBeenCalledTimes(1);
       expect(mockThreadRepo.verifyThreadExists).toHaveBeenCalledWith(dummyPayload.threadId);
       expect(mockCommentRepo.addComment).toHaveBeenCalledTimes(1);
-      expect(mockCommentRepo.addComment).toHaveBeenCalledWith(new NewComment({
-        threadId: 'thread-123',
-        owner: 'user-123',
-        content: 'Sebuah komentar',
-      }));
+      expect(mockCommentRepo.addComment).toHaveBeenCalledWith(new NewComment({ ...dummyPayload }));
 
-      expect(addedComment).toStrictEqual(new AddedComment({
-        id: 'comment-123',
-        content: 'Sebuah komentar',
-        owner: 'user-123',
-      }));
+      expect(addedComment).toStrictEqual(expectedAddedComment);
     });
   });
 });
