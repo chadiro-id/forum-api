@@ -208,6 +208,23 @@ describe('Comments Endpoints', () => {
       expect(responseJson.message.trim()).not.toBe('');
     });
 
+    it('should response 404 when comment not belong to thread', async () => {
+      const otherThread = await threadsTable.add({ id: 'thread-999', owner_id: userB.id });
+
+      const endpoint = `/threads/${otherThread.id}/comments/${commentUserB.id}`;
+      const options = {
+        headers: { ...authorizationUserB }
+      };
+
+      const response = await serverTest.delete(endpoint, options);
+
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toBe(404);
+      expect(responseJson.status).toEqual('fail');
+      expect(responseJson.message).toEqual(expect.any(String));
+      expect(responseJson.message.trim()).not.toBe('');
+    });
+
     it('should response 403 when user not authorized', async () => {
       const endpoint = `/threads/${thread.id}/comments/${commentUserB.id}`;
       const options = {
