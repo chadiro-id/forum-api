@@ -224,8 +224,42 @@ describe('Replies Endpoints', () => {
       expect(responseJson.message.trim()).not.toBe('');
     });
 
+    it('should response 404 when comment not belong to thread', async () => {
+      const otherThread = await threadsTable.add({ id: 'thread-201', owner_id: userA.id });
+      const endpoint = `/threads/${otherThread.id}/comments/${comment.id}/replies/${replyUserB.id}`;
+      const options = {
+        headers: { ...authorizationUserB }
+      };
+
+      const response = await serverTest.delete(endpoint, options);
+
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toBe(404);
+      expect(responseJson.status).toEqual('fail');
+      expect(responseJson.message).toEqual(expect.any(String));
+      expect(responseJson.message.trim()).not.toBe('');
+    });
+
     it('should response 404 when reply not exists', async () => {
       const endpoint = `/threads/${thread.id}/comments/${comment.id}/replies/xxx`;
+      const options = {
+        headers: { ...authorizationUserB }
+      };
+
+      const response = await serverTest.delete(endpoint, options);
+
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toBe(404);
+      expect(responseJson.status).toEqual('fail');
+      expect(responseJson.message).toEqual(expect.any(String));
+      expect(responseJson.message.trim()).not.toBe('');
+    });
+
+    it('should response 404 when reply not belong to comment', async () => {
+      const otherThread = await threadsTable.add({ id: 'thread-202', owner_id: userA.id });
+      const otherComment = await commentsTable.add({ id: 'comment-201', thread_id: otherThread.id, owner_id: userA.id });
+
+      const endpoint = `/threads/${otherThread.id}/comments/${otherComment.id}/replies/${replyUserB.id}`;
       const options = {
         headers: { ...authorizationUserB }
       };
