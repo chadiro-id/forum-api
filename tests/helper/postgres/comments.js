@@ -5,10 +5,17 @@ const comments = (pool) => {
     thread_id = 'thread-001',
     owner_id = 'user-001',
     content = 'Sebuah komentar',
+    is_delete = false,
   }) => {
     const query = {
-      text: 'INSERT INTO comments (id, thread_id, owner_id, content) VALUES ($1, $2, $3, $4) RETURNING id, created_at',
-      values: [id, thread_id, owner_id, content],
+      text: `
+      INSERT INTO comments
+        (id, thread_id, owner_id, content, is_delete)
+      VALUES
+        ($1, $2, $3, $4, $5)
+      RETURNING id, content, created_at
+      `,
+      values: [id, thread_id, owner_id, content, is_delete],
     };
 
     const result = await pool.query(query);

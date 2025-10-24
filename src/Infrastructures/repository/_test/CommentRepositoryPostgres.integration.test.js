@@ -92,7 +92,7 @@ describe('[Integration] CommentRepositoryPostgres', () => {
     it('should correctly resolve and return the array of comment', async () => {
       const {
         id, created_at: date
-      } = await commentsTable.add({ threadId: thread.id, owner: user.id });
+      } = await commentsTable.add({ thread_id: thread.id, owner_id: user.id });
 
       const comments = await commentRepo.getCommentsByThreadId(thread.id);
 
@@ -104,6 +104,28 @@ describe('[Integration] CommentRepositoryPostgres', () => {
         date,
         isDelete: false,
       }));
+    });
+
+    it('should return all comments including soft-deleted ones', async () => {
+      const rawComment1 = await commentsTable.add({
+        id: 'comment-101', thread_id: thread.id, owner_id: user.id
+      });
+      const rawComment2 = await commentsTable.add({
+        id: 'comment-102', thread_id: thread.id, owner_id: user.id, is_delete: true
+      });
+
+      const comments = await commentRepo.getCommentsByThreadId(thread.id);
+
+      expect(comments).toHaveLength(2);
+      expect(comments[0].id).toEqual(rawComment1.id);
+      expect(comments[0].content).toEqual('Sebuah komentar');
+      expect(comments[0].username).toEqual(user.username);
+      expect(comments[0].date).toEqual(rawComment1.created_at);
+
+      expect(comments[1].id).toEqual(rawComment2.id);
+      expect(comments[1].content).toEqual('**komentar telah dihapus**');
+      expect(comments[1].username).toEqual(user.username);
+      expect(comments[1].date).toEqual(rawComment2.created_at);
     });
 
     it('should return an empty array when no comment found', async () => {
