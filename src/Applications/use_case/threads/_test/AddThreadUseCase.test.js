@@ -57,21 +57,25 @@ describe('AddThreadUseCase', () => {
 
   describe('Successful executions', () => {
     it('should correctly orchestrating the add thread action', async () => {
-      mockThreadRepo.addThread.mockResolvedValue(new AddedThread({
+      const expectedAddedThread = new AddedThread({
         id: 'thread-123',
         title: dummyPayload.title,
         owner: dummyPayload.owner,
-      }));
+      });
+      const mockAddedThread = new AddedThread({
+        id: 'thread-123',
+        title: dummyPayload.title,
+        owner: dummyPayload.owner,
+      });
+
+      mockThreadRepo.addThread.mockResolvedValue(mockAddedThread);
 
       const addedThread = await addThreadUseCase.execute({ ...dummyPayload });
 
       expect(mockThreadRepo.addThread).toHaveBeenCalledTimes(1);
       expect(mockThreadRepo.addThread).toHaveBeenCalledWith(new NewThread({ ...dummyPayload }));
 
-      expect(addedThread).toBeInstanceOf(AddedThread);
-      expect(addedThread.id).toEqual('thread-123');
-      expect(addedThread.title).toEqual(dummyPayload.title);
-      expect(addedThread.owner).toEqual(dummyPayload.owner);
+      expect(addedThread).toStrictEqual(expectedAddedThread);
     });
   });
 });
