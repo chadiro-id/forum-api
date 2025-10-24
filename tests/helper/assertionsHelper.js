@@ -13,7 +13,7 @@ exports.assertQueryCalled = (
 };
 
 exports.assertHttpResponseError = (
-  response, statusCode, { status = 'fail', message = '' }
+  response, statusCode, { status = 'fail', message = '' } = {}
 ) => {
   const resJson = JSON.parse(response.payload);
   expect(response.statusCode).toBe(statusCode);
