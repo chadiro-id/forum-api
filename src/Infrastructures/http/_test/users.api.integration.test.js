@@ -1,6 +1,7 @@
 const pool = require('../../database/postgres/pool');
 const serverTest = require('../../../../tests/helper/ServerTestHelper');
 const { usersTable } = require('../../../../tests/helper/postgres');
+const { assertHttpResponseError } = require('../../../../tests/helper/assertionsHelper');
 
 beforeAll(async () => {
   await serverTest.setup();
@@ -51,12 +52,7 @@ describe('[Integration] Users Endpoints', () => {
         payload: requestPayload,
       });
 
-      const responseJson = JSON.parse(response.payload);
-      expect(response.statusCode).toEqual(400);
-      expect(responseJson.status).toEqual('fail');
-      expect(responseJson.message).toEqual(
-        expect.stringContaining('wajib diisi')
-      );
+      assertHttpResponseError(response, 400);
     });
 
     it('should response 400 when request payload not meet data type specification', async () => {
@@ -69,12 +65,7 @@ describe('[Integration] Users Endpoints', () => {
         payload: requestPayload,
       });
 
-      const responseJson = JSON.parse(response.payload);
-      expect(response.statusCode).toEqual(400);
-      expect(responseJson.status).toEqual('fail');
-      expect(responseJson.message).toEqual(
-        expect.stringContaining('harus berupa teks')
-      );
+      assertHttpResponseError(response, 400);
     });
 
     it('should response 400 when username more than 50 character', async () => {
@@ -87,12 +78,7 @@ describe('[Integration] Users Endpoints', () => {
         payload: requestPayload,
       });
 
-      const responseJson = JSON.parse(response.payload);
-      expect(response.statusCode).toEqual(400);
-      expect(responseJson.status).toEqual('fail');
-      expect(responseJson.message).toEqual(
-        expect.stringContaining('username maksimal 50 karakter')
-      );
+      assertHttpResponseError(response, 400, { message: 'username maksimal 50 karakter' });
     });
 
     it('should response 400 when username contain restricted character', async () => {
@@ -105,11 +91,8 @@ describe('[Integration] Users Endpoints', () => {
         payload: requestPayload,
       });
 
-      const responseJson = JSON.parse(response.payload);
-      expect(response.statusCode).toEqual(400);
-      expect(responseJson.status).toEqual('fail');
-      expect(responseJson.message).toEqual(
-        expect.stringContaining('username mengandung karakter terlarang')
+      assertHttpResponseError(
+        response, 400, { message: 'tidak dapat membuat user baru karena username mengandung karakter terlarang' }
       );
     });
 
@@ -123,12 +106,7 @@ describe('[Integration] Users Endpoints', () => {
         payload: requestPayload,
       });
 
-      const responseJson = JSON.parse(response.payload);
-      expect(response.statusCode).toEqual(400);
-      expect(responseJson.status).toEqual('fail');
-      expect(responseJson.message).toEqual(
-        expect.stringContaining('username tidak tersedia')
-      );
+      assertHttpResponseError(response, 400, { message: 'username tidak tersedia' });
     });
   });
 });

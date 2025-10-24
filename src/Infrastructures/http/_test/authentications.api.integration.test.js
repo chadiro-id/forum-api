@@ -3,6 +3,7 @@ const AuthenticationTokenManager = require('../../../Applications/security/Authe
 const container = require('../../containers/container');
 const serverTest = require('../../../../tests/helper/ServerTestHelper');
 const { usersTable, authenticationsTable } = require('../../../../tests/helper/postgres');
+const { assertHttpResponseError } = require('../../../../tests/helper/assertionsHelper');
 
 beforeAll(async () => {
   await serverTest.setup();
@@ -59,12 +60,7 @@ describe('[Integration] Authentications Endpoints', () => {
         payload: { ...loginUser, username: 'johnnnndoe' }
       });
 
-      const responseJson = JSON.parse(response.payload);
-      expect(response.statusCode).toBe(400);
-      expect(responseJson.status).toEqual('fail');
-      expect(responseJson.message).toEqual(
-        expect.stringContaining('username tidak ditemukan')
-      );
+      assertHttpResponseError(response, 400, { message: 'username tidak ditemukan' });
     });
 
     it('should response 401 when password is incorrect', async () => {
@@ -77,10 +73,7 @@ describe('[Integration] Authentications Endpoints', () => {
         payload: requestPayload,
       });
 
-      const responseJson = JSON.parse(response.payload);
-      expect(response.statusCode).toEqual(401);
-      expect(responseJson.status).toEqual('fail');
-      expect(responseJson.message).toEqual('kredensial yang Anda masukkan salah');
+      assertHttpResponseError(response, 401, { message: 'kredensial yang Anda masukkan salah' });
     });
 
     it('should response 400 when login payload has wrong data type', async () => {
@@ -93,10 +86,7 @@ describe('[Integration] Authentications Endpoints', () => {
         payload: requestPayload,
       });
 
-      const responseJson = JSON.parse(response.payload);
-      expect(response.statusCode).toEqual(400);
-      expect(responseJson.status).toEqual('fail');
-      expect(responseJson.message).toEqual(expect.stringContaining('harus berupa teks'));
+      assertHttpResponseError(response, 400, { message: 'harus berupa teks' });
     });
 
     it('should response 400 when login payload not contain needed property', async () => {
@@ -107,10 +97,7 @@ describe('[Integration] Authentications Endpoints', () => {
         payload: requestPayload,
       });
 
-      const responseJson = JSON.parse(response.payload);
-      expect(response.statusCode).toEqual(400);
-      expect(responseJson.status).toEqual('fail');
-      expect(responseJson.message).toEqual(expect.stringContaining('wajib diisi'));
+      assertHttpResponseError(response, 400, { message: 'wajib diisi' });
     });
   });
 
@@ -147,10 +134,7 @@ describe('[Integration] Authentications Endpoints', () => {
         payload: { refreshTokens: '' },
       });
 
-      const responseJson = JSON.parse(response.payload);
-      expect(response.statusCode).toEqual(400);
-      expect(responseJson.status).toEqual('fail');
-      expect(responseJson.message).toEqual(expect.stringContaining('wajib diisi'));
+      assertHttpResponseError(response, 400, { message: 'wajib diisi' });
     });
 
     it('should response 400 when refresh token not string', async () => {
@@ -158,10 +142,7 @@ describe('[Integration] Authentications Endpoints', () => {
         payload: { refreshToken: 123 },
       });
 
-      const responseJson = JSON.parse(response.payload);
-      expect(response.statusCode).toEqual(400);
-      expect(responseJson.status).toEqual('fail');
-      expect(responseJson.message).toEqual(expect.stringContaining('harus berupa teks'));
+      assertHttpResponseError(response, 400, { message: 'harus berupa teks' });
     });
 
     it('should response 400 when refresh token not valid', async () => {
@@ -171,10 +152,7 @@ describe('[Integration] Authentications Endpoints', () => {
         }
       });
 
-      const responseJson = JSON.parse(response.payload);
-      expect(response.statusCode).toEqual(400);
-      expect(responseJson.status).toEqual('fail');
-      expect(responseJson.message).toEqual('refresh token tidak valid');
+      assertHttpResponseError(response, 400, { message: 'refresh token tidak valid' });
     });
 
     it('should response 400 when refresh token not registered in database', async () => {
@@ -185,10 +163,7 @@ describe('[Integration] Authentications Endpoints', () => {
         payload: { refreshToken }
       });
 
-      const responseJson = JSON.parse(response.payload);
-      expect(response.statusCode).toBe(400);
-      expect(responseJson.status).toEqual('fail');
-      expect(responseJson.message).toEqual('refresh token tidak ditemukan di database');
+      assertHttpResponseError(response, 400, { message: 'refresh token tidak ditemukan di database' });
     });
   });
 
@@ -218,10 +193,7 @@ describe('[Integration] Authentications Endpoints', () => {
         payload: {},
       });
 
-      const responseJson = JSON.parse(response.payload);
-      expect(response.statusCode).toBe(400);
-      expect(responseJson.status).toEqual('fail');
-      expect(responseJson.message).toEqual(expect.stringContaining('wajib diisi'));
+      assertHttpResponseError(response, 400, { message: 'wajib diisi' });
     });
 
     it('should response 400 when refresh token not string', async () => {
@@ -231,10 +203,7 @@ describe('[Integration] Authentications Endpoints', () => {
         },
       });
 
-      const responseJson = JSON.parse(response.payload);
-      expect(response.statusCode).toBe(400);
-      expect(responseJson.status).toEqual('fail');
-      expect(responseJson.message).toEqual(expect.stringContaining('harus berupa teks'));
+      assertHttpResponseError(response, 400, { message: 'harus berupa teks' });
     });
 
     it('should response 400 when refresh token not registered in database', async () => {
@@ -244,10 +213,7 @@ describe('[Integration] Authentications Endpoints', () => {
         payload: { refreshToken },
       });
 
-      const responseJson = JSON.parse(response.payload);
-      expect(response.statusCode).toBe(400);
-      expect(responseJson.status).toEqual('fail');
-      expect(responseJson.message).toEqual('refresh token tidak ditemukan di database');
+      assertHttpResponseError(response, 400, { message: 'refresh token tidak ditemukan di database' });
     });
   });
 });

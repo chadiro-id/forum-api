@@ -1,6 +1,7 @@
 const pool = require('../../database/postgres/pool');
 const serverTest = require('../../../../tests/helper/ServerTestHelper');
 const { createAuthToken } = require('../../../../tests/helper/authenticationHelper');
+const { assertHttpResponseError } = require('../../../../tests/helper/assertionsHelper');
 const {
   usersTable,
   authenticationsTable,
@@ -81,10 +82,11 @@ describe('[Integration] Threads Endpoints', () => {
 
       const response = await serverTest.post('/threads', options);
 
-      const responseJson = JSON.parse(response.payload);
-      expect(response.statusCode).toEqual(401);
-      expect(responseJson.error).toEqual('Unauthorized');
-      expect(responseJson.message).toEqual('Missing authentication');
+      assertHttpResponseError(response, 401, {
+        status: null,
+        error:'Unauthorized',
+        message: 'Missing authentication'
+      });
     });
 
     it('should response 400 when payload not contain needed property', async () => {
@@ -95,11 +97,7 @@ describe('[Integration] Threads Endpoints', () => {
 
       const response = await serverTest.post('/threads', options);
 
-      const responseJson = JSON.parse(response.payload);
-      expect(response.statusCode).toBe(400);
-      expect(responseJson.status).toBe('fail');
-      expect(responseJson.message).toEqual(expect.any(String));
-      expect(responseJson.message).not.toBe('');
+      assertHttpResponseError(response, 400);
     });
 
     it('should response 400 when payload does not meet data type specification', async () => {
@@ -110,11 +108,7 @@ describe('[Integration] Threads Endpoints', () => {
 
       const response = await serverTest.post('/threads', options);
 
-      const responseJson = JSON.parse(response.payload);
-      expect(response.statusCode).toBe(400);
-      expect(responseJson.status).toBe('fail');
-      expect(responseJson.message).toEqual(expect.any(String));
-      expect(responseJson.message).not.toBe('');
+      assertHttpResponseError(response, 400);
     });
 
     it('should response 400 when thread title more than 255 character', async () => {
@@ -125,11 +119,7 @@ describe('[Integration] Threads Endpoints', () => {
 
       const response = await serverTest.post('/threads', options);
 
-      const responseJson = JSON.parse(response.payload);
-      expect(response.statusCode).toBe(400);
-      expect(responseJson.status).toBe('fail');
-      expect(responseJson.message).toEqual(expect.any(String));
-      expect(responseJson.message).not.toBe('');
+      assertHttpResponseError(response, 400);
     });
   });
 

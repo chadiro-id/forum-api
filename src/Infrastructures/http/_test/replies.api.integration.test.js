@@ -1,6 +1,7 @@
 const pool = require('../../database/postgres/pool');
 const serverTest = require('../../../../tests/helper/ServerTestHelper');
 const { createAuthToken } = require('../../../../tests/helper/authenticationHelper');
+const { assertHttpResponseError } = require('../../../../tests/helper/assertionsHelper');
 const {
   usersTable,
   authenticationsTable,
@@ -82,14 +83,16 @@ describe('[Integration] Replies Endpoints', () => {
 
     it('should response 401 when request with no authentication', async () => {
       const endpoint = `/threads/${thread.id}/comments/${comment.id}/replies`;
+
       const response = await serverTest.post(endpoint, {
         payload: { content: 'Sebuah balasan' }
       });
 
-      const responseJson = JSON.parse(response.payload);
-      expect(response.statusCode).toBe(401);
-      expect(responseJson.error).toEqual('Unauthorized');
-      expect(responseJson.message).toEqual('Missing authentication');
+      assertHttpResponseError(response, 401, {
+        status: null,
+        error: 'Unauthorized',
+        message: 'Missing authentication',
+      });
     });
 
     it('should response 404 when thread not exists', async () => {
@@ -101,11 +104,7 @@ describe('[Integration] Replies Endpoints', () => {
 
       const response = await serverTest.post(endpoint, options);
 
-      const responseJson = JSON.parse(response.payload);
-      expect(response.statusCode).toBe(404);
-      expect(responseJson.status).toBe('fail');
-      expect(responseJson.message).toEqual(expect.any(String));
-      expect(responseJson.message.trim()).not.toBe('');
+      assertHttpResponseError(response, 404);
     });
 
     it('should response 404 when comment not exists', async () => {
@@ -117,11 +116,7 @@ describe('[Integration] Replies Endpoints', () => {
 
       const response = await serverTest.post(endpoint, options);
 
-      const responseJson = JSON.parse(response.payload);
-      expect(response.statusCode).toBe(404);
-      expect(responseJson.status).toBe('fail');
-      expect(responseJson.message).toEqual(expect.any(String));
-      expect(responseJson.message.trim()).not.toBe('');
+      assertHttpResponseError(response, 404);
     });
 
     it('should response 400 when payload not contain needed property', async () => {
@@ -133,11 +128,7 @@ describe('[Integration] Replies Endpoints', () => {
 
       const response = await serverTest.post(endpoint, options);
 
-      const responseJson = JSON.parse(response.payload);
-      expect(response.statusCode).toBe(400);
-      expect(responseJson.status).toEqual('fail');
-      expect(responseJson.message).toEqual(expect.any(String));
-      expect(responseJson.message.trim()).not.toBe('');
+      assertHttpResponseError(response, 400);
     });
 
     it('should response 400 when payload has wrong data type', async () => {
@@ -149,11 +140,7 @@ describe('[Integration] Replies Endpoints', () => {
 
       const response = await serverTest.post(endpoint, options);
 
-      const responseJson = JSON.parse(response.payload);
-      expect(response.statusCode).toBe(400);
-      expect(responseJson.status).toEqual('fail');
-      expect(responseJson.message).toEqual(expect.any(String));
-      expect(responseJson.message.trim()).not.toBe('');
+      assertHttpResponseError(response, 400);
     });
   });
 
@@ -188,10 +175,11 @@ describe('[Integration] Replies Endpoints', () => {
 
       const response = await serverTest.delete(endpoint);
 
-      const responseJson = JSON.parse(response.payload);
-      expect(response.statusCode).toBe(401);
-      expect(responseJson.error).toEqual('Unauthorized');
-      expect(responseJson.message).toEqual('Missing authentication');
+      assertHttpResponseError(response, 401, {
+        status: null,
+        error: 'Unauthorized',
+        message: 'Missing authentication',
+      });
     });
 
     it('should response 404 when thread not exists', async () => {
@@ -202,11 +190,7 @@ describe('[Integration] Replies Endpoints', () => {
 
       const response = await serverTest.delete(endpoint, options);
 
-      const responseJson = JSON.parse(response.payload);
-      expect(response.statusCode).toBe(404);
-      expect(responseJson.status).toEqual('fail');
-      expect(responseJson.message).toEqual(expect.any(String));
-      expect(responseJson.message.trim()).not.toBe('');
+      assertHttpResponseError(response, 404);
     });
 
     it('should response 404 when comment not exists', async () => {
@@ -217,11 +201,7 @@ describe('[Integration] Replies Endpoints', () => {
 
       const response = await serverTest.delete(endpoint, options);
 
-      const responseJson = JSON.parse(response.payload);
-      expect(response.statusCode).toBe(404);
-      expect(responseJson.status).toEqual('fail');
-      expect(responseJson.message).toEqual(expect.any(String));
-      expect(responseJson.message.trim()).not.toBe('');
+      assertHttpResponseError(response, 404);
     });
 
     it('should response 404 when comment not belong to thread', async () => {
@@ -233,11 +213,7 @@ describe('[Integration] Replies Endpoints', () => {
 
       const response = await serverTest.delete(endpoint, options);
 
-      const responseJson = JSON.parse(response.payload);
-      expect(response.statusCode).toBe(404);
-      expect(responseJson.status).toEqual('fail');
-      expect(responseJson.message).toEqual(expect.any(String));
-      expect(responseJson.message.trim()).not.toBe('');
+      assertHttpResponseError(response, 404);
     });
 
     it('should response 404 when reply not exists', async () => {
@@ -248,11 +224,7 @@ describe('[Integration] Replies Endpoints', () => {
 
       const response = await serverTest.delete(endpoint, options);
 
-      const responseJson = JSON.parse(response.payload);
-      expect(response.statusCode).toBe(404);
-      expect(responseJson.status).toEqual('fail');
-      expect(responseJson.message).toEqual(expect.any(String));
-      expect(responseJson.message.trim()).not.toBe('');
+      assertHttpResponseError(response, 404);
     });
 
     it('should response 404 when reply not belong to comment', async () => {
@@ -266,11 +238,7 @@ describe('[Integration] Replies Endpoints', () => {
 
       const response = await serverTest.delete(endpoint, options);
 
-      const responseJson = JSON.parse(response.payload);
-      expect(response.statusCode).toBe(404);
-      expect(responseJson.status).toEqual('fail');
-      expect(responseJson.message).toEqual(expect.any(String));
-      expect(responseJson.message.trim()).not.toBe('');
+      assertHttpResponseError(response, 404);
     });
 
     it('should response 403 when user not authorized', async () => {
@@ -281,11 +249,7 @@ describe('[Integration] Replies Endpoints', () => {
 
       const response = await serverTest.delete(endpoint, options);
 
-      const responseJson = JSON.parse(response.payload);
-      expect(response.statusCode).toBe(403);
-      expect(responseJson.status).toEqual('fail');
-      expect(responseJson.message).toEqual(expect.any(String));
-      expect(responseJson.message.trim()).not.toBe('');
+      assertHttpResponseError(response, 403);
     });
   });
 });
