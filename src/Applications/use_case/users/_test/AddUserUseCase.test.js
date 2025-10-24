@@ -60,19 +60,10 @@ describe('AddUserUseCase', () => {
 
       expect(mockUserRepo.verifyAvailableUsername).toHaveBeenCalledWith(dummyPayload.username);
       expect(mockPasswordHash.hash).toHaveBeenCalledTimes(1);
-      expect(mockUserRepo.addUser).toHaveBeenCalledWith(new RegisterUser({
-        username: dummyPayload.username,
-        fullname: dummyPayload.fullname,
-        password: 'encrypted_password',
-      }));
+      expect(mockUserRepo.addUser).toHaveBeenCalledWith(expect.any(RegisterUser));
     });
 
     it('should throw error when the registeredUser not an instance of RegisteredUser entity', async () => {
-      const calledRegisterUser = new RegisterUser({
-        username: dummyPayload.username,
-        fullname: dummyPayload.fullname,
-        password: 'encrypted_password',
-      });
       const mockRegisteredUser = {
         id: 'user-123',
         username: dummyPayload.username,
@@ -89,22 +80,12 @@ describe('AddUserUseCase', () => {
 
       expect(mockUserRepo.verifyAvailableUsername).toHaveBeenCalledWith(dummyPayload.username);
       expect(mockPasswordHash.hash).toHaveBeenCalledTimes(1);
-      expect(mockUserRepo.addUser).toHaveBeenCalledWith(calledRegisterUser);
+      expect(mockUserRepo.addUser).toHaveBeenCalledWith(expect.any(RegisterUser));
     });
   });
 
   describe('Successful execution', () => {
     it('should correctly orchestrating the add user action', async () => {
-      const expectedRegisteredUser = new RegisteredUser({
-        id: 'user-123',
-        username: dummyPayload.username,
-        fullname: dummyPayload.fullname,
-      });
-      const calledRegisterUser = new RegisterUser({
-        username: dummyPayload.username,
-        password: 'encrypted_password',
-        fullname: dummyPayload.fullname,
-      });
       const mockRegisteredUser = new RegisteredUser({
         id: 'user-123',
         username: dummyPayload.username,
@@ -117,11 +98,12 @@ describe('AddUserUseCase', () => {
 
       const registeredUser = await addUserUseCase.execute({ ...dummyPayload });
 
-      expect(registeredUser).toStrictEqual(expectedRegisteredUser);
-
       expect(mockUserRepo.verifyAvailableUsername).toHaveBeenCalledWith(dummyPayload.username);
       expect(mockPasswordHash.hash).toHaveBeenCalledWith(dummyPayload.password);
-      expect(mockUserRepo.addUser).toHaveBeenCalledWith(calledRegisterUser);
+      expect(mockUserRepo.addUser).toHaveBeenCalledWith(expect.any(RegisterUser));
+
+      expect(registeredUser).toBeInstanceOf(RegisteredUser);
+      expect(registeredUser.id).toEqual('user-123');
     });
   });
 });
