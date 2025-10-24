@@ -7,7 +7,7 @@ describe('PutAuthenticationUseCase', () => {
 
   beforeEach(() => {
     mockAuthRepo = {
-      checkAvailabilityToken: jest.fn(),
+      verifyTokenExists: jest.fn(),
     };
     mockTokenManager = {
       verifyRefreshToken: jest.fn(),
@@ -24,52 +24,52 @@ describe('PutAuthenticationUseCase', () => {
 
   describe('Failure cases', () => {
     it('should throw error when payload not provided correctly', async () => {
-      const useCase = new PutAuthenticationUseCase({});
-
-      await expect(useCase.execute()).rejects.toThrow();
-      await expect(useCase.execute({}))
+      await expect(putAuthenticationUseCase.execute()).rejects.toThrow();
+      await expect(putAuthenticationUseCase.execute({}))
         .rejects
         .toThrow('PUT_AUTHENTICATION_USE_CASE.PAYLOAD_NOT_CONTAIN_REFRESH_TOKEN');
-      await expect(useCase.execute({ refreshToken: '' }))
+      await expect(putAuthenticationUseCase.execute({ refreshToken: '' }))
         .rejects
         .toThrow('PUT_AUTHENTICATION_USE_CASE.PAYLOAD_NOT_CONTAIN_REFRESH_TOKEN');
-      await expect(useCase.execute({ refreshToken: 123 }))
+      await expect(putAuthenticationUseCase.execute({ refreshToken: 123 }))
         .rejects
         .toThrow('PUT_AUTHENTICATION_USE_CASE.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
     });
 
-    it('should propagate error when refresh token verifications fails', async () => {
+    it('should propagate error when verifyRefreshToken fails', async () => {
       mockTokenManager.verifyRefreshToken.mockRejectedValue(new Error('verifications fails'));
 
       await expect(putAuthenticationUseCase.execute({ refreshToken: 'refresh_token' }))
         .rejects.toThrow();
 
       expect(mockTokenManager.verifyRefreshToken).toHaveBeenCalledWith('refresh_token');
-      expect(mockAuthRepo.checkAvailabilityToken).not.toHaveBeenCalled();
+      expect(mockAuthRepo.verifyTokenExists).not.toHaveBeenCalled();
       expect(mockTokenManager.decodePayload).not.toHaveBeenCalled();
       expect(mockTokenManager.createAccessToken).not.toHaveBeenCalled();
     });
 
-    it('should propagate error when checkAvailabilityToken fails', async () => {
-      mockTokenManager.verifyRefreshToken.mockResolvedValue();
-      mockAuthRepo.checkAvailabilityToken.mockRejectedValue(new Error('checking fails'));
+    it('should propagate error when verifyTokenExists fails', async () => {
+      const refreshToken = 'refresh_token';
 
-      await expect(putAuthenticationUseCase.execute({ refreshToken: 'refresh_token' }))
+      mockTokenManager.verifyRefreshToken.mockResolvedValue();
+      mockAuthRepo.verifyTokenExists.mockRejectedValue(new Error('checking fails'));
+
+      await expect(putAuthenticationUseCase.execute({ refreshToken }))
         .rejects.toThrow();
 
-      expect(mockTokenManager.verifyRefreshToken).toHaveBeenCalledWith('refresh_token');
-      expect(mockAuthRepo.checkAvailabilityToken).toHaveBeenCalledWith('refresh_token');
+      expect(mockTokenManager.verifyRefreshToken).toHaveBeenCalledWith(refreshToken);
+      expect(mockAuthRepo.verifyTokenExists).toHaveBeenCalledWith(refreshToken);
       expect(mockTokenManager.decodePayload).not.toHaveBeenCalled();
       expect(mockTokenManager.createAccessToken).not.toHaveBeenCalled();
     });
   });
 
   describe('Successful executions', () => {
-    it('should orchestrating the put authentication action correctly', async () => {
+    it('should correctly orchestrating the put authentication action', async () => {
       const payload = { refreshToken: 'some_refresh_token' };
 
       mockTokenManager.verifyRefreshToken.mockResolvedValue();
-      mockAuthRepo.checkAvailabilityToken.mockResolvedValue();
+      mockAuthRepo.verifyTokenExists.mockResolvedValue();
       mockTokenManager.decodePayload.mockResolvedValue({ username: 'johndoe', id: 'user-123' });
       mockTokenManager.createAccessToken.mockResolvedValue('new_access_token');
 
@@ -77,8 +77,8 @@ describe('PutAuthenticationUseCase', () => {
 
       expect(mockTokenManager.verifyRefreshToken).toHaveBeenCalledTimes(1);
       expect(mockTokenManager.verifyRefreshToken).toHaveBeenCalledWith(payload.refreshToken);
-      expect(mockAuthRepo.checkAvailabilityToken).toHaveBeenCalledTimes(1);
-      expect(mockAuthRepo.checkAvailabilityToken).toHaveBeenCalledWith(payload.refreshToken);
+      expect(mockAuthRepo.verifyTokenExists).toHaveBeenCalledTimes(1);
+      expect(mockAuthRepo.verifyTokenExists).toHaveBeenCalledWith(payload.refreshToken);
       expect(mockTokenManager.decodePayload).toHaveBeenCalledTimes(1);
       expect(mockTokenManager.decodePayload).toHaveBeenCalledWith(payload.refreshToken);
       expect(mockTokenManager.createAccessToken).toHaveBeenCalledTimes(1);
