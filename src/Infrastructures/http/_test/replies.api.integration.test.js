@@ -61,6 +61,25 @@ describe('Replies Endpoints', () => {
   });
 
   describe('POST /threads/{threadId}/comments/{commentId}/replies', () => {
+    it('should response 201 and the persisted reply', async () => {
+      const endpoint = `/threads/${thread.id}/comments/${comment.id}/replies`;
+      const options = {
+        headers: { ...authorizationUserA },
+        payload: { content: 'Sebuah balasan' }
+      };
+
+      const response = await serverTest.post(endpoint, options);
+
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toBe(201);
+      expect(responseJson.status).toBe('success');
+      expect(responseJson.data).toEqual(expect.any(Object));
+      expect(responseJson.data.addedReply).toEqual(expect.any(Object));
+      expect(responseJson.data.addedReply.id).toEqual(expect.stringContaining('reply-'));
+      expect(responseJson.data.addedReply.content).toEqual('Sebuah balasan');
+      expect(responseJson.data.addedReply.owner).toEqual(userA.id);
+    });
+
     it('should response 401 when request with no authentication', async () => {
       const endpoint = `/threads/${thread.id}/comments/${comment.id}/replies`;
       const response = await serverTest.post(endpoint, {
@@ -136,25 +155,6 @@ describe('Replies Endpoints', () => {
       expect(responseJson.message).toEqual(expect.any(String));
       expect(responseJson.message.trim()).not.toBe('');
     });
-
-    it('should response 201 and the persisted reply', async () => {
-      const endpoint = `/threads/${thread.id}/comments/${comment.id}/replies`;
-      const options = {
-        headers: { ...authorizationUserA },
-        payload: { content: 'Sebuah balasan' }
-      };
-
-      const response = await serverTest.post(endpoint, options);
-
-      const responseJson = JSON.parse(response.payload);
-      expect(response.statusCode).toBe(201);
-      expect(responseJson.status).toBe('success');
-      expect(responseJson.data).toEqual(expect.any(Object));
-      expect(responseJson.data.addedReply).toEqual(expect.any(Object));
-      expect(responseJson.data.addedReply.id).toEqual(expect.stringContaining('reply-'));
-      expect(responseJson.data.addedReply.content).toEqual('Sebuah balasan');
-      expect(responseJson.data.addedReply.owner).toEqual(userA.id);
-    });
   });
 
   describe('DELETE /threads/{threadId}/comments/{commentId}/replies/{replyId}', () => {
@@ -168,6 +168,19 @@ describe('Replies Endpoints', () => {
 
     afterAll(async () => {
       await repliesTable.clean();
+    });
+
+    it('should response 200 and status "success"', async () => {
+      const endpoint = `/threads/${thread.id}/comments/${comment.id}/replies/${replyUserA.id}`;
+      const options = {
+        headers: { ...authorizationUserA }
+      };
+
+      const response = await serverTest.delete(endpoint, options);
+
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toBe(200);
+      expect(responseJson.status).toEqual('success');
     });
 
     it('should response 401 when request with no authentication', async () => {
@@ -239,19 +252,6 @@ describe('Replies Endpoints', () => {
       expect(responseJson.status).toEqual('fail');
       expect(responseJson.message).toEqual(expect.any(String));
       expect(responseJson.message.trim()).not.toBe('');
-    });
-
-    it('should response 200 when everything is ok', async () => {
-      const endpoint = `/threads/${thread.id}/comments/${comment.id}/replies/${replyUserA.id}`;
-      const options = {
-        headers: { ...authorizationUserA }
-      };
-
-      const response = await serverTest.delete(endpoint, options);
-
-      const responseJson = JSON.parse(response.payload);
-      expect(response.statusCode).toBe(200);
-      expect(responseJson.status).toEqual('success');
     });
   });
 });
