@@ -85,12 +85,14 @@ describe('AddCommentUseCase', () => {
         content: dummyPayload.content,
         owner: dummyPayload.owner,
       });
-      mockThreadRepo.verifyThreadExists.mockResolvedValue();
-      mockCommentRepo.addComment.mockResolvedValue(new AddedComment({
+      const mockAddedComment = new AddedComment({
         id: 'comment-123',
         content: dummyPayload.content,
         owner: dummyPayload.owner,
-      }));
+      });
+
+      mockThreadRepo.verifyThreadExists.mockResolvedValue();
+      mockCommentRepo.addComment.mockResolvedValue(mockAddedComment);
 
       const addedComment = await addCommentUseCase.execute({ ...dummyPayload });
 
