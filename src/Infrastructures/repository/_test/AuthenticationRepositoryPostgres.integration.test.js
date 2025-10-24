@@ -20,7 +20,7 @@ describe('[Integration] AuthenticationRepositoryPostgres', () => {
   });
 
   describe('addToken', () => {
-    it('should correctly persist token into database', async () => {
+    it('should correctly resolve and not throw error', async () => {
       const token = 'token';
       await authenticationRepo.addToken(token);
 
