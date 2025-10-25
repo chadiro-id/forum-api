@@ -2,6 +2,7 @@ const pool = require('../../database/postgres/pool');
 const AuthenticationTokenManager = require('../../../Applications/security/AuthenticationTokenManager');
 const container = require('../../containers/container');
 const serverTest = require('../../../../tests/helper/ServerTestHelper');
+const { createHashedPassword } = require('../../../../tests/helper/authenticationHelper');
 const { usersTable, authenticationsTable } = require('../../../../tests/helper/postgres');
 const { assertHttpResponseError } = require('../../../../tests/helper/assertionsHelper');
 
@@ -10,6 +11,8 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
+  await authenticationsTable.clean();
+  await usersTable.clean();
   await pool.end();
   await serverTest.stop();
 });
@@ -17,29 +20,30 @@ afterAll(async () => {
 describe('[Integration] Authentications Endpoints', () => {
   const loginUser = {
     username: 'johndoe',
-    password: 'supersecret^_^007'
+    password: 'supersecret^_^007',
   };
-  const registerUser = {
-    ...loginUser,
-    fullname: 'John Doe',
-  };
+  let hashedPassword;
+
+  beforeAll(async () => {
+    hashedPassword = await createHashedPassword(loginUser.password);
+  });
 
   describe('POST /authentications', () => {
-    beforeAll(async () => {
-      await serverTest.post('/users', {
-        payload: { ...registerUser }
+    beforeEach(async () => {
+      await usersTable.add({
+        username: loginUser.username,
+        password: hashedPassword,
+        fullname: 'John Doe'
       });
     });
 
-    afterAll(async () => {
-      await authenticationsTable.clean();
+    afterEach(async () => {
       await usersTable.clean();
     });
 
     it('should response 201 and user authentication', async () => {
-      const response = await serverTest.post('/authentications', {
-        payload: { ...loginUser }
-      });
+      const options = { payload: { ...loginUser } };
+      const response = await serverTest.post('/authentications', options);
 
       const responseJson = JSON.parse(response.payload);
       expect(response.statusCode).toBe(201);
@@ -50,7 +54,7 @@ describe('[Integration] Authentications Endpoints', () => {
 
     it('should response 400 when username is unknown', async () => {
       const response = await serverTest.post('/authentications', {
-        payload: { ...loginUser, username: 'johnnnndoe' }
+        payload: { ...loginUser, username: 'nonexists-username' }
       });
 
       assertHttpResponseError(response, 400, { message: 'username tidak ditemukan' });
@@ -95,14 +99,15 @@ describe('[Integration] Authentications Endpoints', () => {
   });
 
   describe('PUT /authentications', () => {
-    beforeAll(async () => {
-      await serverTest.post('/users', {
-        payload: { ...registerUser }
+    beforeEach(async () => {
+      await usersTable.add({
+        username: loginUser.username,
+        password: hashedPassword,
+        fullname: 'John Doe'
       });
     });
 
-    afterAll(async () => {
-      await authenticationsTable.clean();
+    afterEach(async () => {
       await usersTable.clean();
     });
 
@@ -161,11 +166,17 @@ describe('[Integration] Authentications Endpoints', () => {
   });
 
   describe('DELETE /authentications', () => {
-    beforeAll(async () => {
+    beforeEach(async () => {
+      await usersTable.add({
+        username: loginUser.username,
+        password: hashedPassword,
+        fullname: 'John Doe'
+      });
       await authenticationsTable.addToken('registered_refresh_token');
     });
 
-    afterAll(async () => {
+    afterEach(async () => {
+      await usersTable.clean();
       await authenticationsTable.clean();
     });
 
@@ -200,7 +211,7 @@ describe('[Integration] Authentications Endpoints', () => {
     });
 
     it('should response 400 when refresh token not registered in database', async () => {
-      const refreshToken = 'refresh_token';
+      const refreshToken = 'unregistered_refresh_token';
 
       const response = await serverTest.delete('/authentications', {
         payload: { refreshToken },
