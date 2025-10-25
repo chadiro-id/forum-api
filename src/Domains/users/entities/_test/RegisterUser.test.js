@@ -34,7 +34,7 @@ describe('RegisterUser Entity', () => {
         .toThrow('REGISTER_USER.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
     });
 
-    it('should throw error when payload does not meet data type specification', () => {
+    it('should throw error when payload property does not meet data type specification', () => {
       const usernameNotString = { ...dummyPayload, username: 123 };
       const passwordNotString = { ...dummyPayload, password: true };
       const fullnameNotString = { ...dummyPayload, fullname: ['Forum Api'] };
@@ -50,7 +50,7 @@ describe('RegisterUser Entity', () => {
     it('should throw error when username contains more than 50 character', () => {
       const payload = {
         ...dummyPayload,
-        username: 'forumapiforumapiforumapiforumapiforumapiforumapifor',
+        username: 'a'.repeat(51),
       };
 
       expect(() => new RegisterUser(payload))
