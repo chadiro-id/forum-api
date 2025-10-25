@@ -6,11 +6,12 @@ const { usersTable, authenticationsTable } = require('../../../../tests/helper/p
 const { assertHttpResponseError } = require('../../../../tests/helper/assertionsHelper');
 
 beforeAll(async () => {
-  await serverTest.setup();
+  await serverTest.init();
 });
 
 afterAll(async () => {
   await pool.end();
+  await serverTest.stop();
 });
 
 describe('[Integration] Authentications Endpoints', () => {
@@ -22,14 +23,6 @@ describe('[Integration] Authentications Endpoints', () => {
     ...loginUser,
     fullname: 'John Doe',
   };
-
-  beforeEach(async () => {
-    await serverTest.init();
-  });
-
-  afterEach(async () => {
-    await serverTest.stop();
-  });
 
   describe('POST /authentications', () => {
     beforeAll(async () => {

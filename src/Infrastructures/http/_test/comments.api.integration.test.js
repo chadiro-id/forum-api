@@ -15,7 +15,7 @@ let userB;
 let userAuthB;
 
 beforeAll(async () => {
-  await serverTest.setup();
+  await serverTest.init();
 
   userA = await usersTable.add({ id: 'user-001', username: 'whoami' });
   userB = await usersTable.add({ id: 'user-002', username: 'johndoe' });
@@ -28,6 +28,7 @@ afterAll(async () => {
   await usersTable.clean();
   await authenticationsTable.clean();
   await pool.end();
+  await serverTest.stop();
 });
 
 describe('[Integration] Comments Endpoints', () => {
@@ -44,14 +45,6 @@ describe('[Integration] Comments Endpoints', () => {
     authorizationUserB = {
       Authorization: `Bearer ${userAuthB.accessToken}`
     };
-  });
-
-  beforeEach(async () => {
-    await serverTest.init();
-  });
-
-  afterEach(async () => {
-    await serverTest.stop();
   });
 
   afterAll(async () => {

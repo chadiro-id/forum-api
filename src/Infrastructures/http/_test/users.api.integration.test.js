@@ -4,24 +4,17 @@ const { usersTable } = require('../../../../tests/helper/postgres');
 const { assertHttpResponseError } = require('../../../../tests/helper/assertionsHelper');
 
 beforeAll(async () => {
-  await serverTest.setup();
+  await serverTest.init();
   await usersTable.add({ id: 'user-1000', username: 'superuser' });
 });
 
 afterAll(async () => {
   await usersTable.clean();
   await pool.end();
+  await serverTest.stop();
 });
 
 describe('[Integration] Users Endpoints', () => {
-  beforeEach(async () => {
-    await serverTest.init();
-  });
-
-  afterEach(async () => {
-    await serverTest.stop();
-  });
-
   describe('POST /users', () => {
     const dummyPayload = {
       username: 'johndoe',

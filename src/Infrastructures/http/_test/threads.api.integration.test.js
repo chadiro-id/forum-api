@@ -15,7 +15,7 @@ let userB;
 let userAuthA;
 
 beforeAll(async () => {
-  await serverTest.setup();
+  await serverTest.init();
   userA = await usersTable.add({ id: 'user-001', username: 'whoami' });
   userAuthA = await createAuthToken({ ...userA });
   userB = await usersTable.add({ id: 'user-002', username: 'johndoe' });
@@ -25,6 +25,7 @@ afterAll(async () => {
   await authenticationsTable.clean();
   await usersTable.clean();
   await pool.end();
+  await serverTest.stop();
 });
 
 describe('[Integration] Threads Endpoints', () => {
@@ -34,14 +35,6 @@ describe('[Integration] Threads Endpoints', () => {
     authorizationUserA = {
       Authorization: `Bearer ${userAuthA.accessToken}`
     };
-  });
-
-  beforeEach(async () => {
-    await serverTest.init();
-  });
-
-  afterEach(async () => {
-    await serverTest.stop();
   });
 
   describe('POST /threads', () => {

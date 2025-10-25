@@ -16,7 +16,7 @@ let userB;
 let userAuthB;
 
 beforeAll(async () => {
-  await serverTest.setup();
+  await serverTest.init();
 
   userA = await usersTable.add({ id: 'user-001', username: 'whoami' });
   userAuthA = await createAuthToken({ ...userA });
@@ -28,6 +28,7 @@ afterAll(async () => {
   await usersTable.clean();
   await authenticationsTable.clean();
   await pool.end();
+  await serverTest.stop();
 });
 
 describe('[Integration] Replies Endpoints', () => {
@@ -46,14 +47,6 @@ describe('[Integration] Replies Endpoints', () => {
     authorizationUserB = {
       Authorization: `Bearer ${userAuthB.accessToken}`
     };
-  });
-
-  beforeEach(async () => {
-    await serverTest.init();
-  });
-
-  afterEach(async () => {
-    await serverTest.stop();
   });
 
   afterAll(async () => {
