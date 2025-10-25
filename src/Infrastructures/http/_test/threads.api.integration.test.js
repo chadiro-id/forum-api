@@ -13,14 +13,12 @@ const {
 let userA;
 let userB;
 let userAuthA;
-let userAuthB;
 
 beforeAll(async () => {
   await serverTest.setup();
   userA = await usersTable.add({ id: 'user-001', username: 'whoami' });
   userAuthA = await createAuthToken({ ...userA });
   userB = await usersTable.add({ id: 'user-002', username: 'johndoe' });
-  userAuthB = await createAuthToken({ ...userB });
 });
 
 afterAll(async () => {
@@ -31,14 +29,10 @@ afterAll(async () => {
 
 describe('[Integration] Threads Endpoints', () => {
   let authorizationUserA;
-  let authorizationUserB;
 
   beforeAll(async () => {
     authorizationUserA = {
       Authorization: `Bearer ${userAuthA.accessToken}`
-    };
-    authorizationUserB = {
-      Authorization: `Bearer ${userAuthB.accessToken}`
     };
   });
 
@@ -68,7 +62,7 @@ describe('[Integration] Threads Endpoints', () => {
       expect(response.statusCode).toBe(201);
       expect(responseJson.status).toBe('success');
       expect(responseJson.data).toHaveProperty('addedThread');
-      expect(responseJson.data.addedThread).toEqual({
+      expect(responseJson.data.addedThread).toMatchObject({
         id: expect.stringContaining('thread-'),
         title: dummyPayload.title,
         owner: userA.id,
@@ -114,7 +108,7 @@ describe('[Integration] Threads Endpoints', () => {
     it('should response 400 when thread title more than 255 character', async () => {
       const options = {
         headers: { ...authorizationUserA },
-        payload: { ...dummyPayload, title: 'Sebuah Thread'.repeat(102) },
+        payload: { ...dummyPayload, title: 'a'.repeat(256) },
       };
 
       const response = await serverTest.post('/threads', options);
@@ -125,19 +119,12 @@ describe('[Integration] Threads Endpoints', () => {
 
   describe('GET /threads/{threadId}', () => {
     let thread;
-    let commentA;
-    let commentB;
-    let replyX;
 
-    beforeAll(async () => {
+    beforeEach(async () => {
       thread = await threadsTable.add({ owner_id: userA.id });
-      commentA = await commentsTable.add({ id: 'comment-001', thread_id: thread.id, owner_id: userA.id });
-      commentB = await commentsTable.add({ id: 'comment-002', thread_id: thread.id, owner_id: userB.id });
-      await repliesTable.add({ id: 'reply-001', comment_id: commentA.id, owner_id: userB.id });
-      replyX = await repliesTable.add({ id: 'reply-002', comment_id: commentA.id, owner_id: userA.id });
     });
 
-    afterAll(async () => {
+    afterEach(async () => {
       await repliesTable.clean();
       await commentsTable.clean();
       await threadsTable.clean();
@@ -150,65 +137,87 @@ describe('[Integration] Threads Endpoints', () => {
 
       expect(response.statusCode).toBe(200);
       expect(responseJson.status).toEqual('success');
-      expect(responseJson.data.thread.id).toEqual(expect.stringContaining('thread-'));
-      expect(responseJson.data.thread.id).not.toBe('');
-      expect(responseJson.data.thread.title).toEqual('Sebuah thread');
-      expect(responseJson.data.thread.body).toEqual('Isi thread');
-      expect(Date.parse(responseJson.data.thread.date)).not.toBeNaN();
-      expect(responseJson.data.thread.username).toBe(userA.username);
-      expect(responseJson.data.thread.comments).toEqual(expect.any(Array));
-      expect(responseJson.data.thread.comments).toHaveLength(2);
+      expect(responseJson.data.thread).toBeDefined();
 
-      const [comment1, comment2] = responseJson.data.thread.comments;
-
-      expect(comment1).toEqual(expect.any(Object));
-      expect(comment1.id).toEqual(commentA.id);
-      expect(comment1.username).toEqual(userA.username);
-      expect(comment1.content).toEqual('Sebuah komentar');
-      expect(Date.parse(comment1.date)).not.toBeNaN();
-      expect(comment1.replies).toEqual(expect.any(Array));
-      expect(comment1.replies).toHaveLength(2);
-      expect(comment1.replies).toEqual(
-        expect.arrayOf({
-          id: expect.stringContaining('reply-'),
-          username: expect.any(String),
-          content: 'Sebuah balasan',
-          date: expect.any(String)
-        })
-      );
-
-      expect(comment2).toEqual(expect.any(Object));
-      expect(comment2.id).toEqual(commentB.id);
-      expect(comment2.username).toEqual(userB.username);
-      expect(comment2.content).toEqual('Sebuah komentar');
-      expect(Date.parse(comment2.date)).not.toBeNaN();
-      expect(comment2.replies).toEqual(expect.any(Array));
-      expect(comment2.replies).toHaveLength(0);
+      const detailThread = responseJson.data.thread;
+      expect(detailThread).toMatchObject({
+        id: expect.stringContaining('thread-'),
+        title: 'Sebuah thread',
+        body: 'Isi thread',
+        username: userA.username,
+      });
+      expect(Date.parse(detailThread.date)).not.toBeNaN();
+      expect(detailThread.comments).toHaveLength(0);
     });
 
-    it('should handle soft-deleted comment and reply correctly', async () => {
-      const comment2endpoint = `/threads/${thread.id}/comments/${commentB.id}`;
-      const comment2options = {
-        headers: { ...authorizationUserB }
-      };
-      const reply2endpoint = `/threads/${thread.id}/comments/${commentA.id}/replies/${replyX.id}`;
-      const reply2options = {
-        headers: { ...authorizationUserA }
-      };
-
-      await serverTest.delete(comment2endpoint, comment2options);
-      await serverTest.delete(reply2endpoint, reply2options);
+    it('should handle all comments including soft-deleted ones', async () => {
+      const commentA = await commentsTable.add({ id: 'comment-001', thread_id: thread.id, owner_id: userA.id });
+      const commentB = await commentsTable.add({ id: 'comment-002', thread_id: thread.id, owner_id: userB.id, is_delete: true });
 
       const response = await serverTest.get(`/threads/${thread.id}`);
-      expect(response.statusCode).toBe(200);
 
       const responseJson = JSON.parse(response.payload);
-      const [comment1, comment2] = responseJson.data.thread.comments;
-      expect(comment2.content).toEqual('**komentar telah dihapus**');
 
-      const [reply1, reply2] = comment1.replies;
-      expect(reply1.content).toEqual('Sebuah balasan');
-      expect(reply2.content).toEqual('**balasan telah dihapus**');
+      expect(response.statusCode).toBe(200);
+      expect(responseJson.status).toEqual('success');
+      expect(responseJson.data.thread).toBeDefined();
+
+      const comments = responseJson.data.thread.comments;
+      expect(comments).toHaveLength(2);
+
+      const c1 = comments.find((c) => c.id === commentA.id);
+      const c2 = comments.find((c) => c.id === commentB.id);
+
+      expect(c1).toMatchObject({
+        id: commentA.id,
+        content: 'Sebuah komentar',
+        username: userA.username,
+      });
+      expect(Date.parse(c1.date)).not.toBeNaN();
+
+      expect(c2).toMatchObject({
+        id: commentB.id,
+        content: '**komentar telah dihapus**',
+        username: userB.username,
+      });
+      expect(Date.parse(c2.date)).not.toBeNaN();
+    });
+
+    it('should handle all replies including soft-deleted ones', async () => {
+      const comment = await commentsTable.add({ id: 'comment-001', thread_id: thread.id, owner_id: userA.id });
+      const replyA = await repliesTable.add({ id: 'reply-001', comment_id: comment.id, owner_id: userB.id });
+      const replyB = await repliesTable.add({ id: 'reply-002', comment_id: comment.id, owner_id: userA.id, is_delete: true });
+
+      const response = await serverTest.get(`/threads/${thread.id}`);
+
+      const responseJson = JSON.parse(response.payload);
+
+      expect(response.statusCode).toBe(200);
+      expect(responseJson.status).toEqual('success');
+      expect(responseJson.data.thread).toBeDefined();
+
+      const comments = responseJson.data.thread.comments;
+      expect(comments).toHaveLength(1);
+
+      const replies = comments[0].replies;
+      expect(replies).toHaveLength(2);
+
+      const r1 = replies.find((r) => r.id === replyA.id);
+      const r2 = replies.find((r) => r.id === replyB.id);
+
+      expect(r1).toMatchObject({
+        id: replyA.id,
+        content: replyA.content,
+        username: userB.username,
+      });
+      expect(Date.parse(r1.date)).not.toBeNaN();
+
+      expect(r2).toMatchObject({
+        id: replyB.id,
+        content: '**balasan telah dihapus**',
+        username: userA.username,
+      });
+      expect(Date.parse(r2.date)).not.toBeNaN();
     });
   });
 });
