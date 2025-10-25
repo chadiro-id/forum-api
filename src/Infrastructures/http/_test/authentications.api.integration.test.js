@@ -1,8 +1,6 @@
 const pool = require('../../database/postgres/pool');
-const AuthenticationTokenManager = require('../../../Applications/security/AuthenticationTokenManager');
-const container = require('../../containers/container');
 const serverTest = require('../../../../tests/helper/ServerTestHelper');
-const { createHashedPassword } = require('../../../../tests/helper/authenticationHelper');
+const { createAuthToken, createHashedPassword } = require('../../../../tests/helper/authenticationHelper');
 const { usersTable, authenticationsTable } = require('../../../../tests/helper/postgres');
 const { assertHttpResponseError } = require('../../../../tests/helper/assertionsHelper');
 
@@ -22,25 +20,26 @@ describe('[Integration] Authentications Endpoints', () => {
     username: 'johndoe',
     password: 'supersecret^_^007',
   };
-  let hashedPassword;
+  let user;
+  let userAuth;
 
-  beforeAll(async () => {
-    hashedPassword = await createHashedPassword(loginUser.password);
+  beforeEach(async () => {
+    const hashedPassword = await createHashedPassword(loginUser.password);
+    user = await usersTable.add({
+      username: loginUser.username,
+      password: hashedPassword,
+      fullname: 'John Doe'
+    });
+    userAuth = await createAuthToken({ ...user });
+    await authenticationsTable.addToken(userAuth.refreshToken);
+  });
+
+  afterEach(async () => {
+    await authenticationsTable.clean();
+    await usersTable.clean();
   });
 
   describe('POST /authentications', () => {
-    beforeEach(async () => {
-      await usersTable.add({
-        username: loginUser.username,
-        password: hashedPassword,
-        fullname: 'John Doe'
-      });
-    });
-
-    afterEach(async () => {
-      await usersTable.clean();
-    });
-
     it('should response 201 and user authentication', async () => {
       const options = { payload: { ...loginUser } };
       const response = await serverTest.post('/authentications', options);
@@ -53,112 +52,92 @@ describe('[Integration] Authentications Endpoints', () => {
     });
 
     it('should response 400 when username is unknown', async () => {
-      const response = await serverTest.post('/authentications', {
-        payload: { ...loginUser, username: 'nonexists-username' }
-      });
+      const options = {
+        payload: { ...loginUser, username: 'unknown-username' }
+      };
+      const response = await serverTest.post('/authentications', options);
 
       assertHttpResponseError(response, 400, { message: 'username tidak ditemukan' });
     });
 
     it('should response 401 when password is incorrect', async () => {
-      const requestPayload = {
-        ...loginUser,
-        password: 'wrong_password',
+      const options = {
+        payload: { ...loginUser, password: 'incorrect_password' },
       };
 
-      const response = await serverTest.post('/authentications', {
-        payload: requestPayload,
-      });
+      const response = await serverTest.post('/authentications', options);
 
       assertHttpResponseError(response, 401, { message: 'kredensial yang Anda masukkan salah' });
     });
 
-    it('should response 400 when login payload has wrong data type', async () => {
-      const requestPayload = {
-        username: 123,
-        password: 'secret',
+    it('should response 400 when payload has wrong data type', async () => {
+      const options = {
+        payload: { ...loginUser, password: 123 },
       };
 
-      const response = await serverTest.post('/authentications', {
-        payload: requestPayload,
-      });
+      const response = await serverTest.post('/authentications', options);
 
       assertHttpResponseError(response, 400, { message: 'harus berupa teks' });
     });
 
     it('should response 400 when login payload not contain needed property', async () => {
-      const requestPayload = {
-        username: 'johndoe',
+      const options = {
+        payload: { username: loginUser.username },
       };
-      const response = await serverTest.post('/authentications', {
-        payload: requestPayload,
-      });
+      const response = await serverTest.post('/authentications', options);
 
       assertHttpResponseError(response, 400, { message: 'wajib diisi' });
     });
   });
 
   describe('PUT /authentications', () => {
-    beforeEach(async () => {
-      await usersTable.add({
-        username: loginUser.username,
-        password: hashedPassword,
-        fullname: 'John Doe'
-      });
-    });
-
-    afterEach(async () => {
-      await usersTable.clean();
-    });
-
     it('should response 200 and new access token', async () => {
-      const loginResponse = await serverTest.post('/authentications', {
-        payload: { ...loginUser },
-      });
-      const { data: { refreshToken } } = JSON.parse(loginResponse.payload);
-
-      const response = await serverTest.put('/authentications', {
-        payload: { refreshToken },
-      });
+      const options = {
+        payload: { refreshToken: userAuth.refreshToken },
+      };
+      const response = await serverTest.put('/authentications', options);
 
       const responseJson = JSON.parse(response.payload);
       expect(response.statusCode).toBe(200);
       expect(responseJson.status).toEqual('success');
       expect(responseJson.data.accessToken).toBeDefined();
+      expect(responseJson.data.accessToken).not.toEqual(userAuth.accessToken);
     });
 
     it('should response 400 when payload not contain refresh token', async () => {
-      const response = await serverTest.put('/authentications', {
-        payload: { refreshTokens: '' },
-      });
+      const options = {
+        payload: { refreshTokens: 'typo_refresh_token_property' },
+      };
+      const response = await serverTest.put('/authentications', options);
 
       assertHttpResponseError(response, 400, { message: 'wajib diisi' });
     });
 
     it('should response 400 when refresh token not string', async () => {
-      const response = await serverTest.put('/authentications', {
+      const options = {
         payload: { refreshToken: 123 },
-      });
+      };
+      const response = await serverTest.put('/authentications', options);
 
       assertHttpResponseError(response, 400, { message: 'harus berupa teks' });
     });
 
     it('should response 400 when refresh token not valid', async () => {
-      const response = await serverTest.put('/authentications', {
+      const options = {
         payload: {
           refreshToken: 'invalid_refresh_token',
         }
-      });
+      };
+      const response = await serverTest.put('/authentications', options);
 
       assertHttpResponseError(response, 400, { message: 'refresh token tidak valid' });
     });
 
     it('should response 400 when refresh token not registered in database', async () => {
-      const refreshToken = await container.getInstance(AuthenticationTokenManager.name)
-        .createRefreshToken({ username: 'johndoe' });
+      const { refreshToken: otherRefreshToken } = await createAuthToken({ username: 'otherusername' });
 
       const response = await serverTest.put('/authentications', {
-        payload: { refreshToken }
+        payload: { refreshToken: otherRefreshToken }
       });
 
       assertHttpResponseError(response, 400, { message: 'refresh token tidak ditemukan di database' });
@@ -166,26 +145,11 @@ describe('[Integration] Authentications Endpoints', () => {
   });
 
   describe('DELETE /authentications', () => {
-    beforeEach(async () => {
-      await usersTable.add({
-        username: loginUser.username,
-        password: hashedPassword,
-        fullname: 'John Doe'
-      });
-      await authenticationsTable.addToken('registered_refresh_token');
-    });
-
-    afterEach(async () => {
-      await usersTable.clean();
-      await authenticationsTable.clean();
-    });
-
     it('should response 200 when refresh token is valid', async () => {
-      const refreshToken = 'registered_refresh_token';
-
-      const response = await serverTest.delete('/authentications', {
-        payload: { refreshToken },
-      });
+      const options = {
+        payload: { refreshToken: userAuth.refreshToken },
+      };
+      const response = await serverTest.delete('/authentications', options);
 
       const responseJson = JSON.parse(response.payload);
       expect(response.statusCode).toBe(200);
@@ -193,19 +157,17 @@ describe('[Integration] Authentications Endpoints', () => {
     });
 
     it('should response 400 when payload not contain refresh token', async () => {
-      const response = await serverTest.delete('/authentications', {
-        payload: {},
-      });
+      const options = { payload: {} };
+      const response = await serverTest.delete('/authentications', options);
 
       assertHttpResponseError(response, 400, { message: 'wajib diisi' });
     });
 
     it('should response 400 when refresh token not string', async () => {
-      const response = await serverTest.delete('/authentications', {
-        payload: {
-          refreshToken: 123,
-        },
-      });
+      const options = {
+        payload: { refreshToken: 123 },
+      };
+      const response = await serverTest.delete('/authentications', options);
 
       assertHttpResponseError(response, 400, { message: 'harus berupa teks' });
     });
