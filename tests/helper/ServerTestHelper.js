@@ -1,6 +1,6 @@
 /* istanbul ignore file */
 const { createServer } = require('../../src/Infrastructures/http/server');
-const container = require('../../src/Infrastructures/containers/container');
+const container = require('../../src/Infrastructures/container');
 
 let server;
 

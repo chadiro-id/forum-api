@@ -1,7 +1,7 @@
 /* istanbul ignore file */
 const AuthenticationTokenManager = require('../../src/Applications/security/AuthenticationTokenManager');
 const PasswordHash = require('../../src/Applications/security/PasswordHash');
-const container = require('../../src/Infrastructures/containers/container');
+const container = require('../../src/Infrastructures/container');
 
 const createAuthToken = async ({ username = 'johndoe', id = 'user-001' }) => {
   const jwt = container.getInstance(AuthenticationTokenManager.name);
