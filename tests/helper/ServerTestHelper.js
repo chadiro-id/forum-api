@@ -3,7 +3,6 @@ const { createServer } = require('../../src/Infrastructures/http/server');
 const container = require('../../src/Infrastructures/containers/container');
 
 let server;
-let initialized;
 
 const inject = async (method, url, options) => {
   if (typeof url !== 'string') {
@@ -21,30 +20,18 @@ const inject = async (method, url, options) => {
   });
 };
 
-exports.setup = async () => {
-  if (server) {
-    server = null;
-  }
-  server = await createServer(container);
-};
-
 exports.init = async () => {
   if (!server) {
-    throw new Error('SERVER_TEST.SERVER_HAS_NOT_SETUP_YET');
+    server = await createServer(container);
   }
-
-  if (initialized) return;
   await server.initialize();
-  initialized = true;
 };
 
 exports.stop = async () => {
   if (!server) {
     throw new Error('SERVER_TEST.SERVER_NOT_SETUP_YET');
   }
-
   await server.stop();
-  initialized = false;
 };
 
 exports.post = async (endpoint, options = {}) => inject('POST', endpoint, options);
