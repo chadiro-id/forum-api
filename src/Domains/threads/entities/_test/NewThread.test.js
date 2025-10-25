@@ -48,7 +48,7 @@ describe('NewThread Entity', () => {
     });
 
     it('should throw error when title contains more than 255 character', () => {
-      const payload = { ...dummyPayload, title: 'Judul thread'.repeat(25) };
+      const payload = { ...dummyPayload, title: 'a'.repeat(256) };
 
       expect(() => new NewThread(payload))
         .toThrow('NEW_THREAD.TITLE_EXCEED_CHAR_LIMIT');
