@@ -5,7 +5,6 @@ const { assertHttpResponseError } = require('../../../../tests/helper/assertions
 
 beforeAll(async () => {
   await serverTest.init();
-  await usersTable.add({ id: 'user-1000', username: 'superuser' });
 });
 
 afterAll(async () => {
@@ -16,10 +15,14 @@ afterAll(async () => {
 
 describe('[Integration] Users Endpoints', () => {
   const dummyPayload = {
-    username: 'johndoe',
+    username: 'dicoder',
     password: 'supersecret^_^@01',
-    fullname: 'John Doe',
+    fullname: 'Dicoding User',
   };
+
+  beforeEach(async () => {
+    await usersTable.clean();
+  });
 
   describe('POST /users', () => {
     it('should response 201 and persisted user', async () => {
@@ -86,9 +89,11 @@ describe('[Integration] Users Endpoints', () => {
     });
 
     it('should response 400 when username unavailable', async () => {
+      await usersTable.add({ id: 'user-101', username: 'johndoe' });
+
       const payload = {
         ...dummyPayload,
-        username: 'superuser',
+        username: 'johndoe',
       };
 
       const response = await serverTest.post('/users', { payload });
