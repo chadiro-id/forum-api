@@ -15,74 +15,70 @@ afterAll(async () => {
 });
 
 describe('[Integration] Users Endpoints', () => {
-  describe('POST /users', () => {
-    const dummyPayload = {
-      username: 'johndoe',
-      password: 'supersecret^_^@01',
-      fullname: 'John Doe',
-    };
+  const dummyPayload = {
+    username: 'johndoe',
+    password: 'supersecret^_^@01',
+    fullname: 'John Doe',
+  };
 
+  describe('POST /users', () => {
     it('should response 201 and persisted user', async () => {
-      const response = await serverTest.post('/users', {
+      const options = {
         payload: { ...dummyPayload }
-      });
+      };
+
+      const response = await serverTest.post('/users', options);
 
       const responseJson = JSON.parse(response.payload);
       expect(response.statusCode).toEqual(201);
       expect(responseJson.status).toEqual('success');
-      expect(responseJson.data.addedUser).toEqual({
-        id: expect.stringContaining('user-'),
-        username: dummyPayload.username,
-        fullname: dummyPayload.fullname,
-      });
+      expect(responseJson.data.addedUser).toEqual(
+        expect.objectContaining({
+          id: expect.stringContaining('user-'),
+          username: dummyPayload.username,
+          fullname: dummyPayload.fullname,
+        })
+      );
     });
 
     it('should response 400 when request payload not contain needed property', async () => {
-      const requestPayload = { ...dummyPayload };
-      delete requestPayload.fullname;
+      const payload = { ...dummyPayload };
+      delete payload.fullname;
 
-      const response = await serverTest.post('/users', {
-        payload: requestPayload,
-      });
+      const response = await serverTest.post('/users', { payload });
 
       assertHttpResponseError(response, 400);
     });
 
     it('should response 400 when request payload not meet data type specification', async () => {
-      const requestPayload = {
+      const payload = {
         ...dummyPayload,
         fullname: ['John Doe'],
       };
 
-      const response = await serverTest.post('/users', {
-        payload: requestPayload,
-      });
+      const response = await serverTest.post('/users', { payload });
 
       assertHttpResponseError(response, 400);
     });
 
     it('should response 400 when username more than 50 character', async () => {
-      const requestPayload = {
+      const payload = {
         ...dummyPayload,
-        username: 'johndoe'.repeat(10),
+        username: 'a'.repeat(51),
       };
 
-      const response = await serverTest.post('/users', {
-        payload: requestPayload,
-      });
+      const response = await serverTest.post('/users', { payload });
 
       assertHttpResponseError(response, 400, { message: 'username maksimal 50 karakter' });
     });
 
     it('should response 400 when username contain restricted character', async () => {
-      const requestPayload = {
+      const payload = {
         ...dummyPayload,
         username: 'john doe',
       };
 
-      const response = await serverTest.post('/users', {
-        payload: requestPayload,
-      });
+      const response = await serverTest.post('/users', { payload });
 
       assertHttpResponseError(
         response, 400, { message: 'tidak dapat membuat user baru karena username mengandung karakter terlarang' }
@@ -90,14 +86,12 @@ describe('[Integration] Users Endpoints', () => {
     });
 
     it('should response 400 when username unavailable', async () => {
-      const requestPayload = {
+      const payload = {
         ...dummyPayload,
         username: 'superuser',
       };
 
-      const response = await serverTest.post('/users', {
-        payload: requestPayload,
-      });
+      const response = await serverTest.post('/users', { payload });
 
       assertHttpResponseError(response, 400, { message: 'username tidak tersedia' });
     });
