@@ -5,7 +5,7 @@ Sebuah REST API forum (Node.js + Hapi) yang terstruktur mengikuti prinsip Clean 
 ## Ringkasan
 - Menjalankan server: lihat [package.json](package.json) scripts (`start`, `start:dev`).
 - Server dibuat di: [`src/app.js`](src/app.js) -> [`src/Infrastructures/http/server.js`](src/Infrastructures/http/server.js).
-- Dependency injection / container ada di: [`src/Infrastructures/containers/container.js`](src/Infrastructures/containers/container.js).
+- Dependency injection / container ada di: [`src/Infrastructures/container/index.js`](src/Infrastructures/container/index.js).
 - Token manager abstraksi: [`AuthenticationTokenManager`](src/Applications/security/AuthenticationTokenManager.js) dan implementasi JWT: [`JwtTokenManager`](src/Infrastructures/security/JwtTokenManager.js).
 - Konfigurasi aplikasi: [`src/Commons/config.js`](src/Commons/config.js).
 
@@ -76,7 +76,7 @@ Setup & helper untuk testing tersedia di `tests/helper` (contoh: `tests/helper/a
   - Applications/ — use cases & abstractions untuk service
   - Domains/ — entitas dan repository interface (boundary)
   - Infrastructures/ — implementasi (DB, security, http server, container)
-    - containers/ — pendaftaran dependensi container ([container.js](src/Infrastructures/containers/container.js))
+    - container/ — pendaftaran dependensi container ([src/Infrastructures/container/](src/Infrastructures/container/))
     - http/ — Hapi server, routes, handlers
     - repository/ — implementasi repositori Postgres
     - security/ — hashing & token manager ([JwtTokenManager](src/Infrastructures/security/JwtTokenManager.js))
@@ -88,7 +88,7 @@ Setup & helper untuk testing tersedia di `tests/helper` (contoh: `tests/helper/a
 
 ## Perhatian / catatan pengembangan
 - Konfigurasi token diambil dari [`src/Commons/config.js`](src/Commons/config.js) — untuk kemudahan testing dan kebersihan arsitektur sebaiknya nilai sensitif (keys) dikirim lewat container (injeksi) ke implementasi seperti [`JwtTokenManager`](src/Infrastructures/security/JwtTokenManager.js).
-- Jika butuh debug/lihat alur pendaftaran dependensi, lihat [`src/Infrastructures/containers/container.js`](src/Infrastructures/containers/container.js) dan container setup di [`src/Infrastructures/containers/repositoryContainer.js`](src/Infrastructures/containers/repositoryContainer.js) / [`src/Infrastructures/containers/useCaseContainer.js`](src/Infrastructures/containers/useCaseContainer.js).
+- Jika butuh debug/lihat alur pendaftaran dependensi, lihat [`src/Infrastructures/container/index.js`](src/Infrastructures/container/index.js) dan container option di [`src/Infrastructures/container/*`](src/Infrastructures/container/).
 
 ## Lint
 - Jalankan ESLint:
