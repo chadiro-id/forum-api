@@ -7,7 +7,8 @@ const threadsOption = require('./options/threads');
 const commentsOption = require('./options/comments');
 const repliesOption = require('./options/replies');
 
-const setupContainer = () => {
+let container;
+function setup() {
   const options = [
     defaultOption,
     usersOption,
@@ -16,10 +17,9 @@ const setupContainer = () => {
     commentsOption,
     repliesOption,
   ];
-
-  return createContainer(options.flat());
+  container =  createContainer(options.flat());
 };
 
-const container = setupContainer();
+setup();
 
 module.exports = container;
