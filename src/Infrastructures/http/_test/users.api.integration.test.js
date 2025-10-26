@@ -26,9 +26,7 @@ describe('[Integration] Users Endpoints', () => {
 
   describe('POST /users', () => {
     it('should response 201 and persisted user', async () => {
-      const options = {
-        payload: { ...dummyPayload }
-      };
+      const options = { payload: { ...dummyPayload } };
 
       const response = await serverTest.post('/users', options);
 
@@ -54,33 +52,21 @@ describe('[Integration] Users Endpoints', () => {
     });
 
     it('should response 400 when request payload not meet data type specification', async () => {
-      const payload = {
-        ...dummyPayload,
-        fullname: ['John Doe'],
-      };
-
+      const payload = { ...dummyPayload, fullname: ['John Doe'] };
       const response = await serverTest.post('/users', { payload });
 
       assertHttpResponseError(response, 400);
     });
 
     it('should response 400 when username more than 50 character', async () => {
-      const payload = {
-        ...dummyPayload,
-        username: 'a'.repeat(51),
-      };
-
+      const payload = { ...dummyPayload, username: 'a'.repeat(51) };
       const response = await serverTest.post('/users', { payload });
 
       assertHttpResponseError(response, 400, { message: 'username maksimal 50 karakter' });
     });
 
     it('should response 400 when username contain restricted character', async () => {
-      const payload = {
-        ...dummyPayload,
-        username: 'john doe',
-      };
-
+      const payload = { ...dummyPayload, username: 'john doe' };
       const response = await serverTest.post('/users', { payload });
 
       assertHttpResponseError(
@@ -91,11 +77,7 @@ describe('[Integration] Users Endpoints', () => {
     it('should response 400 when username unavailable', async () => {
       await usersTable.add({ id: 'user-101', username: 'johndoe' });
 
-      const payload = {
-        ...dummyPayload,
-        username: 'johndoe',
-      };
-
+      const payload = { ...dummyPayload, username: 'johndoe' };
       const response = await serverTest.post('/users', { payload });
 
       assertHttpResponseError(response, 400, { message: 'username tidak tersedia' });
