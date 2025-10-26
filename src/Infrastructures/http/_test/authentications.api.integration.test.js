@@ -8,11 +8,6 @@ beforeAll(async () => {
   await serverTest.init();
 });
 
-beforeEach(async () => {
-  await authenticationsTable.clean();
-  await usersTable.clean();
-});
-
 afterAll(async () => {
   await authenticationsTable.clean();
   await usersTable.clean();
@@ -25,19 +20,21 @@ describe('[Integration] Authentications Endpoints', () => {
     username: 'johndoe',
     password: 'supersecret^_^007',
   };
-  let user;
 
   beforeEach(async () => {
-    const hashedPassword = await createHashedPassword(loginUser.password);
-    user = await usersTable.add({
-      username: loginUser.username,
-      password: hashedPassword,
-      fullname: 'John Doe'
-    });
+    await authenticationsTable.clean();
+    await usersTable.clean();
   });
 
   describe('POST /authentications', () => {
     it('should response 201 and user authentication', async () => {
+      const hashedPassword = await createHashedPassword(loginUser.password);
+      await usersTable.add({
+        username: loginUser.username,
+        password: hashedPassword,
+        fullname: 'John Doe'
+      });
+
       const options = { payload: { ...loginUser } };
       const response = await serverTest.post('/authentications', options);
 
@@ -58,6 +55,13 @@ describe('[Integration] Authentications Endpoints', () => {
     });
 
     it('should response 401 when password is incorrect', async () => {
+      const hashedPassword = await createHashedPassword(loginUser.password);
+      await usersTable.add({
+        username: loginUser.username,
+        password: hashedPassword,
+        fullname: 'John Doe'
+      });
+
       const options = {
         payload: { ...loginUser, password: 'incorrect_password' },
       };
@@ -89,6 +93,12 @@ describe('[Integration] Authentications Endpoints', () => {
 
   describe('PUT /authentications', () => {
     it('should response 200 and new access token', async () => {
+      const hashedPassword = await createHashedPassword(loginUser.password);
+      const user = await usersTable.add({
+        username: loginUser.username,
+        password: hashedPassword,
+        fullname: 'John Doe'
+      });
       const { accessToken, refreshToken } = await createAuthToken({ ...user });
       await authenticationsTable.addToken(refreshToken);
 
@@ -142,6 +152,12 @@ describe('[Integration] Authentications Endpoints', () => {
 
   describe('DELETE /authentications', () => {
     it('should response 200 and status "success"', async () => {
+      const hashedPassword = await createHashedPassword(loginUser.password);
+      const user = await usersTable.add({
+        username: loginUser.username,
+        password: hashedPassword,
+        fullname: 'John Doe'
+      });
       const { refreshToken } = await createAuthToken({ ...user });
       await authenticationsTable.addToken(refreshToken);
 
