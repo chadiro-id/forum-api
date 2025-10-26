@@ -43,7 +43,7 @@ describe('[Integration] Threads Endpoints', () => {
       body: 'Sebuah thread',
     };
 
-    it('should response 201 and return the persisted thread', async () => {
+    it('should response 201 and return persisted thread', async () => {
       const options = {
         headers: { ...authorizationUserA },
         payload: { ...dummyPayload },
@@ -63,10 +63,7 @@ describe('[Integration] Threads Endpoints', () => {
     });
 
     it('should response 401 when request with no authentication', async () => {
-      const options = {
-        payload: { ...dummyPayload }
-      };
-
+      const options = { payload: { ...dummyPayload } };
       const response = await serverTest.post('/threads', options);
 
       assertHttpResponseError(response, 401, {
