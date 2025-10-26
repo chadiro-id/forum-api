@@ -59,7 +59,7 @@ describe('AddUserUseCase', () => {
       await expect(addUserUseCase.execute({ ...dummyPayload })).rejects.toThrow();
 
       expect(mockUserRepo.verifyAvailableUsername).toHaveBeenCalledWith(dummyPayload.username);
-      expect(mockPasswordHash.hash).toHaveBeenCalledTimes(1);
+      expect(mockPasswordHash.hash).toHaveBeenCalledWith(dummyPayload.password);
       expect(mockUserRepo.addUser).toHaveBeenCalledWith(expect.any(RegisterUser));
     });
 
@@ -79,7 +79,7 @@ describe('AddUserUseCase', () => {
         .toThrow('ADD_USER_USE_CASE.REGISTERED_USER_MUST_BE_INSTANCE_OF_REGISTERED_USER_ENTITY');
 
       expect(mockUserRepo.verifyAvailableUsername).toHaveBeenCalledWith(dummyPayload.username);
-      expect(mockPasswordHash.hash).toHaveBeenCalledTimes(1);
+      expect(mockPasswordHash.hash).toHaveBeenCalledWith(dummyPayload.password);
       expect(mockUserRepo.addUser).toHaveBeenCalledWith(expect.any(RegisterUser));
     });
   });
