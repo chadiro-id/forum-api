@@ -4,63 +4,54 @@ const { createAuthToken } = require('../../../../tests/helper/authenticationHelp
 const { assertHttpResponseError } = require('../../../../tests/helper/assertionsHelper');
 const {
   usersTable,
-  authenticationsTable,
   threadsTable,
   commentsTable,
 } = require('../../../../tests/helper/postgres');
 
-let userA;
-let userAuthA;
-let userB;
-let userAuthB;
-
 beforeAll(async () => {
   await serverTest.init();
-
-  userA = await usersTable.add({ id: 'user-001', username: 'whoami' });
-  userB = await usersTable.add({ id: 'user-002', username: 'johndoe' });
-
-  userAuthA = await createAuthToken({ ...userA });
-  userAuthB = await createAuthToken({ ...userB });
 });
 
 afterAll(async () => {
   await usersTable.clean();
-  await authenticationsTable.clean();
+  await commentsTable.clean();
+  await threadsTable.clean();
   await pool.end();
   await serverTest.stop();
 });
 
 describe('[Integration] Comments Endpoints', () => {
-  let thread;
-  let authorizationUserA;
-  let authorizationUserB;
-
-  beforeAll(async () => {
-    thread = await threadsTable.add({ owner_id: userA.id });
-
-    authorizationUserA = {
-      Authorization: `Bearer ${userAuthA.accessToken}`,
-    };
-    authorizationUserB = {
-      Authorization: `Bearer ${userAuthB.accessToken}`
-    };
-  });
-
-  afterAll(async () => {
+  beforeEach(async () => {
+    await commentsTable.clean();
     await threadsTable.clean();
   });
 
   describe('POST /threads/{threadId}/comments', () => {
+    let user;
+    let authorization;
+    let thread;
     let endpoint;
 
     beforeAll(async () => {
+      user = await usersTable.add({ username: 'johndoe' });
+      const { accessToken } = await createAuthToken({ ...user });
+      authorization = {
+        Authorization: `Bearer ${accessToken}`,
+      };
+    });
+
+    beforeEach(async () => {
+      thread = await threadsTable.add({ owner_id: user.id });
       endpoint = `/threads/${thread.id}/comments`;
     });
 
-    it('should response 201 and the persisted comment', async () => {
+    afterAll(async () => {
+      await usersTable.clean();
+    });
+
+    it('should response 201 and persisted comment', async () => {
       const options = {
-        headers: { ...authorizationUserA },
+        headers: { ...authorization },
         payload: { content: 'Sebuah komentar' },
       };
 
@@ -68,19 +59,19 @@ describe('[Integration] Comments Endpoints', () => {
 
       const responseJson = JSON.parse(response.payload);
       expect(response.statusCode).toBe(201);
-      expect(responseJson.status).toBe('success');
+      expect(responseJson.status).toEqual('success');
       expect(responseJson.data).toEqual(expect.any(Object));
-      expect(responseJson.data.addedComment).toEqual(expect.any(Object));
-      expect(responseJson.data.addedComment.id).toEqual(expect.stringContaining('comment-'));
-      expect(responseJson.data.addedComment.content).toEqual('Sebuah komentar');
-      expect(responseJson.data.addedComment.owner).toEqual(userA.id);
+
+      const addedComment = responseJson.data.addedComment;
+      expect(addedComment).toEqual(expect.objectContaining({
+        id: expect.stringContaining('comment-'),
+        content: 'Sebuah komentar',
+        owner: user.id,
+      }));
     });
 
     it('should response 401 when request with no authentications', async () => {
-      const options = {
-        payload: { content: 'Sebuah komentar' }
-      };
-
+      const options = { payload: { content: 'Sebuah komentar' } };
       const response = await serverTest.post(endpoint, options);
 
       assertHttpResponseError(response, 401, {
@@ -92,7 +83,7 @@ describe('[Integration] Comments Endpoints', () => {
 
     it('should response 404 when thread not exists', async () => {
       const options = {
-        headers: { ...authorizationUserA },
+        headers: { ...authorization },
         payload: { content: 'Sebuah komentar' },
       };
 
@@ -103,7 +94,7 @@ describe('[Integration] Comments Endpoints', () => {
 
     it('should response 400 when payload not contain needed property', async () => {
       const options = {
-        headers: { ...authorizationUserA },
+        headers: { ...authorization },
         payload: { contents: 'Incorrect content property' },
       };
 
@@ -114,7 +105,7 @@ describe('[Integration] Comments Endpoints', () => {
 
     it('should response 400 when payload has wrong data type', async () => {
       const options = {
-        headers: { ...authorizationUserA },
+        headers: { ...authorization },
         payload: { content: ['Sebuah komentar'] },
       };
 
@@ -125,23 +116,31 @@ describe('[Integration] Comments Endpoints', () => {
   });
 
   describe('DELETE /threads/{threadId}/comments/{commentId}', () => {
-    let commentUserA;
-    let commentUserB;
+    let user;
+    let authorization;
+    let thread;
+    let comment;
 
     beforeAll(async () => {
-      commentUserA = await commentsTable.add({ id: 'comment-001', thread_id: thread.id, owner_id: userA.id });
-      commentUserB = await commentsTable.add({ id: 'comment-002', thread_id: thread.id, owner_id: userB.id });
+      user = await usersTable.add({ username: 'johndoe' });
+      const { accessToken } = await createAuthToken({ ...user });
+      authorization = {
+        Authorization: `Bearer ${accessToken}`,
+      };
+    });
+
+    beforeEach(async () => {
+      thread = await threadsTable.add({ owner_id: user.id });
+      comment = await commentsTable.add({ thread_id: thread.id, owner_id: user.id });
     });
 
     afterAll(async () => {
-      await commentsTable.clean();
+      await usersTable.clean();
     });
 
     it('should response 200 and status "success"', async () => {
-      const endpoint = `/threads/${thread.id}/comments/${commentUserA.id}`;
-      const options = {
-        headers: { ...authorizationUserA }
-      };
+      const endpoint = `/threads/${thread.id}/comments/${comment.id}`;
+      const options = { headers: { ...authorization } };
 
       const response = await serverTest.delete(endpoint, options);
 
@@ -151,8 +150,7 @@ describe('[Integration] Comments Endpoints', () => {
     });
 
     it('should response 401 when request with no authentication', async () => {
-      const endpoint = `/threads/${thread.id}/comments/${commentUserA.id}`;
-
+      const endpoint = `/threads/${thread.id}/comments/${comment.id}`;
       const response = await serverTest.delete(endpoint);
 
       assertHttpResponseError(response, 401, {
@@ -163,10 +161,8 @@ describe('[Integration] Comments Endpoints', () => {
     });
 
     it('should response 404 when thread not exists', async () => {
-      const endpoint = `/threads/xxx/comments/${commentUserB.id}`;
-      const options = {
-        headers: { ...authorizationUserB }
-      };
+      const endpoint = `/threads/xxx/comments/${comment.id}`;
+      const options = { headers: { ...authorization } };
 
       const response = await serverTest.delete(endpoint, options);
 
@@ -175,9 +171,7 @@ describe('[Integration] Comments Endpoints', () => {
 
     it('should response 404 when comment not exists', async () => {
       const endpoint = `/threads/${thread.id}/comments/xxx`;
-      const options = {
-        headers: { ...authorizationUserB }
-      };
+      const options = { headers: { ...authorization } };
 
       const response = await serverTest.delete(endpoint, options);
 
@@ -185,12 +179,10 @@ describe('[Integration] Comments Endpoints', () => {
     });
 
     it('should response 404 when comment not belong to thread', async () => {
-      const otherThread = await threadsTable.add({ id: 'thread-999', owner_id: userB.id });
+      const otherThread = await threadsTable.add({ id: 'thread-999', owner_id: user.id });
 
-      const endpoint = `/threads/${otherThread.id}/comments/${commentUserB.id}`;
-      const options = {
-        headers: { ...authorizationUserB }
-      };
+      const endpoint = `/threads/${otherThread.id}/comments/${comment.id}`;
+      const options = { headers: { ...authorization } };
 
       const response = await serverTest.delete(endpoint, options);
 
@@ -198,10 +190,12 @@ describe('[Integration] Comments Endpoints', () => {
     });
 
     it('should response 403 when user not authorized', async () => {
-      const endpoint = `/threads/${thread.id}/comments/${commentUserB.id}`;
-      const options = {
-        headers: { ...authorizationUserA }
-      };
+      const { accessToken: otherAccessToken } = await createAuthToken({
+        id: 'user-999', username: 'another-username'
+      });
+
+      const endpoint = `/threads/${thread.id}/comments/${comment.id}`;
+      const options = { headers: { Authorization: `Bearer ${otherAccessToken}` } };
 
       const response = await serverTest.delete(endpoint, options);
 
