@@ -105,6 +105,19 @@ describe('[Integration] Replies Endpoints', () => {
       assertHttpResponseError(response, 404);
     });
 
+    it('should response 404 when comment not belong to thread', async () => {
+      const otherThread = await threadsTable.add({ id: 'thread-999', owner_id: user.id });
+      const endpoint = `/threads/${otherThread.id}/comments/${comment.id}/replies`;
+      const options = {
+        headers: { ...authorization },
+        payload: { content: 'Sebuah balasan' },
+      };
+
+      const response = await serverTest.post(endpoint, options);
+
+      assertHttpResponseError(response, 404);
+    });
+
     it('should response 400 when payload not contain needed property', async () => {
       const options = {
         headers: { ...authorization },
