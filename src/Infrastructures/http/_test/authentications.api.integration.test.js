@@ -14,6 +14,8 @@ beforeEach(async () => {
 });
 
 afterAll(async () => {
+  await authenticationsTable.clean();
+  await usersTable.clean();
   await pool.end();
   await serverTest.stop();
 });
