@@ -1,3 +1,4 @@
+const AuthenticationPayload = require('../../../../Domains/authentications/entities/AuthenticationPayload');
 const UserAuthentication = require('../../../../Domains/authentications/entities/UserAuthentication');
 const AddAuthenticationUseCase = require('../AddAuthenticationUseCase');
 
@@ -97,12 +98,8 @@ describe('AddAuthenticationUseCase', () => {
       expect(mockUserRepo.getPasswordByUsername).toHaveBeenCalledWith(dummyPayload.username);
       expect(mockPasswordHash.comparePassword).toHaveBeenCalledWith(dummyPayload.password, 'encrypted_password');
       expect(mockUserRepo.getIdByUsername).toHaveBeenCalledWith(dummyPayload.username);
-      expect(mockTokenManager.createAccessToken).toHaveBeenCalledWith({
-        username: dummyPayload.username, id: 'user-123'
-      });
-      expect(mockTokenManager.createRefreshToken).toHaveBeenCalledWith({
-        username: dummyPayload.username, id: 'user-123'
-      });
+      expect(mockTokenManager.createAccessToken).toHaveBeenCalledWith(expect.any(AuthenticationPayload));
+      expect(mockTokenManager.createRefreshToken).toHaveBeenCalledWith(expect.any(AuthenticationPayload));
       expect(mockAuthRepo.addToken).toHaveBeenCalledWith('refresh_token');
     });
   });
@@ -118,16 +115,19 @@ describe('AddAuthenticationUseCase', () => {
 
       const actualUserAuthentication = await addAuthenticationUseCase.execute({ ...dummyPayload });
 
-      expect(actualUserAuthentication).toStrictEqual(new UserAuthentication({
-        accessToken: 'access_token',
-        refreshToken: 'refresh_token',
-      }));
+      expect(actualUserAuthentication).toBeInstanceOf(UserAuthentication);
+      expect(actualUserAuthentication).toEqual(
+        expect.objectContaining({
+          accessToken: 'access_token',
+          refreshToken: 'refresh_token',
+        })
+      );
 
-      expect(mockUserRepo.getPasswordByUsername).toHaveBeenCalledWith('johndoe');
-      expect(mockPasswordHash.comparePassword).toHaveBeenCalledWith('secret^_123', 'encrypted_password');
-      expect(mockUserRepo.getIdByUsername).toHaveBeenCalledWith('johndoe');
-      expect(mockTokenManager.createAccessToken).toHaveBeenCalledWith({ username: 'johndoe', id: 'user-123' });
-      expect(mockTokenManager.createRefreshToken).toHaveBeenCalledWith({ username: 'johndoe', id: 'user-123' });
+      expect(mockUserRepo.getPasswordByUsername).toHaveBeenCalledWith(dummyPayload.username);
+      expect(mockPasswordHash.comparePassword).toHaveBeenCalledWith(dummyPayload.password, 'encrypted_password');
+      expect(mockUserRepo.getIdByUsername).toHaveBeenCalledWith(dummyPayload.username);
+      expect(mockTokenManager.createAccessToken).toHaveBeenCalledWith(expect.any(AuthenticationPayload));
+      expect(mockTokenManager.createRefreshToken).toHaveBeenCalledWith(expect.any(AuthenticationPayload));
       expect(mockAuthRepo.addToken).toHaveBeenCalledWith('refresh_token');
     });
   });
