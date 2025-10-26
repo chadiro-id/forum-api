@@ -61,6 +61,13 @@ describe('AddUserUseCase', () => {
       expect(mockUserRepo.verifyAvailableUsername).toHaveBeenCalledWith(dummyPayload.username);
       expect(mockPasswordHash.hash).toHaveBeenCalledWith(dummyPayload.password);
       expect(mockUserRepo.addUser).toHaveBeenCalledWith(expect.any(RegisterUser));
+      expect(mockUserRepo.addUser).toHaveBeenCalledWith(
+        expect.objectContaining({
+          username: dummyPayload.username,
+          password: 'encrypted_password',
+          fullname: dummyPayload.fullname,
+        })
+      );
     });
 
     it('should throw error when the registeredUser not an instance of RegisteredUser entity', async () => {
@@ -81,6 +88,13 @@ describe('AddUserUseCase', () => {
       expect(mockUserRepo.verifyAvailableUsername).toHaveBeenCalledWith(dummyPayload.username);
       expect(mockPasswordHash.hash).toHaveBeenCalledWith(dummyPayload.password);
       expect(mockUserRepo.addUser).toHaveBeenCalledWith(expect.any(RegisterUser));
+      expect(mockUserRepo.addUser).toHaveBeenCalledWith(
+        expect.objectContaining({
+          username: dummyPayload.username,
+          password: 'encrypted_password',
+          fullname: dummyPayload.fullname,
+        })
+      );
     });
   });
 
@@ -101,6 +115,13 @@ describe('AddUserUseCase', () => {
       expect(mockUserRepo.verifyAvailableUsername).toHaveBeenCalledWith(dummyPayload.username);
       expect(mockPasswordHash.hash).toHaveBeenCalledWith(dummyPayload.password);
       expect(mockUserRepo.addUser).toHaveBeenCalledWith(expect.any(RegisterUser));
+      expect(mockUserRepo.addUser).toHaveBeenCalledWith(
+        expect.objectContaining({
+          username: dummyPayload.username,
+          password: 'encrypted_password',
+          fullname: dummyPayload.fullname,
+        })
+      );
 
       expect(registeredUser).toBeInstanceOf(RegisteredUser);
       expect(registeredUser.id).toEqual('user-123');
