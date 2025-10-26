@@ -8,9 +8,12 @@ beforeAll(async () => {
   await serverTest.init();
 });
 
-afterAll(async () => {
+beforeEach(async () => {
   await authenticationsTable.clean();
   await usersTable.clean();
+});
+
+afterAll(async () => {
   await pool.end();
   await serverTest.stop();
 });
@@ -21,7 +24,6 @@ describe('[Integration] Authentications Endpoints', () => {
     password: 'supersecret^_^007',
   };
   let user;
-  let userAuth;
 
   beforeEach(async () => {
     const hashedPassword = await createHashedPassword(loginUser.password);
@@ -30,13 +32,6 @@ describe('[Integration] Authentications Endpoints', () => {
       password: hashedPassword,
       fullname: 'John Doe'
     });
-    userAuth = await createAuthToken({ ...user });
-    await authenticationsTable.addToken(userAuth.refreshToken);
-  });
-
-  afterEach(async () => {
-    await authenticationsTable.clean();
-    await usersTable.clean();
   });
 
   describe('POST /authentications', () => {
@@ -92,16 +87,17 @@ describe('[Integration] Authentications Endpoints', () => {
 
   describe('PUT /authentications', () => {
     it('should response 200 and new access token', async () => {
-      const options = {
-        payload: { refreshToken: userAuth.refreshToken },
-      };
+      const { accessToken, refreshToken } = await createAuthToken({ ...user });
+      await authenticationsTable.addToken(refreshToken);
+
+      const options = { payload: { refreshToken } };
       const response = await serverTest.put('/authentications', options);
 
       const responseJson = JSON.parse(response.payload);
       expect(response.statusCode).toBe(200);
       expect(responseJson.status).toEqual('success');
       expect(responseJson.data.accessToken).toBeDefined();
-      expect(responseJson.data.accessToken).not.toEqual(userAuth.accessToken);
+      expect(responseJson.data.accessToken).not.toEqual(accessToken);
     });
 
     it('should response 400 when payload not contain refresh token', async () => {
@@ -124,9 +120,7 @@ describe('[Integration] Authentications Endpoints', () => {
 
     it('should response 400 when refresh token not valid', async () => {
       const options = {
-        payload: {
-          refreshToken: 'invalid_refresh_token',
-        }
+        payload: { refreshToken: 'invalid_refresh_token' },
       };
       const response = await serverTest.put('/authentications', options);
 
@@ -145,10 +139,11 @@ describe('[Integration] Authentications Endpoints', () => {
   });
 
   describe('DELETE /authentications', () => {
-    it('should response 200 when refresh token is valid', async () => {
-      const options = {
-        payload: { refreshToken: userAuth.refreshToken },
-      };
+    it('should response 200 and status "success"', async () => {
+      const { refreshToken } = await createAuthToken({ ...user });
+      await authenticationsTable.addToken(refreshToken);
+
+      const options = { payload: { refreshToken } };
       const response = await serverTest.delete('/authentications', options);
 
       const responseJson = JSON.parse(response.payload);
