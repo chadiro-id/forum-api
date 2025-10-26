@@ -1,3 +1,4 @@
+const AuthenticationPayload = require('../../../../Domains/authentications/entities/AuthenticationPayload');
 const PutAuthenticationUseCase = require('../PutAuthenticationUseCase');
 
 describe('PutAuthenticationUseCase', () => {
@@ -62,6 +63,22 @@ describe('PutAuthenticationUseCase', () => {
       expect(mockTokenManager.decodePayload).not.toHaveBeenCalled();
       expect(mockTokenManager.createAccessToken).not.toHaveBeenCalled();
     });
+
+    it('should propagate error when decoded payload not contain needed property', async () => {
+      const refreshToken = 'refresh_token';
+
+      mockTokenManager.verifyRefreshToken.mockResolvedValue();
+      mockAuthRepo.verifyTokenExists.mockResolvedValue();
+      mockTokenManager.decodePayload.mockResolvedValue({ username: 'johndoe' });
+
+      await expect(putAuthenticationUseCase.execute({ refreshToken }))
+        .rejects.toThrow();
+
+      expect(mockTokenManager.verifyRefreshToken).toHaveBeenCalledWith(refreshToken);
+      expect(mockAuthRepo.verifyTokenExists).toHaveBeenCalledWith(refreshToken);
+      expect(mockTokenManager.decodePayload).toHaveBeenCalledWith(refreshToken);
+      expect(mockTokenManager.createAccessToken).not.toHaveBeenCalled();
+    });
   });
 
   describe('Successful executions', () => {
@@ -82,7 +99,7 @@ describe('PutAuthenticationUseCase', () => {
       expect(mockTokenManager.decodePayload).toHaveBeenCalledTimes(1);
       expect(mockTokenManager.decodePayload).toHaveBeenCalledWith(payload.refreshToken);
       expect(mockTokenManager.createAccessToken).toHaveBeenCalledTimes(1);
-      expect(mockTokenManager.createAccessToken).toHaveBeenCalledWith({ username: 'johndoe', id: 'user-123' });
+      expect(mockTokenManager.createAccessToken).toHaveBeenCalledWith(expect.any(AuthenticationPayload));
 
       expect(accessToken).toEqual('new_access_token');
     });
