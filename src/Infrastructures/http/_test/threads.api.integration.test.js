@@ -1,35 +1,19 @@
-// const pool = require('../../database/postgres/pool');
 const serverTest = require('../../../../tests/helper/ServerTestHelper');
 const pgTest = require('../../../../tests/helper/postgres');
 const { createAuthToken } = require('../../../../tests/helper/authenticationHelper');
 const { assertHttpResponseError } = require('../../../../tests/helper/assertionsHelper');
-// const {
-//   usersTable,
-//   threadsTable,
-//   commentsTable,
-//   repliesTable,
-// } = require('../../../../tests/helper/postgres');
 
 beforeAll(async () => {
   await serverTest.init();
 });
 
 afterAll(async () => {
-  // await repliesTable.clean();
-  // await commentsTable.clean();
-  // await threadsTable.clean();
-  // await usersTable.clean();
-  // await pool.end();
   await pgTest.end();
   await serverTest.stop();
 });
 
 describe('[Integration] Threads Endpoints', () => {
   beforeEach(async () => {
-    // await repliesTable.clean();
-    // await commentsTable.clean();
-    // await threadsTable.clean();
-    // await usersTable.clean();
     await pgTest.truncate();
   });
 

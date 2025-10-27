@@ -1,35 +1,19 @@
-// const pool = require('../../database/postgres/pool');
 const serverTest = require('../../../../tests/helper/ServerTestHelper');
 const pgTest = require('../../../../tests/helper/postgres');
 const { createAuthToken } = require('../../../../tests/helper/authenticationHelper');
 const { assertHttpResponseError } = require('../../../../tests/helper/assertionsHelper');
-// const {
-//   usersTable,
-//   threadsTable,
-//   commentsTable,
-//   repliesTable,
-// } = require('../../../../tests/helper/postgres');
 
 beforeAll(async () => {
   await serverTest.init();
 });
 
 afterAll(async () => {
-  // await repliesTable.clean();
-  // await commentsTable.clean();
-  // await threadsTable.clean();
-  // await usersTable.clean();
-  // await pool.end();
   await pgTest.end();
   await serverTest.stop();
 });
 
 describe('[Integration] Replies Endpoints', () => {
   beforeEach(async () => {
-    // await repliesTable.clean();
-    // await commentsTable.clean();
-    // await threadsTable.clean();
-    // await usersTable.clean();
     await pgTest.truncate();
   });
 
@@ -61,10 +45,7 @@ describe('[Integration] Replies Endpoints', () => {
       expect(response.statusCode).toBe(201);
       expect(responseJson.status).toBe('success');
       expect(responseJson.data).toEqual(expect.any(Object));
-      // expect(responseJson.data.addedReply).toEqual(expect.any(Object));
-      // expect(responseJson.data.addedReply.id).toEqual(expect.stringContaining('reply-'));
-      // expect(responseJson.data.addedReply.content).toEqual('Sebuah balasan');
-      // expect(responseJson.data.addedReply.owner).toEqual(userA.id);
+
       const addedReply = responseJson.data.addedReply;
       expect(addedReply).toEqual(expect.objectContaining({
         id: expect.stringContaining('reply-'),
