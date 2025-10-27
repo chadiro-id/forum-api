@@ -1,6 +1,5 @@
-const pool = require('../../database/postgres/pool');
 const serverTest = require('../../../../tests/helper/ServerTestHelper');
-const { usersTable } = require('../../../../tests/helper/postgres');
+const pgTest = require('../../../../tests/helper/postgres');
 const { assertHttpResponseError } = require('../../../../tests/helper/assertionsHelper');
 
 beforeAll(async () => {
@@ -8,8 +7,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await usersTable.clean();
-  await pool.end();
+  await pgTest.end();
   await serverTest.stop();
 });
 
@@ -21,7 +19,7 @@ describe('[Integration] Users Endpoints', () => {
   };
 
   beforeEach(async () => {
-    await usersTable.clean();
+    await pgTest.truncate();
   });
 
   describe('POST /users', () => {
@@ -75,7 +73,7 @@ describe('[Integration] Users Endpoints', () => {
     });
 
     it('should response 400 when username unavailable', async () => {
-      await usersTable.add({ id: 'user-101', username: 'johndoe' });
+      await pgTest.users().add({ id: 'user-101', username: 'johndoe' });
 
       const payload = { ...dummyPayload, username: 'johndoe' };
       const response = await serverTest.post('/users', { payload });
