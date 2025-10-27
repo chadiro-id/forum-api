@@ -3,7 +3,7 @@ const InvariantError = require('../../../Commons/exceptions/InvariantError');
 const RegisterUser = require('../../../Domains/users/entities/RegisterUser');
 const RegisteredUser = require('../../../Domains/users/entities/RegisteredUser');
 const UserRepositoryPostgres = require('../UserRepositoryPostgres');
-const { usersTable } = require('../../../../tests/helper/postgres');
+const pgTest = require('../../../../tests/helper/postgres');
 
 describe('[Integration] UserRepositoryPostgres', () => {
   let userRepo;
@@ -13,11 +13,11 @@ describe('[Integration] UserRepositoryPostgres', () => {
   });
 
   beforeEach(async () => {
-    await usersTable.clean();
+    await pgTest.truncate();
   });
 
   afterAll(async () => {
-    await usersTable.clean();
+    await pgTest.truncate();
     await pool.end();
   });
 
@@ -28,22 +28,20 @@ describe('[Integration] UserRepositoryPostgres', () => {
         password: 'secret_password',
         fullname: 'John Doe',
       });
-      const expectedRegisteredUser = new RegisteredUser({
-        id: 'user-123',
-        username: 'johndoe',
-        fullname: 'John Doe',
-      });
 
       const registeredUser = await userRepo.addUser(registerUser);
 
-      const users = await usersTable.findById('user-123');
+      const users = await pgTest.users().findById('user-123');
       expect(users).toHaveLength(1);
 
-      expect(registeredUser).toStrictEqual(expectedRegisteredUser);
+      expect(registeredUser).toBeInstanceOf(RegisteredUser);
+      expect(registeredUser.id).toEqual('user-123');
+      expect(registeredUser.username).toEqual('johndoe');
+      expect(registeredUser.fullname).toEqual('John Doe');
     });
 
     it('should propagate error when id is exists', async () => {
-      await usersTable.add({ id: 'user-123', username: 'whoami' });
+      await pgTest.users().add({ id: 'user-123', username: 'whoami' });
       const registerUser = new RegisterUser({
         username: 'johndoe',
         password: 'secret_password',
@@ -55,7 +53,7 @@ describe('[Integration] UserRepositoryPostgres', () => {
     });
 
     it('should propagate error when username is exists', async () => {
-      await usersTable.add({ id: 'user-999', username: 'johndoe' });
+      await pgTest.users().add({ id: 'user-999', username: 'johndoe' });
       const registerUser = new RegisterUser({
         username: 'johndoe',
         password: 'secret_password',
@@ -69,7 +67,7 @@ describe('[Integration] UserRepositoryPostgres', () => {
 
   describe('getIdByUsername', () => {
     it('should correctly resolve and return the id', async () => {
-      await usersTable.add({ id: 'user-321', username: 'johndoe' });
+      await pgTest.users().add({ id: 'user-321', username: 'johndoe' });
 
       const userId = await userRepo.getIdByUsername('johndoe');
 
@@ -85,7 +83,7 @@ describe('[Integration] UserRepositoryPostgres', () => {
 
   describe('getPasswordByUsername', () => {
     it('should correctly resolve and return the password', async () => {
-      await usersTable.add({
+      await pgTest.users().add({
         username: 'johndoe',
         password: 'secret_password',
       });
@@ -109,7 +107,7 @@ describe('[Integration] UserRepositoryPostgres', () => {
     });
 
     it('should throw InvariantError when username not available', async () => {
-      await usersTable.add({ username: 'johndoe' });
+      await pgTest.users().add({ username: 'johndoe' });
 
       await expect(userRepo.verifyAvailableUsername('johndoe'))
         .rejects

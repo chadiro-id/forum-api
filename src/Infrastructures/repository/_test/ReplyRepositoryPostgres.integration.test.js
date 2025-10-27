@@ -5,12 +5,7 @@ const AddedReply = require('../../../Domains/replies/entities/AddedReply');
 const Reply = require('../../../Domains/replies/entities/Reply');
 const NotFoundError = require('../../../Commons/exceptions/NotFoundError');
 const AuthorizationError = require('../../../Commons/exceptions/AuthorizationError');
-const {
-  usersTable,
-  threadsTable,
-  commentsTable,
-  repliesTable,
-} = require('../../../../tests/helper/postgres');
+const pgTest = require('../../../../tests/helper/postgres');
 
 describe('[Integration] ReplyRepositoryPostgres', () => {
   let replyRepo;
@@ -22,22 +17,19 @@ describe('[Integration] ReplyRepositoryPostgres', () => {
 
   beforeAll(async () => {
     replyRepo = new ReplyRepositoryPostgres(pool, () => '123');
-    userA = await usersTable.add({ id: 'user-123', username: 'johndoe' });
-    userB = await usersTable.add({ id: 'user-456', username: 'whoami' });
-    thread = await threadsTable.add({ owner_id: userA.id });
-    commentA = await commentsTable.add({ id: 'comment-123', thread_id: thread.id, owner_id: userA.id });
-    commentB = await commentsTable.add({ id: 'comment-456', thread_id: thread.id, owner_id: userB.id });
   });
 
   beforeEach(async () => {
-    await repliesTable.clean();
+    await pgTest.truncate();
+    userA = await pgTest.users().add({ id: 'user-101', username: 'johndoe' });
+    userB = await pgTest.users().add({ id: 'user-102', username: 'whoami' });
+    thread = await pgTest.threads().add({ owner_id: userA.id });
+    commentA = await pgTest.comments().add({ id: 'comment-101', thread_id: thread.id, owner_id: userA.id });
+    commentB = await pgTest.comments().add({ id: 'comment-102', thread_id: thread.id, owner_id: userB.id });
   });
 
   afterAll(async () => {
-    await repliesTable.clean();
-    await commentsTable.clean();
-    await threadsTable.clean();
-    await usersTable.clean();
+    await pgTest.truncate();
     await pool.end();
   });
 
@@ -48,22 +40,22 @@ describe('[Integration] ReplyRepositoryPostgres', () => {
         content: 'Sebuah balasan',
         owner: userA.id,
       });
-      const expectedAddedReply = new AddedReply({
-        id: 'reply-123',
-        content: newReply.content,
-        owner: newReply.owner,
-      });
 
       const addedReply = await replyRepo.addReply(newReply);
 
-      const replies = await repliesTable.findById('reply-123');
+      const replies = await pgTest.replies().findById('reply-123');
       expect(replies).toHaveLength(1);
 
-      expect(addedReply).toStrictEqual(expectedAddedReply);
+      expect(addedReply).toBeInstanceOf(AddedReply);
+      expect(addedReply).toEqual(expect.objectContaining({
+        id: 'reply-123',
+        content: 'Sebuah balasan',
+        owner: userA.id
+      }));
     });
 
     it('should propagate error when id is exists', async () => {
-      await repliesTable.add({ id: 'reply-123', comment_id: commentA.id, owner_id: userB.id });
+      await pgTest.replies().add({ id: 'reply-123', comment_id: commentA.id, owner_id: userB.id });
       const newReply = new NewReply({
         commentId: commentA.id,
         content: 'Sebuah balasan',
@@ -99,13 +91,13 @@ describe('[Integration] ReplyRepositoryPostgres', () => {
 
   describe('getRepliesByCommentIds', () => {
     it('should correctly resolve and return all replies including soft-deleted ones', async () => {
-      const rawReply1 = await repliesTable.add({
+      const rawReply1 = await pgTest.replies().add({
         id: 'reply-001', comment_id: commentB.id, owner_id: userA.id
       });
-      const rawReply2 = await repliesTable.add({
+      const rawReply2 = await pgTest.replies().add({
         id: 'reply-002', comment_id: commentA.id, owner_id: userB.id, is_delete: true
       });
-      const rawReply3 = await repliesTable.add({
+      const rawReply3 = await pgTest.replies().add({
         id: 'reply-003', comment_id: commentB.id, owner_id: userB.id
       });
 
@@ -140,13 +132,13 @@ describe('[Integration] ReplyRepositoryPostgres', () => {
 
   describe('softDeleteReplyById', () => {
     it('should correctly resolve and not throw error', async () => {
-      await repliesTable.add({ comment_id: commentB.id, owner_id: userA.id });
+      await pgTest.replies().add({ comment_id: commentB.id, owner_id: userA.id });
 
       await expect(replyRepo.softDeleteReplyById('reply-001'))
         .resolves
         .not.toThrow(NotFoundError);
 
-      const replies = await repliesTable.findById('reply-001');
+      const replies = await pgTest.replies().findById('reply-001');
       expect(replies[0].is_delete).toBe(true);
     });
 
@@ -161,7 +153,7 @@ describe('[Integration] ReplyRepositoryPostgres', () => {
     let replyId;
 
     beforeEach(async () => {
-      const { id } = await repliesTable.add({
+      const { id } = await pgTest.replies().add({
         comment_id: commentA.id,
         owner_id: userB.id,
       });

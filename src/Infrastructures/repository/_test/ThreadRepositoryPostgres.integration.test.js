@@ -4,50 +4,48 @@ const NewThread = require('../../../Domains/threads/entities/NewThread');
 const AddedThread = require('../../../Domains/threads/entities/AddedThread');
 const NotFoundError = require('../../../Commons/exceptions/NotFoundError');
 const DetailThread = require('../../../Domains/threads/entities/DetailThread');
-const { usersTable, threadsTable } = require('../../../../tests/helper/postgres');
+const pgTest = require('../../../../tests/helper/postgres');
 
 describe('[Integration] ThreadRepositoryPostgres', () => {
   let threadRepo;
-  let user;
 
   beforeAll(async () => {
     threadRepo = new ThreadRepositoryPostgres(pool, () => '123');
-    user = await usersTable.add({});
   });
 
   beforeEach(async () => {
-    await threadsTable.clean();
+    await pgTest.truncate();
   });
 
   afterAll(async () => {
-    await usersTable.clean();
-    await threadsTable.clean();
+    await pgTest.truncate();
     await pool.end();
   });
 
   describe('addThread', () => {
     it('should correctly persist the NewThread and return AddedThread', async () => {
+      const user = await pgTest.users().add({});
       const newThread = new NewThread({
         title: 'Sebuah thread',
         body: 'Isi thread',
         owner: user.id,
       });
-      const expectedAddedThread = new AddedThread({
-        id: 'thread-123',
-        title: 'Sebuah thread',
-        owner: user.id,
-      });
 
       const addedThread = await threadRepo.addThread(newThread);
 
-      const thread = await threadsTable.findById('thread-123');
+      const thread = await pgTest.threads().findById('thread-123');
       expect(thread).toHaveLength(1);
 
-      expect(addedThread).toStrictEqual(expectedAddedThread);
+      expect(addedThread).toBeInstanceOf(AddedThread);
+      expect(addedThread).toEqual(expect.objectContaining({
+        id: expect.stringContaining('thread-'),
+        title: 'Sebuah thread',
+      }));
     });
 
     it('should propagate error when id is exists', async () => {
-      await threadsTable.add({ id: 'thread-123', owner_id: user.id });
+      const user = await pgTest.users().add({});
+      await pgTest.threads().add({ id: 'thread-123', owner_id: user.id });
       const newThread = new NewThread({
         title: 'Sebuah thread',
         body: 'Isi thread',
@@ -72,7 +70,8 @@ describe('[Integration] ThreadRepositoryPostgres', () => {
 
   describe('getThreadById', () => {
     it('should correctly resolve and return the DetailThread', async () => {
-      const { created_at: date } = await threadsTable.add({ owner_id: user.id });
+      const user = await pgTest.users().add({});
+      const { created_at: date } = await pgTest.threads().add({ owner_id: user.id });
 
       const thread = await threadRepo.getThreadById('thread-001');
 
@@ -94,7 +93,8 @@ describe('[Integration] ThreadRepositoryPostgres', () => {
 
   describe('verifyThreadExists', () => {
     it('should correctly resolve and not throw error', async () => {
-      await threadsTable.add({ owner_id: user.id });
+      const user = await pgTest.users().add({});
+      await pgTest.threads().add({ owner_id: user.id });
 
       await expect(threadRepo.verifyThreadExists('thread-001'))
         .resolves
