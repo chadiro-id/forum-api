@@ -7,6 +7,7 @@ describe('[Integration] AuthenticationRepositoryPostgres', () => {
   let authenticationRepo;
 
   beforeAll(() => {
+    pgTest.init(pool);
     authenticationRepo = new AuthenticationRepositoryPostgres(pool);
   });
 

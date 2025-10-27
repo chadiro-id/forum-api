@@ -6,47 +6,34 @@ const threadsTableHelper = require('./threadsTableHelper');
 const commentsTableHelper = require('./commentsTableHelper');
 const repliesTableHelper = require('./repliesTableHelper');
 
-class PostgresTestHelper {
-  constructor(pool) {
-    this._pool = pool;
-    this._users = usersTableHelper(pool);
-    this._authentications = authenticationsTableHelper(pool);
-    this._threads = threadsTableHelper(pool);
-    this._comments = commentsTableHelper(pool);
-    this._replies = repliesTableHelper(pool);
-  }
+let _pool;
+let _users;
+let _authentications;
+let _threads;
+let _comments;
+let _replies;
 
-  users() {
-    return this._users;
-  }
+exports.init = (pool) => {
+  _pool = pool;
+  _users = usersTableHelper(pool);
+  _authentications = authenticationsTableHelper(pool);
+  _threads = threadsTableHelper(pool);
+  _comments = commentsTableHelper(pool);
+  _replies = repliesTableHelper(pool);
+};
 
-  authentications() {
-    return this._authentications;
-  }
+exports.users = () => _users;
+exports.authentications = () => _authentications;
+exports.threads = () => _threads;
+exports.comments = () => _comments;
+exports.replies = () => _replies;
 
-  threads() {
-    return this._threads;
-  }
+exports.truncate = async () => {
+  const queryText = 'TRUNCATE TABLE users, authentications, threads, comments, replies';
+  await _pool.query(queryText);
+};
 
-  comments() {
-    return this._comments;
-  }
-
-  replies() {
-    return this._replies;
-  }
-
-  async truncate() {
-    const queryText = 'TRUNCATE TABLE users, authentications, threads, comments, replies';
-    await this._pool.query(queryText);
-  }
-
-  async end(clean = true) {
-    if (clean) {
-      await this.truncate();
-    }
-    await this._pool.end();
-  }
-}
-
-module.exports = PostgresTestHelper;
+exports.end = async () => {
+  this.truncate();
+  await _pool.end();
+};

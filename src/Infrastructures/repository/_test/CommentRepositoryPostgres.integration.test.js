@@ -7,6 +7,10 @@ const NotFoundError = require('../../../Commons/exceptions/NotFoundError');
 const AuthorizationError = require('../../../Commons/exceptions/AuthorizationError');
 const pgTest = require('../../../../tests/helper/postgres');
 
+beforeAll(() => {
+  pgTest.init(pool);
+});
+
 afterAll(async () => {
   await pgTest.truncate();
   await pool.end();

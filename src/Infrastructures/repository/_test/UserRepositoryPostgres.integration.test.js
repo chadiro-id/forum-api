@@ -9,6 +9,7 @@ describe('[Integration] UserRepositoryPostgres', () => {
   let userRepo;
 
   beforeAll(() => {
+    pgTest.init(pool);
     userRepo = new UserRepositoryPostgres(pool, () => '123');
   });
 

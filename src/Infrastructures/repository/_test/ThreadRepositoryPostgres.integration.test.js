@@ -10,6 +10,7 @@ describe('[Integration] ThreadRepositoryPostgres', () => {
   let threadRepo;
 
   beforeAll(async () => {
+    pgTest.init(pool);
     threadRepo = new ThreadRepositoryPostgres(pool, () => '123');
   });
 

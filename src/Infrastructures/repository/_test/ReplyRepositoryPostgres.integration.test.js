@@ -16,6 +16,7 @@ describe('[Integration] ReplyRepositoryPostgres', () => {
   let commentB;
 
   beforeAll(async () => {
+    pgTest.init(pool);
     replyRepo = new ReplyRepositoryPostgres(pool, () => '123');
   });
 
