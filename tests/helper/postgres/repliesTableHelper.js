@@ -1,12 +1,12 @@
 /* istanbul ignore file */
-const replies = (pool) => {
-  const add = async ({
+const helper = (pool) => {
+  async function add({
     id = 'reply-001',
     comment_id = 'comment-001',
     owner_id = 'user-001',
     content = 'Sebuah balasan',
     is_delete = false,
-  }) => {
+  }) {
     const query = {
       text: `
       INSERT INTO replies
@@ -23,7 +23,7 @@ const replies = (pool) => {
     return result.rows[0];
   };
 
-  const findById = async (id) => {
+  async function findById(id) {
     const query = {
       text: 'SELECT * FROM replies WHERE id = $1',
       values: [id],
@@ -33,25 +33,15 @@ const replies = (pool) => {
     return result.rows;
   };
 
-  const softDeleteById = async (id) => {
-    const query = {
-      text: 'UPDATE replies SET is_delete = TRUE WHERE id = $1',
-      values: [id],
-    };
-
-    await pool.query(query);
-  };
-
-  const clean = async () => {
+  async function clean() {
     await pool.query('DELETE FROM replies WHERE 1=1');
   };
 
   return {
     add,
     findById,
-    softDeleteById,
     clean,
   };
 };
 
-module.exports = replies;
+module.exports = helper;

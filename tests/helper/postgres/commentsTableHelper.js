@@ -1,12 +1,12 @@
 /* istanbul ignore file */
-const comments = (pool) => {
-  const add = async ({
+const helper = (pool) => {
+  async function add({
     id = 'comment-001',
     thread_id = 'thread-001',
     owner_id = 'user-001',
     content = 'Sebuah komentar',
     is_delete = false,
-  }) => {
+  }) {
     const query = {
       text: `
       INSERT INTO comments
@@ -22,7 +22,7 @@ const comments = (pool) => {
     return result.rows[0];
   };
 
-  const findById = async (id) => {
+  async function findById(id) {
     const query = {
       text: 'SELECT * FROM comments WHERE id = $1',
       values: [id],
@@ -32,25 +32,15 @@ const comments = (pool) => {
     return result.rows;
   };
 
-  const softDeleteById = async (id) => {
-    const query = {
-      text: 'UPDATE comments SET is_delete = TRUE WHERE id = $1',
-      values: [id],
-    };
-
-    await pool.query(query);
-  };
-
-  const clean = async () => {
+  async function clean() {
     await pool.query('DELETE FROM comments WHERE 1=1');
   };
 
   return {
     add,
     findById,
-    softDeleteById,
     clean,
   };
 };
 
-module.exports = comments;
+module.exports = helper;

@@ -1,11 +1,11 @@
 /* istanbul ignore file */
-const users = (pool) => {
-  const add = async ({
+const helper = (pool) => {
+  async function add({
     id = 'user-001',
     username = 'johndoe',
     password = 'supersecret^_^@01',
     fullname = 'John Doe',
-  }) => {
+  }) {
     const query = {
       text: 'INSERT INTO users VALUES($1, $2, $3, $4) RETURNING id, username',
       values: [id, username, password, fullname],
@@ -15,7 +15,7 @@ const users = (pool) => {
     return result.rows[0];
   };
 
-  const findById = async (id) => {
+  async function findById(id) {
     const query = {
       text: 'SELECT * FROM users WHERE id = $1',
       values: [id],
@@ -25,7 +25,7 @@ const users = (pool) => {
     return result.rows;
   };
 
-  const clean = async () => {
+  async function clean() {
     await pool.query('DELETE FROM users WHERE 1=1');
   };
 
@@ -34,4 +34,4 @@ const users = (pool) => {
   };
 };
 
-module.exports = users;
+module.exports = helper;

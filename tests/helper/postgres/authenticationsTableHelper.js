@@ -1,6 +1,6 @@
 /* istanbul ignore file */
-const authentications = (pool) => {
-  const addToken = async (token) => {
+const helper = (pool) => {
+  async function addToken(token) {
     const query = {
       text: 'INSERT INTO authentications VALUES($1) RETURNING token',
       values: [token],
@@ -10,7 +10,7 @@ const authentications = (pool) => {
     return result.rows[0].token;
   };
 
-  const findToken = async (token) => {
+  async function findToken(token) {
     const query = {
       text: 'SELECT token FROM authentications WHERE token = $1',
       values: [token],
@@ -21,7 +21,7 @@ const authentications = (pool) => {
     return result.rows;
   };
 
-  const clean = async () => {
+  async function clean() {
     await pool.query('DELETE FROM authentications WHERE 1=1');
   };
 
@@ -30,4 +30,4 @@ const authentications = (pool) => {
   };
 };
 
-module.exports = authentications;
+module.exports = helper;
