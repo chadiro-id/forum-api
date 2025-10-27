@@ -4,37 +4,30 @@ const { createAuthToken } = require('../../../../tests/helper/authenticationHelp
 const { assertHttpResponseError } = require('../../../../tests/helper/assertionsHelper');
 const {
   usersTable,
-  authenticationsTable,
   threadsTable,
   commentsTable,
   repliesTable,
 } = require('../../../../tests/helper/postgres');
 
-let userA;
-let userB;
-let userAuthA;
-
 beforeAll(async () => {
   await serverTest.init();
-  userA = await usersTable.add({ id: 'user-001', username: 'whoami' });
-  userAuthA = await createAuthToken({ ...userA });
-  userB = await usersTable.add({ id: 'user-002', username: 'johndoe' });
 });
 
 afterAll(async () => {
-  await authenticationsTable.clean();
+  await repliesTable.clean();
+  await commentsTable.clean();
+  await threadsTable.clean();
   await usersTable.clean();
   await pool.end();
   await serverTest.stop();
 });
 
 describe('[Integration] Threads Endpoints', () => {
-  let authorizationUserA;
-
-  beforeAll(async () => {
-    authorizationUserA = {
-      Authorization: `Bearer ${userAuthA.accessToken}`
-    };
+  beforeEach(async () => {
+    await repliesTable.clean();
+    await commentsTable.clean();
+    await threadsTable.clean();
+    await usersTable.clean();
   });
 
   describe('POST /threads', () => {
@@ -43,9 +36,20 @@ describe('[Integration] Threads Endpoints', () => {
       body: 'Sebuah thread',
     };
 
+    let user;
+    let authorization;
+
+    beforeEach(async () => {
+      user = await usersTable.add({ username: 'johndoe' });
+      const { accessToken } = await createAuthToken({ ...user });
+      authorization = {
+        Authorization: `Bearer ${accessToken}`,
+      };
+    });
+
     it('should response 201 and return persisted thread', async () => {
       const options = {
-        headers: { ...authorizationUserA },
+        headers: { ...authorization },
         payload: { ...dummyPayload },
       };
 
@@ -58,7 +62,7 @@ describe('[Integration] Threads Endpoints', () => {
       expect(responseJson.data.addedThread).toMatchObject({
         id: expect.stringContaining('thread-'),
         title: dummyPayload.title,
-        owner: userA.id,
+        owner: user.id,
       });
     });
 
@@ -75,7 +79,7 @@ describe('[Integration] Threads Endpoints', () => {
 
     it('should response 400 when payload not contain needed property', async () => {
       const options = {
-        headers: { ...authorizationUserA },
+        headers: { ...authorization },
         payload: {}
       };
 
@@ -86,7 +90,7 @@ describe('[Integration] Threads Endpoints', () => {
 
     it('should response 400 when payload does not meet data type specification', async () => {
       const options = {
-        headers: { ...authorizationUserA },
+        headers: { ...authorization },
         payload: { ...dummyPayload, body: 123 },
       };
 
@@ -97,7 +101,7 @@ describe('[Integration] Threads Endpoints', () => {
 
     it('should response 400 when thread title more than 255 character', async () => {
       const options = {
-        headers: { ...authorizationUserA },
+        headers: { ...authorization },
         payload: { ...dummyPayload, title: 'a'.repeat(256) },
       };
 
@@ -108,16 +112,12 @@ describe('[Integration] Threads Endpoints', () => {
   });
 
   describe('GET /threads/{threadId}', () => {
+    let user;
     let thread;
 
     beforeEach(async () => {
-      thread = await threadsTable.add({ owner_id: userA.id });
-    });
-
-    afterEach(async () => {
-      await repliesTable.clean();
-      await commentsTable.clean();
-      await threadsTable.clean();
+      user = await usersTable.add({ username: 'johndoe' });
+      thread = await threadsTable.add({ owner_id: user.id });
     });
 
     it('should response 200 and detail thread', async () => {
@@ -134,15 +134,15 @@ describe('[Integration] Threads Endpoints', () => {
         id: expect.stringContaining('thread-'),
         title: 'Sebuah thread',
         body: 'Isi thread',
-        username: userA.username,
+        username: user.username,
       });
       expect(Date.parse(detailThread.date)).not.toBeNaN();
       expect(detailThread.comments).toHaveLength(0);
     });
 
     it('should handle all comments including soft-deleted ones', async () => {
-      const commentA = await commentsTable.add({ id: 'comment-001', thread_id: thread.id, owner_id: userA.id });
-      const commentB = await commentsTable.add({ id: 'comment-002', thread_id: thread.id, owner_id: userB.id, is_delete: true });
+      const commentA = await commentsTable.add({ id: 'comment-001', thread_id: thread.id, owner_id: user.id });
+      const commentB = await commentsTable.add({ id: 'comment-002', thread_id: thread.id, owner_id: user.id, is_delete: true });
 
       const response = await serverTest.get(`/threads/${thread.id}`);
 
@@ -161,22 +161,22 @@ describe('[Integration] Threads Endpoints', () => {
       expect(c1).toMatchObject({
         id: commentA.id,
         content: 'Sebuah komentar',
-        username: userA.username,
+        username: user.username,
       });
       expect(Date.parse(c1.date)).not.toBeNaN();
 
       expect(c2).toMatchObject({
         id: commentB.id,
         content: '**komentar telah dihapus**',
-        username: userB.username,
+        username: user.username,
       });
       expect(Date.parse(c2.date)).not.toBeNaN();
     });
 
     it('should handle all replies including soft-deleted ones', async () => {
-      const comment = await commentsTable.add({ id: 'comment-001', thread_id: thread.id, owner_id: userA.id });
-      const replyA = await repliesTable.add({ id: 'reply-001', comment_id: comment.id, owner_id: userB.id });
-      const replyB = await repliesTable.add({ id: 'reply-002', comment_id: comment.id, owner_id: userA.id, is_delete: true });
+      const comment = await commentsTable.add({ id: 'comment-001', thread_id: thread.id, owner_id: user.id });
+      const replyA = await repliesTable.add({ id: 'reply-001', comment_id: comment.id, owner_id: user.id });
+      const replyB = await repliesTable.add({ id: 'reply-002', comment_id: comment.id, owner_id: user.id, is_delete: true });
 
       const response = await serverTest.get(`/threads/${thread.id}`);
 
@@ -198,14 +198,14 @@ describe('[Integration] Threads Endpoints', () => {
       expect(r1).toMatchObject({
         id: replyA.id,
         content: replyA.content,
-        username: userB.username,
+        username: user.username,
       });
       expect(Date.parse(r1.date)).not.toBeNaN();
 
       expect(r2).toMatchObject({
         id: replyB.id,
         content: '**balasan telah dihapus**',
-        username: userA.username,
+        username: user.username,
       });
       expect(Date.parse(r2.date)).not.toBeNaN();
     });
