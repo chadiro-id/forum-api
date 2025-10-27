@@ -7,10 +7,20 @@ const threadsTableHelper = require('./threadsTableHelper');
 const commentsTableHelper = require('./commentsTableHelper');
 const repliesTableHelper = require('./repliesTableHelper');
 
-module.exports = {
-  usersTable: usersTableHelper(pool),
-  authenticationsTable: authenticationsTableHelper(pool),
-  threadsTable: threadsTableHelper(pool),
-  commentsTable: commentsTableHelper(pool),
-  repliesTable: repliesTableHelper(pool),
+exports.users = () => usersTableHelper(pool);
+exports.authentications = () => authenticationsTableHelper(pool);
+exports.threads = () => threadsTableHelper(pool);
+exports.comments = () => commentsTableHelper(pool);
+exports.replies = () => repliesTableHelper(pool);
+
+exports.truncate = async () => {
+  const queryText = 'TRUNCATE TABLE users, authentications, threads, comments, replies';
+  await pool.query(queryText);
+};
+
+exports.end = async (clean = true) => {
+  if (clean) {
+    await this.truncate();
+  }
+  await pool.end();
 };
