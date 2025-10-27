@@ -37,7 +37,7 @@ class PostgresTestHelper {
   }
 
   async truncate() {
-    const queryText = '';
+    const queryText = 'TRUNCATE TABLE users, authentications, threads, comments, replies';
     await this._pool.query(queryText);
   }
 
