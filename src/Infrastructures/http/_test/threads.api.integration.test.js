@@ -11,22 +11,25 @@ const {
 
 beforeAll(async () => {
   await serverTest.init();
-});
-
-afterAll(async () => {
   await repliesTable.clean();
   await commentsTable.clean();
   await threadsTable.clean();
   await usersTable.clean();
+});
+
+afterAll(async () => {
   await pool.end();
   await serverTest.stop();
 });
 
 describe('[Integration] Threads Endpoints', () => {
-  beforeEach(async () => {
-    await repliesTable.clean();
-    await commentsTable.clean();
-    await threadsTable.clean();
+  let user;
+
+  beforeAll(async () => {
+    user = await usersTable.add({ username: 'johndoe' });
+  });
+
+  afterAll(async () => {
     await usersTable.clean();
   });
 
@@ -35,12 +38,9 @@ describe('[Integration] Threads Endpoints', () => {
       title: 'Judul thread',
       body: 'Sebuah thread',
     };
-
-    let user;
     let authorization;
 
-    beforeEach(async () => {
-      user = await usersTable.add({ username: 'johndoe' });
+    beforeAll(async () => {
       const { accessToken } = await createAuthToken({ ...user });
       authorization = {
         Authorization: `Bearer ${accessToken}`,
@@ -112,12 +112,19 @@ describe('[Integration] Threads Endpoints', () => {
   });
 
   describe('GET /threads/{threadId}', () => {
-    let user;
     let thread;
 
-    beforeEach(async () => {
-      user = await usersTable.add({ username: 'johndoe' });
+    beforeAll(async () => {
       thread = await threadsTable.add({ owner_id: user.id });
+    });
+
+    afterEach(async () => {
+      await repliesTable.clean();
+      await commentsTable.clean();
+    });
+
+    afterAll(async () => {
+      await threadsTable.clean();
     });
 
     it('should response 200 and detail thread', async () => {
