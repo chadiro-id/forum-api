@@ -11,38 +11,45 @@ const {
 
 beforeAll(async () => {
   await serverTest.init();
-});
-
-afterAll(async () => {
   await repliesTable.clean();
   await commentsTable.clean();
   await threadsTable.clean();
   await usersTable.clean();
+});
+
+afterAll(async () => {
   await pool.end();
   await serverTest.stop();
 });
 
 describe('[Integration] Replies Endpoints', () => {
-  beforeEach(async () => {
+  let user;
+  let authorization;
+  let thread;
+  let comment;
+
+  beforeAll(async () => {
+    user = await usersTable.add({ username: 'johndoe' });
+    const { accessToken } = await createAuthToken({ ...user });
+    authorization = { Authorization: `Bearer ${accessToken}` };
+    thread = await threadsTable.add({ owner_id: user.id });
+    comment = await commentsTable.add({ thread_id: thread.id, owner_id: user.id });
+  });
+
+  afterEach(async () => {
     await repliesTable.clean();
+  });
+
+  afterAll(async () => {
     await commentsTable.clean();
     await threadsTable.clean();
     await usersTable.clean();
   });
 
   describe('POST /threads/{threadId}/comments/{commentId}/replies', () => {
-    let user;
-    let authorization;
-    let thread;
-    let comment;
     let endpoint;
 
-    beforeEach(async () => {
-      user = await usersTable.add({ username: 'johndoe' });
-      const { accessToken } = await createAuthToken({ ...user });
-      authorization = { Authorization: `Bearer ${accessToken}` };
-      thread = await threadsTable.add({ owner_id: user.id });
-      comment = await commentsTable.add({ thread_id: thread.id, owner_id: user.id });
+    beforeAll(async () => {
       endpoint = `/threads/${thread.id}/comments/${comment.id}/replies`;
     });
 
@@ -58,10 +65,7 @@ describe('[Integration] Replies Endpoints', () => {
       expect(response.statusCode).toBe(201);
       expect(responseJson.status).toBe('success');
       expect(responseJson.data).toEqual(expect.any(Object));
-      // expect(responseJson.data.addedReply).toEqual(expect.any(Object));
-      // expect(responseJson.data.addedReply.id).toEqual(expect.stringContaining('reply-'));
-      // expect(responseJson.data.addedReply.content).toEqual('Sebuah balasan');
-      // expect(responseJson.data.addedReply.owner).toEqual(userA.id);
+
       const addedReply = responseJson.data.addedReply;
       expect(addedReply).toEqual(expect.objectContaining({
         id: expect.stringContaining('reply-'),
@@ -142,18 +146,9 @@ describe('[Integration] Replies Endpoints', () => {
   });
 
   describe('DELETE /threads/{threadId}/comments/{commentId}/replies/{replyId}', () => {
-    let user;
-    let authorization;
-    let thread;
-    let comment;
     let reply;
 
     beforeEach(async () => {
-      user = await usersTable.add({ username: 'johndoe' });
-      const { accessToken } = await createAuthToken({ ...user });
-      authorization = { Authorization: `Bearer ${accessToken}` };
-      thread = await threadsTable.add({ owner_id: user.id });
-      comment = await commentsTable.add({ thread_id: thread.id, owner_id: user.id });
       reply = await repliesTable.add({ comment_id: comment.id, owner_id: user.id });
     });
 
