@@ -1,6 +1,7 @@
+const pool = require('../../database/postgres/pool');
 const serverTest = require('../../../../tests/helper/ServerTestHelper');
-const pgTest = require('../../../../tests/helper/postgres');
 const { createAuthToken, createHashedPassword } = require('../../../../tests/helper/authenticationHelper');
+const { usersTable, authenticationsTable } = require('../../../../tests/helper/postgres');
 const { assertHttpResponseError } = require('../../../../tests/helper/assertionsHelper');
 
 beforeAll(async () => {
@@ -8,7 +9,9 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await pgTest.end();
+  await authenticationsTable.clean();
+  await usersTable.clean();
+  await pool.end();
   await serverTest.stop();
 });
 
@@ -19,13 +22,14 @@ describe('[Integration] Authentications Endpoints', () => {
   };
 
   beforeEach(async () => {
-    await pgTest.truncate();
+    await authenticationsTable.clean();
+    await usersTable.clean();
   });
 
   describe('POST /authentications', () => {
     it('should response 201 and user authentication', async () => {
       const hashedPassword = await createHashedPassword(loginUser.password);
-      await pgTest.users().add({
+      await usersTable.add({
         username: loginUser.username,
         password: hashedPassword,
         fullname: 'John Doe'
@@ -52,7 +56,7 @@ describe('[Integration] Authentications Endpoints', () => {
 
     it('should response 401 when password is incorrect', async () => {
       const hashedPassword = await createHashedPassword(loginUser.password);
-      await pgTest.users().add({
+      await usersTable.add({
         username: loginUser.username,
         password: hashedPassword,
         fullname: 'John Doe'
@@ -90,13 +94,13 @@ describe('[Integration] Authentications Endpoints', () => {
   describe('PUT /authentications', () => {
     it('should response 200 and new access token', async () => {
       const hashedPassword = await createHashedPassword(loginUser.password);
-      const user = await pgTest.users().add({
+      const user = await usersTable.add({
         username: loginUser.username,
         password: hashedPassword,
         fullname: 'John Doe'
       });
       const { accessToken, refreshToken } = await createAuthToken({ ...user });
-      await pgTest.authentications().addToken(refreshToken);
+      await authenticationsTable.addToken(refreshToken);
 
       const options = { payload: { refreshToken } };
       const response = await serverTest.put('/authentications', options);
@@ -149,13 +153,13 @@ describe('[Integration] Authentications Endpoints', () => {
   describe('DELETE /authentications', () => {
     it('should response 200 and status "success"', async () => {
       const hashedPassword = await createHashedPassword(loginUser.password);
-      const user = await pgTest.users().add({
+      const user = await usersTable.add({
         username: loginUser.username,
         password: hashedPassword,
         fullname: 'John Doe'
       });
       const { refreshToken } = await createAuthToken({ ...user });
-      await pgTest.authentications().addToken(refreshToken);
+      await authenticationsTable.addToken(refreshToken);
 
       const options = { payload: { refreshToken } };
       const response = await serverTest.delete('/authentications', options);

@@ -1,20 +1,22 @@
+const pool = require('../../database/postgres/pool');
 const InvariantError = require('../../../Commons/exceptions/InvariantError');
 const AuthenticationRepositoryPostgres = require('../AuthenticationRepositoryPostgres');
-const pgTest = require('../../../../tests/helper/postgres');
+const { authenticationsTable } = require('../../../../tests/helper/postgres');
 
 describe('[Integration] AuthenticationRepositoryPostgres', () => {
   let authenticationRepo;
 
   beforeAll(() => {
-    authenticationRepo = new AuthenticationRepositoryPostgres(pgTest.getPool());
+    authenticationRepo = new AuthenticationRepositoryPostgres(pool, () => '');
   });
 
   beforeEach(async () => {
-    await pgTest.truncate();
+    await authenticationsTable.clean();
   });
 
   afterAll(async () => {
-    await pgTest.end();
+    await authenticationsTable.clean();
+    await pool.end();
   });
 
   describe('addToken', () => {
@@ -22,7 +24,7 @@ describe('[Integration] AuthenticationRepositoryPostgres', () => {
       const token = 'token';
       await authenticationRepo.addToken(token);
 
-      const tokens = await pgTest.authentications().findToken(token);
+      const tokens = await authenticationsTable.findToken(token);
 
       expect(tokens).toHaveLength(1);
       expect(tokens[0].token).toBe(token);
@@ -32,12 +34,12 @@ describe('[Integration] AuthenticationRepositoryPostgres', () => {
   describe('deleteToken', () => {
     it('should correctly resolve and not throw error', async () => {
       const token = 'token';
-      await pgTest.authentications().addToken(token);
+      await authenticationsTable.addToken(token);
 
       await expect(authenticationRepo.deleteToken(token))
         .resolves.not.toThrow();
 
-      const tokens = await pgTest.authentications().findToken(token);
+      const tokens = await authenticationsTable.findToken(token);
       expect(tokens).toHaveLength(0);
     });
   });
@@ -45,7 +47,7 @@ describe('[Integration] AuthenticationRepositoryPostgres', () => {
   describe('verifyTokenExists', () => {
     it('should correctly resolve and not throw error', async () => {
       const token = 'token';
-      await pgTest.authentications().addToken(token);
+      await authenticationsTable.addToken(token);
 
       await expect(authenticationRepo.verifyTokenExists(token))
         .resolves.not.toThrow();

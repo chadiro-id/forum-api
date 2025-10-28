@@ -1,20 +1,29 @@
+const pool = require('../../database/postgres/pool');
 const serverTest = require('../../../../tests/helper/ServerTestHelper');
-const pgTest = require('../../../../tests/helper/postgres');
 const { createAuthToken } = require('../../../../tests/helper/authenticationHelper');
 const { assertHttpResponseError } = require('../../../../tests/helper/assertionsHelper');
+const {
+  usersTable,
+  threadsTable,
+  commentsTable,
+} = require('../../../../tests/helper/postgres');
 
 beforeAll(async () => {
   await serverTest.init();
 });
 
 afterAll(async () => {
-  await pgTest.end();
+  await usersTable.clean();
+  await commentsTable.clean();
+  await threadsTable.clean();
+  await pool.end();
   await serverTest.stop();
 });
 
 describe('[Integration] Comments Endpoints', () => {
   beforeEach(async () => {
-    await pgTest.truncate();
+    await commentsTable.clean();
+    await threadsTable.clean();
   });
 
   describe('POST /threads/{threadId}/comments', () => {
@@ -23,14 +32,21 @@ describe('[Integration] Comments Endpoints', () => {
     let thread;
     let endpoint;
 
-    beforeEach(async () => {
-      user = await pgTest.users().add({ username: 'johndoe' });
+    beforeAll(async () => {
+      user = await usersTable.add({ username: 'johndoe' });
       const { accessToken } = await createAuthToken({ ...user });
       authorization = {
         Authorization: `Bearer ${accessToken}`,
       };
-      thread = await pgTest.threads().add({ owner_id: user.id });
+    });
+
+    beforeEach(async () => {
+      thread = await threadsTable.add({ owner_id: user.id });
       endpoint = `/threads/${thread.id}/comments`;
+    });
+
+    afterAll(async () => {
+      await usersTable.clean();
     });
 
     it('should response 201 and persisted comment', async () => {
@@ -105,14 +121,21 @@ describe('[Integration] Comments Endpoints', () => {
     let thread;
     let comment;
 
-    beforeEach(async () => {
-      user = await pgTest.users().add({ username: 'johndoe' });
+    beforeAll(async () => {
+      user = await usersTable.add({ username: 'johndoe' });
       const { accessToken } = await createAuthToken({ ...user });
       authorization = {
         Authorization: `Bearer ${accessToken}`,
       };
-      thread = await pgTest.threads().add({ owner_id: user.id });
-      comment = await pgTest.comments().add({ thread_id: thread.id, owner_id: user.id });
+    });
+
+    beforeEach(async () => {
+      thread = await threadsTable.add({ owner_id: user.id });
+      comment = await commentsTable.add({ thread_id: thread.id, owner_id: user.id });
+    });
+
+    afterAll(async () => {
+      await usersTable.clean();
     });
 
     it('should response 200 and status "success"', async () => {
@@ -156,7 +179,7 @@ describe('[Integration] Comments Endpoints', () => {
     });
 
     it('should response 404 when comment not belong to thread', async () => {
-      const otherThread = await pgTest.threads().add({ id: 'thread-999', owner_id: user.id });
+      const otherThread = await threadsTable.add({ id: 'thread-999', owner_id: user.id });
 
       const endpoint = `/threads/${otherThread.id}/comments/${comment.id}`;
       const options = { headers: { ...authorization } };

@@ -1,61 +1,63 @@
+const pool = require('../../database/postgres/pool');
 const CommentRepositoryPostgres = require('../CommentRepositoryPostgres');
 const NewComment = require('../../../Domains/comments/entities/NewComment');
 const AddedComment = require('../../../Domains/comments/entities/AddedComment');
 const Comment = require('../../../Domains/comments/entities/Comment');
 const NotFoundError = require('../../../Commons/exceptions/NotFoundError');
 const AuthorizationError = require('../../../Commons/exceptions/AuthorizationError');
-const pgTest = require('../../../../tests/helper/postgres');
+const {
+  usersTable,
+  threadsTable,
+  commentsTable,
+} = require('../../../../tests/helper/postgres');
 
 describe('[Integration] CommentRepositoryPostgres', () => {
   let commentRepo;
-  // let user;
-  // let thread;
+  let user;
+  let thread;
 
   beforeAll(async () => {
-    commentRepo = new CommentRepositoryPostgres(pgTest.getPool(), () => '123');
+    commentRepo = new CommentRepositoryPostgres(pool, () => '123');
+    user = await usersTable.add({ username: 'johndoe' });
+    thread = await threadsTable.add({ owner: user.id });
   });
 
   beforeEach(async () => {
-    await pgTest.truncate();
-
-    // user = await pgTest.users().add({ username: 'johndoe' });
-    // thread = await pgTest.threads().add({ owner: user.id });
+    await commentsTable.clean();
   });
 
   afterAll(async () => {
-    await pgTest.end();
+    await threadsTable.clean();
+    await usersTable.clean();
+    await pool.end();
   });
 
   describe('addComment', () => {
     it('should correctly persist the NewComment and return AddedComment', async () => {
-      const { id: userId } = await pgTest.users().add({});
-      const { id: threadId } = await pgTest.threads().add({ owner_id: userId });
       const newComment = new NewComment({
-        threadId,
-        owner: userId,
+        threadId: thread.id,
+        owner: user.id,
         content: 'Sebuah komentar',
+      });
+      const expectedAddedComment = new AddedComment({
+        id: 'comment-123',
+        content: 'Sebuah komentar',
+        owner: user.id,
       });
 
       const addedComment = await commentRepo.addComment(newComment);
 
-      const comments = await pgTest.comments().findById('comment-123');
+      const comments = await commentsTable.findById('comment-123');
       expect(comments).toHaveLength(1);
 
-      expect(addedComment).toBeInstanceOf(AddedComment);
-      expect(addedComment).toEqual(expect.objectContaining({
-        id: 'comment-123',
-        content: 'Sebuah komentar',
-        owner: userId,
-      }));
+      expect(addedComment).toStrictEqual(expectedAddedComment);
     });
 
     it('should propagate error when id is exists', async () => {
-      const { id: userId } = await pgTest.users().add({});
-      const { id: threadId } = await pgTest.threads().add({ owner_id: userId });
-      await pgTest.comments().add({ id: 'comment-123', thread_id: threadId, owner_id: userId });
+      await commentsTable.add({ id: 'comment-123', thread_id: thread.id, owner_id: user.id });
       const newComment = new NewComment({
-        threadId,
-        owner: userId,
+        threadId: thread.id,
+        owner: user.id,
         content: 'Sebuah komentar',
       });
 
@@ -64,10 +66,9 @@ describe('[Integration] CommentRepositoryPostgres', () => {
     });
 
     it('should propagate error when thread not exists', async () => {
-      const { id: userId } = await pgTest.users().add({});
       const newComment = new NewComment({
         threadId: 'nonexistent-thread-id',
-        owner: userId,
+        owner: user.id,
         content: 'Sebuah komentar',
       });
 
@@ -76,10 +77,8 @@ describe('[Integration] CommentRepositoryPostgres', () => {
     });
 
     it('should propagate error when owner not exists', async () => {
-      const { id: userId } = await pgTest.users().add({});
-      const { id: threadId } = await pgTest.threads().add({ owner_id: userId });
       const newComment = new NewComment({
-        threadId,
+        threadId: thread.id,
         owner: 'nonexistent-user-id',
         content: 'Sebuah komentar',
       });
@@ -91,16 +90,14 @@ describe('[Integration] CommentRepositoryPostgres', () => {
 
   describe('getCommentsByThreadId', () => {
     it('should correctly resolve and return all comments including soft-deleted ones', async () => {
-      const user = await pgTest.users().add({});
-      const { id: threadId } = await pgTest.threads().add({ owner_id: user.id });
-      const rawComment1 = await pgTest.comments().add({
-        id: 'comment-101', thread_id: threadId, owner_id: user.id
+      const rawComment1 = await commentsTable.add({
+        id: 'comment-101', thread_id: thread.id, owner_id: user.id
       });
-      const rawComment2 = await pgTest.comments().add({
-        id: 'comment-102', thread_id: threadId, owner_id: user.id, is_delete: true
+      const rawComment2 = await commentsTable.add({
+        id: 'comment-102', thread_id: thread.id, owner_id: user.id, is_delete: true
       });
 
-      const comments = await commentRepo.getCommentsByThreadId(threadId);
+      const comments = await commentRepo.getCommentsByThreadId(thread.id);
 
       expect(comments).toHaveLength(2);
       expect(comments[0]).toBeInstanceOf(Comment);
@@ -117,24 +114,20 @@ describe('[Integration] CommentRepositoryPostgres', () => {
     });
 
     it('should return an empty array when no comment found', async () => {
-      const user = await pgTest.users().add({});
-      const { id: threadId } = await pgTest.threads().add({ owner_id: user.id });
-      const comments = await commentRepo.getCommentsByThreadId(threadId);
+      const comments = await commentRepo.getCommentsByThreadId(thread.id);
       expect(comments).toEqual([]);
     });
   });
 
   describe('softDeleteCommentById', () => {
     it('should correctly resolve and not throw error', async () => {
-      const user = await pgTest.users().add({});
-      const thread = await pgTest.threads().add({ owner_id: user.id });
-      await pgTest.comments().add({ thread_id: thread.id, owner_id: user.id });
+      await commentsTable.add({ thread_id: thread.id, owner_id: user.id });
 
       await expect(commentRepo.softDeleteCommentById('comment-001'))
         .resolves
         .not.toThrow(NotFoundError);
 
-      const comments = await pgTest.comments().findById('comment-001');
+      const comments = await commentsTable.findById('comment-001');
       expect(comments[0].is_delete).toBe(true);
     });
 
@@ -147,26 +140,20 @@ describe('[Integration] CommentRepositoryPostgres', () => {
 
   describe('verifyCommentBelongToThread', () => {
     it('should correctly resolve and not throw error', async () => {
-      const user = await pgTest.users().add({});
-      const thread = await pgTest.threads().add({ owner_id: user.id });
-      await pgTest.comments().add({ thread_id: thread.id, owner_id: user.id });
+      await commentsTable.add({ thread_id: thread.id, owner_id: user.id });
       await expect(commentRepo.verifyCommentBelongToThread('comment-001', thread.id))
         .resolves.not.toThrow();
     });
 
     it('should throw NotFoundError when comment not exists', async () => {
-      const user = await pgTest.users().add({});
-      const thread = await pgTest.threads().add({ owner_id: user.id });
       await expect(commentRepo.verifyCommentBelongToThread('nonexistent-comment-id', thread.id))
         .rejects.toThrow(NotFoundError);
     });
 
     it('should throw NotFoundError when comment not belong to thread', async () => {
-      const user = await pgTest.users().add({});
-      const thread = await pgTest.threads().add({ owner_id: user.id });
-      const otherUser = await pgTest.users().add({ username: 'anotheruser', id: 'user-010' });
-      const otherThread = await pgTest.threads().add({ owner_id: otherUser.id, id: 'thread-010' });
-      const { id: otherCommentId } = await pgTest.comments().add({
+      const otherUser = await usersTable.add({ username: 'anotheruser', id: 'user-010' });
+      const otherThread = await threadsTable.add({ owner_id: otherUser.id, id: 'thread-010' });
+      const { id: otherCommentId } = await commentsTable.add({
         thread_id: otherThread.id,
         owner_id: otherUser.id,
         id: 'comment-999'
@@ -181,16 +168,16 @@ describe('[Integration] CommentRepositoryPostgres', () => {
     let authorizedUser;
     let unauthorizedUser;
     let commentId;
-    let thread;
     let otherThread;
 
-    beforeEach(async () => {
-      authorizedUser = await pgTest.users().add({});
-      thread = await pgTest.threads().add({ owner_id: authorizedUser.id });
-      unauthorizedUser = await pgTest.users().add({ username: 'unauthorized', id: 'user-999' });
-      otherThread = await pgTest.threads().add({ owner_id: unauthorizedUser.id, id: 'thread-999' });
+    beforeAll(async () => {
+      authorizedUser = user;
+      unauthorizedUser = await usersTable.add({ username: 'unauthorized', id: 'user-999' });
+      otherThread = await threadsTable.add({ owner_id: unauthorizedUser.id, id: 'thread-999' });
+    });
 
-      const { id } = await pgTest.comments().add({
+    beforeEach(async () => {
+      const { id } = await commentsTable.add({
         thread_id: thread.id,
         owner_id: authorizedUser.id,
         content: 'Comment for deletion',
