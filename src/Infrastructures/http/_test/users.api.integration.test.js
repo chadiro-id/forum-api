@@ -1,10 +1,8 @@
-const pool = require('../../database/postgres/pool');
 const serverTest = require('../../../../tests/helper/ServerTestHelper');
 const pgTest = require('../../../../tests/helper/postgres');
 const { assertHttpResponseError } = require('../../../../tests/helper/assertionsHelper');
 
 beforeAll(async () => {
-  pgTest.init(pool);
   await serverTest.init();
 });
 
