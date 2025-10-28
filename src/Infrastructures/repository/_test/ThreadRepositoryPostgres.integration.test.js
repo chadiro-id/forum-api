@@ -6,6 +6,15 @@ const NotFoundError = require('../../../Commons/exceptions/NotFoundError');
 const DetailThread = require('../../../Domains/threads/entities/DetailThread');
 const { usersTable, threadsTable } = require('../../../../tests/helper/postgres');
 
+beforeAll(async () => {
+  await usersTable.clean();
+  await threadsTable.clean();
+});
+
+afterAll(async () => {
+  await pool.end();
+});
+
 describe('[Integration] ThreadRepositoryPostgres', () => {
   let threadRepo;
   let user;
@@ -15,14 +24,12 @@ describe('[Integration] ThreadRepositoryPostgres', () => {
     user = await usersTable.add({});
   });
 
-  beforeEach(async () => {
+  afterEach(async () => {
     await threadsTable.clean();
   });
 
   afterAll(async () => {
     await usersTable.clean();
-    await threadsTable.clean();
-    await pool.end();
   });
 
   describe('addThread', () => {
