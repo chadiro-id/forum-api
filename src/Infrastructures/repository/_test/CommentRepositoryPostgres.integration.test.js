@@ -11,6 +11,16 @@ const {
   commentsTable,
 } = require('../../../../tests/helper/postgres');
 
+beforeAll(async () => {
+  await commentsTable.clean();
+  await threadsTable.clean();
+  await usersTable.clean();
+});
+
+afterAll(async () => {
+  await pool.end();
+});
+
 describe('[Integration] CommentRepositoryPostgres', () => {
   let commentRepo;
   let user;
@@ -22,14 +32,13 @@ describe('[Integration] CommentRepositoryPostgres', () => {
     thread = await threadsTable.add({ owner: user.id });
   });
 
-  beforeEach(async () => {
+  afterEach(async () => {
     await commentsTable.clean();
   });
 
   afterAll(async () => {
     await threadsTable.clean();
     await usersTable.clean();
-    await pool.end();
   });
 
   describe('addComment', () => {
