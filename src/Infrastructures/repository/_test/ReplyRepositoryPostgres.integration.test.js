@@ -12,6 +12,17 @@ const {
   repliesTable,
 } = require('../../../../tests/helper/postgres');
 
+beforeAll(async () => {
+  await repliesTable.clean();
+  await commentsTable.clean();
+  await threadsTable.clean();
+  await usersTable.clean();
+});
+
+afterAll(async () => {
+  await pool.end();
+});
+
 describe('[Integration] ReplyRepositoryPostgres', () => {
   let replyRepo;
   let userA;
@@ -29,16 +40,14 @@ describe('[Integration] ReplyRepositoryPostgres', () => {
     commentB = await commentsTable.add({ id: 'comment-456', thread_id: thread.id, owner_id: userB.id });
   });
 
-  beforeEach(async () => {
+  afterEach(async () => {
     await repliesTable.clean();
   });
 
   afterAll(async () => {
-    await repliesTable.clean();
     await commentsTable.clean();
     await threadsTable.clean();
     await usersTable.clean();
-    await pool.end();
   });
 
   describe('addReply', () => {
