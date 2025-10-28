@@ -5,10 +5,10 @@ const { assertHttpResponseError } = require('../../../../tests/helper/assertions
 
 beforeAll(async () => {
   await serverTest.init();
+  await usersTable.clean();
 });
 
 afterAll(async () => {
-  await usersTable.clean();
   await pool.end();
   await serverTest.stop();
 });
@@ -20,7 +20,7 @@ describe('[Integration] Users Endpoints', () => {
     fullname: 'Dicoding User',
   };
 
-  beforeEach(async () => {
+  afterEach(async () => {
     await usersTable.clean();
   });
 
@@ -42,7 +42,7 @@ describe('[Integration] Users Endpoints', () => {
       );
     });
 
-    it('should response 400 when request payload not contain needed property', async () => {
+    it('should response 400 when payload not contain needed property', async () => {
       const payload = { ...dummyPayload };
       delete payload.fullname;
 
@@ -51,7 +51,7 @@ describe('[Integration] Users Endpoints', () => {
       assertHttpResponseError(response, 400);
     });
 
-    it('should response 400 when request payload not meet data type specification', async () => {
+    it('should response 400 when payload not meet data type specification', async () => {
       const payload = { ...dummyPayload, fullname: ['John Doe'] };
       const response = await serverTest.post('/users', { payload });
 

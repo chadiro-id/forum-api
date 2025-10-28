@@ -6,11 +6,11 @@ const { assertHttpResponseError } = require('../../../../tests/helper/assertions
 
 beforeAll(async () => {
   await serverTest.init();
+  await authenticationsTable.clean();
+  await usersTable.clean();
 });
 
 afterAll(async () => {
-  await authenticationsTable.clean();
-  await usersTable.clean();
   await pool.end();
   await serverTest.stop();
 });
@@ -21,7 +21,7 @@ describe('[Integration] Authentications Endpoints', () => {
     password: 'supersecret^_^007',
   };
 
-  beforeEach(async () => {
+  afterEach(async () => {
     await authenticationsTable.clean();
     await usersTable.clean();
   });
@@ -81,7 +81,7 @@ describe('[Integration] Authentications Endpoints', () => {
       assertHttpResponseError(response, 400, { message: 'harus berupa teks' });
     });
 
-    it('should response 400 when login payload not contain needed property', async () => {
+    it('should response 400 when payload not contain needed property', async () => {
       const options = {
         payload: { username: loginUser.username },
       };
