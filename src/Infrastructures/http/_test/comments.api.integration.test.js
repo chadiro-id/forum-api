@@ -10,43 +10,44 @@ const {
 
 beforeAll(async () => {
   await serverTest.init();
-});
-
-afterAll(async () => {
   await usersTable.clean();
   await commentsTable.clean();
   await threadsTable.clean();
+});
+
+afterAll(async () => {
   await pool.end();
   await serverTest.stop();
 });
 
 describe('[Integration] Comments Endpoints', () => {
-  beforeEach(async () => {
+  let user;
+  let authorization;
+  let thread;
+
+  beforeAll(async () => {
+    user = await usersTable.add({ username: 'johndoe' });
+    const { accessToken } = await createAuthToken({ ...user });
+    authorization = {
+      Authorization: `Bearer ${accessToken}`,
+    };
+    thread = await threadsTable.add({ owner_id: user.id });
+  });
+
+  afterEach(async () => {
     await commentsTable.clean();
+  });
+
+  afterAll(async () => {
     await threadsTable.clean();
+    await usersTable.clean();
   });
 
   describe('POST /threads/{threadId}/comments', () => {
-    let user;
-    let authorization;
-    let thread;
     let endpoint;
 
     beforeAll(async () => {
-      user = await usersTable.add({ username: 'johndoe' });
-      const { accessToken } = await createAuthToken({ ...user });
-      authorization = {
-        Authorization: `Bearer ${accessToken}`,
-      };
-    });
-
-    beforeEach(async () => {
-      thread = await threadsTable.add({ owner_id: user.id });
       endpoint = `/threads/${thread.id}/comments`;
-    });
-
-    afterAll(async () => {
-      await usersTable.clean();
     });
 
     it('should response 201 and persisted comment', async () => {
@@ -116,26 +117,10 @@ describe('[Integration] Comments Endpoints', () => {
   });
 
   describe('DELETE /threads/{threadId}/comments/{commentId}', () => {
-    let user;
-    let authorization;
-    let thread;
     let comment;
 
-    beforeAll(async () => {
-      user = await usersTable.add({ username: 'johndoe' });
-      const { accessToken } = await createAuthToken({ ...user });
-      authorization = {
-        Authorization: `Bearer ${accessToken}`,
-      };
-    });
-
     beforeEach(async () => {
-      thread = await threadsTable.add({ owner_id: user.id });
       comment = await commentsTable.add({ thread_id: thread.id, owner_id: user.id });
-    });
-
-    afterAll(async () => {
-      await usersTable.clean();
     });
 
     it('should response 200 and status "success"', async () => {
