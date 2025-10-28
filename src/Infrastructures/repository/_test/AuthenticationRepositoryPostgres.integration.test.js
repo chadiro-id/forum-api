@@ -3,20 +3,23 @@ const InvariantError = require('../../../Commons/exceptions/InvariantError');
 const AuthenticationRepositoryPostgres = require('../AuthenticationRepositoryPostgres');
 const { authenticationsTable } = require('../../../../tests/helper/postgres');
 
+beforeAll(async () => {
+  await authenticationsTable.clean();
+});
+
+afterAll(async () => {
+  await pool.end();
+});
+
 describe('[Integration] AuthenticationRepositoryPostgres', () => {
   let authenticationRepo;
 
   beforeAll(() => {
-    authenticationRepo = new AuthenticationRepositoryPostgres(pool, () => '');
+    authenticationRepo = new AuthenticationRepositoryPostgres(pool);
   });
 
-  beforeEach(async () => {
+  afterEach(async () => {
     await authenticationsTable.clean();
-  });
-
-  afterAll(async () => {
-    await authenticationsTable.clean();
-    await pool.end();
   });
 
   describe('addToken', () => {
