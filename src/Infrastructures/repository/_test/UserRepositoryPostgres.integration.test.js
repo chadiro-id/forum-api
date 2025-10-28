@@ -5,6 +5,14 @@ const RegisteredUser = require('../../../Domains/users/entities/RegisteredUser')
 const UserRepositoryPostgres = require('../UserRepositoryPostgres');
 const { usersTable } = require('../../../../tests/helper/postgres');
 
+beforeAll(async () => {
+  await usersTable.clean();
+});
+
+afterAll(async () => {
+  await pool.end();
+});
+
 describe('[Integration] UserRepositoryPostgres', () => {
   let userRepo;
 
@@ -12,13 +20,8 @@ describe('[Integration] UserRepositoryPostgres', () => {
     userRepo = new UserRepositoryPostgres(pool, () => '123');
   });
 
-  beforeEach(async () => {
+  afterEach(async () => {
     await usersTable.clean();
-  });
-
-  afterAll(async () => {
-    await usersTable.clean();
-    await pool.end();
   });
 
   describe('addUser', () => {
