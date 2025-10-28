@@ -1,4 +1,3 @@
-const pool = require('../../database/postgres/pool');
 const InvariantError = require('../../../Commons/exceptions/InvariantError');
 const AuthenticationRepositoryPostgres = require('../AuthenticationRepositoryPostgres');
 const pgTest = require('../../../../tests/helper/postgres');
@@ -7,8 +6,7 @@ describe('[Integration] AuthenticationRepositoryPostgres', () => {
   let authenticationRepo;
 
   beforeAll(() => {
-    pgTest.init(pool);
-    authenticationRepo = new AuthenticationRepositoryPostgres(pool);
+    authenticationRepo = new AuthenticationRepositoryPostgres(pgTest.getPool());
   });
 
   beforeEach(async () => {
@@ -16,8 +14,7 @@ describe('[Integration] AuthenticationRepositoryPostgres', () => {
   });
 
   afterAll(async () => {
-    await pgTest.truncate();
-    await pool.end();
+    await pgTest.end();
   });
 
   describe('addToken', () => {

@@ -1,4 +1,3 @@
-const pool = require('../../database/postgres/pool');
 const InvariantError = require('../../../Commons/exceptions/InvariantError');
 const RegisterUser = require('../../../Domains/users/entities/RegisterUser');
 const RegisteredUser = require('../../../Domains/users/entities/RegisteredUser');
@@ -9,8 +8,7 @@ describe('[Integration] UserRepositoryPostgres', () => {
   let userRepo;
 
   beforeAll(() => {
-    pgTest.init(pool);
-    userRepo = new UserRepositoryPostgres(pool, () => '123');
+    userRepo = new UserRepositoryPostgres(pgTest.getPool(), () => '123');
   });
 
   beforeEach(async () => {
@@ -18,8 +16,7 @@ describe('[Integration] UserRepositoryPostgres', () => {
   });
 
   afterAll(async () => {
-    await pgTest.truncate();
-    await pool.end();
+    await pgTest.end();
   });
 
   describe('addUser', () => {

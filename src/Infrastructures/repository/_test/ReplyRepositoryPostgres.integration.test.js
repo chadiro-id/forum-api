@@ -1,4 +1,3 @@
-const pool = require('../../database/postgres/pool');
 const ReplyRepositoryPostgres = require('../ReplyRepositoryPostgres');
 const NewReply = require('../../../Domains/replies/entities/NewReply');
 const AddedReply = require('../../../Domains/replies/entities/AddedReply');
@@ -16,8 +15,7 @@ describe('[Integration] ReplyRepositoryPostgres', () => {
   let commentB;
 
   beforeAll(async () => {
-    pgTest.init(pool);
-    replyRepo = new ReplyRepositoryPostgres(pool, () => '123');
+    replyRepo = new ReplyRepositoryPostgres(pgTest.getPool(), () => '123');
   });
 
   beforeEach(async () => {
@@ -30,8 +28,7 @@ describe('[Integration] ReplyRepositoryPostgres', () => {
   });
 
   afterAll(async () => {
-    await pgTest.truncate();
-    await pool.end();
+    await pgTest.end();
   });
 
   describe('addReply', () => {

@@ -1,4 +1,3 @@
-const pool = require('../../database/postgres/pool');
 const CommentRepositoryPostgres = require('../CommentRepositoryPostgres');
 const NewComment = require('../../../Domains/comments/entities/NewComment');
 const AddedComment = require('../../../Domains/comments/entities/AddedComment');
@@ -7,22 +6,13 @@ const NotFoundError = require('../../../Commons/exceptions/NotFoundError');
 const AuthorizationError = require('../../../Commons/exceptions/AuthorizationError');
 const pgTest = require('../../../../tests/helper/postgres');
 
-beforeAll(() => {
-  pgTest.init(pool);
-});
-
-afterAll(async () => {
-  await pgTest.truncate();
-  await pool.end();
-});
-
 describe('[Integration] CommentRepositoryPostgres', () => {
   let commentRepo;
   let user;
   let thread;
 
   beforeAll(async () => {
-    commentRepo = new CommentRepositoryPostgres(pool, () => '123');
+    commentRepo = new CommentRepositoryPostgres(pgTest.getPool(), () => '123');
   });
 
   beforeEach(async () => {
@@ -30,6 +20,10 @@ describe('[Integration] CommentRepositoryPostgres', () => {
 
     user = await pgTest.users().add({ username: 'johndoe' });
     thread = await pgTest.threads().add({ owner: user.id });
+  });
+
+  afterAll(async () => {
+    await pgTest.end();
   });
 
   describe('addComment', () => {

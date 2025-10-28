@@ -1,4 +1,3 @@
-const pool = require('../../database/postgres/pool');
 const ThreadRepositoryPostgres = require('../ThreadRepositoryPostgres');
 const NewThread = require('../../../Domains/threads/entities/NewThread');
 const AddedThread = require('../../../Domains/threads/entities/AddedThread');
@@ -10,8 +9,7 @@ describe('[Integration] ThreadRepositoryPostgres', () => {
   let threadRepo;
 
   beforeAll(async () => {
-    pgTest.init(pool);
-    threadRepo = new ThreadRepositoryPostgres(pool, () => '123');
+    threadRepo = new ThreadRepositoryPostgres(pgTest.getPool(), () => '123');
   });
 
   beforeEach(async () => {
@@ -19,8 +17,7 @@ describe('[Integration] ThreadRepositoryPostgres', () => {
   });
 
   afterAll(async () => {
-    await pgTest.truncate();
-    await pool.end();
+    await pgTest.end();
   });
 
   describe('addThread', () => {
