@@ -2,22 +2,12 @@ const AuthorizationError = require('../../../Commons/exceptions/AuthorizationErr
 const NotFoundError = require('../../../Commons/exceptions/NotFoundError');
 const AddedReply = require('../../../Domains/replies/entities/AddedReply');
 const NewReply = require('../../../Domains/replies/entities/NewReply');
-const Reply = require('../../../Domains/replies/entities/Reply');
 const ReplyRepository = require('../../../Domains/replies/ReplyRepository');
 const ReplyRepositoryPostgres = require('../ReplyRepositoryPostgres');
-const { assertQueryCalled } = require('../../../../tests/helper/assertionsHelper');
-
-const expectReply = (reply, expectedSource) => {
-  const expectedContent = expectedSource.is_delete
-    ? '**balasan telah dihapus**'
-    : expectedSource.content;
-
-  expect(reply).toBeInstanceOf(Reply);
-  expect(reply.id).toEqual(expectedSource.id);
-  expect(reply.content).toEqual(expectedContent);
-  expect(reply.username).toEqual(expectedSource.username);
-  expect(reply.date).toEqual(expectedSource.created_at);
-};
+const {
+  assertQueryCalled,
+  expectReplyFromRepository,
+} = require('../../../../tests/helper/assertionsHelper');
 
 describe('[Mock-Based Integration] ReplyRepositoryPostgres', () => {
   it('must be an instance of ReplyRepository', () => {
@@ -118,9 +108,9 @@ describe('[Mock-Based Integration] ReplyRepositoryPostgres', () => {
         );
 
         expect(replies).toHaveLength(3);
-        expectReply(replies[0], { ...reply1 });
-        expectReply(replies[1], { ...reply2 });
-        expectReply(replies[2], { ...reply3 });
+        expectReplyFromRepository(replies[0], { ...reply1 });
+        expectReplyFromRepository(replies[1], { ...reply2 });
+        expectReplyFromRepository(replies[2], { ...reply3 });
       });
 
       it('should return an empty array when no reply found', async () => {

@@ -1,22 +1,10 @@
 const ReplyRepositoryPostgres = require('../ReplyRepositoryPostgres');
 const NewReply = require('../../../Domains/replies/entities/NewReply');
 const AddedReply = require('../../../Domains/replies/entities/AddedReply');
-const Reply = require('../../../Domains/replies/entities/Reply');
 const NotFoundError = require('../../../Commons/exceptions/NotFoundError');
 const AuthorizationError = require('../../../Commons/exceptions/AuthorizationError');
 const pgTest = require('../../../../tests/helper/postgres');
-
-const expectReply = (reply, expectedSource) => {
-  const expectedContent = expectedSource.is_delete
-    ? '**balasan telah dihapus**'
-    : expectedSource.content;
-
-  expect(reply).toBeInstanceOf(Reply);
-  expect(reply.id).toEqual(expectedSource.id);
-  expect(reply.content).toEqual(expectedContent);
-  expect(reply.username).toEqual(expectedSource.username);
-  expect(reply.date).toEqual(expectedSource.created_at);
-};
+const { expectReplyFromRepository } = require('../../../../tests/helper/assertionsHelper');
 
 beforeAll(async () => {
   await pgTest.truncate();
@@ -124,9 +112,9 @@ describe('[Integration] ReplyRepositoryPostgres', () => {
       const replies = await replyRepo.getRepliesByCommentIds([commentA.id, commentB.id]);
 
       expect(replies).toHaveLength(3);
-      expectReply(replies[0], { ...rawReply1, username: userA.username });
-      expectReply(replies[1], { ...rawReply2, username: userB.username });
-      expectReply(replies[2], { ...rawReply3, username: userB.username });
+      expectReplyFromRepository(replies[0], { ...rawReply1, username: userA.username });
+      expectReplyFromRepository(replies[1], { ...rawReply2, username: userB.username });
+      expectReplyFromRepository(replies[2], { ...rawReply3, username: userB.username });
     });
 
     it('should return an empty array when no reply found', async () => {
