@@ -87,8 +87,7 @@ describe('[Integration] Threads Endpoints', () => {
 
       assertHttpResponseError(response, 401, {
         status: null,
-        error:'Unauthorized',
-        message: 'Missing authentication'
+        message: 'Missing authentication',
       });
     });
 

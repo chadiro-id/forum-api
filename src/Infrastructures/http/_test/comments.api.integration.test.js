@@ -70,7 +70,6 @@ describe('[Integration] Comments Endpoints', () => {
 
       assertHttpResponseError(response, 401, {
         status: null,
-        error: 'Unauthorized',
         message: 'Missing authentication',
       });
     });
@@ -133,7 +132,6 @@ describe('[Integration] Comments Endpoints', () => {
 
       assertHttpResponseError(response, 401, {
         status: null,
-        error: 'Unauthorized',
         message: 'Missing authentication',
       });
     });

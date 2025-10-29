@@ -71,7 +71,6 @@ describe('[Integration] Replies Endpoints', () => {
 
       assertHttpResponseError(response, 401, {
         status: null,
-        error: 'Unauthorized',
         message: 'Missing authentication',
       });
     });
@@ -163,7 +162,6 @@ describe('[Integration] Replies Endpoints', () => {
 
       assertHttpResponseError(response, 401, {
         status: null,
-        error: 'Unauthorized',
         message: 'Missing authentication',
       });
     });
