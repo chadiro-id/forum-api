@@ -4,6 +4,7 @@ const CommentRepository = require('../../../Domains/comments/CommentRepository')
 const AddedComment = require('../../../Domains/comments/entities/AddedComment');
 const NewComment = require('../../../Domains/comments/entities/NewComment');
 const CommentRepositoryPostgres = require('../CommentRepositoryPostgres');
+const { createRawComment } = require('../../../../tests/util');
 const {
   assertQueryCalled,
   expectCommentFromRepository,
@@ -72,20 +73,8 @@ describe('[Mock-Based Integration] CommentRepositoryPostgres', () => {
 
     describe('getCommentsByThreadId', () => {
       it('should correctly pool.query and return the array of comment', async () => {
-        const comment1 = {
-          id: 'comment-001',
-          content: 'Isi komentar 1',
-          username: 'whoami',
-          created_at: new Date('2025-10-15T02:06:54.384Z'),
-          is_delete: false,
-        };
-        const comment2 = {
-          id: 'comment-002',
-          content: 'Isi komentar 2',
-          username: 'johndoe',
-          created_at: new Date('2025-10-15T02:07:54.384Z'),
-          is_delete: true,
-        };
+        const comment1 = createRawComment({ id: 'comment-001' });
+        const comment2 = createRawComment({ id: 'comment-002', username: 'dicoder', is_delete: true });
 
         mockPool.query.mockResolvedValue({
           rows: [comment1, comment2],
