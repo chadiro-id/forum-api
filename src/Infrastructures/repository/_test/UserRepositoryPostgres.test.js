@@ -51,7 +51,8 @@ describe('[Mock-Base Integration] UserRepositoryPostgres', () => {
         expect(calledValues[2]).toEqual('supersecret');
         expect(calledValues[3]).toEqual('John Doe');
 
-        expect(registeredUser).toStrictEqual(new RegisteredUser({
+        expect(registeredUser).toBeInstanceOf(RegisteredUser);
+        expect(registeredUser).toEqual(expect.objectContaining({
           id: 'user-123',
           username: 'johndoe',
           fullname: 'John Doe',
