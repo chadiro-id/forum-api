@@ -7,6 +7,18 @@ const NewComment = require('../../../Domains/comments/entities/NewComment');
 const CommentRepositoryPostgres = require('../CommentRepositoryPostgres');
 const { assertQueryCalled }= require('../../../../tests/helper/assertionsHelper');
 
+const expectComment = (comment, expectedSource) => {
+  const expectedContent = expectedSource.is_delete
+    ? '**komentar telah dihapus**'
+    : expectedSource.content;
+
+  expect(comment).toBeInstanceOf(Comment);
+  expect(comment.id).toEqual(expectedSource.id);
+  expect(comment.content).toEqual(expectedContent);
+  expect(comment.username).toEqual(expectedSource.username);
+  expect(comment.date).toEqual(expectedSource.created_at);
+};
+
 describe('[Mock-Based Integration] CommentRepositoryPostgres', () => {
   it('must be an instance of CommentRepository', () => {
     const repo = new CommentRepositoryPostgres({}, () => '');
@@ -82,7 +94,7 @@ describe('[Mock-Based Integration] CommentRepositoryPostgres', () => {
           content: 'Isi komentar 2',
           username: 'johndoe',
           created_at: new Date('2025-10-15T02:07:54.384Z'),
-          is_delete: false,
+          is_delete: true,
         };
         const comment3 = {
           id: 'comment-003',
@@ -102,27 +114,9 @@ describe('[Mock-Based Integration] CommentRepositoryPostgres', () => {
         assertQueryCalled(mockPool.query, 'SELECT', ['thread-123']);
 
         expect(comments).toHaveLength(3);
-        expect(comments[0]).toEqual(new Comment({
-          id: comment1.id,
-          content: comment1.content,
-          username: comment1.username,
-          date: comment1.created_at,
-          isDelete: comment1.is_delete
-        }));
-        expect(comments[1]).toEqual(new Comment({
-          id: comment2.id,
-          content: comment2.content,
-          username: comment2.username,
-          date: comment2.created_at,
-          isDelete: comment2.is_delete
-        }));
-        expect(comments[2]).toEqual(new Comment({
-          id: comment3.id,
-          content: comment3.content,
-          username: comment3.username,
-          date: comment3.created_at,
-          isDelete: comment3.is_delete
-        }));
+        expectComment(comments[0], { ...comment1 });
+        expectComment(comments[1], { ...comment2 });
+        expectComment(comments[2], { ...comment3 });
       });
 
       it('should return an empty array when no comment found', async () => {
