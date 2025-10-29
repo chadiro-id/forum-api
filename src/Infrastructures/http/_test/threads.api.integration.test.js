@@ -1,24 +1,15 @@
-const pool = require('../../database/postgres/pool');
 const serverTest = require('../../../../tests/helper/ServerTestHelper');
 const { createAuthToken } = require('../../../../tests/helper/authenticationHelper');
 const { assertHttpResponseError } = require('../../../../tests/helper/assertionsHelper');
-const {
-  usersTable,
-  threadsTable,
-  commentsTable,
-  repliesTable,
-} = require('../../../../tests/helper/postgres');
+const pgTest = require('../../../../tests/helper/postgres');
 
 beforeAll(async () => {
   await serverTest.init();
-  await repliesTable.clean();
-  await commentsTable.clean();
-  await threadsTable.clean();
-  await usersTable.clean();
+  await pgTest.truncate();
 });
 
 afterAll(async () => {
-  await pool.end();
+  await pgTest.end();
   await serverTest.stop();
 });
 
@@ -26,11 +17,11 @@ describe('[Integration] Threads Endpoints', () => {
   let user;
 
   beforeAll(async () => {
-    user = await usersTable.add({ username: 'johndoe' });
+    user = await pgTest.users.add({ username: 'johndoe' });
   });
 
   afterAll(async () => {
-    await usersTable.clean();
+    await pgTest.users.clean();
   });
 
   describe('POST /threads', () => {
@@ -115,16 +106,16 @@ describe('[Integration] Threads Endpoints', () => {
     let thread;
 
     beforeAll(async () => {
-      thread = await threadsTable.add({ owner_id: user.id });
+      thread = await pgTest.threads.add({ owner_id: user.id });
     });
 
     afterEach(async () => {
-      await repliesTable.clean();
-      await commentsTable.clean();
+      await pgTest.replies.clean();
+      await pgTest.comments.clean();
     });
 
     afterAll(async () => {
-      await threadsTable.clean();
+      await pgTest.threads.clean();
     });
 
     it('should response 200 and detail thread', async () => {
@@ -148,8 +139,8 @@ describe('[Integration] Threads Endpoints', () => {
     });
 
     it('should handle all comments including soft-deleted ones', async () => {
-      const commentA = await commentsTable.add({ id: 'comment-001', thread_id: thread.id, owner_id: user.id });
-      const commentB = await commentsTable.add({ id: 'comment-002', thread_id: thread.id, owner_id: user.id, is_delete: true });
+      const commentA = await pgTest.comments.add({ id: 'comment-001', thread_id: thread.id, owner_id: user.id });
+      const commentB = await pgTest.comments.add({ id: 'comment-002', thread_id: thread.id, owner_id: user.id, is_delete: true });
 
       const response = await serverTest.get(`/threads/${thread.id}`);
 
@@ -181,9 +172,9 @@ describe('[Integration] Threads Endpoints', () => {
     });
 
     it('should handle all replies including soft-deleted ones', async () => {
-      const comment = await commentsTable.add({ id: 'comment-001', thread_id: thread.id, owner_id: user.id });
-      const replyA = await repliesTable.add({ id: 'reply-001', comment_id: comment.id, owner_id: user.id });
-      const replyB = await repliesTable.add({ id: 'reply-002', comment_id: comment.id, owner_id: user.id, is_delete: true });
+      const comment = await pgTest.comments.add({ id: 'comment-001', thread_id: thread.id, owner_id: user.id });
+      const replyA = await pgTest.replies.add({ id: 'reply-001', comment_id: comment.id, owner_id: user.id });
+      const replyB = await pgTest.replies.add({ id: 'reply-002', comment_id: comment.id, owner_id: user.id, is_delete: true });
 
       const response = await serverTest.get(`/threads/${thread.id}`);
 
