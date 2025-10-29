@@ -1,30 +1,11 @@
 const serverTest = require('../../../../tests/helper/ServerTestHelper');
-const { createAuthToken } = require('../../../../tests/helper/authenticationHelper');
-const { assertHttpResponseError } = require('../../../../tests/helper/assertionsHelper');
 const pgTest = require('../../../../tests/helper/postgres');
-
-const expectComment = (comment, expectedSource) => {
-  const expectedContent = expectedSource.is_delete
-    ? '**komentar telah dihapus**'
-    : expectedSource.content;
-
-  expect(comment.id).toEqual(expectedSource.id);
-  expect(comment.content).toEqual(expectedContent);
-  expect(comment.username).toEqual(expectedSource.username);
-  expect(Date.parse(comment.date)).not.toBeNaN();
-  expect(comment.replies).toHaveLength(expectedSource.replies.length);
-};
-
-const expectReply = (reply, expectedSource) => {
-  const expectedContent = expectedSource.is_delete
-    ? '**balasan telah dihapus**'
-    : expectedSource.content;
-
-  expect(reply.id).toEqual(expectedSource.id);
-  expect(reply.content).toEqual(expectedContent);
-  expect(reply.username).toEqual(expectedSource.username);
-  expect(Date.parse(reply.date)).not.toBeNaN();
-};
+const { createAuthToken } = require('../../../../tests/helper/authenticationHelper');
+const {
+  assertHttpResponseError,
+  expectCommentFromResponse,
+  expectReplyFromResponse,
+} = require('../../../../tests/helper/assertionsHelper');
 
 beforeAll(async () => {
   await serverTest.init();
@@ -178,8 +159,8 @@ describe('[Integration] Threads Endpoints', () => {
 
       const c1 = comments.find((c) => c.id === commentA.id);
       const c2 = comments.find((c) => c.id === commentB.id);
-      expectComment(c1, { ...commentA, username: user.username, replies: [] });
-      expectComment(c2, { ...commentB, username: user.username, replies: [] });
+      expectCommentFromResponse(c1, { ...commentA, username: user.username, replies: [] });
+      expectCommentFromResponse(c2, { ...commentB, username: user.username, replies: [] });
     });
 
     it('should handle all replies including soft-deleted ones', async () => {
@@ -203,8 +184,8 @@ describe('[Integration] Threads Endpoints', () => {
 
       const r1 = replies.find((r) => r.id === replyA.id);
       const r2 = replies.find((r) => r.id === replyB.id);
-      expectReply(r1, { ...replyA, username: user.username });
-      expectReply(r2, { ...replyB, username: user.username });
+      expectReplyFromResponse(r1, { ...replyA, username: user.username });
+      expectReplyFromResponse(r2, { ...replyB, username: user.username });
     });
   });
 });
