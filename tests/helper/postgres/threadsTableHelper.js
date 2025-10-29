@@ -7,7 +7,7 @@ const helper = (pool) => {
     owner_id = 'user-001'
   }) {
     const query = {
-      text: 'INSERT INTO threads (id, title, body, owner_id) VALUES ($1, $2, $3, $4) RETURNING id, created_at',
+      text: 'INSERT INTO threads (id, title, body, owner_id) VALUES ($1, $2, $3, $4) RETURNING *',
       values: [id, title, body, owner_id]
     };
 
