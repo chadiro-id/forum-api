@@ -4,13 +4,13 @@ describe('AuthenticationTokenManager', () => {
   it('should throw error with properly message when abstract method invoked', async () => {
     const tokenManager = new AuthenticationTokenManager();
 
-    await expect(tokenManager.createAccessToken(''))
+    await expect(tokenManager.createAccessToken({}))
       .rejects.toThrow('AUTHENTICATION_TOKEN_MANAGER.METHOD_NOT_IMPLEMENTED');
-    await expect(tokenManager.createRefreshToken(''))
+    await expect(tokenManager.createRefreshToken({}))
       .rejects.toThrow('AUTHENTICATION_TOKEN_MANAGER.METHOD_NOT_IMPLEMENTED');
-    await expect(tokenManager.verifyRefreshToken(''))
+    await expect(tokenManager.verifyRefreshToken('token'))
       .rejects.toThrow('AUTHENTICATION_TOKEN_MANAGER.METHOD_NOT_IMPLEMENTED');
-    await expect(tokenManager.decodePayload(''))
+    await expect(tokenManager.decodePayload('token'))
       .rejects.toThrow('AUTHENTICATION_TOKEN_MANAGER.METHOD_NOT_IMPLEMENTED');
   });
 });
