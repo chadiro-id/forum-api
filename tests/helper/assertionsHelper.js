@@ -1,6 +1,6 @@
 /* istanbul ignore file */
 
-exports.assertQueryCalled = (
+const assertQueryCalled = (
   query, queryTextPart, queryValues
 ) => {
   expect(query).toHaveBeenCalledTimes(1);
@@ -12,7 +12,7 @@ exports.assertQueryCalled = (
   );
 };
 
-exports.assertHttpResponseError = (
+const assertHttpResponseError = (
   response, statusCode, { status = 'fail', message = 'any' } = {}
 ) => {
   expect(response.statusCode).toBe(statusCode);
@@ -31,4 +31,34 @@ exports.assertHttpResponseError = (
       expect.stringContaining(message)
     );
   }
+};
+
+const expectCommentFromResponse = (comment, expectedSource) => {
+  const expectedContent = expectedSource.is_delete
+    ? '**komentar telah dihapus**'
+    : expectedSource.content;
+
+  expect(comment.id).toEqual(expectedSource.id);
+  expect(comment.content).toEqual(expectedContent);
+  expect(comment.username).toEqual(expectedSource.username);
+  expect(Date.parse(comment.date)).not.toBeNaN();
+  expect(comment.replies).toHaveLength(expectedSource.replies.length);
+};
+
+const expectReplyFromResponse = (reply, expectedSource) => {
+  const expectedContent = expectedSource.is_delete
+    ? '**balasan telah dihapus**'
+    : expectedSource.content;
+
+  expect(reply.id).toEqual(expectedSource.id);
+  expect(reply.content).toEqual(expectedContent);
+  expect(reply.username).toEqual(expectedSource.username);
+  expect(Date.parse(reply.date)).not.toBeNaN();
+};
+
+module.exports = {
+  assertQueryCalled,
+  assertHttpResponseError,
+  expectCommentFromResponse,
+  expectReplyFromResponse,
 };
