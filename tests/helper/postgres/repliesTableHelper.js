@@ -13,8 +13,7 @@ const helper = (pool) => {
         (id, comment_id, owner_id, content, is_delete)
       VALUES
         ($1, $2, $3, $4, $5)
-      RETURNING
-        id, content, created_at
+      RETURNING *
       `,
       values: [id, comment_id, owner_id, content, is_delete],
     };
