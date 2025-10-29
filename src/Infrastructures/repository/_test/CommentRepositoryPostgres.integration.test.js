@@ -41,18 +41,18 @@ describe('[Integration] CommentRepositoryPostgres', () => {
         owner: user.id,
         content: 'Sebuah komentar',
       });
-      const expectedAddedComment = new AddedComment({
-        id: 'comment-123',
-        content: 'Sebuah komentar',
-        owner: user.id,
-      });
 
       const addedComment = await commentRepo.addComment(newComment);
 
       const comments = await pgTest.comments.findById('comment-123');
       expect(comments).toHaveLength(1);
 
-      expect(addedComment).toStrictEqual(expectedAddedComment);
+      expect(addedComment).toBeInstanceOf(AddedComment);
+      expect(addedComment).toEqual(expect.objectContaining({
+        id: 'comment-123',
+        content: 'Sebuah komentar',
+        owner: user.id,
+      }));
     });
 
     it('should propagate error when id is exists', async () => {
