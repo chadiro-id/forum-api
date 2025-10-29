@@ -73,17 +73,18 @@ describe('[Integration] ThreadRepositoryPostgres', () => {
 
   describe('getThreadById', () => {
     it('should correctly resolve and return the DetailThread', async () => {
-      const { created_at: date } = await pgTest.threads.add({ owner_id: user.id });
+      const insertedThread = await pgTest.threads.add({ owner_id: user.id });
 
       const thread = await threadRepo.getThreadById('thread-001');
 
       expect(thread).toBeInstanceOf(DetailThread);
       expect(thread).toEqual(expect.objectContaining({
-        id: 'thread-001',
-        title: 'Sebuah thread',
-        body: 'Isi thread',
-        date,
+        id: insertedThread.id,
+        title: insertedThread.title,
+        body: insertedThread.body,
+        date: insertedThread.created_at,
         username: user.username,
+        comments: [],
       }));
     });
 

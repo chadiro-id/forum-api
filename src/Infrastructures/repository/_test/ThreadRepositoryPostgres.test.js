@@ -5,6 +5,7 @@ const NewThread = require('../../../Domains/threads/entities/NewThread');
 const ThreadRepository = require('../../../Domains/threads/ThreadRepository');
 const ThreadRepositoryPostgres = require('../ThreadRepositoryPostgres');
 const { assertQueryCalled } = require('../../../../tests/helper/assertionsHelper');
+const { createRawThread } = require('../../../../tests/util');
 
 describe('[Mock-Based Integration] ThreadRepositoryPostgres', () => {
   it('must be an instance of ThreadRepository', () => {
@@ -69,14 +70,10 @@ describe('[Mock-Based Integration] ThreadRepositoryPostgres', () => {
 
     describe('getThreadById', () => {
       it('should correctly pool.query and return DetailThread', async () => {
+        const rawThread = createRawThread();
+
         mockPool.query.mockResolvedValue({
-          rows: [{
-            id: 'thread-123',
-            title: 'Sebuah thread',
-            body: 'Isi thread',
-            username: 'johndoe',
-            created_at: new Date('2025-10-12T14:59:05.169Z')
-          }],
+          rows: [rawThread],
           rowCount: 1,
         });
 
@@ -86,11 +83,11 @@ describe('[Mock-Based Integration] ThreadRepositoryPostgres', () => {
 
         expect(thread).toBeInstanceOf(DetailThread);
         expect(thread).toEqual(expect.objectContaining({
-          id: 'thread-123',
-          title: 'Sebuah thread',
-          body: 'Isi thread',
-          date: new Date('2025-10-12T14:59:05.169Z'),
-          username: 'johndoe',
+          id: rawThread.id,
+          title: rawThread.title,
+          body: rawThread.body,
+          date: rawThread.created_at,
+          username: rawThread.username,
           comments: [],
         }));
       });
