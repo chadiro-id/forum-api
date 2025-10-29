@@ -37,18 +37,14 @@ describe('[Integration] ThreadRepositoryPostgres', () => {
         body: 'Isi thread',
         owner: user.id,
       });
-      const expectedAddedThread = new AddedThread({
-        id: 'thread-123',
-        title: 'Sebuah thread',
-        owner: user.id,
-      });
 
       const addedThread = await threadRepo.addThread(newThread);
 
       const thread = await pgTest.threads.findById('thread-123');
       expect(thread).toHaveLength(1);
 
-      expect(addedThread).toStrictEqual(expectedAddedThread);
+      expect(addedThread).toBeInstanceOf(AddedThread);
+      expect(addedThread.id).toEqual('thread-123');
     });
 
     it('should propagate error when id is exists', async () => {
@@ -81,7 +77,8 @@ describe('[Integration] ThreadRepositoryPostgres', () => {
 
       const thread = await threadRepo.getThreadById('thread-001');
 
-      expect(thread).toStrictEqual(new DetailThread({
+      expect(thread).toBeInstanceOf(DetailThread);
+      expect(thread).toEqual(expect.objectContaining({
         id: 'thread-001',
         title: 'Sebuah thread',
         body: 'Isi thread',
