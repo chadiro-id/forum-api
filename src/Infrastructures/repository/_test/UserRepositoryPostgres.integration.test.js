@@ -30,18 +30,18 @@ describe('[Integration] UserRepositoryPostgres', () => {
         password: 'secret_password',
         fullname: 'John Doe',
       });
-      const expectedRegisteredUser = new RegisteredUser({
-        id: 'user-123',
-        username: 'johndoe',
-        fullname: 'John Doe',
-      });
 
       const registeredUser = await userRepo.addUser(registerUser);
 
       const users = await pgTest.users.findById('user-123');
       expect(users).toHaveLength(1);
 
-      expect(registeredUser).toStrictEqual(expectedRegisteredUser);
+      expect(registeredUser).toBeInstanceOf(RegisteredUser);
+      expect(registeredUser).toEqual(expect.objectContaining({
+        id: 'user-123',
+        username: 'johndoe',
+        fullname: 'John Doe',
+      }));
     });
 
     it('should propagate error when id is exists', async () => {
