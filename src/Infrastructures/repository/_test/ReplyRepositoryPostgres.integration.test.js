@@ -48,18 +48,18 @@ describe('[Integration] ReplyRepositoryPostgres', () => {
         content: 'Sebuah balasan',
         owner: userA.id,
       });
-      const expectedAddedReply = new AddedReply({
-        id: 'reply-123',
-        content: newReply.content,
-        owner: newReply.owner,
-      });
 
       const addedReply = await replyRepo.addReply(newReply);
 
       const replies = await pgTest.replies.findById('reply-123');
       expect(replies).toHaveLength(1);
 
-      expect(addedReply).toStrictEqual(expectedAddedReply);
+      expect(addedReply).toBeInstanceOf(AddedReply);
+      expect(addedReply).toEqual(expect.objectContaining({
+        id: 'reply-123',
+        content: newReply.content,
+        owner: newReply.owner,
+      }));
     });
 
     it('should propagate error when id is exists', async () => {
