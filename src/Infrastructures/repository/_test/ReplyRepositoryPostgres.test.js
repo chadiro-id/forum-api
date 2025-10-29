@@ -4,6 +4,7 @@ const AddedReply = require('../../../Domains/replies/entities/AddedReply');
 const NewReply = require('../../../Domains/replies/entities/NewReply');
 const ReplyRepository = require('../../../Domains/replies/ReplyRepository');
 const ReplyRepositoryPostgres = require('../ReplyRepositoryPostgres');
+const { createRawReply } = require('../../../../tests/util');
 const {
   assertQueryCalled,
   expectReplyFromRepository,
@@ -71,30 +72,9 @@ describe('[Mock-Based Integration] ReplyRepositoryPostgres', () => {
 
     describe('getRepliesByCommentIds', () => {
       it('should correctly pool.query and return the array of reply', async () => {
-        const reply1 = {
-          id: 'reply-101',
-          comment_id: 'comment-101',
-          content: 'Isi balasan 1',
-          created_at: new Date(2025, 10, 14, 10),
-          is_delete: false,
-          username: 'whoami',
-        };
-        const reply2 = {
-          id: 'reply-102',
-          comment_id: 'comment-101',
-          content: 'Isi balasan 2',
-          created_at: new Date(2025, 10, 14, 11),
-          is_delete: false,
-          username: 'johndoe',
-        };
-        const reply3 = {
-          id: 'reply-103',
-          comment_id: 'comment-102',
-          content: 'Isi balasan 3',
-          created_at: new Date(2025, 10, 14, 12),
-          is_delete: false,
-          username: 'whoami',
-        };
+        const reply1 = createRawReply({ id: 'reply-101', comment_id: 'comment-101', username: 'whoami' });
+        const reply2 = createRawReply({ id: 'reply-102', comment_id: 'comment-101', is_delete: true });
+        const reply3 = createRawReply({ id: 'reply-103', comment_id: 'comment-102', username: 'whoami' });
 
         mockPool.query.mockResolvedValue({
           rows: [reply1, reply2, reply3],
