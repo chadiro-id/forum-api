@@ -1,4 +1,4 @@
-const createRawThread = ({ id, username } = {}) => {
+const createRawThread = (overrides = {}) => {
   const date = new Date(Date.now());
   const defaultThread = {
     id: 'thread-123',
@@ -7,7 +7,7 @@ const createRawThread = ({ id, username } = {}) => {
     username: 'johndoe',
     created_at: date,
   };
-  return { ...defaultThread, id, username };
+  return { ...defaultThread, ...overrides };
 };
 
 module.exports = {
