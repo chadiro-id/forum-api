@@ -1,3 +1,5 @@
+/* istanbul ignore file */
+
 const createRawThread = (overrides = {}) => {
   const date = new Date(Date.now());
   const defaultThread = {
