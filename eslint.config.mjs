@@ -11,9 +11,9 @@ export default defineConfig([
     extends: ['js/recommended'],
     languageOptions: { globals: globals.node }
   },
+  daStyle,
   {
     files: ['**/*.js'],
-    extends: [daStyle],
     languageOptions: { sourceType: 'commonjs' },
     rules: {
       'no-unused-vars': ['error', {
