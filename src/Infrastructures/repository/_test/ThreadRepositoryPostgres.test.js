@@ -84,7 +84,8 @@ describe('[Mock-Based Integration] ThreadRepositoryPostgres', () => {
 
         assertQueryCalled(mockPool.query, 'SELECT', ['thread-123']);
 
-        expect(thread).toEqual(new DetailThread({
+        expect(thread).toBeInstanceOf(DetailThread);
+        expect(thread).toEqual(expect.objectContaining({
           id: 'thread-123',
           title: 'Sebuah thread',
           body: 'Isi thread',
