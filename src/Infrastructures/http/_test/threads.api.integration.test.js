@@ -3,6 +3,29 @@ const { createAuthToken } = require('../../../../tests/helper/authenticationHelp
 const { assertHttpResponseError } = require('../../../../tests/helper/assertionsHelper');
 const pgTest = require('../../../../tests/helper/postgres');
 
+const expectComment = (comment, expectedSource) => {
+  const expectedContent = expectedSource.is_delete
+    ? '**komentar telah dihapus**'
+    : expectedSource.content;
+
+  expect(comment.id).toEqual(expectedSource.id);
+  expect(comment.content).toEqual(expectedContent);
+  expect(comment.username).toEqual(expectedSource.username);
+  expect(Date.parse(comment.date)).not.toBeNaN();
+  expect(comment.replies).toHaveLength(expectedSource.replies.length);
+};
+
+const expectReply = (reply, expectedSource) => {
+  const expectedContent = expectedSource.is_delete
+    ? '**balasan telah dihapus**'
+    : expectedSource.content;
+
+  expect(reply.id).toEqual(expectedSource.id);
+  expect(reply.content).toEqual(expectedContent);
+  expect(reply.username).toEqual(expectedSource.username);
+  expect(Date.parse(reply.date)).not.toBeNaN();
+};
+
 beforeAll(async () => {
   await serverTest.init();
   await pgTest.truncate();
@@ -49,12 +72,13 @@ describe('[Integration] Threads Endpoints', () => {
       const responseJson = JSON.parse(response.payload);
       expect(response.statusCode).toBe(201);
       expect(responseJson.status).toBe('success');
-      expect(responseJson.data).toHaveProperty('addedThread');
-      expect(responseJson.data.addedThread).toMatchObject({
-        id: expect.stringContaining('thread-'),
-        title: dummyPayload.title,
-        owner: user.id,
-      });
+      expect(responseJson.data.addedThread).toEqual(
+        expect.objectContaining({
+          id: expect.stringContaining('thread-'),
+          title: dummyPayload.title,
+          owner: user.id,
+        })
+      );
     });
 
     it('should response 401 when request with no authentication', async () => {
@@ -129,9 +153,9 @@ describe('[Integration] Threads Endpoints', () => {
 
       const detailThread = responseJson.data.thread;
       expect(detailThread).toMatchObject({
-        id: expect.stringContaining('thread-'),
-        title: 'Sebuah thread',
-        body: 'Isi thread',
+        id: thread.id,
+        title: thread.title,
+        body: thread.body,
         username: user.username,
       });
       expect(Date.parse(detailThread.date)).not.toBeNaN();
@@ -155,20 +179,8 @@ describe('[Integration] Threads Endpoints', () => {
 
       const c1 = comments.find((c) => c.id === commentA.id);
       const c2 = comments.find((c) => c.id === commentB.id);
-
-      expect(c1).toMatchObject({
-        id: commentA.id,
-        content: 'Sebuah komentar',
-        username: user.username,
-      });
-      expect(Date.parse(c1.date)).not.toBeNaN();
-
-      expect(c2).toMatchObject({
-        id: commentB.id,
-        content: '**komentar telah dihapus**',
-        username: user.username,
-      });
-      expect(Date.parse(c2.date)).not.toBeNaN();
+      expectComment(c1, { ...commentA, username: user.username, replies: [] });
+      expectComment(c2, { ...commentB, username: user.username, replies: [] });
     });
 
     it('should handle all replies including soft-deleted ones', async () => {
@@ -192,20 +204,8 @@ describe('[Integration] Threads Endpoints', () => {
 
       const r1 = replies.find((r) => r.id === replyA.id);
       const r2 = replies.find((r) => r.id === replyB.id);
-
-      expect(r1).toMatchObject({
-        id: replyA.id,
-        content: replyA.content,
-        username: user.username,
-      });
-      expect(Date.parse(r1.date)).not.toBeNaN();
-
-      expect(r2).toMatchObject({
-        id: replyB.id,
-        content: '**balasan telah dihapus**',
-        username: user.username,
-      });
-      expect(Date.parse(r2.date)).not.toBeNaN();
+      expectReply(r1, { ...replyA, username: user.username });
+      expectReply(r2, { ...replyB, username: user.username });
     });
   });
 });
