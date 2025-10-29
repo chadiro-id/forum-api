@@ -17,9 +17,8 @@ function setup() {
     commentsOption,
     repliesOption,
   ];
-  container =  createContainer(options.flat());
+  container = createContainer(options.flat());
 };
-
 setup();
 
 module.exports = container;
