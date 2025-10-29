@@ -7,6 +7,18 @@ const ReplyRepository = require('../../../Domains/replies/ReplyRepository');
 const ReplyRepositoryPostgres = require('../ReplyRepositoryPostgres');
 const { assertQueryCalled } = require('../../../../tests/helper/assertionsHelper');
 
+const expectReply = (reply, expectedSource) => {
+  const expectedContent = expectedSource.is_delete
+    ? '**balasan telah dihapus**'
+    : expectedSource.content;
+
+  expect(reply).toBeInstanceOf(Reply);
+  expect(reply.id).toEqual(expectedSource.id);
+  expect(reply.content).toEqual(expectedContent);
+  expect(reply.username).toEqual(expectedSource.username);
+  expect(reply.date).toEqual(expectedSource.created_at);
+};
+
 describe('[Mock-Based Integration] ReplyRepositoryPostgres', () => {
   it('must be an instance of ReplyRepository', () => {
     const replyRepositoryPostgres = new ReplyRepositoryPostgres({}, () => '');
@@ -105,32 +117,10 @@ describe('[Mock-Based Integration] ReplyRepositoryPostgres', () => {
           mockPool.query, 'SELECT', [['comment-101', 'comment-102']]
         );
 
-        expect(replies).toBeInstanceOf(Array);
         expect(replies).toHaveLength(3);
-        expect(replies[0]).toEqual(new Reply({
-          id: reply1.id,
-          commentId: reply1.comment_id,
-          content: reply1.content,
-          date: reply1.created_at,
-          username: reply1.username,
-          isDelete: reply1.is_delete,
-        }));
-        expect(replies[1]).toEqual(new Reply({
-          id: reply2.id,
-          commentId: reply2.comment_id,
-          content: reply2.content,
-          date: reply2.created_at,
-          username: reply2.username,
-          isDelete: reply2.is_delete,
-        }));
-        expect(replies[2]).toEqual(new Reply({
-          id: reply3.id,
-          commentId: reply3.comment_id,
-          content: reply3.content,
-          date: reply3.created_at,
-          username: reply3.username,
-          isDelete: reply3.is_delete,
-        }));
+        expectReply(replies[0], { ...reply1 });
+        expectReply(replies[1], { ...reply2 });
+        expectReply(replies[2], { ...reply3 });
       });
 
       it('should return an empty array when no reply found', async () => {
