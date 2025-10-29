@@ -13,7 +13,7 @@ exports.assertQueryCalled = (
 };
 
 exports.assertHttpResponseError = (
-  response, statusCode, { status, message } = {}
+  response, statusCode, { status = 'fail', message = 'any' } = {}
 ) => {
   expect(response.statusCode).toBe(statusCode);
 
@@ -23,12 +23,12 @@ exports.assertHttpResponseError = (
     expect(resJson.status).toEqual(status);
   }
 
-  if (message) {
+  if (message === 'any') {
+    expect(resJson.message).toEqual(expect.any(String));
+    expect(resJson.message.trim()).not.toBe('');
+  } else {
     expect(resJson.message).toEqual(
       expect.stringContaining(message)
     );
-  } else {
-    expect(resJson.message).toEqual(expect.any(String));
-    expect(resJson.message.trim()).not.toBe('');
   }
 };
