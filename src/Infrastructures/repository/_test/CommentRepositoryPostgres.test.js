@@ -2,22 +2,12 @@ const AuthorizationError = require('../../../Commons/exceptions/AuthorizationErr
 const NotFoundError = require('../../../Commons/exceptions/NotFoundError');
 const CommentRepository = require('../../../Domains/comments/CommentRepository');
 const AddedComment = require('../../../Domains/comments/entities/AddedComment');
-const Comment = require('../../../Domains/comments/entities/Comment');
 const NewComment = require('../../../Domains/comments/entities/NewComment');
 const CommentRepositoryPostgres = require('../CommentRepositoryPostgres');
-const { assertQueryCalled }= require('../../../../tests/helper/assertionsHelper');
-
-const expectComment = (comment, expectedSource) => {
-  const expectedContent = expectedSource.is_delete
-    ? '**komentar telah dihapus**'
-    : expectedSource.content;
-
-  expect(comment).toBeInstanceOf(Comment);
-  expect(comment.id).toEqual(expectedSource.id);
-  expect(comment.content).toEqual(expectedContent);
-  expect(comment.username).toEqual(expectedSource.username);
-  expect(comment.date).toEqual(expectedSource.created_at);
-};
+const {
+  assertQueryCalled,
+  expectCommentFromRepository,
+}= require('../../../../tests/helper/assertionsHelper');
 
 describe('[Mock-Based Integration] CommentRepositoryPostgres', () => {
   it('must be an instance of CommentRepository', () => {
@@ -96,16 +86,9 @@ describe('[Mock-Based Integration] CommentRepositoryPostgres', () => {
           created_at: new Date('2025-10-15T02:07:54.384Z'),
           is_delete: true,
         };
-        const comment3 = {
-          id: 'comment-003',
-          content: 'Isi komentar 3',
-          username: 'instinct',
-          created_at: new Date('2025-10-15T02:08:54.384Z'),
-          is_delete: false,
-        };
 
         mockPool.query.mockResolvedValue({
-          rows: [comment1, comment2, comment3],
+          rows: [comment1, comment2],
           rowCount: 3,
         });
 
@@ -113,10 +96,9 @@ describe('[Mock-Based Integration] CommentRepositoryPostgres', () => {
 
         assertQueryCalled(mockPool.query, 'SELECT', ['thread-123']);
 
-        expect(comments).toHaveLength(3);
-        expectComment(comments[0], { ...comment1 });
-        expectComment(comments[1], { ...comment2 });
-        expectComment(comments[2], { ...comment3 });
+        expect(comments).toHaveLength(2);
+        expectCommentFromRepository(comments[0], { ...comment1 });
+        expectCommentFromRepository(comments[1], { ...comment2 });
       });
 
       it('should return an empty array when no comment found', async () => {

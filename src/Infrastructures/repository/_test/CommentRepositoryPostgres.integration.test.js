@@ -1,22 +1,10 @@
 const CommentRepositoryPostgres = require('../CommentRepositoryPostgres');
 const NewComment = require('../../../Domains/comments/entities/NewComment');
 const AddedComment = require('../../../Domains/comments/entities/AddedComment');
-const Comment = require('../../../Domains/comments/entities/Comment');
 const NotFoundError = require('../../../Commons/exceptions/NotFoundError');
 const AuthorizationError = require('../../../Commons/exceptions/AuthorizationError');
 const pgTest = require('../../../../tests/helper/postgres');
-
-const expectComment = (comment, expectedSource) => {
-  const expectedContent = expectedSource.is_delete
-    ? '**komentar telah dihapus**'
-    : expectedSource.content;
-
-  expect(comment).toBeInstanceOf(Comment);
-  expect(comment.id).toEqual(expectedSource.id);
-  expect(comment.content).toEqual(expectedContent);
-  expect(comment.username).toEqual(expectedSource.username);
-  expect(comment.date).toEqual(expectedSource.created_at);
-};
+const { expectCommentFromRepository } = require('../../../../tests/helper/assertionsHelper');
 
 beforeAll(async () => {
   await pgTest.truncate();
@@ -114,8 +102,8 @@ describe('[Integration] CommentRepositoryPostgres', () => {
       const comments = await commentRepo.getCommentsByThreadId(thread.id);
 
       expect(comments).toHaveLength(2);
-      expectComment(comments[0], { ...rawComment1, username: user.username });
-      expectComment(comments[1], { ...rawComment2, username: user.username });
+      expectCommentFromRepository(comments[0], { ...rawComment1, username: user.username });
+      expectCommentFromRepository(comments[1], { ...rawComment2, username: user.username });
     });
 
     it('should return an empty array when no comment found', async () => {
