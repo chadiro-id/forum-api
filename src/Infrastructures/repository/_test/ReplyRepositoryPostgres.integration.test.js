@@ -6,6 +6,18 @@ const NotFoundError = require('../../../Commons/exceptions/NotFoundError');
 const AuthorizationError = require('../../../Commons/exceptions/AuthorizationError');
 const pgTest = require('../../../../tests/helper/postgres');
 
+const expectReply = (reply, expectedSource) => {
+  const expectedContent = expectedSource.is_delete
+    ? '**balasan telah dihapus**'
+    : expectedSource.content;
+
+  expect(reply).toBeInstanceOf(Reply);
+  expect(reply.id).toEqual(expectedSource.id);
+  expect(reply.content).toEqual(expectedContent);
+  expect(reply.username).toEqual(expectedSource.username);
+  expect(reply.date).toEqual(expectedSource.created_at);
+};
+
 beforeAll(async () => {
   await pgTest.truncate();
 });
@@ -112,23 +124,9 @@ describe('[Integration] ReplyRepositoryPostgres', () => {
       const replies = await replyRepo.getRepliesByCommentIds([commentA.id, commentB.id]);
 
       expect(replies).toHaveLength(3);
-      expect(replies[0]).toBeInstanceOf(Reply);
-      expect(replies[0].id).toEqual(rawReply1.id);
-      expect(replies[0].content).toEqual(rawReply1.content);
-      expect(replies[0].username).toEqual(userA.username);
-      expect(replies[0].date).toEqual(rawReply1.created_at);
-
-      expect(replies[1]).toBeInstanceOf(Reply);
-      expect(replies[1].id).toEqual(rawReply2.id);
-      expect(replies[1].content).toEqual('**balasan telah dihapus**');
-      expect(replies[1].username).toEqual(userB.username);
-      expect(replies[1].date).toEqual(rawReply2.created_at);
-
-      expect(replies[2]).toBeInstanceOf(Reply);
-      expect(replies[2].id).toEqual(rawReply3.id);
-      expect(replies[2].content).toEqual(rawReply3.content);
-      expect(replies[2].username).toEqual(userB.username);
-      expect(replies[2].date).toEqual(rawReply3.created_at);
+      expectReply(replies[0], { ...rawReply1, username: userA.username });
+      expectReply(replies[1], { ...rawReply2, username: userB.username });
+      expectReply(replies[2], { ...rawReply3, username: userB.username });
     });
 
     it('should return an empty array when no reply found', async () => {
