@@ -124,7 +124,11 @@ describe('AddUserUseCase', () => {
       );
 
       expect(registeredUser).toBeInstanceOf(RegisteredUser);
-      expect(registeredUser.id).toEqual('user-123');
+      expect(registeredUser).toEqual(expect.objectContaining({
+        id: 'user-123',
+        username: dummyPayload.username,
+        fullname: dummyPayload.fullname,
+      }));
     });
   });
 });
