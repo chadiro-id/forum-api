@@ -5,6 +5,7 @@ const NotFoundError = require('../../../Commons/exceptions/NotFoundError');
 const AuthorizationError = require('../../../Commons/exceptions/AuthorizationError');
 const pgTest = require('../../../../tests/helper/postgres');
 const { expectReplyFromRepository } = require('../../../../tests/helper/assertionsHelper');
+const ClientError = require('../../../Commons/exceptions/ClientError');
 
 beforeAll(async () => {
   await pgTest.truncate();
@@ -46,7 +47,7 @@ describe('[Integration] ReplyRepositoryPostgres', () => {
       await expect(replyRepo.addReply(newReply))
         .rejects.toThrow();
       await expect(replyRepo.addReply(newReply))
-        .rejects.not.toThrow();
+        .rejects.not.toThrow(ClientError);
     };
 
     it('should correctly persist the NewReply and return AddedReply', async () => {
