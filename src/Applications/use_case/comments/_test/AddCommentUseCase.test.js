@@ -97,7 +97,11 @@ describe('AddCommentUseCase', () => {
       expect(mockCommentRepo.addComment).toHaveBeenCalledWith(expect.any(NewComment));
 
       expect(addedComment).toBeInstanceOf(AddedComment);
-      expect(addedComment.id).toEqual('comment-123');
+      expect(addedComment).toEqual(expect.objectContaining({
+        id: 'comment-123',
+        content: dummyPayload.content,
+        owner: dummyPayload.owner,
+      }));
     });
   });
 });
