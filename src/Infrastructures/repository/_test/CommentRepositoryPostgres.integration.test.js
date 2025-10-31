@@ -54,6 +54,13 @@ describe('[Integration] CommentRepositoryPostgres', () => {
 
       const comments = await pgTest.comments.findById('comment-123');
       expect(comments).toHaveLength(1);
+      expect(comments[0]).toEqual(expect.objectContaining({
+        id: 'comment-123',
+        thread_id: newComment.threadId,
+        owner_id: newComment.owner,
+        content: newComment.content,
+        is_delete: false,
+      }));
 
       expect(addedComment).toBeInstanceOf(AddedComment);
       expect(addedComment).toEqual(expect.objectContaining({
