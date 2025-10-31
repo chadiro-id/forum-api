@@ -4,7 +4,6 @@
 
 `ThreadRepositoryPostgres.js`
 ```js
-
 // require dependency yang dibutuhkan... //
 
 class ThreadRepositoryPostgres extends ThreadRepository {
@@ -225,3 +224,7 @@ class ThreadRepositoryPostgres extends ThreadRepository {
 
 module.exports = ThreadRepositoryPostgres;
 ```
+
+## PENUTUP
+
+Sekian dan terimakasih atas review dan saranya.
