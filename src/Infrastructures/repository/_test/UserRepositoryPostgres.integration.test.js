@@ -36,12 +36,18 @@ describe('[Integration] UserRepositoryPostgres', () => {
 
       const users = await pgTest.users.findById('user-123');
       expect(users).toHaveLength(1);
+      expect(users[0]).toEqual(expect.objectContaining({
+        id: 'user-123',
+        username: registerUser.username,
+        password: registerUser.password,
+        fullname: registerUser.fullname,
+      }));
 
       expect(registeredUser).toBeInstanceOf(RegisteredUser);
       expect(registeredUser).toEqual(expect.objectContaining({
         id: 'user-123',
-        username: 'johndoe',
-        fullname: 'John Doe',
+        username: registerUser.username,
+        fullname: registerUser.fullname,
       }));
     });
 
