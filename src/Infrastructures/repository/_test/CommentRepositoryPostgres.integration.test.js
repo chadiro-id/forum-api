@@ -5,6 +5,7 @@ const NotFoundError = require('../../../Commons/exceptions/NotFoundError');
 const AuthorizationError = require('../../../Commons/exceptions/AuthorizationError');
 const pgTest = require('../../../../tests/helper/postgres');
 const { expectCommentFromRepository } = require('../../../../tests/helper/assertionsHelper');
+const ClientError = require('../../../Commons/exceptions/ClientError');
 
 beforeAll(async () => {
   await pgTest.truncate();
@@ -35,6 +36,13 @@ describe('[Integration] CommentRepositoryPostgres', () => {
   });
 
   describe('addComment', () => {
+    const expectAddCommentFails = async (newComment) => {
+      await expect(commentRepo.addComment(newComment))
+        .rejects.toThrow();
+      await expect(commentRepo.addComment(newComment))
+        .rejects.not.toThrow(ClientError);
+    };
+
     it('should correctly persist the NewComment and return AddedComment', async () => {
       const newComment = new NewComment({
         threadId: thread.id,
@@ -63,8 +71,7 @@ describe('[Integration] CommentRepositoryPostgres', () => {
         content: 'Sebuah komentar',
       });
 
-      await expect(commentRepo.addComment(newComment))
-        .rejects.toThrow();
+      await expectAddCommentFails(newComment);
     });
 
     it('should propagate error when thread not exists', async () => {
@@ -74,8 +81,7 @@ describe('[Integration] CommentRepositoryPostgres', () => {
         content: 'Sebuah komentar',
       });
 
-      await expect(commentRepo.addComment(newComment))
-        .rejects.toThrow();
+      await expectAddCommentFails(newComment);
     });
 
     it('should propagate error when owner not exists', async () => {
@@ -85,8 +91,7 @@ describe('[Integration] CommentRepositoryPostgres', () => {
         content: 'Sebuah komentar',
       });
 
-      await expect(commentRepo.addComment(newComment))
-        .rejects.toThrow();
+      await expectAddCommentFails(newComment);
     });
   });
 
@@ -118,7 +123,7 @@ describe('[Integration] CommentRepositoryPostgres', () => {
 
       await expect(commentRepo.softDeleteCommentById('comment-001'))
         .resolves
-        .not.toThrow(NotFoundError);
+        .not.toThrow();
 
       const comments = await pgTest.comments.findById('comment-001');
       expect(comments[0].is_delete).toBe(true);

@@ -3,6 +3,7 @@ const RegisterUser = require('../../../Domains/users/entities/RegisterUser');
 const RegisteredUser = require('../../../Domains/users/entities/RegisteredUser');
 const UserRepositoryPostgres = require('../UserRepositoryPostgres');
 const pgTest = require('../../../../tests/helper/postgres');
+const ClientError = require('../../../Commons/exceptions/ClientError');
 
 beforeAll(async () => {
   await pgTest.truncate();
@@ -54,6 +55,8 @@ describe('[Integration] UserRepositoryPostgres', () => {
 
       await expect(userRepo.addUser(registerUser))
         .rejects.toThrow();
+      await expect(userRepo.addUser(registerUser))
+        .rejects.not.toThrow(ClientError);
     });
 
     it('should propagate error when username is exists', async () => {
@@ -66,6 +69,8 @@ describe('[Integration] UserRepositoryPostgres', () => {
 
       await expect(userRepo.addUser(registerUser))
         .rejects.toThrow();
+      await expect(userRepo.addUser(registerUser))
+        .rejects.not.toThrow(ClientError);
     });
   });
 

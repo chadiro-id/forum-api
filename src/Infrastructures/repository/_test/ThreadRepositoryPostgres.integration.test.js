@@ -4,6 +4,7 @@ const AddedThread = require('../../../Domains/threads/entities/AddedThread');
 const NotFoundError = require('../../../Commons/exceptions/NotFoundError');
 const DetailThread = require('../../../Domains/threads/entities/DetailThread');
 const pgTest = require('../../../../tests/helper/postgres');
+const ClientError = require('../../../Commons/exceptions/ClientError');
 
 beforeAll(async () => {
   await pgTest.truncate();
@@ -57,6 +58,8 @@ describe('[Integration] ThreadRepositoryPostgres', () => {
 
       await expect(threadRepo.addThread(newThread))
         .rejects.toThrow();
+      await expect(threadRepo.addThread(newThread))
+        .rejects.not.toThrow(ClientError);
     });
 
     it('should propagate error when owner not exists', async () => {
@@ -68,6 +71,8 @@ describe('[Integration] ThreadRepositoryPostgres', () => {
 
       await expect(threadRepo.addThread(newThread))
         .rejects.toThrow();
+      await expect(threadRepo.addThread(newThread))
+        .rejects.not.toThrow(ClientError);
     });
   });
 

@@ -42,6 +42,13 @@ describe('[Integration] ReplyRepositoryPostgres', () => {
   });
 
   describe('addReply', () => {
+    const expectAddReplyFails = async (newReply) => {
+      await expect(replyRepo.addReply(newReply))
+        .rejects.toThrow();
+      await expect(replyRepo.addReply(newReply))
+        .rejects.not.toThrow();
+    };
+
     it('should correctly persist the NewReply and return AddedReply', async () => {
       const newReply = new NewReply({
         commentId: commentA.id,
@@ -70,8 +77,7 @@ describe('[Integration] ReplyRepositoryPostgres', () => {
         owner: userA.id,
       });
 
-      await expect(replyRepo.addReply(newReply))
-        .rejects.toThrow();
+      await expectAddReplyFails(newReply);
     });
 
     it('should propagate error when comment not exists', async () => {
@@ -81,8 +87,7 @@ describe('[Integration] ReplyRepositoryPostgres', () => {
         owner: userA.id,
       });
 
-      await expect(replyRepo.addReply(newReply))
-        .rejects.toThrow();
+      await expectAddReplyFails(newReply);
     });
 
     it('should propagate error when owner not exists', async () => {
@@ -92,8 +97,7 @@ describe('[Integration] ReplyRepositoryPostgres', () => {
         owner: 'nonexistent-user-id',
       });
 
-      await expect(replyRepo.addReply(newReply))
-        .rejects.toThrow();
+      await expectAddReplyFails(newReply);
     });
   });
 
