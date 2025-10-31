@@ -40,10 +40,10 @@ describe('[Integration] ThreadRepositoryPostgres', () => {
       });
 
       const addedThread = await threadRepo.addThread(newThread);
-      const thread = await pgTest.threads.findById('thread-123');
+      const threads = await pgTest.threads.findById('thread-123');
 
-      expect(thread).toHaveLength(1);
-      expect(thread[0]).toEqual(expect.objectContaining({
+      expect(threads).toHaveLength(1);
+      expect(threads[0]).toEqual(expect.objectContaining({
         id: 'thread-123',
         title: newThread.title,
         body: newThread.body,
