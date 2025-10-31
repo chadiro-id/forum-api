@@ -58,9 +58,16 @@ describe('[Integration] ReplyRepositoryPostgres', () => {
       });
 
       const addedReply = await replyRepo.addReply(newReply);
-
       const replies = await pgTest.replies.findById('reply-123');
+
       expect(replies).toHaveLength(1);
+      expect(replies[0]).toEqual(expect.objectContaining({
+        id: 'reply-123',
+        comment_id: newReply.commentId,
+        owner_id: newReply.owner,
+        content: newReply.content,
+        is_delete: false,
+      }));
 
       expect(addedReply).toBeInstanceOf(AddedReply);
       expect(addedReply).toEqual(expect.objectContaining({
