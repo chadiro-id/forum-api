@@ -71,7 +71,11 @@ describe('AddThreadUseCase', () => {
       expect(mockThreadRepo.addThread).toHaveBeenCalledWith(expect.any(NewThread));
 
       expect(addedThread).toBeInstanceOf(AddedThread);
-      expect(addedThread.id).toEqual('thread-123');
+      expect(addedThread).toEqual(expect.objectContaining({
+        id: 'thread-123',
+        title: dummyPayload.title,
+        owner: dummyPayload.owner,
+      }));
     });
   });
 });
