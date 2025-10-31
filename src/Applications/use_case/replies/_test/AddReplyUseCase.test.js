@@ -123,7 +123,11 @@ describe('AddReplyUseCase', () => {
       expect(mockReplyRepo.addReply).toHaveBeenCalledWith(expect.any(NewReply));
 
       expect(addedReply).toBeInstanceOf(AddedReply);
-      expect(addedReply.id).toEqual('reply-123');
+      expect(addedReply).toEqual(expect.objectContaining({
+        id: 'reply-123',
+        content: dummyPayload.content,
+        owner: dummyPayload.owner,
+      }));
     });
   });
 });
