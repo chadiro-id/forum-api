@@ -49,6 +49,7 @@ describe('[Integration] ThreadRepositoryPostgres', () => {
         body: newThread.body,
         owner_id: newThread.owner,
       }));
+      expect(Date.parse(threads[0].created_at)).not.toBeNaN();
 
       expect(addedThread).toBeInstanceOf(AddedThread);
       expect(addedThread).toEqual(expect.objectContaining({

@@ -61,6 +61,7 @@ describe('[Integration] CommentRepositoryPostgres', () => {
         content: newComment.content,
         is_delete: false,
       }));
+      expect(Date.parse(comments[0].created_at)).not.toBeNaN();
 
       expect(addedComment).toBeInstanceOf(AddedComment);
       expect(addedComment).toEqual(expect.objectContaining({

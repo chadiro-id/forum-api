@@ -68,6 +68,7 @@ describe('[Integration] ReplyRepositoryPostgres', () => {
         content: newReply.content,
         is_delete: false,
       }));
+      expect(Date.parse(replies[0].created_at)).not.toBeNaN();
 
       expect(addedReply).toBeInstanceOf(AddedReply);
       expect(addedReply).toEqual(expect.objectContaining({
