@@ -3,7 +3,7 @@ class ClientError extends Error {
     super(message);
 
     if (this.constructor.name === 'ClientError') {
-      throw new Error('cannot instantiate abstract class');
+      throw new Error('CLIENT_ERROR.FORBIDDEN_INSTANTIATION');
     }
 
     this.statusCode = statusCode;
