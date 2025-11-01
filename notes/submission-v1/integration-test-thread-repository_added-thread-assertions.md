@@ -1,4 +1,6 @@
-# INTEGRATION TEST - THREAD REPOSITORY: AddedThread assertions
+# INTEGRATION TEST - THREAD REPOSITORY: Justifikasi Assersi Lengkap
+
+Tujuan: Memperkuat argumen bahwa assersi lengkap diperlukan untuk menguji integritas data.
 
 ## Konteks Pengujian
 
@@ -122,8 +124,6 @@ Alur eksekusi secara ringkas:
 4. `addThread()` memanggil fungsi `_transformToAddedThread()`.
 5. `addThread()` mengembalikan `AddedThread` entity yang merupakan nilai kembali dari `_transformToAddedThread`.
 
-Beberapa kesalahan yang mungkin terjadi dalam alur eksekusi.
-
 ### Transformer
 
 Fungsi added thread transformer:
@@ -140,13 +140,13 @@ _transformToAddedThread({
 }
 ```
 
-Skenario yang mungkin terjadi:
+Skenario kesalahan yang mungkin terjadi:
 - __Kesalahan penyediaan properti entity__: AddedThread memiliki sistem validasi yang akan menolak jika tidak diberikan properti dengan benar, misal `owner_id` di mapping ke `userId` entity akan melempar error.
-- __Kesalahan *value* yang di berikan__: AddedThread tidak memiliki kemampuan validasi nilai yang diberikan sesuai atau tidak dengan data di db. Jika nilai *title* diambil dari field *body* (`{id, body: title, owner_id: owner}`), ini akan tetap lolos validasi entity. Begitu juga dengan hardcode saat memanggil transformer `this._transformToAddedThread({ id: 'thread-xxx', title, owner })`. Meskipun kesalahan ini terlihat konyol, namun memang bisa saja terjadi.
+- __Kesalahan *value* yang di berikan__: AddedThread tidak memiliki kemampuan validasi nilai yang diberikan sesuai atau tidak dengan data yang di-*insert* ke DB. Jika nilai *title* diambil dari field *body* (`{id, body: title, owner_id: owner}`), ini akan tetap lolos validasi entity. Begitu juga dengan hardcode saat memanggil transformer `this._transformToAddedThread({ id: 'thread-xxx', title, owner_id: owner })`. Meskipun kesalahan ini terlihat konyol, namun memang bisa saja terjadi.
 
 ### Pengolahan Data
 
-Berkaca dari kesalahan yang mungkin terjadi pada transformer, saya pun jadi terpikir skenario konyol seperti ini:
+Berkaca dari kesalahan yang mungkin terjadi pada transformer, skenario konyol seperti dibawah ini juga bisa terjadi:
 ```js
 async addThread(newThread) {
   const { title, body, owner } = newThread;
@@ -172,9 +172,21 @@ async addThread(newThread) {
 }
 ```
 
-## Perbaikan Pengujian
+## Justifikasi Perubahan Assertions
 
-Menimbang beberapa skenario kesalahan yang mungkin terjadi, saya melakukan perbaikan pada assersi __added thread__ dan juga __persisted thread__.
+Pada tahap *review* sebelumnya, *assertion* pada `addedThread` dan hasil raw DB (persisted thread) dianggap kurang lengkap. Perbaikan ini bertujuan untuk memastikan **integritas data** di seluruh lapisan *repository*.
+
+### Skenario Potensial Kesalahan (Justifikasi Assertion Lengkap)
+
+1.  __Kesalahan Pemetaan *Transformer*__:
+    - Jika `_transformToAddedThread` salah memetakan *field* hasil query DB (misalnya, mengambil kolom `body` sebagai `title`), *assertion* pada `addedThread` akan gagal.
+2.  __Kesalahan Penyisipan (*Insertion Error*)__:
+    - Jika terjadi kesalahan pada *repository* di mana nilai yang di-*insert* ke DB berbeda dengan nilai dari `newThread` (misalnya, *hardcode* nilai atau salah memetakan *field* dalam query), *assertion* pada *persisted thread* akan gagal.
+    - Cukup memeriksa eksistensi data (`toHaveLength(1)`) __tidak menjamin nilai__ yang di-*insert* sudah benar.
+
+### Perbaikan Pengujian (Assertions Lengkap)
+
+Kami melengkapi *assertion* untuk memverifikasi nilai dari setiap *field*:
 
 Sebelum:
 ```js
@@ -187,13 +199,13 @@ const thread = await pgTest.threads.findById('thread-123');
 expect(thread).toHaveLength(1);
 
 expect(addedThread).toBeInstanceOf(AddedThread);
-// Assersi property added thread tidak lengkap.
+// Assersi properti added thread tidak lengkap.
 expect(addedThread.id).toEqual('thread-123');
 ```
 
 Sesudah:
 ```js
-// Assersi persisted thread meng-expect fields
+// Assersi persisted thread meng-expect semua fields untuk menguji integritas data yang di-persist
 expect(thread).toHaveLength(1);
 expect(thread[0]).toEqual(expect.objectContaining({
   id: 'thread-123',
@@ -201,9 +213,10 @@ expect(thread[0]).toEqual(expect.objectContaining({
   body: newThread.body,
   owner_id: newThread.owner,
 }));
+expect(Date.parse(thread[0].created_at)).not.toBeNan();
 
 expect(addedThread).toBeInstanceOf(AddedThread);
-// Assersi property added thread dilengkapi.
+// Assersi properti added thread dilengkapi untuk menguji logika transformasi data.
 expect(addedThread).toEqual(expect.objectContaining({
   id: 'thread-123',
   title: newThread.title,
@@ -213,9 +226,4 @@ expect(addedThread).toEqual(expect.objectContaining({
 
 ## PENUTUP
 
-Terimakasih atas review dan saran yang diberikan.
-Tentu masih banyak kekurangan dari project yang saya kerjakan,
-seperti integration test yang belum optimal karena harus dijalankan sekuential (mode `--runInBand`).
-Dan masih banyak hal lainya.
-
-Sekian dan terimakasih.
+Perbaikan ini memastikan bahwa fungsi `addThread` tidak hanya berhasil menyimpan data, tetapi juga menjaga __integritas nilai__ dari data yang di-*persist* ke DB dan data yang di-*return* sebagai `AddedThread` entity.
