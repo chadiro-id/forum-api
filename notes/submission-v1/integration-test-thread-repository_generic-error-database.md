@@ -1,4 +1,6 @@
-# INTEGRATION TEST - THREAD REPOSITORY: Generic Error Database
+# INTEGRATION TEST - THREAD REPOSITORY: Generic Error Propagation
+
+Tujuan: Mempertahankan keputusan untuk tidak menguji *error* spesifik DB (seperti pesan *error* PostgreSQL) dan fokus pada *error propagation* yang benar (500 vs 4xx).
 
 ## Konteks Pengujian
 
@@ -101,7 +103,7 @@ module.exports = ThreadRepositoryPostgres;
 
 ## Pertimbangan Pengujian
 
-Saya menambahkan kasus pengujian error tersebut untuk mencegah terjadinya silent error seperti dibawah ini:
+Skenario pengujian kasus error disini adalah untuk mencegah terjadinya silent error seperti contoh dibawah ini:
 
 `ThreadRepositoryPostgres.js`
 ```js
@@ -136,9 +138,9 @@ class ThreadRepositoryPostgres extends ThreadRepository {
       // disini error dari db akan ditangkap dan ditelan.
       // maka addThread ini akan mengembalikan undefined,
       // sebenernya ini tidak berpengaruh ke response untuk klien
-      // karena add thread use case melakukan pemeriksaan instance nilai yang dikembalikan,
+      // karena AddThreadUseCase melakukan pemeriksaan instance nilai yang dikembalikan,
       // dan akan melempar error jika bukan AddedThread entity, jadi hasilnya tetap 500
-      // namun tetap kita membutuhkan pengujian error dalam konteks repository
+      // namun tetap membutuhkan pengujian error dalam konteks repository
       console.error(error);
     }
   }
@@ -149,53 +151,53 @@ class ThreadRepositoryPostgres extends ThreadRepository {
 module.exports = ThreadRepositoryPostgres;
 ```
 
-Kenapa saya tidak menetapkan error spesifik untuk pengujian ini:
-1. __Konsistensi Error Sulit Dijamin__:
+## Justifikasi Pengujian Error DB (Propagasi Generik)
 
-    Driver DB seperti `pg` biasanya mengembalikan error yang merupakan instance dari `Error` JS standar, tetapi properti dalamnya (seperti code atau detail) bergantung pada *PostgreSQL* itu sendiri. Error ini bukan *Error kustom* aplikasi (seperti `NotFoundError`), sehingga menguji tipe spesifik (misalnya `PgError`) dapat membuat tes rapuh (mudah rusak) jika driver DB diperbarui.
+Pengujian ini memastikan bahwa *system error* yang berasal dari DB (seperti *Primary Key* atau *Foreign Key Constraint Violation*) di-*propagate* dengan benar oleh *Repository* dan tidak diolah menjadi *client error*.
 
-    Sama halnya jika ditetapkan pesan error spesifiknya seperti &mdash; *duplicate key value violates unique constraint "threads_pkey"* atau &mdash; *insert or update on table "threads" violates foreign key constraint "threads_owner_id_fkey"*. ini tidak akan memberi manfaat lebih, karena response 500 yang sampai ke client pesan errornya tetap &mdash; *terjadi kesalahan diserver kami*.
-2. __Fokus Tes Integrasi__:
+### Argumen Melawan Assertion Error Spesifik
 
-    Fokus pengujian adalah memastikan aliran eksekusi (propagation) dari __DB__ $\rightarrow$ __Repository__ benar. Selama *error* itu terlempar (thrown) dan tidak ditelan (silent), tujuannya tercapai.
-3. __Filosofi Clean Architecture__:
+Kami menolak untuk menguji pesan *error* spesifik DB (misalnya, `duplicate key value violates unique constraint...`) karena:
 
-    Repository tidak seharusnya bertanggung jawab mengubah DB error menjadi error spesifik aplikasi, kecuali untuk kasus yang sudah ditentukan seperti `NotFoundError`. Untuk DB error umum (constraint *unique*, *foreign key*, dll.), meneruskannya dalam bentuk DB error orisinal sudah benar.
+1.  __Kerapuhan Tes (*Test Brittleness*)__: Pesan *error* DB atau *instance* *error* dari *driver* (`pg`) bergantung pada versi yang digunakan. Menguji pesan spesifik membuat tes **rapuh** dan mudah rusak tanpa perubahan pada logika bisnis.
+2.  __Filosofi *Error Handling*__: Dalam *Clean Architecture*, *Repository* hanya bertanggung jawab menerjemahkan DB *error* menjadi *Error* aplikasi yang sudah ditentukan (misalnya, `NotFoundError`). Untuk *error* sistem umum seperti *Constraint Violation*, *Repository* harus __meneruskan (*propagate*) error orisinal__.
+3.  __Hanya 500 *Internal Server Error*__: *Error* sistem ini seharusnya menghasilkan *response* 500 bagi klien. Menguji pesan *error* spesifik tidak memberikan manfaat karena pesan tersebut akan disembunyikan dalam *response* 500.
 
-## Perbaikan dan Peningkatan Pengujian
+### Perbaikan Pengujian (Fokus pada Propagation dan Tipe Error)
 
-Untuk meningkatkan pengujian sebelumnya, saya menambahkan 1 assersi untuk mencegah error yang dilempar merupakan `ClientError`.
+Perbaikan difokuskan untuk memastikan *error* terlempar, dan tipe *error* yang terlempar __bukanlah *ClientError*__ (4xx), yang merupakan pengolahan yang salah di lapisan *Repository*.
+
 `ThreadRepositoryPostgres.integration.test.js`
 ```js
   describe('addThread', () => {
 
-    // Kode lainya... //
-
+    // Kasus: ID sudah ada (Primary Key Violation)
     it('should propagate error when id is exists', async () => {
 
-      // Kode lainya... //
+      // ...setup //
 
       await expect(threadRepo.addThread(newThread))
         .rejects.toThrow();
-      // assersi ini akan mencegah db error di olah menjadi client error
+      // Memastikan error DB tidak diolah menjadi 4xx ClientError
       await expect(threadRepo.addThread(newThread))
         .rejects.not.toThrow(ClientError);
     });
 
+    // Kasus: Owner tidak ada (Foreign Key Violation)
     it('should propagate error when owner not exists', async () => {
 
-      // Kode lainya... //
+      // ...setup //
 
       await expect(threadRepo.addThread(newThread))
         .rejects.toThrow();
-      // assersi ini akan mencegah db error di olah menjadi client error
+      // Memastikan error DB tidak diolah menjadi 4xx ClientError
       await expect(threadRepo.addThread(newThread))
         .rejects.not.toThrow(ClientError);
     });
   });
 ```
 
-Contoh kode yang mengolah db error menjadi client error:
+Contoh kode yang mengolah *DB Error* menjadi *Client Error*:
 
 `ThreadRepositoryPostgres.js`
 ```js
@@ -212,9 +214,9 @@ class ThreadRepositoryPostgres extends ThreadRepository {
     } catch (error) {
       console.error(error);
 
-      // disini error dari db akan ditangkap dan silent
+      // disini error dari db ditangkap dan di silent
       // lalu custom error dilempar
-      // ini akan mengakibatkan response error ke klien bukan 500 Internal Server Error
+      // ini akan mengakibatkan response error ke klien bukan 500 melainkan 400
       throw new InvariantError('terjadi kesalahan pada server kami.');
     }
   }
@@ -227,4 +229,4 @@ module.exports = ThreadRepositoryPostgres;
 
 ## PENUTUP
 
-Sekian dan terimakasih atas review dan saranya.
+Pengujian yang diperbaiki memastikan bahwa *Repository* menangani *error* sistem sesuai dengan *best practice* __error propagation__, mempertahankan *robustness* tes integrasi dengan menghindari *assertion* yang rapuh, dan mencegah *error* sistem dikonversi secara tidak tepat menjadi `ClientError`.
