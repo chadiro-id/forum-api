@@ -93,4 +93,4 @@ Implementasi `_transformToAddedThread()` dan `_transformToDetailThread()`:
 - Meningkatkan maintainability dan testability
 - Tidak mengandung logika bisnis
 
-Dengan demikian, pendekatan ini dapat dipertahankan secara profesional sebagai implementasi yang __selaras dengan prinsip *Clean Architecture* modern__, bukan pelanggaran.
+Dengan demikian, pendekatan ini dapat dipertahankan sebagai implementasi yang __selaras dengan prinsip *Clean Architecture* modern__, bukan pelanggaran.
