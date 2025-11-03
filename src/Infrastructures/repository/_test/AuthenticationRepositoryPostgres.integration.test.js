@@ -47,7 +47,7 @@ describe('[Integration] AuthenticationRepositoryPostgres', () => {
   });
 
   describe('verifyTokenExists', () => {
-    it('should correctly resolve and not throw error', async () => {
+    it('should resolves when token exists', async () => {
       const token = 'token';
       await pgTest.authentications.addToken(token);
 

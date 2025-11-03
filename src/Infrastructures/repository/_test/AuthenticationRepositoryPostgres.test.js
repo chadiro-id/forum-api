@@ -65,7 +65,7 @@ describe('[Mock-Based Integration] AuthenticationRepositoryPostgres', () => {
     });
 
     describe('verifyTokenExists', () => {
-      it('should correctly resolve and not throw error', async () => {
+      it('should resolves when token exists', async () => {
         mockPool.query.mockResolvedValue({
           rows: [{ token: 'token' }],
           rowCount: 1,

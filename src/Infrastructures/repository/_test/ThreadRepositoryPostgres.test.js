@@ -110,7 +110,7 @@ describe('[Mock-Based Integration] ThreadRepositoryPostgres', () => {
     });
 
     describe('verifyThreadExists', () => {
-      it('should correctly resolve and not throw error', async () => {
+      it('should resolves when thread exists', async () => {
         mockPool.query.mockResolvedValue({
           rows: [{ id: 'thread-123' }],
           rowCount: 1,

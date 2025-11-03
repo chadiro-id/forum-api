@@ -112,7 +112,7 @@ describe('[Integration] ThreadRepositoryPostgres', () => {
   });
 
   describe('verifyThreadExists', () => {
-    it('should correctly resolve and not throw error', async () => {
+    it('should resolves when thread exists', async () => {
       await pgTest.threads.add({ owner_id: user.id });
 
       await expect(threadRepo.verifyThreadExists('thread-001'))
@@ -120,7 +120,7 @@ describe('[Integration] ThreadRepositoryPostgres', () => {
         .not.toThrow();
     });
 
-    it('should throw NotFoundError when id not exists', async () => {
+    it('should throw NotFoundError when thread not exists', async () => {
       await expect(threadRepo.verifyThreadExists('nonexistent-thread-id'))
         .rejects
         .toThrow(NotFoundError);

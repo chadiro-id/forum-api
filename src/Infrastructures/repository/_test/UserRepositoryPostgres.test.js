@@ -130,7 +130,7 @@ describe('[Mock-Base Integration] UserRepositoryPostgres', () => {
     });
 
     describe('verifyAvailableUsername', () => {
-      it('should resolve and not throw error when username is available', async () => {
+      it('should resolves when username available', async () => {
         mockPool.query.mockResolvedValue({
           rows: [], rowCount: 0
         });
