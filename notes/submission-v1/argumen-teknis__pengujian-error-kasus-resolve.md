@@ -1,6 +1,6 @@
 # ARGUMEN TEKNIS: Pengujian Error Kasus Resolve
 
-## Konteks Pengujian: verifyThreadExists (Kasus Resolve)
+## 1. Konteks Pengujian: verifyThreadExists (Kasus Resolve)
 
 `ThreadRepositoryPostgres.js`
 ```js
@@ -40,11 +40,11 @@ describe('verifyThreadExists', () => {
 });
 ```
 
-## Pertimbangan Teknis: Pengujian pada Kasus Promise Resolve
+## 2. Pertimbangan Teknis: Pengujian pada Kasus Promise Resolve
 
 Kami memahami permintaan untuk spesifikasi *error* pada *assertion* `toThrow()`. Namun, untuk kasus *resolve* (`.resolves`), kami mempertahankan implementasi __generik__ (yaitu `.resolves.not.toThrow()`).
 
-### 1. Redundansi pada Assertion Resolve
+### 2.1. Redundansi pada Assertion Resolve
 
 Dalam konteks Jest, `await expect(promise).resolves` hanya berhasil jika *Promise* berhasil diselesaikan (*fulfilled*). Kondisi ini secara __mutlak__ berarti *Promise* tidak melempar *error* apapun.
 
@@ -78,7 +78,7 @@ it('should resolve', async () => {
 });
 ```
 
-### 2. Fokus pada Fail Case (rejects)
+### 2.2. Fokus pada Fail Case (rejects)
 
 Fokus untuk spesifikasi *error* harus diletakkan pada kasus __gagal__ (`.rejects`):
 
@@ -87,7 +87,7 @@ Fokus untuk spesifikasi *error* harus diletakkan pada kasus __gagal__ (`.rejects
 | __Gagal__ (Reject) | `await expect(...).rejects.toThrow(NotFoundError);` | __Tepat.__ Memastikan *error* yang dilempar adalah tipe yang benar. |
 | __Berhasil__ (Resolve) | `await expect(...).resolves;` | __Tepat.__ Cukup menguji bahwa *Promise* berhasil diselesaikan. |
 
-## Perbaikan Deskripsi Test Case (Self-Correction)
+## 3. Perbaikan Deskripsi Test Case (Self-Correction)
 
 Menyambung pada poin redundansi teknis pada *resolve case*, kami melakukan perbaikan pada deskripsi *test case* yang menguji jalur sukses (resolve):
 
@@ -103,6 +103,6 @@ Deskripsi tes yang baik harus fokus pada __perilaku yang diharapkan (*expected b
 
 Perubahan ini bersifat *self-correction* untuk meningkatkan __keterbacaan (*readability*)__ dan __kejelasan tujuan__ dari pengujian jalur sukses, sejalan dengan prinsip-prinsip *Clean Code* dalam pengujian.
 
-## Kesimpulan
+## 4. Kesimpulan
 
 Kami memastikan bahwa fungsi `verifyThreadExists` berhasil di-*resolve* tanpa melempar *error* apapun saat data ditemukan. Tidak diperlukan spesifikasi *error* pada *resolve case* karena hal itu tidak menambah kekuatan pengujian secara teknis.
