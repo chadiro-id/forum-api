@@ -114,19 +114,17 @@ describe('[Integration] UserRepositoryPostgres', () => {
     });
   });
 
-  describe('verifyAvailableUsername', () => {
-    it('should resolves when username available', async () => {
-      await expect(userRepo.verifyAvailableUsername('johndoe23'))
-        .resolves
-        .not.toThrow();
-    });
-
-    it('should throw InvariantError when username not available', async () => {
+  describe('isUsernameExist', () => {
+    it('should return true when username exist', async () => {
       await pgTest.users.add({ username: 'johndoe' });
 
-      await expect(userRepo.verifyAvailableUsername('johndoe'))
-        .rejects
-        .toThrow(InvariantError);
+      const result = await userRepo.isUsernameExist('johndoe');
+      expect(result).toBe(true);
+    });
+
+    it('should return false when username not exist', async () => {
+      const result = await userRepo.isUsernameExist('johndoe');
+      expect(result).toBe(false);
     });
   });
 });

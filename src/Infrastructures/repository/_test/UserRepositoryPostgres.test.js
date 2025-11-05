@@ -129,33 +129,29 @@ describe('[Mock-Base Integration] UserRepositoryPostgres', () => {
       });
     });
 
-    describe('verifyAvailableUsername', () => {
-      it('should resolves when username available', async () => {
-        mockPool.query.mockResolvedValue({
-          rows: [], rowCount: 0
-        });
-
-        await expect(userRepo.verifyAvailableUsername('johndoe'))
-          .resolves.not.toThrow(InvariantError);
-
-        assertQueryCalled(mockPool.query, 'SELECT username FROM users', ['johndoe']);
-      });
-
-      it('should throw InvariantError when username not available', async () => {
+    describe('isUsernameExist', () => {
+      it('should return true when username exist', async () => {
         mockPool.query.mockResolvedValue({
           rows: [{ username: 'johndoe' }],
           rowCount: 1,
         });
 
-        await expect(userRepo.verifyAvailableUsername('johndoe'))
-          .rejects.toThrow(InvariantError);
+        const result = await userRepo.isUsernameExist('johndoe');
+        expect(result).toBe(true);
+
+        assertQueryCalled(mockPool.query, 'SELECT username FROM users', ['johndoe']);
       });
 
-      it('should propagate error when database fails', async () => {
-        mockPool.query.mockRejectedValue(new Error('Database fails'));
+      it('should return false when username not exist', async () => {
+        mockPool.query.mockResolvedValue({
+          rows: [],
+          rowCount: 0,
+        });
 
-        await expect(userRepo.verifyAvailableUsername({}))
-          .rejects.toThrow();
+        const result = await userRepo.isUsernameExist('johndoe');
+        expect(result).toBe(false);
+
+        assertQueryCalled(mockPool.query, 'SELECT username FROM users', ['johndoe']);
       });
     });
   });
