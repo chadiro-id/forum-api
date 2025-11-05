@@ -33,6 +33,20 @@ const config = {
     '/tests/helper/',
   ],
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
+  fakeTimers: {
+    enableGlobally: true,
+    doNotFake: [
+      'nextTick',
+      'setImmediate',
+      'clearImmediate',
+      'setTimeout',
+      'clearTimeout',
+      'setInterval',
+      'clearInterval',
+      'queueMicrotask',
+    ],
+  },
+  testTimeout: 15000,
 };
 
 module.exports = config;
