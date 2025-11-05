@@ -1,6 +1,8 @@
 const AddUserUseCase = require('../AddUserUseCase');
 const RegisterUser = require('../../../../Domains/users/entities/RegisterUser');
 const RegisteredUser = require('../../../../Domains/users/entities/RegisteredUser');
+const UserRepository = require('../../../../Domains/users/UserRepository');
+const PasswordHash = require('../../../../Applications/security/PasswordHash');
 
 const dummyPayload = {
   username: 'johndoe',
@@ -14,13 +16,12 @@ describe('AddUserUseCase', () => {
   let addUserUseCase;
 
   beforeEach(() => {
-    mockUserRepo = {
-      addUser: jest.fn(),
-      verifyAvailableUsername: jest.fn(),
-    };
-    mockPasswordHash = {
-      hash: jest.fn(),
-    };
+    mockUserRepo = new UserRepository();
+    mockUserRepo.addUser = jest.fn();
+    mockUserRepo.verifyAvailableUsername = jest.fn();
+
+    mockPasswordHash = new PasswordHash();
+    mockPasswordHash.hash = jest.fn();
 
     addUserUseCase = new AddUserUseCase({
       userRepository: mockUserRepo,
