@@ -6,7 +6,9 @@ const DetailThread = require('../../../Domains/threads/entities/DetailThread');
 const pgTest = require('../../../../tests/helper/postgres');
 const ClientError = require('../../../Commons/exceptions/ClientError');
 
+const FIXED_TIME = '2025-11-05T00:00:00.000Z';
 beforeAll(async () => {
+  jest.setSystemTime(new Date(FIXED_TIME));
   await pgTest.truncate();
 });
 
@@ -43,16 +45,15 @@ describe('[Integration] ThreadRepositoryPostgres', () => {
       const threads = await pgTest.threads.findById('thread-123');
 
       expect(threads).toHaveLength(1);
-      expect(threads[0]).toEqual(expect.objectContaining({
+      expect(threads[0]).toStrictEqual({
         id: 'thread-123',
         title: newThread.title,
         body: newThread.body,
         owner_id: newThread.owner,
-      }));
-      expect(Date.parse(threads[0].created_at)).not.toBeNaN();
+        created_at: new Date(FIXED_TIME),
+      });
 
-      expect(addedThread).toBeInstanceOf(AddedThread);
-      expect(addedThread).toEqual(expect.objectContaining({
+      expect(addedThread).toStrictEqual(new AddedThread({
         id: 'thread-123',
         title: newThread.title,
         owner: newThread.owner,
@@ -93,8 +94,7 @@ describe('[Integration] ThreadRepositoryPostgres', () => {
 
       const thread = await threadRepo.getThreadById('thread-001');
 
-      expect(thread).toBeInstanceOf(DetailThread);
-      expect(thread).toEqual(expect.objectContaining({
+      expect(thread).toStrictEqual(new DetailThread({
         id: insertedThread.id,
         title: insertedThread.title,
         body: insertedThread.body,
