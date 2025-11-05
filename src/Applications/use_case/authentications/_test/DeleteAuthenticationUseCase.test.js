@@ -1,14 +1,15 @@
 const DeleteAuthenticationUseCase = require('../DeleteAuthenticationUseCase');
+const AuthenticationRepository = require('../../../../Domains/authentications/AuthenticationRepository');
 
 describe('DeleteAuthenticationUseCase', () => {
   let mockAuthRepo;
   let deleteAuthenticationUseCase;
 
   beforeEach(() => {
-    mockAuthRepo = {
-      verifyTokenExists: jest.fn(),
-      deleteToken: jest.fn(),
-    };
+    mockAuthRepo = new AuthenticationRepository();
+    mockAuthRepo.verifyTokenExists = jest.fn();
+    mockAuthRepo.deleteToken = jest.fn();
+
     deleteAuthenticationUseCase = new DeleteAuthenticationUseCase({
       authenticationRepository: mockAuthRepo,
     });

@@ -1,6 +1,10 @@
 const AuthenticationPayload = require('../../../../Domains/authentications/entities/AuthenticationPayload');
 const UserAuthentication = require('../../../../Domains/authentications/entities/UserAuthentication');
 const AddAuthenticationUseCase = require('../AddAuthenticationUseCase');
+const UserRepository = require('../../../../Domains/users/UserRepository');
+const AuthenticationRepository = require('../../../../Domains/authentications/AuthenticationRepository');
+const AuthenticationTokenManager = require('../../../security/AuthenticationTokenManager');
+const PaswordHash = require('../../../security/PasswordHash');
 
 const dummyPayload = {
   username: 'johndoe',
@@ -15,20 +19,19 @@ describe('AddAuthenticationUseCase', () => {
   let addAuthenticationUseCase;
 
   beforeEach(() => {
-    mockUserRepo = {
-      getPasswordByUsername: jest.fn(),
-      getIdByUsername: jest.fn(),
-    };
-    mockAuthRepo = {
-      addToken: jest.fn(),
-    };
-    mockTokenManager = {
-      createAccessToken: jest.fn(),
-      createRefreshToken: jest.fn(),
-    };
-    mockPasswordHash = {
-      comparePassword: jest.fn(),
-    };
+    mockUserRepo = new UserRepository();
+    mockUserRepo.getPasswordByUsername = jest.fn();
+    mockUserRepo.getIdByUsername = jest.fn();
+
+    mockAuthRepo = new AuthenticationRepository();
+    mockAuthRepo.addToken = jest.fn();
+
+    mockTokenManager = new AuthenticationTokenManager();
+    mockTokenManager.createAccessToken = jest.fn();
+    mockTokenManager.createRefreshToken = jest.fn();
+
+    mockPasswordHash = new PaswordHash();
+    mockPasswordHash.comparePassword = jest.fn();
 
     addAuthenticationUseCase = new AddAuthenticationUseCase({
       userRepository: mockUserRepo,

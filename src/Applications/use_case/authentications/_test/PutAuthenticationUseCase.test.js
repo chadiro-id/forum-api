@@ -1,5 +1,7 @@
 const AuthenticationPayload = require('../../../../Domains/authentications/entities/AuthenticationPayload');
 const PutAuthenticationUseCase = require('../PutAuthenticationUseCase');
+const AuthenticationRepository = require('../../../../Domains/authentications/AuthenticationRepository');
+const AuthenticationTokenManager = require('../../../security/AuthenticationTokenManager');
 
 describe('PutAuthenticationUseCase', () => {
   let mockAuthRepo;
@@ -7,14 +9,14 @@ describe('PutAuthenticationUseCase', () => {
   let putAuthenticationUseCase;
 
   beforeEach(() => {
-    mockAuthRepo = {
-      verifyTokenExists: jest.fn(),
-    };
-    mockTokenManager = {
-      verifyRefreshToken: jest.fn(),
-      createAccessToken: jest.fn(),
-      decodePayload: jest.fn(),
-    };
+    mockAuthRepo = new AuthenticationRepository();
+    mockAuthRepo.verifyTokenExists = jest.fn();
+
+    mockTokenManager = new AuthenticationTokenManager();
+    mockTokenManager.verifyRefreshToken = jest.fn();
+    mockTokenManager.createAccessToken = jest.fn();
+    mockTokenManager.decodePayload = jest.fn();
+
     putAuthenticationUseCase = new PutAuthenticationUseCase({
       authenticationRepository: mockAuthRepo,
       authenticationTokenManager: mockTokenManager,
