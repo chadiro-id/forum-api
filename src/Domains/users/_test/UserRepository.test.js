@@ -13,7 +13,7 @@ describe('UserRepository', () => {
     await expect(userRepository.getIdByUsername())
       .rejects
       .toThrow('USER_REPOSITORY.METHOD_NOT_IMPLEMENTED');
-    await expect(userRepository.verifyUsernameAvailability())
+    await expect(userRepository.isUsernameExist())
       .rejects
       .toThrow('USER_REPOSITORY.METHOD_NOT_IMPLEMENTED');
   });
