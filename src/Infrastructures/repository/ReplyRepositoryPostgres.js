@@ -16,17 +16,18 @@ class ReplyRepositoryPostgres extends ReplyRepository {
     const { commentId, content, owner } = newReply;
 
     const id = `reply-${this._idGenerator()}`;
+    const timestamp = new Date();
 
     const query = {
       text: `
       INSERT INTO replies
-        (id, comment_id, owner_id, content)
+        (id, comment_id, owner_id, content, created_at)
       VALUES
-        ($1, $2, $3, $4)
+        ($1, $2, $3, $4, $5)
       RETURNING
         id, content, owner_id
       `,
-      values: [id, commentId, owner, content],
+      values: [id, commentId, owner, content, timestamp],
     };
 
     const result = await this._pool.query(query);
