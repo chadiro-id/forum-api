@@ -1,6 +1,8 @@
 const AddedComment = require('../../../../Domains/comments/entities/AddedComment');
 const NewComment = require('../../../../Domains/comments/entities/NewComment');
 const AddCommentUseCase = require('../AddCommentUseCase');
+const ThreadRepository = require('../../../../Domains/threads/ThreadRepository');
+const CommentRepository = require('../../../../Domains/comments/CommentRepository');
 
 const dummyPayload = {
   threadId: 'thread-123',
@@ -14,12 +16,12 @@ describe('AddCommentUseCase', () => {
   let addCommentUseCase;
 
   beforeEach(() => {
-    mockThreadRepo = {
-      verifyThreadExists: jest.fn(),
-    };
-    mockCommentRepo = {
-      addComment: jest.fn(),
-    };
+    mockThreadRepo = new ThreadRepository();
+    mockThreadRepo.verifyThreadExists = jest.fn();
+
+    mockCommentRepo = new CommentRepository();
+    mockCommentRepo.addComment = jest.fn();
+
     addCommentUseCase = new AddCommentUseCase({
       commentRepository: mockCommentRepo,
       threadRepository: mockThreadRepo,

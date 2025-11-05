@@ -1,4 +1,6 @@
 const DeleteCommentUseCase = require('../DeleteCommentUseCase');
+const ThreadRepository = require('../../../../Domains/threads/ThreadRepository');
+const CommentRepository = require('../../../../Domains/comments/CommentRepository');
 
 const dummyPayload = {
   threadId: 'thread-123',
@@ -12,13 +14,13 @@ describe('DeleteCommentUseCase', () => {
   let deleteCommentUseCase;
 
   beforeEach(() => {
-    mockThreadRepo = {
-      verifyThreadExists: jest.fn(),
-    };
-    mockCommentRepo = {
-      verifyDeleteComment: jest.fn(),
-      softDeleteCommentById: jest.fn(),
-    };
+    mockThreadRepo = new ThreadRepository();
+    mockThreadRepo.verifyThreadExists = jest.fn();
+
+    mockCommentRepo = new CommentRepository();
+    mockCommentRepo.verifyDeleteComment = jest.fn();
+    mockCommentRepo.softDeleteCommentById = jest.fn();
+
     deleteCommentUseCase = new DeleteCommentUseCase({
       threadRepository: mockThreadRepo,
       commentRepository: mockCommentRepo,
