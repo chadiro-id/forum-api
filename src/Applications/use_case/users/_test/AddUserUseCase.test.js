@@ -18,7 +18,7 @@ describe('AddUserUseCase', () => {
   beforeEach(() => {
     mockUserRepo = new UserRepository();
     mockUserRepo.addUser = jest.fn();
-    mockUserRepo.verifyAvailableUsername = jest.fn();
+    mockUserRepo.isUsernameExist = jest.fn();
 
     mockPasswordHash = new PasswordHash();
     mockPasswordHash.hash = jest.fn();
@@ -43,32 +43,29 @@ describe('AddUserUseCase', () => {
         .rejects.toThrow();
     });
 
-    it('should propagate error when username already taken', async () => {
-      mockUserRepo.verifyAvailableUsername.mockRejectedValue(new Error('username already taken'));
+    it('should throw error when username not available', async () => {
+      mockUserRepo.isUsernameExist.mockResolvedValue(true);
 
       await expect(addUserUseCase.execute({ ...dummyPayload })).rejects.toThrow();
 
-      expect(mockUserRepo.verifyAvailableUsername).toHaveBeenCalledWith(dummyPayload.username);
+      expect(mockUserRepo.isUsernameExist).toHaveBeenCalledWith(dummyPayload.username);
       expect(mockPasswordHash.hash).not.toHaveBeenCalled();
     });
 
     it('should propagate error when addUser fails', async () => {
-      mockUserRepo.verifyAvailableUsername.mockResolvedValue();
+      mockUserRepo.isUsernameExist.mockResolvedValue(false);
       mockPasswordHash.hash.mockResolvedValue('encrypted_password');
-      mockUserRepo.addUser.mockRejectedValue(new Error('Add user fails'));
+      mockUserRepo.addUser.mockRejectedValue(new Error('fails'));
 
       await expect(addUserUseCase.execute({ ...dummyPayload })).rejects.toThrow();
 
-      expect(mockUserRepo.verifyAvailableUsername).toHaveBeenCalledWith(dummyPayload.username);
+      expect(mockUserRepo.isUsernameExist).toHaveBeenCalledWith(dummyPayload.username);
       expect(mockPasswordHash.hash).toHaveBeenCalledWith(dummyPayload.password);
-      expect(mockUserRepo.addUser).toHaveBeenCalledWith(expect.any(RegisterUser));
-      expect(mockUserRepo.addUser).toHaveBeenCalledWith(
-        expect.objectContaining({
-          username: dummyPayload.username,
-          password: 'encrypted_password',
-          fullname: dummyPayload.fullname,
-        })
-      );
+      expect(mockUserRepo.addUser).toHaveBeenCalledWith(new RegisterUser({
+        username: dummyPayload.username,
+        password: 'encrypted_password',
+        fullname: dummyPayload.fullname,
+      }));
     });
 
     it('should throw error when the registeredUser not an instance of RegisteredUser entity', async () => {
@@ -78,7 +75,7 @@ describe('AddUserUseCase', () => {
         fullname: dummyPayload.fullname,
       };
 
-      mockUserRepo.verifyAvailableUsername.mockResolvedValue();
+      mockUserRepo.isUsernameExist.mockResolvedValue(false);
       mockPasswordHash.hash.mockResolvedValue('encrypted_password');
       mockUserRepo.addUser.mockResolvedValue(mockRegisteredUser);
 
@@ -86,16 +83,13 @@ describe('AddUserUseCase', () => {
         .rejects
         .toThrow('ADD_USER_USE_CASE.REGISTERED_USER_MUST_BE_INSTANCE_OF_REGISTERED_USER_ENTITY');
 
-      expect(mockUserRepo.verifyAvailableUsername).toHaveBeenCalledWith(dummyPayload.username);
+      expect(mockUserRepo.isUsernameExist).toHaveBeenCalledWith(dummyPayload.username);
       expect(mockPasswordHash.hash).toHaveBeenCalledWith(dummyPayload.password);
-      expect(mockUserRepo.addUser).toHaveBeenCalledWith(expect.any(RegisterUser));
-      expect(mockUserRepo.addUser).toHaveBeenCalledWith(
-        expect.objectContaining({
-          username: dummyPayload.username,
-          password: 'encrypted_password',
-          fullname: dummyPayload.fullname,
-        })
-      );
+      expect(mockUserRepo.addUser).toHaveBeenCalledWith(new RegisterUser({
+        username: dummyPayload.username,
+        password: 'encrypted_password',
+        fullname: dummyPayload.fullname,
+      }));
     });
   });
 
@@ -107,25 +101,21 @@ describe('AddUserUseCase', () => {
         fullname: dummyPayload.fullname,
       });
 
-      mockUserRepo.verifyAvailableUsername.mockResolvedValue();
+      mockUserRepo.isUsernameExist.mockResolvedValue(false);
       mockPasswordHash.hash.mockResolvedValue('encrypted_password');
       mockUserRepo.addUser.mockResolvedValue(mockRegisteredUser);
 
       const registeredUser = await addUserUseCase.execute({ ...dummyPayload });
 
-      expect(mockUserRepo.verifyAvailableUsername).toHaveBeenCalledWith(dummyPayload.username);
+      expect(mockUserRepo.isUsernameExist).toHaveBeenCalledWith(dummyPayload.username);
       expect(mockPasswordHash.hash).toHaveBeenCalledWith(dummyPayload.password);
-      expect(mockUserRepo.addUser).toHaveBeenCalledWith(expect.any(RegisterUser));
-      expect(mockUserRepo.addUser).toHaveBeenCalledWith(
-        expect.objectContaining({
-          username: dummyPayload.username,
-          password: 'encrypted_password',
-          fullname: dummyPayload.fullname,
-        })
-      );
+      expect(mockUserRepo.addUser).toHaveBeenCalledWith(new RegisterUser({
+        username: dummyPayload.username,
+        password: 'encrypted_password',
+        fullname: dummyPayload.fullname,
+      }));
 
-      expect(registeredUser).toBeInstanceOf(RegisteredUser);
-      expect(registeredUser).toEqual(expect.objectContaining({
+      expect(registeredUser).toStrictEqual(new RegisteredUser({
         id: 'user-123',
         username: dummyPayload.username,
         fullname: dummyPayload.fullname,
