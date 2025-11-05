@@ -7,7 +7,9 @@ const pgTest = require('../../../../tests/helper/postgres');
 const { expectCommentFromRepository } = require('../../../../tests/helper/assertionsHelper');
 const ClientError = require('../../../Commons/exceptions/ClientError');
 
+const FIXED_TIME = '2025-11-05T00:00:00.000Z';
 beforeAll(async () => {
+  jest.setSystemTime(new Date(FIXED_TIME));
   await pgTest.truncate();
 });
 
@@ -54,17 +56,16 @@ describe('[Integration] CommentRepositoryPostgres', () => {
 
       const comments = await pgTest.comments.findById('comment-123');
       expect(comments).toHaveLength(1);
-      expect(comments[0]).toEqual(expect.objectContaining({
+      expect(comments[0]).toStrictEqual({
         id: 'comment-123',
         thread_id: newComment.threadId,
         owner_id: newComment.owner,
         content: newComment.content,
         is_delete: false,
-      }));
-      expect(Date.parse(comments[0].created_at)).not.toBeNaN();
+        created_at: new Date(FIXED_TIME),
+      });
 
-      expect(addedComment).toBeInstanceOf(AddedComment);
-      expect(addedComment).toEqual(expect.objectContaining({
+      expect(addedComment).toStrictEqual(new AddedComment({
         id: 'comment-123',
         content: 'Sebuah komentar',
         owner: user.id,
@@ -121,7 +122,7 @@ describe('[Integration] CommentRepositoryPostgres', () => {
 
     it('should return an empty array when no comment found', async () => {
       const comments = await commentRepo.getCommentsByThreadId(thread.id);
-      expect(comments).toEqual([]);
+      expect(comments).toStrictEqual([]);
     });
   });
 
