@@ -51,7 +51,7 @@ class UserRepositoryPostgres extends UserRepository {
     return result.rows[0].password;
   }
 
-  async verifyAvailableUsername(username) {
+  async isUsernameExist(username) {
     const query = {
       text: 'SELECT username FROM users WHERE username = $1',
       values: [username],
@@ -59,9 +59,7 @@ class UserRepositoryPostgres extends UserRepository {
 
     const result = await this._pool.query(query);
 
-    if (result.rows.length) {
-      throw new InvariantError('username tidak tersedia');
-    }
+    return result.rows.length > 0;
   }
 }
 
