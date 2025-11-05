@@ -1,6 +1,7 @@
 const AddThreadUseCase = require('../AddThreadUseCase');
 const NewThread = require('../../../../Domains/threads/entities/NewThread');
 const AddedThread = require('../../../../Domains/threads/entities/AddedThread');
+const ThreadRepository = require('../../../../Domains/threads/ThreadRepository');
 
 const dummyPayload = {
   title: 'Sebuah thread',
@@ -13,9 +14,8 @@ describe('AddThreadUseCase', () => {
   let addThreadUseCase;
 
   beforeEach(() => {
-    mockThreadRepo = {
-      addThread: jest.fn(),
-    };
+    mockThreadRepo = new ThreadRepository();
+    mockThreadRepo.addThread = jest.fn();
 
     addThreadUseCase = new AddThreadUseCase({
       threadRepository: mockThreadRepo,

@@ -2,6 +2,9 @@ const DetailThread = require('../../../../Domains/threads/entities/DetailThread'
 const GetDetailThreadUseCase = require('../GetDetailThreadUseCase');
 const Comment = require('../../../../Domains/comments/entities/Comment');
 const Reply = require('../../../../Domains/replies/entities/Reply');
+const ThreadRepository = require('../../../../Domains/threads/ThreadRepository');
+const CommentRepository = require('../../../../Domains/comments/CommentRepository');
+const ReplyRepository = require('../../../../Domains/replies/ReplyRepository');
 
 const dummyThread = {
   id: 'thread-123',
@@ -68,15 +71,14 @@ describe('GetDetailThreadUseCase', () => {
   let getDetailThreadUseCase;
 
   beforeEach(() => {
-    mockThreadRepo = {
-      getThreadById: jest.fn(),
-    };
-    mockCommentRepo = {
-      getCommentsByThreadId: jest.fn(),
-    };
-    mockReplyRepo = {
-      getRepliesByCommentIds: jest.fn(),
-    };
+    mockThreadRepo = new ThreadRepository();
+    mockThreadRepo.getThreadById = jest.fn();
+
+    mockCommentRepo = new CommentRepository();
+    mockCommentRepo.getCommentsByThreadId = jest.fn();
+
+    mockReplyRepo = new ReplyRepository();
+    mockReplyRepo.getRepliesByCommentIds = jest.fn();
 
     getDetailThreadUseCase = new GetDetailThreadUseCase({
       threadRepository: mockThreadRepo,
