@@ -7,7 +7,9 @@ const pgTest = require('../../../../tests/helper/postgres');
 const { expectReplyFromRepository } = require('../../../../tests/helper/assertionsHelper');
 const ClientError = require('../../../Commons/exceptions/ClientError');
 
+const FIXED_TIME = '2025-11-05T00:00:00.000Z';
 beforeAll(async () => {
+  jest.setSystemTime(new Date(FIXED_TIME));
   await pgTest.truncate();
 });
 
@@ -61,17 +63,16 @@ describe('[Integration] ReplyRepositoryPostgres', () => {
       const replies = await pgTest.replies.findById('reply-123');
 
       expect(replies).toHaveLength(1);
-      expect(replies[0]).toEqual(expect.objectContaining({
+      expect(replies[0]).toStrictEqual({
         id: 'reply-123',
         comment_id: newReply.commentId,
         owner_id: newReply.owner,
         content: newReply.content,
         is_delete: false,
-      }));
-      expect(Date.parse(replies[0].created_at)).not.toBeNaN();
+        created_at: new Date(FIXED_TIME),
+      });
 
-      expect(addedReply).toBeInstanceOf(AddedReply);
-      expect(addedReply).toEqual(expect.objectContaining({
+      expect(addedReply).toStrictEqual(new AddedReply({
         id: 'reply-123',
         content: newReply.content,
         owner: newReply.owner,
