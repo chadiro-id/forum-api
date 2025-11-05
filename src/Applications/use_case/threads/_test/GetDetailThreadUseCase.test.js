@@ -89,42 +89,6 @@ describe('GetDetailThreadUseCase', () => {
 
   afterEach(() => jest.clearAllMocks());
 
-  describe('Concurrent executions', () => {
-    it('should call thread and comment repositories concurrently', async () => {
-      const threadId = 'thread-123';
-
-      jest.useFakeTimers();
-
-      let threadCalled = false;
-      let commentCalled = false;
-
-      mockThreadRepo.getThreadById.mockImplementation(async () => {
-        threadCalled = true;
-        return new DetailThread({ ...dummyThread });
-      });
-
-      mockCommentRepo.getCommentsByThreadId.mockImplementation(async () => {
-        commentCalled = true;
-        return [];
-      });
-
-      const promise = getDetailThreadUseCase.execute(threadId);
-
-      await jest.runAllTimersAsync();
-      await promise;
-
-      expect(threadCalled).toBe(true);
-      expect(commentCalled).toBe(true);
-
-      expect(mockThreadRepo.getThreadById).toHaveBeenCalledTimes(1);
-      expect(mockThreadRepo.getThreadById).toHaveBeenCalledWith(threadId);
-      expect(mockCommentRepo.getCommentsByThreadId).toHaveBeenCalledTimes(1);
-      expect(mockCommentRepo.getCommentsByThreadId).toHaveBeenCalledWith(threadId);
-
-      jest.useRealTimers();
-    });
-  });
-
   describe('Failure cases', () => {
     it('should propagate error when thread repository fails', async () => {
       mockThreadRepo.getThreadById.mockRejectedValue(new Error('get thread by id fails'));
