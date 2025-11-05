@@ -3,10 +3,6 @@ class UserRepository {
     throw new Error('USER_REPOSITORY.METHOD_NOT_IMPLEMENTED');
   }
 
-  async verifyAvailableUsername(_username) {
-    throw new Error('USER_REPOSITORY.METHOD_NOT_IMPLEMENTED');
-  }
-
   async getPasswordByUsername(_username) {
     throw new Error('USER_REPOSITORY.METHOD_NOT_IMPLEMENTED');
   }
