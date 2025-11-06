@@ -1,6 +1,7 @@
 const InvariantError = require('./InvariantError');
 const AuthenticationError = require('./AuthenticationError');
 const NotFoundError = require('./NotFoundError');
+const AuthorizationError = require('./AuthorizationError');
 
 const usersUseCaseError = {
   'ADD_USER_USE_CASE.USERNAME_NOT_AVAILABLE': new InvariantError('username tidak tersedia'),
@@ -14,11 +15,12 @@ const authenticationsUseCaseError = {
 };
 const threadsUseCaseError = {};
 const commentsUseCaseError = {
-  'ADD_COMMENT_USE_CASE.THREAD_NOT_FOUND': new NotFoundError('Thread tidak ada, id tidak ditemukan'),
-  'DELETE_COMMENT_USE_CASE.THREAD_NOT_FOUND': new NotFoundError('Thread tidak ada, id tidak ditemukan'),
+  'ADD_COMMENT_USE_CASE.THREAD_NOT_FOUND': new NotFoundError('Thread tidak ditemukan'),
+  'DELETE_COMMENT_USE_CASE.COMMENT_NOT_EXIST': new NotFoundError('Komentar tidak ditemukan'),
+  'DELETE_COMMENT_USE_CASE.OWNER_NOT_MATCH': new AuthorizationError('Pengguna tidak memiliki hak akses'),
 };
 const repliesUseCaseError = {
-  'ADD_REPLY_USE_CASE.THREAD_NOT_FOUND': new NotFoundError('Thread tidak ada, id tidak ditemukan'),
+  'ADD_REPLY_USE_CASE.THREAD_NOT_FOUND': new NotFoundError('Thread tidak ditemukan'),
   'DELETE_REPLY_USE_CASE.THREAD_NOT_FOUND': new NotFoundError('Thread tidak ada, id tidak ditemukan'),
 };
 
