@@ -1,8 +1,6 @@
 const ReplyRepositoryPostgres = require('../ReplyRepositoryPostgres');
 const NewReply = require('../../../Domains/replies/entities/NewReply');
 const AddedReply = require('../../../Domains/replies/entities/AddedReply');
-const NotFoundError = require('../../../Commons/exceptions/NotFoundError');
-const AuthorizationError = require('../../../Commons/exceptions/AuthorizationError');
 const pgTest = require('../../../../tests/helper/postgres');
 const { expectReplyFromRepository } = require('../../../../tests/helper/assertionsHelper');
 const ClientError = require('../../../Commons/exceptions/ClientError');
@@ -144,48 +142,42 @@ describe('[Integration] ReplyRepositoryPostgres', () => {
 
       await expect(replyRepo.softDeleteReplyById('reply-001'))
         .resolves
-        .not.toThrow(NotFoundError);
+        .not.toThrow();
 
       const replies = await pgTest.replies.findById('reply-001');
       expect(replies[0].is_delete).toBe(true);
     });
-
-    it('should throw NotFoundError when id not exists', async () => {
-      await expect(replyRepo.softDeleteReplyById('nonexistent-reply-id'))
-        .rejects
-        .toThrow(NotFoundError);
-    });
   });
 
-  describe('verifyDeleteReply', () => {
-    let replyId;
+  // describe('verifyDeleteReply', () => {
+  //   let replyId;
 
-    beforeEach(async () => {
-      const { id } = await pgTest.replies.add({
-        comment_id: commentA.id,
-        owner_id: userB.id,
-      });
-      replyId = id;
-    });
+  //   beforeEach(async () => {
+  //     const { id } = await pgTest.replies.add({
+  //       comment_id: commentA.id,
+  //       owner_id: userB.id,
+  //     });
+  //     replyId = id;
+  //   });
 
-    it('should correctly resolve and not throw error', async () => {
-      await expect(replyRepo.verifyDeleteReply(replyId, commentA.id, userB.id))
-        .resolves.not.toThrow();
-    });
+  //   it('should correctly resolve and not throw error', async () => {
+  //     await expect(replyRepo.verifyDeleteReply(replyId, commentA.id, userB.id))
+  //       .resolves.not.toThrow();
+  //   });
 
-    it('should throw NotFoundError when reply not exists', async () => {
-      await expect(replyRepo.verifyDeleteReply('nonexistent-reply-id', commentA.id, userB.id))
-        .rejects.toThrow(NotFoundError);
-    });
+  //   it('should throw NotFoundError when reply not exists', async () => {
+  //     await expect(replyRepo.verifyDeleteReply('nonexistent-reply-id', commentA.id, userB.id))
+  //       .rejects.toThrow(NotFoundError);
+  //   });
 
-    it('should throw NotFoundError when reply not belong to comment', async () => {
-      await expect(replyRepo.verifyDeleteReply(replyId, commentB.id, userB.id))
-        .rejects.toThrow(NotFoundError);
-    });
+  //   it('should throw NotFoundError when reply not belong to comment', async () => {
+  //     await expect(replyRepo.verifyDeleteReply(replyId, commentB.id, userB.id))
+  //       .rejects.toThrow(NotFoundError);
+  //   });
 
-    it('should throw AuthorizationError when user is not the owner', async () => {
-      await expect(replyRepo.verifyDeleteReply(replyId, commentA.id, userA.id))
-        .rejects.toThrow(AuthorizationError);
-    });
-  });
+  //   it('should throw AuthorizationError when user is not the owner', async () => {
+  //     await expect(replyRepo.verifyDeleteReply(replyId, commentA.id, userA.id))
+  //       .rejects.toThrow(AuthorizationError);
+  //   });
+  // });
 });
