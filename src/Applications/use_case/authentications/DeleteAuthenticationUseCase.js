@@ -8,7 +8,11 @@ class DeleteAuthenticationUseCase {
 
     const { refreshToken } = payload;
 
-    await this._authenticationRepository.verifyTokenExists(refreshToken);
+    const isTokenExist = await this._authenticationRepository.isTokenExist(refreshToken);
+    if (!isTokenExist) {
+      throw new Error('DELETE_AUTHENTICATION_USE_CASE.REFRESH_TOKEN_NOT_FOUND');
+    }
+
     await this._authenticationRepository.deleteToken(refreshToken);
   }
 

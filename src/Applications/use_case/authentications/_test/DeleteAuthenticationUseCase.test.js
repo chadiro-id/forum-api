@@ -7,7 +7,7 @@ describe('DeleteAuthenticationUseCase', () => {
 
   beforeEach(() => {
     mockAuthRepo = new AuthenticationRepository();
-    mockAuthRepo.verifyTokenExists = jest.fn();
+    mockAuthRepo.isTokenExist = jest.fn();
     mockAuthRepo.deleteToken = jest.fn();
 
     deleteAuthenticationUseCase = new DeleteAuthenticationUseCase({
@@ -31,27 +31,27 @@ describe('DeleteAuthenticationUseCase', () => {
         .toThrow('DELETE_AUTHENTICATION_USE_CASE.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
     });
 
-    it('should propagate error when verifyTokenExists fails', async () => {
+    it('should throw error when refresh token not found', async () => {
       const refreshToken = 'refresh_token';
-      mockAuthRepo.verifyTokenExists.mockRejectedValue(new Error('checking fails'));
+      mockAuthRepo.isTokenExist.mockResolvedValue(false);
 
       await expect(deleteAuthenticationUseCase.execute({ refreshToken }))
-        .rejects.toThrow();
+        .rejects.toThrow('DELETE_AUTHENTICATION_USE_CASE.REFRESH_TOKEN_NOT_FOUND');
 
-      expect(mockAuthRepo.verifyTokenExists).toHaveBeenCalledWith(refreshToken);
+      expect(mockAuthRepo.isTokenExist).toHaveBeenCalledWith(refreshToken);
       expect(mockAuthRepo.deleteToken).not.toHaveBeenCalled();
     });
 
     it('should propagate error when deleteToken fails', async () => {
       const refreshToken = 'refresh_token';
 
-      mockAuthRepo.verifyTokenExists.mockResolvedValue();
+      mockAuthRepo.isTokenExist.mockResolvedValue(true);
       mockAuthRepo.deleteToken.mockRejectedValue(new Error('delete token fails'));
 
       await expect(deleteAuthenticationUseCase.execute({ refreshToken }))
         .rejects.toThrow();
 
-      expect(mockAuthRepo.verifyTokenExists).toHaveBeenCalledWith(refreshToken);
+      expect(mockAuthRepo.isTokenExist).toHaveBeenCalledWith(refreshToken);
       expect(mockAuthRepo.deleteToken).toHaveBeenCalledWith(refreshToken);
     });
   });
@@ -60,14 +60,14 @@ describe('DeleteAuthenticationUseCase', () => {
     it('should correctly orchestrating the delete authentication action', async () => {
       const refreshToken = 'refresh_token';
 
-      mockAuthRepo.verifyTokenExists.mockResolvedValue();
+      mockAuthRepo.isTokenExist.mockResolvedValue(true);
       mockAuthRepo.deleteToken.mockResolvedValue();
 
       await expect(deleteAuthenticationUseCase.execute({ refreshToken }))
         .resolves.not.toThrow();
 
-      expect(mockAuthRepo.verifyTokenExists).toHaveBeenCalledTimes(1);
-      expect(mockAuthRepo.verifyTokenExists).toHaveBeenCalledWith(refreshToken);
+      expect(mockAuthRepo.isTokenExist).toHaveBeenCalledTimes(1);
+      expect(mockAuthRepo.isTokenExist).toHaveBeenCalledWith(refreshToken);
       expect(mockAuthRepo.deleteToken).toHaveBeenCalledTimes(1);
       expect(mockAuthRepo.deleteToken).toHaveBeenCalledWith(refreshToken);
     });

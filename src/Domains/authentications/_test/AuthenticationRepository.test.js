@@ -10,7 +10,7 @@ describe('AuthenticationRepository', () => {
     await expect(authenticationRepository.deleteToken())
       .rejects
       .toThrow('AUTHENTICATION_REPOSITORY.METHOD_NOT_IMPLEMENTED');
-    await expect(authenticationRepository.verifyTokenExists())
+    await expect(authenticationRepository.isTokenExist())
       .rejects
       .toThrow('AUTHENTICATION_REPOSITORY.METHOD_NOT_IMPLEMENTED');
   });

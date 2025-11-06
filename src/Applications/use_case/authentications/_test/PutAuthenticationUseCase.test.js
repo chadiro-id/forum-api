@@ -10,7 +10,7 @@ describe('PutAuthenticationUseCase', () => {
 
   beforeEach(() => {
     mockAuthRepo = new AuthenticationRepository();
-    mockAuthRepo.verifyTokenExists = jest.fn();
+    mockAuthRepo.isTokenExist = jest.fn();
 
     mockTokenManager = new AuthenticationTokenManager();
     mockTokenManager.verifyRefreshToken = jest.fn();
@@ -46,22 +46,22 @@ describe('PutAuthenticationUseCase', () => {
         .rejects.toThrow();
 
       expect(mockTokenManager.verifyRefreshToken).toHaveBeenCalledWith('refresh_token');
-      expect(mockAuthRepo.verifyTokenExists).not.toHaveBeenCalled();
+      expect(mockAuthRepo.isTokenExist).not.toHaveBeenCalled();
       expect(mockTokenManager.decodePayload).not.toHaveBeenCalled();
       expect(mockTokenManager.createAccessToken).not.toHaveBeenCalled();
     });
 
-    it('should propagate error when verifyTokenExists fails', async () => {
+    it('should throw error when refresh token not found', async () => {
       const refreshToken = 'refresh_token';
 
       mockTokenManager.verifyRefreshToken.mockResolvedValue();
-      mockAuthRepo.verifyTokenExists.mockRejectedValue(new Error('checking fails'));
+      mockAuthRepo.isTokenExist.mockResolvedValue(false);
 
       await expect(putAuthenticationUseCase.execute({ refreshToken }))
-        .rejects.toThrow();
+        .rejects.toThrow('PUT_AUTHENTICATION_USE_CASE.REFRESH_TOKEN_NOT_FOUND');
 
       expect(mockTokenManager.verifyRefreshToken).toHaveBeenCalledWith(refreshToken);
-      expect(mockAuthRepo.verifyTokenExists).toHaveBeenCalledWith(refreshToken);
+      expect(mockAuthRepo.isTokenExist).toHaveBeenCalledWith(refreshToken);
       expect(mockTokenManager.decodePayload).not.toHaveBeenCalled();
       expect(mockTokenManager.createAccessToken).not.toHaveBeenCalled();
     });
@@ -70,14 +70,14 @@ describe('PutAuthenticationUseCase', () => {
       const refreshToken = 'refresh_token';
 
       mockTokenManager.verifyRefreshToken.mockResolvedValue();
-      mockAuthRepo.verifyTokenExists.mockResolvedValue();
+      mockAuthRepo.isTokenExist.mockResolvedValue(true);
       mockTokenManager.decodePayload.mockResolvedValue({ username: 'johndoe' });
 
       await expect(putAuthenticationUseCase.execute({ refreshToken }))
         .rejects.toThrow();
 
       expect(mockTokenManager.verifyRefreshToken).toHaveBeenCalledWith(refreshToken);
-      expect(mockAuthRepo.verifyTokenExists).toHaveBeenCalledWith(refreshToken);
+      expect(mockAuthRepo.isTokenExist).toHaveBeenCalledWith(refreshToken);
       expect(mockTokenManager.decodePayload).toHaveBeenCalledWith(refreshToken);
       expect(mockTokenManager.createAccessToken).not.toHaveBeenCalled();
     });
@@ -88,7 +88,7 @@ describe('PutAuthenticationUseCase', () => {
       const payload = { refreshToken: 'some_refresh_token' };
 
       mockTokenManager.verifyRefreshToken.mockResolvedValue();
-      mockAuthRepo.verifyTokenExists.mockResolvedValue();
+      mockAuthRepo.isTokenExist.mockResolvedValue(true);
       mockTokenManager.decodePayload.mockResolvedValue({ username: 'johndoe', id: 'user-123' });
       mockTokenManager.createAccessToken.mockResolvedValue('new_access_token');
 
@@ -96,12 +96,15 @@ describe('PutAuthenticationUseCase', () => {
 
       expect(mockTokenManager.verifyRefreshToken).toHaveBeenCalledTimes(1);
       expect(mockTokenManager.verifyRefreshToken).toHaveBeenCalledWith(payload.refreshToken);
-      expect(mockAuthRepo.verifyTokenExists).toHaveBeenCalledTimes(1);
-      expect(mockAuthRepo.verifyTokenExists).toHaveBeenCalledWith(payload.refreshToken);
+      expect(mockAuthRepo.isTokenExist).toHaveBeenCalledTimes(1);
+      expect(mockAuthRepo.isTokenExist).toHaveBeenCalledWith(payload.refreshToken);
       expect(mockTokenManager.decodePayload).toHaveBeenCalledTimes(1);
       expect(mockTokenManager.decodePayload).toHaveBeenCalledWith(payload.refreshToken);
       expect(mockTokenManager.createAccessToken).toHaveBeenCalledTimes(1);
-      expect(mockTokenManager.createAccessToken).toHaveBeenCalledWith(expect.any(AuthenticationPayload));
+      expect(mockTokenManager.createAccessToken).toHaveBeenCalledWith(new AuthenticationPayload({
+        id: 'user-123',
+        username: 'johndoe',
+      }));
 
       expect(accessToken).toEqual('new_access_token');
     });

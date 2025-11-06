@@ -15,7 +15,11 @@ class PutAuthenticationUseCase {
     const { refreshToken } = payload;
 
     await this._authenticationTokenManager.verifyRefreshToken(refreshToken);
-    await this._authenticationRepository.verifyTokenExists(refreshToken);
+
+    const isTokenExist = await this._authenticationRepository.isTokenExist(refreshToken);
+    if (!isTokenExist) {
+      throw new Error('PUT_AUTHENTICATION_USE_CASE.REFRESH_TOKEN_NOT_FOUND');
+    }
 
     const decodedPayload = await this._authenticationTokenManager.decodePayload(refreshToken);
 

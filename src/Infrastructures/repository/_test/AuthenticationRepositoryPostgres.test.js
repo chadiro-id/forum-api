@@ -1,4 +1,3 @@
-const InvariantError = require('../../../Commons/exceptions/InvariantError');
 const AuthenticationRepository = require('../../../Domains/authentications/AuthenticationRepository');
 const AuthenticationRepositoryPostgres = require('../AuthenticationRepositoryPostgres');
 const { assertQueryCalled } = require('../../../../tests/helper/assertionsHelper');
@@ -64,34 +63,38 @@ describe('[Mock-Based Integration] AuthenticationRepositoryPostgres', () => {
       });
     });
 
-    describe('verifyTokenExists', () => {
-      it('should resolves when token exists', async () => {
+    describe('isTokenExist', () => {
+      it('should return true when token exist', async () => {
         mockPool.query.mockResolvedValue({
-          rows: [{ token: 'token' }],
+          rows: [{ token: 'refresh-token' }],
           rowCount: 1,
         });
 
-        await expect(authenticationRepo.verifyTokenExists('token'))
-          .resolves.not.toThrow();
+        const result = await authenticationRepo.isTokenExist('refresh-token');
+        expect(result).toBe(true);
 
         assertQueryCalled(
-          mockPool.query, 'SELECT token FROM authentications', ['token']
+          mockPool.query, 'SELECT token FROM authentications', ['refresh-token']
         );
       });
 
-      it('should throw InvariantError when token not exists', async () => {
+      it('should return false when token not exist', async () => {
         mockPool.query.mockResolvedValue({
           rows: [], rowCount: 0
         });
 
-        await expect(authenticationRepo.verifyTokenExists('token'))
-          .rejects.toThrow(InvariantError);
+        const result = await authenticationRepo.isTokenExist('refresh-token');
+        expect(result).toBe(false);
+
+        assertQueryCalled(
+          mockPool.query, 'SELECT token FROM authentications', ['refresh-token']
+        );
       });
 
       it('should propagate error when database fails', async () => {
         mockPool.query.mockRejectedValue(new Error('Database fails'));
 
-        await expect(authenticationRepo.verifyTokenExists('token'))
+        await expect(authenticationRepo.isTokenExist('token'))
           .rejects.toThrow();
       });
     });

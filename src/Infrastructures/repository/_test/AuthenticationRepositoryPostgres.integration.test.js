@@ -1,4 +1,3 @@
-const InvariantError = require('../../../Commons/exceptions/InvariantError');
 const AuthenticationRepositoryPostgres = require('../AuthenticationRepositoryPostgres');
 const pgTest = require('../../../../tests/helper/postgres');
 
@@ -46,20 +45,17 @@ describe('[Integration] AuthenticationRepositoryPostgres', () => {
     });
   });
 
-  describe('verifyTokenExists', () => {
-    it('should resolves when token exists', async () => {
-      const token = 'token';
-      await pgTest.authentications.addToken(token);
+  describe('isTokenExist', () => {
+    it('should return true when token exist', async () => {
+      await pgTest.authentications.addToken('refresh-token');
 
-      await expect(authenticationRepo.verifyTokenExists(token))
-        .resolves.not.toThrow();
+      const result = await authenticationRepo.isTokenExist('refresh-token');
+      expect(result).toBe(true);
     });
 
-    it('should throw InvariantError when token not exists', async () => {
-      const token = 'token';
-
-      await expect(authenticationRepo.verifyTokenExists(token))
-        .rejects.toThrow(InvariantError);
+    it('should return false when token not exist', async () => {
+      const result = await authenticationRepo.isTokenExist('refresh-token');
+      expect(result).toBe(false);
     });
   });
 });
