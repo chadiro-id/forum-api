@@ -1,5 +1,6 @@
 const InvariantError = require('./InvariantError');
 const AuthenticationError = require('./AuthenticationError');
+const NotFoundError = require('./NotFoundError');
 
 const usersUseCaseError = {
   'ADD_USER_USE_CASE.USERNAME_NOT_AVAILABLE': new InvariantError('username tidak tersedia'),
@@ -12,8 +13,14 @@ const authenticationsUseCaseError = {
   'DELETE_AUTHENTICATION_USE_CASE.REFRESH_TOKEN_NOT_FOUND': new InvariantError('refresh token tidak ditemukan di database'),
 };
 const threadsUseCaseError = {};
-const commentsUseCaseError = {};
-const repliesUseCaseError = {};
+const commentsUseCaseError = {
+  'ADD_COMMENT_USE_CASE.THREAD_NOT_FOUND': new NotFoundError('Thread tidak ada, id tidak ditemukan'),
+  'DELETE_COMMENT_USE_CASE.THREAD_NOT_FOUND': new NotFoundError('Thread tidak ada, id tidak ditemukan'),
+};
+const repliesUseCaseError = {
+  'ADD_REPLY_USE_CASE.THREAD_NOT_FOUND': new NotFoundError('Thread tidak ada, id tidak ditemukan'),
+  'DELETE_REPLY_USE_CASE.THREAD_NOT_FOUND': new NotFoundError('Thread tidak ada, id tidak ditemukan'),
+};
 
 const directories = Object.assign(
   {},
