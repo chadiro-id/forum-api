@@ -18,10 +18,19 @@ class AddAuthenticationUseCase {
   async execute(payload) {
     const { username, password } = new UserLogin(payload);
 
-    const encryptedPassword = await this._userRepository.getPasswordByUsername(username);
-    await this._passwordHash.comparePassword(password, encryptedPassword);
+    const [id, encryptedPassword] = await Promise.all([
+      this._userRepository.getIdByUsername(username),
+      this._userRepository.getPasswordByUsername(username),
+    ]);
 
-    const id = await this._userRepository.getIdByUsername(username);
+    if (!id || !encryptedPassword) {
+      throw new Error('ADD_AUTHENTICATION_USE_CASE.USER_NOT_EXIST');
+    }
+
+    const isPasswordMatch = await this._passwordHash.comparePassword(password, encryptedPassword);
+    if (!isPasswordMatch) {
+      throw new Error('ADD_AUTHENTICATION_USE_CASE.PASSWORD_NOT_MATCH');
+    }
 
     const authenticationPayload = new AuthenticationPayload({ id, username });
     const accessToken = await this._authenticationTokenManager.createAccessToken(authenticationPayload);
