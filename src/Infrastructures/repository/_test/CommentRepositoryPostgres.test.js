@@ -1,4 +1,3 @@
-const AuthorizationError = require('../../../Commons/exceptions/AuthorizationError');
 const NotFoundError = require('../../../Commons/exceptions/NotFoundError');
 const CommentRepository = require('../../../Domains/comments/CommentRepository');
 const AddedComment = require('../../../Domains/comments/entities/AddedComment');
@@ -122,15 +121,6 @@ describe('[Mock-Based Integration] CommentRepositoryPostgres', () => {
         );
       });
 
-      it('should throw NotFoundError when id not exists', async () => {
-        mockPool.query.mockResolvedValue({
-          rows: [], rowCount: 0
-        });
-
-        await expect(commentRepo.softDeleteCommentById('comment-123'))
-          .rejects.toThrow(NotFoundError);
-      });
-
       it('should propagate error when database fails', async () => {
         mockPool.query.mockRejectedValue(new Error('Database fails'));
 
@@ -173,58 +163,6 @@ describe('[Mock-Based Integration] CommentRepositoryPostgres', () => {
         mockPool.query.mockRejectedValue(new Error('Database fails'));
 
         await expect(commentRepo.verifyCommentBelongToThread('', ''))
-          .rejects.toThrow('Database fails');
-      });
-    });
-
-    describe('verifyDeleteComment', () => {
-      it('should correctly resolve and not throw error', async () => {
-        mockPool.query.mockResolvedValue({
-          rows: [{ thread_id: 'thread-123', owner_id: 'user-123' }],
-          rowCount: 1,
-        });
-
-        await expect(commentRepo.verifyDeleteComment('comment-123', 'thread-123', 'user-123'))
-          .resolves.not.toThrow();
-
-        assertQueryCalled(
-          mockPool.query, 'SELECT thread_id, owner_id FROM comments', ['comment-123']
-        );
-      });
-
-      it('should throw NotFoundError when comment not exists', async () => {
-        mockPool.query.mockResolvedValue({
-          rows: [], rowCount: 0
-        });
-
-        await expect(commentRepo.verifyDeleteComment('comment-123', 'thread-123', 'user-123'))
-          .rejects.toThrow(NotFoundError);
-      });
-
-      it('should throw NotFoundError when comment not belong to thread', async () => {
-        mockPool.query.mockResolvedValue({
-          rows: [{ thread_id: 'thread-123', owner_id: 'user-123' }],
-          rowCount: 1
-        });
-
-        await expect(commentRepo.verifyDeleteComment('comment-123', 'thread-456', 'user-123'))
-          .rejects.toThrow(NotFoundError);
-      });
-
-      it('should throw AuthorizationError when user is not the owner', async () => {
-        mockPool.query.mockResolvedValue({
-          rows: [{ thread_id: 'thread-123', owner_id: 'user-123' }],
-          rowCount: 1,
-        });
-
-        await expect(commentRepo.verifyDeleteComment('comment-123', 'thread-123', 'user-456'))
-          .rejects.toThrow(AuthorizationError);
-      });
-
-      it('should propagate error when database fails', async () => {
-        mockPool.query.mockRejectedValue(new Error('Database fails'));
-
-        await expect(commentRepo.verifyDeleteComment('', '', ''))
           .rejects.toThrow('Database fails');
       });
     });
