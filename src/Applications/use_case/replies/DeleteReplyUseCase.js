@@ -14,7 +14,11 @@ class DeleteReplyUseCase {
   async execute(payload) {
     const { threadId, commentId, replyId, owner } = new DeleteReply(payload);
 
-    await this._threadRepository.verifyThreadExists(threadId);
+    const isThreadExist = await this._threadRepository.isThreadExist(threadId);
+    if (!isThreadExist) {
+      throw new Error('DELETE_REPLY_USE_CASE.THREAD_NOT_FOUND');
+    }
+
     await this._commentRepository.verifyCommentBelongToThread(commentId, threadId);
     await this._replyRepository.verifyDeleteReply(replyId, commentId, owner);
     await this._replyRepository.softDeleteReplyById(replyId);

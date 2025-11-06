@@ -15,7 +15,7 @@ describe('DeleteCommentUseCase', () => {
 
   beforeEach(() => {
     mockThreadRepo = new ThreadRepository();
-    mockThreadRepo.verifyThreadExists = jest.fn();
+    mockThreadRepo.isThreadExist = jest.fn();
 
     mockCommentRepo = new CommentRepository();
     mockCommentRepo.verifyDeleteComment = jest.fn();
@@ -38,18 +38,18 @@ describe('DeleteCommentUseCase', () => {
     });
 
     it('should propagate error when thread not exists', async () => {
-      mockThreadRepo.verifyThreadExists.mockRejectedValue(new Error('thread not found'));
+      mockThreadRepo.isThreadExist.mockResolvedValue(false);
 
       await expect(deleteCommentUseCase.execute({ ...dummyPayload }))
-        .rejects.toThrow();
+        .rejects.toThrow('DELETE_COMMENT_USE_CASE.THREAD_NOT_FOUND');
 
-      expect(mockThreadRepo.verifyThreadExists).toHaveBeenCalledWith(dummyPayload.threadId);
+      expect(mockThreadRepo.isThreadExist).toHaveBeenCalledWith(dummyPayload.threadId);
       expect(mockCommentRepo.verifyDeleteComment).not.toHaveBeenCalled();
       expect(mockCommentRepo.softDeleteCommentById).not.toHaveBeenCalled();
     });
 
     it('should propagate error when delete comment verification fails', async () => {
-      mockThreadRepo.verifyThreadExists.mockResolvedValue();
+      mockThreadRepo.isThreadExist.mockResolvedValue(true);
       mockCommentRepo.verifyDeleteComment.mockRejectedValue(new Error('verification fails'));
 
       const { threadId, commentId, owner } = dummyPayload;
@@ -57,13 +57,13 @@ describe('DeleteCommentUseCase', () => {
       await expect(deleteCommentUseCase.execute({ ...dummyPayload }))
         .rejects.toThrow();
 
-      expect(mockThreadRepo.verifyThreadExists).toHaveBeenCalledWith(threadId);
+      expect(mockThreadRepo.isThreadExist).toHaveBeenCalledWith(threadId);
       expect(mockCommentRepo.verifyDeleteComment).toHaveBeenCalledWith(commentId, threadId, owner);
       expect(mockCommentRepo.softDeleteCommentById).not.toHaveBeenCalled();
     });
 
     it('should propagate error when delete comment fails', async () => {
-      mockThreadRepo.verifyThreadExists.mockResolvedValue();
+      mockThreadRepo.isThreadExist.mockResolvedValue(true);
       mockCommentRepo.verifyDeleteComment.mockResolvedValue();
       mockCommentRepo.softDeleteCommentById.mockRejectedValue(new Error('delete comment fails'));
 
@@ -72,7 +72,7 @@ describe('DeleteCommentUseCase', () => {
       await expect(deleteCommentUseCase.execute({ ...dummyPayload }))
         .rejects.toThrow();
 
-      expect(mockThreadRepo.verifyThreadExists).toHaveBeenCalledWith(threadId);
+      expect(mockThreadRepo.isThreadExist).toHaveBeenCalledWith(threadId);
       expect(mockCommentRepo.verifyDeleteComment).toHaveBeenCalledWith(commentId, threadId, owner);
       expect(mockCommentRepo.softDeleteCommentById).toHaveBeenCalledTimes(1);
       expect(mockCommentRepo.softDeleteCommentById).toHaveBeenCalledWith(commentId);
@@ -81,7 +81,7 @@ describe('DeleteCommentUseCase', () => {
 
   describe('Successful executions', () => {
     it('should correctly orchestracting the delete comment action', async () => {
-      mockThreadRepo.verifyThreadExists.mockResolvedValue();
+      mockThreadRepo.isThreadExist.mockResolvedValue(true);
       mockCommentRepo.verifyDeleteComment.mockResolvedValue();
       mockCommentRepo.softDeleteCommentById.mockResolvedValue();
 
@@ -90,8 +90,8 @@ describe('DeleteCommentUseCase', () => {
       await expect(deleteCommentUseCase.execute({ ...dummyPayload }))
         .resolves.not.toThrow();
 
-      expect(mockThreadRepo.verifyThreadExists).toHaveBeenCalledTimes(1);
-      expect(mockThreadRepo.verifyThreadExists).toHaveBeenCalledWith(threadId);
+      expect(mockThreadRepo.isThreadExist).toHaveBeenCalledTimes(1);
+      expect(mockThreadRepo.isThreadExist).toHaveBeenCalledWith(threadId);
       expect(mockCommentRepo.verifyDeleteComment).toHaveBeenCalledTimes(1);
       expect(mockCommentRepo.verifyDeleteComment).toHaveBeenCalledWith(commentId, threadId, owner);
       expect(mockCommentRepo.softDeleteCommentById).toHaveBeenCalledTimes(1);

@@ -12,7 +12,11 @@ class DeleteCommentUseCase {
   async execute(payload) {
     const { threadId, commentId, owner } = new DeleteComent(payload);
 
-    await this._threadRepository.verifyThreadExists(threadId);
+    const isThreadExist = await this._threadRepository.isThreadExist(threadId);
+    if (!isThreadExist) {
+      throw new Error('DELETE_COMMENT_USE_CASE.THREAD_NOT_FOUND');
+    }
+
     await this._commentRepository.verifyDeleteComment(commentId, threadId, owner);
     await this._commentRepository.softDeleteCommentById(commentId);
   }
