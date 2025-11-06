@@ -1,3 +1,4 @@
+const ClientError = require('../../../Commons/exceptions/ClientError');
 const AuthenticationRepository = require('../../../Domains/authentications/AuthenticationRepository');
 const AuthenticationRepositoryPostgres = require('../AuthenticationRepositoryPostgres');
 const { assertQueryCalled } = require('../../../../tests/helper/assertionsHelper');
@@ -40,6 +41,8 @@ describe('[Mock-Based Integration] AuthenticationRepositoryPostgres', () => {
 
         await expect(authenticationRepo.addToken('token'))
           .rejects.toThrow();
+        await expect(authenticationRepo.addToken('token'))
+          .rejects.not.toThrow(ClientError);
       });
     });
 
@@ -60,6 +63,8 @@ describe('[Mock-Based Integration] AuthenticationRepositoryPostgres', () => {
 
         await expect(authenticationRepo.deleteToken('token'))
           .rejects.toThrow();
+        await expect(authenticationRepo.deleteToken('token'))
+          .rejects.not.toThrow(ClientError);
       });
     });
 
@@ -96,6 +101,8 @@ describe('[Mock-Based Integration] AuthenticationRepositoryPostgres', () => {
 
         await expect(authenticationRepo.isTokenExist('token'))
           .rejects.toThrow();
+        await expect(authenticationRepo.isTokenExist('token'))
+          .rejects.not.toThrow(ClientError);
       });
     });
   });
