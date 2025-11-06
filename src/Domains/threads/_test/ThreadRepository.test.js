@@ -4,13 +4,13 @@ describe('ThreadRepository', () => {
   it('should throw error with properly message when abstract method invoked', async () => {
     const threadRepository = new ThreadRepository();
 
-    await expect(threadRepository.addThread({}))
+    await expect(threadRepository.addThread())
       .rejects
       .toThrow('THREAD_REPOSITORY.METHOD_NOT_IMPLEMENTED');
-    await expect(threadRepository.getThreadById(''))
+    await expect(threadRepository.getThreadById())
       .rejects
       .toThrow('THREAD_REPOSITORY.METHOD_NOT_IMPLEMENTED');
-    await expect(threadRepository.verifyThreadExists(''))
+    await expect(threadRepository.isThreadExist())
       .rejects
       .toThrow('THREAD_REPOSITORY.METHOD_NOT_IMPLEMENTED');
   });
