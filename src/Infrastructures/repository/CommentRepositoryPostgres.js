@@ -1,5 +1,4 @@
 const NotFoundError = require('../../Commons/exceptions/NotFoundError');
-const AuthorizationError = require('../../Commons/exceptions/AuthorizationError');
 const CommentRepository = require('../../Domains/comments/CommentRepository');
 const Comment = require('../../Domains/comments/entities/Comment');
 const AddedComment = require('../../Domains/comments/entities/AddedComment');
@@ -57,16 +56,27 @@ class CommentRepositoryPostgres extends CommentRepository {
     return result.rows.map((row) => this._transformToComment(row));
   }
 
-  async softDeleteCommentById(id) {
+  async getCommentForDeletion(id, threadId) {
     const query = {
-      text: 'UPDATE comments SET is_delete = TRUE WHERE id = $1 RETURNING id',
-      values: [id],
+      text: 'SELECT owner_id FROM comments WHERE id = $1 AND thread_id = $2',
+      values: [id, threadId],
     };
 
     const result = await this._pool.query(query);
     if (!result.rows.length) {
-      throw new NotFoundError('Tidak dapat menghapus komentar, id tidak ditemukan');
+      return null;
     }
+
+    return { owner: result.rows[0].owner_id };
+  }
+
+  async softDeleteCommentById(id) {
+    const query = {
+      text: 'UPDATE comments SET is_delete = TRUE WHERE id = $1',
+      values: [id],
+    };
+
+    await this._pool.query(query);
   }
 
   async verifyCommentBelongToThread(commentId, threadId) {
@@ -82,26 +92,6 @@ class CommentRepositoryPostgres extends CommentRepository {
 
     if (result.rows[0].thread_id !== threadId) {
       throw new NotFoundError('Komentar untuk thread tidak ditemukan, id tidak terkait');
-    }
-  }
-
-  async verifyDeleteComment(id, threadId, owner) {
-    const query = {
-      text: 'SELECT thread_id, owner_id FROM comments WHERE id = $1',
-      values: [id],
-    };
-
-    const result = await this._pool.query(query);
-    if (!result.rows.length) {
-      throw new NotFoundError('Komentar tidak ada, id tidak ditemukan');
-    }
-
-    if (result.rows[0].thread_id !== threadId) {
-      throw new NotFoundError('Komentar untuk thread tidak ditemukan, id tidak terkait');
-    }
-
-    if (result.rows[0].owner_id !== owner) {
-      throw new AuthorizationError('Anda tidak memiliki hak akses');
     }
   }
 
