@@ -21,7 +21,8 @@ const commentsUseCaseError = {
 };
 const repliesUseCaseError = {
   'ADD_REPLY_USE_CASE.THREAD_NOT_FOUND': new NotFoundError('Thread tidak ditemukan'),
-  'DELETE_REPLY_USE_CASE.THREAD_NOT_FOUND': new NotFoundError('Thread tidak ada, id tidak ditemukan'),
+  'DELETE_REPLY_USE_CASE.REPLY_NOT_EXIST': new NotFoundError('Balasan tidak ditemukan'),
+  'DELETE_REPLY_USE_CASE.OWNER_NOT_MATCH': new AuthorizationError('Pengguna tidak memiliki hak akses'),
 };
 
 const directories = Object.assign(
