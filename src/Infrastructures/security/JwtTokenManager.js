@@ -1,5 +1,4 @@
 const AuthenticationTokenManager = require('../../Applications/security/AuthenticationTokenManager');
-const InvariantError = require('../../Commons/exceptions/InvariantError');
 
 class JwtTokenManager extends AuthenticationTokenManager {
   constructor(jwt, accessTokenKey, refreshTokenKey) {
@@ -22,9 +21,13 @@ class JwtTokenManager extends AuthenticationTokenManager {
     try {
       const artifacts = this._jwt.decode(token);
       this._jwt.verify(artifacts, this._refreshTokenKey);
+      return { isValid: true };
     } catch (err) {
       console.error('[JwtTokenManager]', err);
-      throw new InvariantError('refresh token tidak valid');
+      return {
+        isValid: false,
+        message: err.message,
+      };
     }
   }
 

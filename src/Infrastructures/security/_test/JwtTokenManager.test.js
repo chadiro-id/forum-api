@@ -1,5 +1,4 @@
 const Jwt = require('@hapi/jwt');
-const InvariantError = require('../../../Commons/exceptions/InvariantError');
 const JwtTokenManager = require('../JwtTokenManager');
 const AuthenticationTokenManager = require('../../../Applications/security/AuthenticationTokenManager');
 
@@ -42,22 +41,28 @@ describe('JwtTokenManager', () => {
   });
 
   describe('verifyRefreshToken', () => {
-    it('should throw InvariantError when verification fails', async () => {
+    it('should verify valid refresh token correctly', async () => {
+      const spyVerify = jest.spyOn(Jwt.token, 'verify');
+      const jwtTokenManager = new JwtTokenManager(Jwt.token, 'access_token_key', 'refresh_token_key');
+      const refreshToken = await jwtTokenManager.createRefreshToken({ username: 'johndoe' });
+      const artifacts = Jwt.token.decode(refreshToken);
+
+      const result = await jwtTokenManager.verifyRefreshToken(refreshToken);
+      expect(result).toStrictEqual({ isValid: true });
+
+      expect(spyVerify).toHaveBeenCalledTimes(1);
+      expect(spyVerify).toHaveBeenCalledWith(artifacts, 'refresh_token_key');
+    });
+
+    it('should verify invalid refresh token correctly', async () => {
       const jwtTokenManager = new JwtTokenManager(Jwt.token, 'access_token_key', 'refresh_token_key');
       const accessToken = await jwtTokenManager.createAccessToken({ username: 'johndoe' });
 
-      await expect(jwtTokenManager.verifyRefreshToken(accessToken))
-        .rejects
-        .toThrow(InvariantError);
-    });
-
-    it('should not throw error when a valid refresh token provided', async () => {
-      const jwtTokenManager = new JwtTokenManager(Jwt.token, 'access_token_key', 'refresh_token_key');
-      const refreshToken = await jwtTokenManager.createRefreshToken({ username: 'johndoe' });
-
-      await expect(jwtTokenManager.verifyRefreshToken(refreshToken))
-        .resolves
-        .not.toThrow();
+      const result = await jwtTokenManager.verifyRefreshToken(accessToken);
+      expect(result).toEqual({
+        isValid: false,
+        message: expect.any(String),
+      });
     });
   });
 
