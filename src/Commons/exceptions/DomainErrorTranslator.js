@@ -8,6 +8,7 @@ const authenticationsUseCaseError = {
   'ADD_AUTHENTICATION_USE_CASE.USER_NOT_EXIST': new InvariantError('user tidak ada, username tidak ditemukan'),
   'ADD_AUTHENTICATION_USE_CASE.PASSWORD_NOT_MATCH': new AuthenticationError('kredensial yang Anda masukkan salah'),
   'PUT_AUTHENTICATION_USE_CASE.REFRESH_TOKEN_NOT_FOUND': new InvariantError('refresh token tidak ditemukan di database'),
+  'PUT_AUTHENTICATION_USE_CASE.REFRESH_TOKEN_NOT_VALID': new InvariantError('refresh token tidak valid'),
   'DELETE_AUTHENTICATION_USE_CASE.REFRESH_TOKEN_NOT_FOUND': new InvariantError('refresh token tidak ditemukan di database'),
 };
 const threadsUseCaseError = {};
