@@ -1,5 +1,3 @@
-const AuthorizationError = require('../../Commons/exceptions/AuthorizationError');
-const NotFoundError = require('../../Commons/exceptions/NotFoundError');
 const AddedReply = require('../../Domains/replies/entities/AddedReply');
 const Reply = require('../../Domains/replies/entities/Reply');
 const ReplyRepository = require('../../Domains/replies/ReplyRepository');
@@ -57,36 +55,34 @@ class ReplyRepositoryPostgres extends ReplyRepository {
     return result.rows.map((row) => this._transformToReply(row));
   }
 
-  async softDeleteReplyById(id) {
+  async getReplyForDeletion(id, commentId, threadId) {
     const query = {
-      text: 'UPDATE replies SET is_delete = TRUE WHERE id = $1 RETURNING id',
-      values: [id],
+      text: `
+      SELECT r.owner_id
+      FROM replies r
+      JOIN comments c ON r.comment_id = c.id
+      WHERE r.id = $1
+        AND r.comment_id = $2
+        AND c.thread_id = $3
+      `,
+      values: [id, commentId, threadId],
     };
 
     const result = await this._pool.query(query);
     if (!result.rows.length) {
-      throw new NotFoundError('Tidak dapat menghapus balasan, id tidak ditemukan');
+      return null;
     }
+
+    return { owner: result.rows[0].owner_id };
   }
 
-  async verifyDeleteReply(id, commentId, owner) {
+  async softDeleteReplyById(id) {
     const query = {
-      text: 'SELECT comment_id, owner_id FROM replies WHERE id = $1',
+      text: 'UPDATE replies SET is_delete = TRUE WHERE id = $1',
       values: [id],
     };
 
-    const result = await this._pool.query(query);
-    if (!result.rows.length) {
-      throw new NotFoundError('Balasan tidak ada, id tidak ditemukan');
-    }
-
-    if (result.rows[0].comment_id !== commentId) {
-      throw new NotFoundError('Balasan untuk komentar tidak ditemukan, id tidak terkait');
-    }
-
-    if (result.rows[0].owner_id !== owner) {
-      throw new AuthorizationError('Anda tidak memiliki hak akses');
-    }
+    await this._pool.query(query);
   }
 
   _transformToAddedReply({
