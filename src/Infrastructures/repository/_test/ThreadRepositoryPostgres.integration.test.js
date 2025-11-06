@@ -1,7 +1,6 @@
 const ThreadRepositoryPostgres = require('../ThreadRepositoryPostgres');
 const NewThread = require('../../../Domains/threads/entities/NewThread');
 const AddedThread = require('../../../Domains/threads/entities/AddedThread');
-const NotFoundError = require('../../../Commons/exceptions/NotFoundError');
 const DetailThread = require('../../../Domains/threads/entities/DetailThread');
 const pgTest = require('../../../../tests/helper/postgres');
 const ClientError = require('../../../Commons/exceptions/ClientError');
@@ -104,26 +103,23 @@ describe('[Integration] ThreadRepositoryPostgres', () => {
       }));
     });
 
-    it('should throw NotFoundError when id not exists', async () => {
-      await expect(threadRepo.getThreadById('nonexistent-thread-id'))
-        .rejects
-        .toThrow(NotFoundError);
+    it('should return null when id not exists', async () => {
+      const thread = await threadRepo.getThreadById('nonexistent-thread-id');
+      expect(thread).toBeNull();
     });
   });
 
-  describe('verifyThreadExists', () => {
-    it('should resolves when thread exists', async () => {
+  describe('isThreadExist', () => {
+    it('should return true when thread exist', async () => {
       await pgTest.threads.add({ owner_id: user.id });
 
-      await expect(threadRepo.verifyThreadExists('thread-001'))
-        .resolves
-        .not.toThrow();
+      const result = await threadRepo.isThreadExist('thread-001');
+      expect(result).toBe(true);
     });
 
     it('should throw NotFoundError when thread not exists', async () => {
-      await expect(threadRepo.verifyThreadExists('nonexistent-thread-id'))
-        .rejects
-        .toThrow(NotFoundError);
+      const result = await threadRepo.isThreadExist('thread-001');
+      expect(result).toBe(false);
     });
   });
 });

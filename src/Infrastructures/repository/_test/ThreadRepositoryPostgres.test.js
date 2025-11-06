@@ -1,4 +1,3 @@
-const NotFoundError = require('../../../Commons/exceptions/NotFoundError');
 const AddedThread = require('../../../Domains/threads/entities/AddedThread');
 const DetailThread = require('../../../Domains/threads/entities/DetailThread');
 const NewThread = require('../../../Domains/threads/entities/NewThread');
@@ -6,6 +5,7 @@ const ThreadRepository = require('../../../Domains/threads/ThreadRepository');
 const ThreadRepositoryPostgres = require('../ThreadRepositoryPostgres');
 const { assertQueryCalled } = require('../../../../tests/helper/assertionsHelper');
 const { createRawThread } = require('../../../../tests/util');
+const ClientError = require('../../../Commons/exceptions/ClientError');
 
 describe('[Mock-Based Integration] ThreadRepositoryPostgres', () => {
   it('must be an instance of ThreadRepository', () => {
@@ -92,13 +92,13 @@ describe('[Mock-Based Integration] ThreadRepositoryPostgres', () => {
         }));
       });
 
-      it('should throw NotFoundError when id not exists', async () => {
+      it('should return null when id not exists', async () => {
         mockPool.query.mockResolvedValue({
           rows: [], rowCount: 0
         });
 
-        await expect(threadRepo.getThreadById('thread-123'))
-          .rejects.toThrow(NotFoundError);
+        const thread = await threadRepo.getThreadById('thread-123');
+        expect(thread).toBeNull();
       });
 
       it('should propagate error when database fails', async () => {
@@ -109,33 +109,35 @@ describe('[Mock-Based Integration] ThreadRepositoryPostgres', () => {
       });
     });
 
-    describe('verifyThreadExists', () => {
-      it('should resolves when thread exists', async () => {
+    describe('isThreadExist', () => {
+      it('should return true when thread exist', async () => {
         mockPool.query.mockResolvedValue({
           rows: [{ id: 'thread-123' }],
           rowCount: 1,
         });
 
-        await expect(threadRepo.verifyThreadExists('thread-123'))
-          .resolves.not.toThrow();
+        const result = await threadRepo.isThreadExist('thread-123');
+        expect(result).toBe(true);
 
         assertQueryCalled(mockPool.query, 'SELECT id FROM threads', ['thread-123']);
       });
 
-      it('should throw NotFoundError when thread not exists', async () => {
+      it('should return false when thread not exist', async () => {
         mockPool.query.mockResolvedValue({
           rows: [], rowCount: 0
         });
 
-        await expect(threadRepo.verifyThreadExists('thread-123'))
-          .rejects.toThrow(NotFoundError);
+        const result = await threadRepo.isThreadExist('thread-123');
+        expect(result).toBe(false);
       });
 
       it('should propagate error when database fails', async () => {
         mockPool.query.mockRejectedValue(new Error('Database fails'));
 
-        await expect(threadRepo.verifyThreadExists({}))
+        await expect(threadRepo.isThreadExist('thread-id'))
           .rejects.toThrow();
+        await expect(threadRepo.isThreadExist('thread-id'))
+          .rejects.not.toThrow(ClientError);
       });
     });
   });
