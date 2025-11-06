@@ -14,7 +14,10 @@ class PutAuthenticationUseCase {
 
     const { refreshToken } = payload;
 
-    await this._authenticationTokenManager.verifyRefreshToken(refreshToken);
+    const { isValid } = await this._authenticationTokenManager.verifyRefreshToken(refreshToken);
+    if (!isValid) {
+      throw new Error('PUT_AUTHENTICATION_USE_CASE.REFRESH_TOKEN_NOT_VALID');
+    }
 
     const isTokenExist = await this._authenticationRepository.isTokenExist(refreshToken);
     if (!isTokenExist) {

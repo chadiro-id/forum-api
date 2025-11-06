@@ -39,11 +39,11 @@ describe('PutAuthenticationUseCase', () => {
         .toThrow('PUT_AUTHENTICATION_USE_CASE.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
     });
 
-    it('should propagate error when verifyRefreshToken fails', async () => {
-      mockTokenManager.verifyRefreshToken.mockRejectedValue(new Error('verifications fails'));
+    it('should throw error when refresh token invalid', async () => {
+      mockTokenManager.verifyRefreshToken.mockResolvedValue({ isValid: false });
 
       await expect(putAuthenticationUseCase.execute({ refreshToken: 'refresh_token' }))
-        .rejects.toThrow();
+        .rejects.toThrow('PUT_AUTHENTICATION_USE_CASE.REFRESH_TOKEN_NOT_VALID');
 
       expect(mockTokenManager.verifyRefreshToken).toHaveBeenCalledWith('refresh_token');
       expect(mockAuthRepo.isTokenExist).not.toHaveBeenCalled();
@@ -54,7 +54,7 @@ describe('PutAuthenticationUseCase', () => {
     it('should throw error when refresh token not found', async () => {
       const refreshToken = 'refresh_token';
 
-      mockTokenManager.verifyRefreshToken.mockResolvedValue();
+      mockTokenManager.verifyRefreshToken.mockResolvedValue({ isValid: true });
       mockAuthRepo.isTokenExist.mockResolvedValue(false);
 
       await expect(putAuthenticationUseCase.execute({ refreshToken }))
@@ -69,7 +69,7 @@ describe('PutAuthenticationUseCase', () => {
     it('should propagate error when decoded payload not contain needed property', async () => {
       const refreshToken = 'refresh_token';
 
-      mockTokenManager.verifyRefreshToken.mockResolvedValue();
+      mockTokenManager.verifyRefreshToken.mockResolvedValue({ isValid: true });
       mockAuthRepo.isTokenExist.mockResolvedValue(true);
       mockTokenManager.decodePayload.mockResolvedValue({ username: 'johndoe' });
 
@@ -87,7 +87,7 @@ describe('PutAuthenticationUseCase', () => {
     it('should correctly orchestrating the put authentication action', async () => {
       const payload = { refreshToken: 'some_refresh_token' };
 
-      mockTokenManager.verifyRefreshToken.mockResolvedValue();
+      mockTokenManager.verifyRefreshToken.mockResolvedValue({ isValid: true });
       mockAuthRepo.isTokenExist.mockResolvedValue(true);
       mockTokenManager.decodePayload.mockResolvedValue({ username: 'johndoe', id: 'user-123' });
       mockTokenManager.createAccessToken.mockResolvedValue('new_access_token');
