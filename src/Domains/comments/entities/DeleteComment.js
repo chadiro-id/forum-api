@@ -1,4 +1,4 @@
-class DeleteComent {
+class DeleteComment {
   constructor(payload) {
     this._verifyPayload(payload);
 
@@ -24,4 +24,4 @@ class DeleteComent {
   }
 }
 
-module.exports = DeleteComent;
+module.exports = DeleteComment;

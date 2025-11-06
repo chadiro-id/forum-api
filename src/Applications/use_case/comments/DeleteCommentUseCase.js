@@ -1,4 +1,4 @@
-const DeleteComent = require('../../../Domains/comments/entities/DeleteComment');
+const DeleteComment = require('../../../Domains/comments/entities/DeleteComment');
 
 class DeleteCommentUseCase {
   constructor({
@@ -10,7 +10,7 @@ class DeleteCommentUseCase {
   }
 
   async execute(payload) {
-    const { threadId, commentId, owner } = new DeleteComent(payload);
+    const { threadId, commentId, owner } = new DeleteComment(payload);
 
     const isThreadExist = await this._threadRepository.isThreadExist(threadId);
     if (!isThreadExist) {
