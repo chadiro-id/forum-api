@@ -10,10 +10,10 @@ describe('CommentRepository', () => {
     await expect(commentRepository.getCommentsByThreadId())
       .rejects
       .toThrow('COMMENT_REPOSITORY.METHOD_NOT_IMPLEMENTED');
-    await expect(commentRepository.softDeleteCommentById())
+    await expect(commentRepository.getCommentForDeletion())
       .rejects
       .toThrow('COMMENT_REPOSITORY.METHOD_NOT_IMPLEMENTED');
-    await expect(commentRepository.verifyDeleteComment())
+    await expect(commentRepository.softDeleteCommentById())
       .rejects
       .toThrow('COMMENT_REPOSITORY.METHOD_NOT_IMPLEMENTED');
     await expect(commentRepository.verifyCommentBelongToThread())
