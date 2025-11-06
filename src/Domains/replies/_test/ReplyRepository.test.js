@@ -10,10 +10,10 @@ describe('ReplyRepository', () => {
     await expect(replyRepository.getRepliesByCommentIds())
       .rejects
       .toThrow('REPLY_REPOSITORY.METHOD_NOT_IMPLEMENTED');
-    await expect(replyRepository.softDeleteReplyById())
+    await expect(replyRepository.getReplyForDeletion())
       .rejects
       .toThrow('REPLY_REPOSITORY.METHOD_NOT_IMPLEMENTED');
-    await expect(replyRepository.verifyDeleteReply())
+    await expect(replyRepository.softDeleteReplyById())
       .rejects
       .toThrow('REPLY_REPOSITORY.METHOD_NOT_IMPLEMENTED');
   });

@@ -7,11 +7,11 @@ class ReplyRepository {
     throw new Error('REPLY_REPOSITORY.METHOD_NOT_IMPLEMENTED');
   }
 
-  async softDeleteReplyById(_id) {
+  async getReplyForDeletion(_id, _commentId, _threadId) {
     throw new Error('REPLY_REPOSITORY.METHOD_NOT_IMPLEMENTED');
   }
 
-  async verifyDeleteReply(_id, _commentId, _owner) {
+  async softDeleteReplyById(_id) {
     throw new Error('REPLY_REPOSITORY.METHOD_NOT_IMPLEMENTED');
   }
 }
