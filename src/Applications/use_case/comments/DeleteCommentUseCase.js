@@ -1,24 +1,31 @@
 const DeleteComment = require('../../../Domains/comments/entities/DeleteComment');
 
 class DeleteCommentUseCase {
-  constructor({
-    threadRepository,
-    commentRepository,
-  }) {
-    this._threadRepository = threadRepository;
+  constructor({ commentRepository }) {
     this._commentRepository = commentRepository;
   }
 
   async execute(payload) {
     const { threadId, commentId, owner } = new DeleteComment(payload);
 
-    const isThreadExist = await this._threadRepository.isThreadExist(threadId);
-    if (!isThreadExist) {
-      throw new Error('DELETE_COMMENT_USE_CASE.THREAD_NOT_FOUND');
+    const comment = await this._commentRepository.getCommentForDeletion(commentId, threadId);
+    this._verifyCommentDeletion(comment);
+
+    if (comment.owner !== owner) {
+      throw new Error('DELETE_COMMENT_USE_CASE.OWNER_NOT_MATCH');
     }
 
-    await this._commentRepository.verifyDeleteComment(commentId, threadId, owner);
     await this._commentRepository.softDeleteCommentById(commentId);
+  }
+
+  _verifyCommentDeletion(comment) {
+    if (comment === null) {
+      throw new Error('DELETE_COMMENT_USE_CASE.COMMENT_NOT_EXIST');
+    }
+
+    if (!comment.owner || typeof comment.owner !== 'string') {
+      throw new Error('DELETE_COMMENT_USE_CASE.COMMENT_OWNER_MUST_NON_EMPTY_STRING');
+    }
   }
 }
 
