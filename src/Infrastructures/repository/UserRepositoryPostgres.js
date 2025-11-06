@@ -1,4 +1,3 @@
-const InvariantError = require('../../Commons/exceptions/InvariantError');
 const RegisteredUser = require('../../Domains/users/entities/RegisteredUser');
 const UserRepository = require('../../Domains/users/UserRepository');
 
@@ -31,7 +30,7 @@ class UserRepositoryPostgres extends UserRepository {
 
     const result = await this._pool.query(query);
     if (!result.rows.length) {
-      throw new InvariantError('id tidak ada, username tidak ditemukan');
+      return null;
     }
 
     return result.rows[0].id;
@@ -45,7 +44,7 @@ class UserRepositoryPostgres extends UserRepository {
 
     const result = await this._pool.query(query);
     if (!result.rows.length) {
-      throw new InvariantError('password tidak ada, username tidak ditemukan');
+      return null;
     }
 
     return result.rows[0].password;

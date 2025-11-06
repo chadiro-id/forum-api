@@ -1,4 +1,3 @@
-const InvariantError = require('../../../Commons/exceptions/InvariantError');
 const RegisterUser = require('../../../Domains/users/entities/RegisterUser');
 const RegisteredUser = require('../../../Domains/users/entities/RegisteredUser');
 const UserRepositoryPostgres = require('../UserRepositoryPostgres');
@@ -81,23 +80,21 @@ describe('[Integration] UserRepositoryPostgres', () => {
   });
 
   describe('getIdByUsername', () => {
-    it('should correctly resolve and return the id', async () => {
+    it('should return the id when username exist', async () => {
       await pgTest.users.add({ id: 'user-321', username: 'johndoe' });
 
       const userId = await userRepo.getIdByUsername('johndoe');
-
       expect(userId).toEqual('user-321');
     });
 
-    it('should throw InvariantError when username not exists', async () => {
-      await expect(userRepo.getIdByUsername('johndoe'))
-        .rejects
-        .toThrow(InvariantError);
+    it('should return null when username not exist', async () => {
+      const userId = await userRepo.getIdByUsername('johndoe');
+      expect(userId).toBeNull();
     });
   });
 
   describe('getPasswordByUsername', () => {
-    it('should correctly resolve and return the password', async () => {
+    it('should return the password when username exist', async () => {
       await pgTest.users.add({
         username: 'johndoe',
         password: 'secret_password',
@@ -107,10 +104,9 @@ describe('[Integration] UserRepositoryPostgres', () => {
       expect(password).toBe('secret_password');
     });
 
-    it('should throw InvariantError when username not exists', () => {
-      return expect(userRepo.getPasswordByUsername('johndoe'))
-        .rejects
-        .toThrow(InvariantError);
+    it('should return null when username not exist', async () => {
+      const password = await userRepo.getPasswordByUsername('johndoe');
+      expect(password).toBeNull();
     });
   });
 
