@@ -57,7 +57,6 @@ class UserRepositoryPostgres extends UserRepository {
     };
 
     const result = await this._pool.query(query);
-
     return result.rows.length > 0;
   }
 }
