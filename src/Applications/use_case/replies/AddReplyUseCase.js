@@ -3,24 +3,21 @@ const NewReply = require('../../../Domains/replies/entities/NewReply');
 
 class AddReplyUseCase {
   constructor({
-    threadRepository,
     commentRepository,
     replyRepository,
   }) {
-    this._threadRepository = threadRepository;
     this._commentRepository = commentRepository;
     this._replyRepository = replyRepository;
   }
 
   async execute(payload) {
     const newReply = new NewReply(payload);
+    const { threadId, commentId } = payload;
 
-    const isThreadExist = await this._threadRepository.isThreadExist(payload.threadId);
-    if (!isThreadExist) {
-      throw new Error('ADD_REPLY_USE_CASE.THREAD_NOT_FOUND');
+    const isCommentExist = await this._commentRepository.isCommentExist(commentId, threadId);
+    if (!isCommentExist) {
+      throw new Error('ADD_REPLY_USE_CASE.COMMENT_NOT_EXIST');
     }
-
-    await this._commentRepository.verifyCommentBelongToThread(newReply.commentId, payload.threadId);
 
     const addedReply = await this._replyRepository.addReply(newReply);
     if (addedReply instanceof AddedReply === false) {
