@@ -1,4 +1,5 @@
 /* istanbul ignore file */
+const ClientError = require('../../src/Commons/exceptions/ClientError');
 const Comment = require('../../src/Domains/comments/entities/Comment');
 const Reply = require('../../src/Domains/replies/entities/Reply');
 
@@ -12,6 +13,11 @@ const assertQueryCalled = (
       values: queryValues,
     })
   );
+};
+
+const assertDBError = async (promise) => {
+  await expect(promise).rejects.toThrow();
+  await expect(promise).rejects.not.toThrow(ClientError);
 };
 
 const assertHttpResponseError = (
@@ -84,6 +90,7 @@ const expectReplyFromRepository = (reply, expectedSource) => {
 
 module.exports = {
   assertQueryCalled,
+  assertDBError,
   assertHttpResponseError,
   expectCommentFromResponse,
   expectReplyFromResponse,
