@@ -3,9 +3,8 @@ const DetailThread = require('../../../Domains/threads/entities/DetailThread');
 const NewThread = require('../../../Domains/threads/entities/NewThread');
 const ThreadRepository = require('../../../Domains/threads/ThreadRepository');
 const ThreadRepositoryPostgres = require('../ThreadRepositoryPostgres');
-const { assertQueryCalled } = require('../../../../tests/helper/assertionsHelper');
+const { assertQueryCalled, assertDBError } = require('../../../../tests/helper/assertionsHelper');
 const { createRawThread } = require('../../../../tests/util');
-const ClientError = require('../../../Commons/exceptions/ClientError');
 
 describe('[Mock-Based Integration] ThreadRepositoryPostgres', () => {
   it('must be an instance of ThreadRepository', () => {
@@ -63,8 +62,8 @@ describe('[Mock-Based Integration] ThreadRepositoryPostgres', () => {
       it('should propagate error when database fails', async () => {
         mockPool.query.mockRejectedValue(new Error('Database fails'));
 
-        await expect(threadRepo.addThread({}))
-          .rejects.toThrow();
+        const promise = threadRepo.addThread({});
+        await assertDBError(promise);
       });
     });
 
@@ -104,8 +103,8 @@ describe('[Mock-Based Integration] ThreadRepositoryPostgres', () => {
       it('should propagate error when database fails', async () => {
         mockPool.query.mockRejectedValue(new Error('Database fails'));
 
-        await expect(threadRepo.getThreadById({}))
-          .rejects.toThrow();
+        const promise = threadRepo.getThreadById('id');
+        await assertDBError(promise);
       });
     });
 
@@ -134,10 +133,8 @@ describe('[Mock-Based Integration] ThreadRepositoryPostgres', () => {
       it('should propagate error when database fails', async () => {
         mockPool.query.mockRejectedValue(new Error('Database fails'));
 
-        await expect(threadRepo.isThreadExist('thread-id'))
-          .rejects.toThrow();
-        await expect(threadRepo.isThreadExist('thread-id'))
-          .rejects.not.toThrow(ClientError);
+        const promise = threadRepo.isThreadExist('thread-id');
+        await assertDBError(promise);
       });
     });
   });
