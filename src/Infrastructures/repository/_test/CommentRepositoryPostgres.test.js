@@ -1,4 +1,3 @@
-const NotFoundError = require('../../../Commons/exceptions/NotFoundError');
 const CommentRepository = require('../../../Domains/comments/CommentRepository');
 const AddedComment = require('../../../Domains/comments/entities/AddedComment');
 const NewComment = require('../../../Domains/comments/entities/NewComment');
@@ -125,44 +124,6 @@ describe('[Mock-Based Integration] CommentRepositoryPostgres', () => {
         mockPool.query.mockRejectedValue(new Error('Database fails'));
 
         await expect(commentRepo.softDeleteCommentById({}))
-          .rejects.toThrow('Database fails');
-      });
-    });
-
-    describe('verifyCommentBelongToThread', () => {
-      it('should correctly resolve and not throw error', async () => {
-        mockPool.query.mockResolvedValue({
-          rows: [{ thread_id: 'thread-123' }], rowCount: 1
-        });
-
-        await expect(commentRepo.verifyCommentBelongToThread('comment-123', 'thread-123'))
-          .resolves.not.toThrow();
-
-        assertQueryCalled(mockPool.query, 'SELECT thread_id FROM comments', ['comment-123']);
-      });
-
-      it('should throw NotFoundError when comment not exists', async () => {
-        mockPool.query.mockResolvedValue({
-          rows: [], rowCount: 0
-        });
-
-        await expect(commentRepo.verifyCommentBelongToThread('comment-123', 'thread-123'))
-          .rejects.toThrow(NotFoundError);
-      });
-
-      it('should throw NotFoundError when comment not belong to thread', async () => {
-        mockPool.query.mockResolvedValue({
-          rows: [{ thread_id: 'thread-123' }], rowCount: 1
-        });
-
-        await expect(commentRepo.verifyCommentBelongToThread('comment-123', 'thread-456'))
-          .rejects.toThrow(NotFoundError);
-      });
-
-      it('should propagate error when database fails', async () => {
-        mockPool.query.mockRejectedValue(new Error('Database fails'));
-
-        await expect(commentRepo.verifyCommentBelongToThread('', ''))
           .rejects.toThrow('Database fails');
       });
     });

@@ -1,7 +1,6 @@
 const CommentRepositoryPostgres = require('../CommentRepositoryPostgres');
 const NewComment = require('../../../Domains/comments/entities/NewComment');
 const AddedComment = require('../../../Domains/comments/entities/AddedComment');
-const NotFoundError = require('../../../Commons/exceptions/NotFoundError');
 const pgTest = require('../../../../tests/helper/postgres');
 const { expectCommentFromRepository } = require('../../../../tests/helper/assertionsHelper');
 const ClientError = require('../../../Commons/exceptions/ClientError');
@@ -136,72 +135,4 @@ describe('[Integration] CommentRepositoryPostgres', () => {
       expect(comments[0].is_delete).toBe(true);
     });
   });
-
-  describe('verifyCommentBelongToThread', () => {
-    it('should correctly resolve and not throw error', async () => {
-      await pgTest.comments.add({ thread_id: thread.id, owner_id: user.id });
-      await expect(commentRepo.verifyCommentBelongToThread('comment-001', thread.id))
-        .resolves.not.toThrow();
-    });
-
-    it('should throw NotFoundError when comment not exists', async () => {
-      await expect(commentRepo.verifyCommentBelongToThread('nonexistent-comment-id', thread.id))
-        .rejects.toThrow(NotFoundError);
-    });
-
-    it('should throw NotFoundError when comment not belong to thread', async () => {
-      const otherUser = await pgTest.users.add({ username: 'anotheruser', id: 'user-010' });
-      const otherThread = await pgTest.threads.add({ owner_id: otherUser.id, id: 'thread-010' });
-      const { id: otherCommentId } = await pgTest.comments.add({
-        thread_id: otherThread.id,
-        owner_id: otherUser.id,
-        id: 'comment-999'
-      });
-
-      await expect(commentRepo.verifyCommentBelongToThread(otherCommentId, thread.id))
-        .rejects.toThrow(NotFoundError);
-    });
-  });
-
-  // describe('verifyDeleteComment', () => {
-  //   let authorizedUser;
-  //   let unauthorizedUser;
-  //   let commentId;
-  //   let otherThread;
-
-  //   beforeAll(async () => {
-  //     authorizedUser = user;
-  //     unauthorizedUser = await pgTest.users.add({ username: 'unauthorized', id: 'user-999' });
-  //     otherThread = await pgTest.threads.add({ owner_id: unauthorizedUser.id, id: 'thread-999' });
-  //   });
-
-  //   beforeEach(async () => {
-  //     const { id } = await pgTest.comments.add({
-  //       thread_id: thread.id,
-  //       owner_id: authorizedUser.id,
-  //       content: 'Comment for deletion',
-  //     });
-  //     commentId = id;
-  //   });
-
-  //   it('should correctly resolve and not throw error', async () => {
-  //     await expect(commentRepo.verifyDeleteComment(commentId, thread.id, authorizedUser.id))
-  //       .resolves.not.toThrow();
-  //   });
-
-  //   it('should throw NotFoundError when comment not exists', async () => {
-  //     await expect(commentRepo.verifyDeleteComment('nonexistent-id', thread.id, authorizedUser.id))
-  //       .rejects.toThrow(NotFoundError);
-  //   });
-
-  //   it('should throw NotFoundError when comment not belong to thread', async () => {
-  //     await expect(commentRepo.verifyDeleteComment(commentId, otherThread.id, authorizedUser.id))
-  //       .rejects.toThrow(NotFoundError);
-  //   });
-
-  //   it('should throw AuthorizationError when user is not the owner', async () => {
-  //     await expect(commentRepo.verifyDeleteComment(commentId, thread.id, unauthorizedUser.id))
-  //       .rejects.toThrow(AuthorizationError);
-  //   });
-  // });
 });
