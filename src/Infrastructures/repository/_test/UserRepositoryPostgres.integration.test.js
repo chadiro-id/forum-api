@@ -56,14 +56,14 @@ describe('[Integration] UserRepositoryPostgres', () => {
 
     });
 
-    it('should propagate error when id is exists', async () => {
+    it('should propagate error when id violate constraint', async () => {
       await pgTest.users.add({ id: 'user-123', username: 'whoami' });
 
       const promise = userRepo.addUser(registerUser);
       await assertDBError(promise);
     });
 
-    it('should propagate error when username is exists', async () => {
+    it('should propagate error when username violate constraint', async () => {
       await pgTest.users.add({ id: 'user-999', username: 'johndoe' });
 
       const promise = userRepo.addUser(registerUser);
