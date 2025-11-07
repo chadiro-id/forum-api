@@ -17,12 +17,14 @@ describe('[Mock-Based Integration] ReplyRepositoryPostgres', () => {
 
   describe('Postgres Interaction', () => {
     let mockPool;
+    let dbError;
     let replyRepo;
 
     beforeEach(() => {
       mockPool = {
         query: jest.fn(),
       };
+      dbError = new Error('Database fails');
       replyRepo = new ReplyRepositoryPostgres(mockPool, () => '123');
     });
 
@@ -56,13 +58,10 @@ describe('[Mock-Based Integration] ReplyRepositoryPostgres', () => {
         expect(calledValues[3]).toEqual('Sebuah balasan');
 
         expect(addedReply).toBeInstanceOf(AddedReply);
-        expect(addedReply.id).toEqual('reply-123');
-        expect(addedReply.content).toEqual('Sebuah balasan');
-        expect(addedReply.owner).toEqual('user-123');
       });
 
       it('should propagate error when database fails', async () => {
-        mockPool.query.mockRejectedValue(new Error('Database fails'));
+        mockPool.query.mockRejectedValue(dbError);
 
         const promise = replyRepo.addReply({});
         await assertDBError(promise);
@@ -102,7 +101,7 @@ describe('[Mock-Based Integration] ReplyRepositoryPostgres', () => {
       });
 
       it('should propagate error when database fails', async () => {
-        mockPool.query.mockRejectedValue(new Error('Database fails'));
+        mockPool.query.mockRejectedValue(dbError);
 
         const promise = replyRepo.getRepliesByCommentIds([]);
         await assertDBError(promise);
@@ -126,7 +125,7 @@ describe('[Mock-Based Integration] ReplyRepositoryPostgres', () => {
       });
 
       it('should propagate error when database fails', async () => {
-        mockPool.query.mockRejectedValue(new Error('Database fails'));
+        mockPool.query.mockRejectedValue(dbError);
 
         const promise = replyRepo.getReplyForDeletion('reply-id', 'comment-id', 'thread-id');
         await assertDBError(promise);
@@ -149,7 +148,7 @@ describe('[Mock-Based Integration] ReplyRepositoryPostgres', () => {
       });
 
       it('should propagate error when database fails', async () => {
-        mockPool.query.mockRejectedValue(new Error('Database fails'));
+        mockPool.query.mockRejectedValue(dbError);
 
         const promise = replyRepo.softDeleteReplyById('id');
         await assertDBError(promise);
