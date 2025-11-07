@@ -33,7 +33,7 @@ describe('[Mock-Based Integration] ReplyRepositoryPostgres', () => {
     });
 
     describe('addReply', () => {
-      it('should correctly persist the NewReply and return AddedReply', async () => {
+      it('should correctly call pool.query', async () => {
         mockPool.query.mockResolvedValue({
           rows: [{ id: 'reply-123', content: 'Sebuah balasan', owner_id: 'user-123' }],
           rowCount: 1,
@@ -69,7 +69,7 @@ describe('[Mock-Based Integration] ReplyRepositoryPostgres', () => {
     });
 
     describe('getRepliesByCommentIds', () => {
-      it('should correctly pool.query and return the array of reply', async () => {
+      it('should correctly call pool.query', async () => {
         const reply1 = createRawReply({ id: 'reply-101', comment_id: 'comment-101', username: 'whoami' });
         const reply2 = createRawReply({ id: 'reply-102', comment_id: 'comment-101', is_delete: true });
         const reply3 = createRawReply({ id: 'reply-103', comment_id: 'comment-102', username: 'whoami' });
@@ -133,7 +133,7 @@ describe('[Mock-Based Integration] ReplyRepositoryPostgres', () => {
     });
 
     describe('softDeleteReplyById', () => {
-      it('should correctly resolve and not thrown error', async () => {
+      it('should correctly call pool.query', async () => {
         mockPool.query.mockResolvedValue({
           rows: [{ id: 'reply-123' }],
           rowCount: 1
