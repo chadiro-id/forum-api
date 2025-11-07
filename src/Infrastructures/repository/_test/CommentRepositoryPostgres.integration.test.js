@@ -63,7 +63,7 @@ describe('[Integration] CommentRepositoryPostgres', () => {
       }));
     });
 
-    it('should propagate error when id is exists', async () => {
+    it('should propagate error when id violate constraint', async () => {
       await pgTest.comments.add({ id: 'comment-123', thread_id: thread.id, owner_id: user.id });
       const newComment = new NewComment({
         threadId: thread.id,
@@ -75,7 +75,7 @@ describe('[Integration] CommentRepositoryPostgres', () => {
       await assertDBError(promise);
     });
 
-    it('should propagate error when thread not exists', async () => {
+    it('should propagate error when thread id violate constraint', async () => {
       const newComment = new NewComment({
         threadId: 'nonexistent-thread-id',
         owner: user.id,
@@ -86,7 +86,7 @@ describe('[Integration] CommentRepositoryPostgres', () => {
       await assertDBError(promise);
     });
 
-    it('should propagate error when owner not exists', async () => {
+    it('should propagate error when owner id violate constraint', async () => {
       const newComment = new NewComment({
         threadId: thread.id,
         owner: 'nonexistent-user-id',
@@ -99,7 +99,7 @@ describe('[Integration] CommentRepositoryPostgres', () => {
   });
 
   describe('getCommentsByThreadId', () => {
-    it('should correctly resolve and return all comments including soft-deleted ones', async () => {
+    it('should return all comments including soft-deleted ones', async () => {
       const rawComment1 = await pgTest.comments.add({
         id: 'comment-101', thread_id: thread.id, owner_id: user.id
       });
