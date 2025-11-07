@@ -2,8 +2,10 @@ const ReplyRepositoryPostgres = require('../ReplyRepositoryPostgres');
 const NewReply = require('../../../Domains/replies/entities/NewReply');
 const AddedReply = require('../../../Domains/replies/entities/AddedReply');
 const pgTest = require('../../../../tests/helper/postgres');
-const { expectReplyFromRepository } = require('../../../../tests/helper/assertionsHelper');
-const ClientError = require('../../../Commons/exceptions/ClientError');
+const {
+  assertDBError,
+  expectReplyFromRepository,
+} = require('../../../../tests/helper/assertionsHelper');
 
 const FIXED_TIME = '2025-11-05T00:00:00.000Z';
 beforeAll(async () => {
@@ -43,13 +45,6 @@ describe('[Integration] ReplyRepositoryPostgres', () => {
   });
 
   describe('addReply', () => {
-    const expectAddReplyFails = async (newReply) => {
-      await expect(replyRepo.addReply(newReply))
-        .rejects.toThrow();
-      await expect(replyRepo.addReply(newReply))
-        .rejects.not.toThrow(ClientError);
-    };
-
     it('should correctly persist the NewReply and return AddedReply', async () => {
       const newReply = new NewReply({
         commentId: commentA.id,
@@ -85,7 +80,8 @@ describe('[Integration] ReplyRepositoryPostgres', () => {
         owner: userA.id,
       });
 
-      await expectAddReplyFails(newReply);
+      const promise = replyRepo.addReply(newReply);
+      await assertDBError(promise);
     });
 
     it('should propagate error when comment not exists', async () => {
@@ -95,7 +91,8 @@ describe('[Integration] ReplyRepositoryPostgres', () => {
         owner: userA.id,
       });
 
-      await expectAddReplyFails(newReply);
+      const promise = replyRepo.addReply(newReply);
+      await assertDBError(promise);
     });
 
     it('should propagate error when owner not exists', async () => {
@@ -105,7 +102,8 @@ describe('[Integration] ReplyRepositoryPostgres', () => {
         owner: 'nonexistent-user-id',
       });
 
-      await expectAddReplyFails(newReply);
+      const promise = replyRepo.addReply(newReply);
+      await assertDBError(promise);
     });
   });
 
