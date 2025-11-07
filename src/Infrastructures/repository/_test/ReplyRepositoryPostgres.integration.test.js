@@ -129,8 +129,7 @@ describe('[Integration] ReplyRepositoryPostgres', () => {
 
     it('should return an empty array when no reply found', async () => {
       const replies = await replyRepo.getRepliesByCommentIds([commentA.id, commentB.id]);
-
-      expect(replies).toEqual([]);
+      expect(replies).toStrictEqual([]);
     });
   });
 
@@ -154,13 +153,24 @@ describe('[Integration] ReplyRepositoryPostgres', () => {
 
   describe('softDeleteReplyById', () => {
     it('should resolves and update delete status correctly', async () => {
-      await pgTest.replies.add({ comment_id: commentB.id, owner_id: userA.id });
+      const insertedReply = await pgTest.replies.add({
+        comment_id: commentB.id,
+        owner_id: userA.id,
+      });
 
       await expect(replyRepo.softDeleteReplyById('reply-001'))
         .resolves.not.toThrow();
 
       const replies = await pgTest.replies.findById('reply-001');
-      expect(replies[0].is_delete).toBe(true);
+      expect(replies).toHaveLength(1);
+      expect(replies[0]).toStrictEqual({
+        id: insertedReply.id,
+        comment_id: insertedReply.comment_id,
+        owner_id: insertedReply.owner_id,
+        content: insertedReply.content,
+        is_delete: true,
+        created_at: insertedReply.created_at,
+      });
     });
   });
 });
