@@ -124,6 +124,22 @@ describe('[Integration] CommentRepositoryPostgres', () => {
     });
   });
 
+  describe('getCommentForDeletion', () => {
+    it('should return object when comment exist', async () => {
+      await pgTest.comments.add({
+        id: 'comment-001', thread_id: thread.id, owner_id: user.id
+      });
+
+      const comment = await commentRepo.getCommentForDeletion('comment-001', thread.id);
+      expect(comment).toStrictEqual({ owner: user.id });
+    });
+
+    it('should return null when comment not exist', async () => {
+      const comment = await commentRepo.getCommentForDeletion('comment-id', 'thread-id');
+      expect(comment).toBeNull();
+    });
+  });
+
   describe('softDeleteCommentById', () => {
     it('should resolves and update delete status', async () => {
       await pgTest.comments.add({ thread_id: thread.id, owner_id: user.id });

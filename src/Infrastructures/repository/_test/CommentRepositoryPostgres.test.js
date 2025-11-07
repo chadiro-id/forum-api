@@ -106,6 +106,38 @@ describe('[Mock-Based Integration] CommentRepositoryPostgres', () => {
       });
     });
 
+    describe('getCommentForDeletion', () => {
+      it('should correctly call pool.query and return comment object', async () => {
+        mockPool.query.mockResolvedValue({
+          rows: [{ owner_id: 'user-123' }],
+          rowCount: 1,
+        });
+
+        const comment = await commentRepo.getCommentForDeletion('comment-001', 'thread-001');
+        expect(comment).toStrictEqual({ owner: 'user-123' });
+
+        assertQueryCalled(
+          mockPool.query, 'SELECT owner_id FROM comments', ['comment-001', 'thread-001']
+        );
+      });
+
+      it('should return null when comment not exist', async () => {
+        mockPool.query.mockResolvedValue({
+          rows: [], rowCount: 0
+        });
+
+        const comment = await commentRepo.getCommentForDeletion('comment-001', 'thread-001');
+        expect(comment).toBeNull();
+      });
+
+      it('should propagate error when database fails', async () => {
+        mockPool.query.mockRejectedValue(new Error('Database fails'));
+
+        const promise = commentRepo.getCommentForDeletion('comment-001', 'thread-001');
+        await assertDBError(promise);
+      });
+    });
+
     describe('softDeleteCommentById', () => {
       it('should correctly resolve and not throw error', async () => {
         mockPool.query.mockResolvedValue({
@@ -132,7 +164,7 @@ describe('[Mock-Based Integration] CommentRepositoryPostgres', () => {
     describe('isCommentExist', () => {
       it('should return true when comment exist', async () => {
         mockPool.query.mockResolvedValue({
-          rows: [{ owner: 'user-123' }], rowCount: 1
+          rows: [{ id: 'comment-001' }], rowCount: 1
         });
 
         const isExist = await commentRepo.isCommentExist('comment-001', 'thread-001');
