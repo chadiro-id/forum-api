@@ -5,6 +5,7 @@ const CommentRepositoryPostgres = require('../CommentRepositoryPostgres');
 const { createRawComment } = require('../../../../tests/util');
 const {
   assertQueryCalled,
+  assertDBError,
   expectCommentFromRepository,
 }= require('../../../../tests/helper/assertionsHelper');
 
@@ -64,8 +65,8 @@ describe('[Mock-Based Integration] CommentRepositoryPostgres', () => {
       it('should propagate error when database fails', async () => {
         mockPool.query.mockRejectedValue(new Error('Database fails'));
 
-        await expect(commentRepo.addComment({}))
-          .rejects.toThrow('Database fails');
+        const promise = commentRepo.addComment({});
+        await assertDBError(promise);
       });
     });
 
@@ -100,8 +101,8 @@ describe('[Mock-Based Integration] CommentRepositoryPostgres', () => {
       it('should propagate error when database fails', async () => {
         mockPool.query.mockRejectedValue(new Error('Database fails'));
 
-        await expect(commentRepo.getCommentsByThreadId({}))
-          .rejects.toThrow('Database fails');
+        const promise = commentRepo.getCommentsByThreadId('comment-id');
+        await assertDBError(promise);
       });
     });
 
@@ -123,8 +124,37 @@ describe('[Mock-Based Integration] CommentRepositoryPostgres', () => {
       it('should propagate error when database fails', async () => {
         mockPool.query.mockRejectedValue(new Error('Database fails'));
 
-        await expect(commentRepo.softDeleteCommentById({}))
-          .rejects.toThrow('Database fails');
+        const promise = commentRepo.softDeleteCommentById('comment-id');
+        await assertDBError(promise);
+      });
+    });
+
+    describe('isCommentExist', () => {
+      it('should return true when comment exist', async () => {
+        mockPool.query.mockResolvedValue({
+          rows: [{ owner: 'user-123' }], rowCount: 1
+        });
+
+        const isExist = await commentRepo.isCommentExist('comment-001', 'thread-001');
+        expect(isExist).toBe(true);
+
+        assertQueryCalled(mockPool.query, 'SELECT', ['comment-001', 'thread-001']);
+      });
+
+      it('should return false when comment not exist', async () => {
+        mockPool.query.mockResolvedValue({
+          rows: [], rowCount: 0
+        });
+
+        const isExist = await commentRepo.isCommentExist('comment-001', 'thread-001');
+        expect(isExist).toBe(false);
+      });
+
+      it('should propagate error when database fails', async () => {
+        mockPool.query.mockRejectedValue(new Error('Database fails'));
+
+        const promise = commentRepo.isCommentExist('comment-id', 'thread-id');
+        await assertDBError(promise);
       });
     });
   });
