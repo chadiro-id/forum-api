@@ -20,7 +20,7 @@ const commentsUseCaseError = {
   'DELETE_COMMENT_USE_CASE.OWNER_NOT_MATCH': new AuthorizationError('Pengguna tidak memiliki hak akses'),
 };
 const repliesUseCaseError = {
-  'ADD_REPLY_USE_CASE.THREAD_NOT_FOUND': new NotFoundError('Thread tidak ditemukan'),
+  'ADD_REPLY_USE_CASE.COMMENT_NOT_EXIST': new NotFoundError('Komentar tidak ditemukan'),
   'DELETE_REPLY_USE_CASE.REPLY_NOT_EXIST': new NotFoundError('Balasan tidak ditemukan'),
   'DELETE_REPLY_USE_CASE.OWNER_NOT_MATCH': new AuthorizationError('Pengguna tidak memiliki hak akses'),
 };
