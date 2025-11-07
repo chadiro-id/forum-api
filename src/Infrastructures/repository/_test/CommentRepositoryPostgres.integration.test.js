@@ -149,6 +149,7 @@ describe('[Integration] CommentRepositoryPostgres', () => {
         .resolves.not.toThrow();
 
       const comments = await pgTest.comments.findById('comment-001');
+      expect(comments).toHaveLength(1);
       expect(comments[0]).toStrictEqual({
         id: insertedComment.id,
         thread_id: insertedComment.thread_id,
