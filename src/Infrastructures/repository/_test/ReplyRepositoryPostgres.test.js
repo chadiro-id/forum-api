@@ -5,6 +5,7 @@ const ReplyRepositoryPostgres = require('../ReplyRepositoryPostgres');
 const { createRawReply } = require('../../../../tests/util');
 const {
   assertQueryCalled,
+  assertDBError,
   expectReplyFromRepository,
 } = require('../../../../tests/helper/assertionsHelper');
 
@@ -63,8 +64,8 @@ describe('[Mock-Based Integration] ReplyRepositoryPostgres', () => {
       it('should propagate error when database fails', async () => {
         mockPool.query.mockRejectedValue(new Error('Database fails'));
 
-        await expect(replyRepo.addReply({}))
-          .rejects.toThrow('Database fails');
+        const promise = replyRepo.addReply({});
+        await assertDBError(promise);
       });
     });
 
@@ -103,8 +104,8 @@ describe('[Mock-Based Integration] ReplyRepositoryPostgres', () => {
       it('should propagate error when database fails', async () => {
         mockPool.query.mockRejectedValue(new Error('Database fails'));
 
-        await expect(replyRepo.getRepliesByCommentIds({}))
-          .rejects.toThrow('Database fails');
+        const promise = replyRepo.getRepliesByCommentIds([]);
+        await assertDBError(promise);
       });
     });
 
@@ -126,8 +127,8 @@ describe('[Mock-Based Integration] ReplyRepositoryPostgres', () => {
       it('should propagate error when database fails', async () => {
         mockPool.query.mockRejectedValue(new Error('Database fails'));
 
-        await expect(replyRepo.softDeleteReplyById({}))
-          .rejects.toThrow('Database fails');
+        const promise = replyRepo.softDeleteReplyById('id');
+        await assertDBError(promise);
       });
     });
   });
