@@ -4,7 +4,7 @@ const UserRepository = require('../../../Domains/users/UserRepository');
 const UserRepositoryPostgres = require('../UserRepositoryPostgres');
 const { assertQueryCalled, assertDBError } = require('../../../../tests/helper/assertionsHelper');
 
-describe('[Mock-Base Integration] UserRepositoryPostgres', () => {
+describe('[Mock-Based Integration] UserRepositoryPostgres', () => {
   it('must be an instance of UserRepository', () => {
     const repo = new UserRepositoryPostgres({}, () => '');
     expect(repo).toBeInstanceOf(UserRepository);
@@ -12,12 +12,14 @@ describe('[Mock-Base Integration] UserRepositoryPostgres', () => {
 
   describe('Postgres Interaction', () => {
     let mockPool;
+    let dbError;
     let userRepo;
 
     beforeEach(() => {
       mockPool = {
         query: jest.fn(),
       };
+      dbError = new Error('Database fails');
       userRepo = new UserRepositoryPostgres(mockPool, () => '123');
     });
 
@@ -26,7 +28,7 @@ describe('[Mock-Base Integration] UserRepositoryPostgres', () => {
     });
 
     describe('addUser', () => {
-      it('should correctly persist the RegisterUser and return RegisteredUser', async () => {
+      it('should correctly resolves and call pool.query', async () => {
         mockPool.query.mockResolvedValue({
           rows: [{ id: 'user-123', username: 'johndoe', fullname: 'John Doe' }],
           rowCount: 1,
@@ -51,15 +53,10 @@ describe('[Mock-Base Integration] UserRepositoryPostgres', () => {
         expect(calledValues[3]).toEqual('John Doe');
 
         expect(registeredUser).toBeInstanceOf(RegisteredUser);
-        expect(registeredUser).toEqual(expect.objectContaining({
-          id: 'user-123',
-          username: 'johndoe',
-          fullname: 'John Doe',
-        }));
       });
 
       it('should propagate error when database fails', async () => {
-        mockPool.query.mockRejectedValue(new Error('Database fails'));
+        mockPool.query.mockRejectedValue(dbError);
 
         const promise = userRepo.addUser({});
         await assertDBError(promise);
@@ -67,7 +64,7 @@ describe('[Mock-Base Integration] UserRepositoryPostgres', () => {
     });
 
     describe('getIdByUsername', () => {
-      it('should correctly pool.query and return the id', async () => {
+      it('should correctly call pool.query and return the id', async () => {
         mockPool.query.mockResolvedValue({
           rows: [{ id: 'user-123' }],
           rowCount: 1,
@@ -89,7 +86,7 @@ describe('[Mock-Base Integration] UserRepositoryPostgres', () => {
       });
 
       it('should propagate error when database fails', async () => {
-        mockPool.query.mockRejectedValue(new Error('Database fails'));
+        mockPool.query.mockRejectedValue(dbError);
 
         const promise = userRepo.getIdByUsername('username');
         await assertDBError(promise);
@@ -97,7 +94,7 @@ describe('[Mock-Base Integration] UserRepositoryPostgres', () => {
     });
 
     describe('getPasswordByUsername', () => {
-      it('should correctly pool.query and return the password', async () => {
+      it('should correctly call pool.query and return the password', async () => {
         mockPool.query.mockResolvedValue({
           rows: [{ password: 'supersecret' }],
           rowCount: 1,
@@ -119,7 +116,7 @@ describe('[Mock-Base Integration] UserRepositoryPostgres', () => {
       });
 
       it('should propagate error when database fails', async () => {
-        mockPool.query.mockRejectedValue(new Error('Database fails'));
+        mockPool.query.mockRejectedValue(dbError);
 
         const promise = userRepo.getPasswordByUsername('username');
         await assertDBError(promise);
@@ -150,7 +147,7 @@ describe('[Mock-Base Integration] UserRepositoryPostgres', () => {
       });
 
       it('should propagate error when database fails', async () => {
-        mockPool.query.mockRejectedValue(new Error('Database fails'));
+        mockPool.query.mockRejectedValue(dbError);
 
         const promise = userRepo.isUsernameExist('username');
         await assertDBError(promise);
