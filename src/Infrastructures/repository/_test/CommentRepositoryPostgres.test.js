@@ -17,12 +17,14 @@ describe('[Mock-Based Integration] CommentRepositoryPostgres', () => {
 
   describe('Postgres Interaction', () => {
     let mockPool;
+    let dbError;
     let commentRepo;
 
     beforeEach(() => {
       mockPool = {
         query: jest.fn(),
       };
+      dbError = new Error('Database fails');
       commentRepo = new CommentRepositoryPostgres(mockPool, () => '123');
     });
 
@@ -63,7 +65,7 @@ describe('[Mock-Based Integration] CommentRepositoryPostgres', () => {
       });
 
       it('should propagate error when database fails', async () => {
-        mockPool.query.mockRejectedValue(new Error('Database fails'));
+        mockPool.query.mockRejectedValue(dbError);
 
         const promise = commentRepo.addComment({});
         await assertDBError(promise);
@@ -99,7 +101,7 @@ describe('[Mock-Based Integration] CommentRepositoryPostgres', () => {
       });
 
       it('should propagate error when database fails', async () => {
-        mockPool.query.mockRejectedValue(new Error('Database fails'));
+        mockPool.query.mockRejectedValue(dbError);
 
         const promise = commentRepo.getCommentsByThreadId('comment-id');
         await assertDBError(promise);
@@ -131,7 +133,7 @@ describe('[Mock-Based Integration] CommentRepositoryPostgres', () => {
       });
 
       it('should propagate error when database fails', async () => {
-        mockPool.query.mockRejectedValue(new Error('Database fails'));
+        mockPool.query.mockRejectedValue(dbError);
 
         const promise = commentRepo.getCommentForDeletion('comment-001', 'thread-001');
         await assertDBError(promise);
@@ -154,7 +156,7 @@ describe('[Mock-Based Integration] CommentRepositoryPostgres', () => {
       });
 
       it('should propagate error when database fails', async () => {
-        mockPool.query.mockRejectedValue(new Error('Database fails'));
+        mockPool.query.mockRejectedValue(dbError);
 
         const promise = commentRepo.softDeleteCommentById('comment-id');
         await assertDBError(promise);
@@ -183,7 +185,7 @@ describe('[Mock-Based Integration] CommentRepositoryPostgres', () => {
       });
 
       it('should propagate error when database fails', async () => {
-        mockPool.query.mockRejectedValue(new Error('Database fails'));
+        mockPool.query.mockRejectedValue(dbError);
 
         const promise = commentRepo.isCommentExist('comment-id', 'thread-id');
         await assertDBError(promise);
