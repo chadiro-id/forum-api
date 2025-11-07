@@ -21,19 +21,19 @@ describe('[Integration] AuthenticationRepositoryPostgres', () => {
   });
 
   describe('addToken', () => {
-    it('should correctly resolve and not throw error', async () => {
+    it('should correctly persist the token', async () => {
       const token = 'token';
       await authenticationRepo.addToken(token);
 
       const tokens = await pgTest.authentications.findToken(token);
 
       expect(tokens).toHaveLength(1);
-      expect(tokens[0].token).toBe(token);
+      expect(tokens[0]).toStrictEqual({ token });
     });
   });
 
   describe('deleteToken', () => {
-    it('should correctly resolve and not throw error', async () => {
+    it('should correctly delete the token', async () => {
       const token = 'token';
       await pgTest.authentications.addToken(token);
 
