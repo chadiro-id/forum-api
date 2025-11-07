@@ -33,7 +33,7 @@ describe('[Mock-Based Integration] CommentRepositoryPostgres', () => {
     });
 
     describe('addComment', () => {
-      it('should correctly persist the NewComment and return AddedComment', async () => {
+      it('should correctly resolves and call pool.query', async () => {
         mockPool.query.mockResolvedValue({
           rows: [{ id: 'comment-123', content: 'Sebuah komentar', owner_id: 'user-123' }],
           rowCount: 1,
@@ -57,7 +57,7 @@ describe('[Mock-Based Integration] CommentRepositoryPostgres', () => {
         expect(calledValues[2]).toEqual('user-123');
         expect(calledValues[3]).toEqual('Sebuah komentar');
 
-        expect(addedComment).toEqual(new AddedComment({
+        expect(addedComment).toStrictEqual(new AddedComment({
           id: 'comment-123',
           content: 'Sebuah komentar',
           owner: 'user-123',
@@ -73,7 +73,7 @@ describe('[Mock-Based Integration] CommentRepositoryPostgres', () => {
     });
 
     describe('getCommentsByThreadId', () => {
-      it('should correctly pool.query and return the array of comment', async () => {
+      it('should correctly call pool.query and return comments', async () => {
         const comment1 = createRawComment({ id: 'comment-001' });
         const comment2 = createRawComment({ id: 'comment-002', username: 'dicoder', is_delete: true });
 
@@ -141,7 +141,7 @@ describe('[Mock-Based Integration] CommentRepositoryPostgres', () => {
     });
 
     describe('softDeleteCommentById', () => {
-      it('should correctly resolve and not throw error', async () => {
+      it('should correctly resolve and call pool.query', async () => {
         mockPool.query.mockResolvedValue({
           rows: [{ id: 'comment-123' }],
           rowCount: 1
