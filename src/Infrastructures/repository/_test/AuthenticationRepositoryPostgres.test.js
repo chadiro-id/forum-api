@@ -10,12 +10,14 @@ describe('[Mock-Based Integration] AuthenticationRepositoryPostgres', () => {
 
   describe('Postgres Interaction', () => {
     let mockPool;
+    let dbError;
     let authenticationRepo;
 
     beforeEach(() => {
       mockPool = {
         query: jest.fn(),
       };
+      dbError = new Error('Database fails');
       authenticationRepo = new AuthenticationRepositoryPostgres(mockPool);
     });
 
@@ -36,7 +38,7 @@ describe('[Mock-Based Integration] AuthenticationRepositoryPostgres', () => {
       });
 
       it('should propagate error when database fails', async () => {
-        mockPool.query.mockRejectedValue(new Error('Database fails'));
+        mockPool.query.mockRejectedValue(dbError);
 
         const promise = authenticationRepo.addToken('token');
         await assertDBError(promise);
@@ -56,7 +58,7 @@ describe('[Mock-Based Integration] AuthenticationRepositoryPostgres', () => {
       });
 
       it('should propagate error when database fails', async () => {
-        mockPool.query.mockRejectedValue(new Error('Database fails'));
+        mockPool.query.mockRejectedValue(dbError);
 
         const promise = authenticationRepo.deleteToken('token');
         await assertDBError(promise);
@@ -88,7 +90,7 @@ describe('[Mock-Based Integration] AuthenticationRepositoryPostgres', () => {
       });
 
       it('should propagate error when database fails', async () => {
-        mockPool.query.mockRejectedValue(new Error('Database fails'));
+        mockPool.query.mockRejectedValue(dbError);
 
         const promise = authenticationRepo.isTokenExist('token');
         await assertDBError(promise);
