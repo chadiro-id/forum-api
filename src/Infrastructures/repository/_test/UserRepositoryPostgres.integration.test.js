@@ -35,23 +35,25 @@ describe('[Integration] UserRepositoryPostgres', () => {
     });
 
     it('should correctly persist the RegisterUser and return RegisteredUser', async () => {
-      const registeredUser = await userRepo.addUser(registerUser);
-
-      const users = await pgTest.users.findById('user-123');
-      expect(users).toHaveLength(1);
-      expect(users[0]).toEqual(expect.objectContaining({
+      const expectedPersistedUser = {
         id: 'user-123',
         username: registerUser.username,
         password: registerUser.password,
         fullname: registerUser.fullname,
-      }));
-
-      expect(registeredUser).toBeInstanceOf(RegisteredUser);
-      expect(registeredUser).toEqual(expect.objectContaining({
+      };
+      const expectedRegisteredUser = new RegisteredUser({
         id: 'user-123',
         username: registerUser.username,
         fullname: registerUser.fullname,
-      }));
+      });
+
+      const registeredUser = await userRepo.addUser(registerUser);
+      expect(registeredUser).toStrictEqual(expectedRegisteredUser);
+
+      const users = await pgTest.users.findById('user-123');
+      expect(users).toHaveLength(1);
+      expect(users[0]).toStrictEqual(expectedPersistedUser);
+
     });
 
     it('should propagate error when id is exists', async () => {
