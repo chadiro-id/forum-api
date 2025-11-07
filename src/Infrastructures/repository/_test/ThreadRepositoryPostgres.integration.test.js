@@ -3,7 +3,7 @@ const NewThread = require('../../../Domains/threads/entities/NewThread');
 const AddedThread = require('../../../Domains/threads/entities/AddedThread');
 const DetailThread = require('../../../Domains/threads/entities/DetailThread');
 const pgTest = require('../../../../tests/helper/postgres');
-const ClientError = require('../../../Commons/exceptions/ClientError');
+const { assertDBError } = require('../../../../tests/helper/assertionsHelper');
 
 const FIXED_TIME = '2025-11-05T00:00:00.000Z';
 beforeAll(async () => {
@@ -67,10 +67,8 @@ describe('[Integration] ThreadRepositoryPostgres', () => {
         owner: user.id,
       });
 
-      await expect(threadRepo.addThread(newThread))
-        .rejects.toThrow();
-      await expect(threadRepo.addThread(newThread))
-        .rejects.not.toThrow(ClientError);
+      const promise = threadRepo.addThread(newThread);
+      await assertDBError(promise);
     });
 
     it('should propagate error when owner violate constraint', async () => {
@@ -80,10 +78,8 @@ describe('[Integration] ThreadRepositoryPostgres', () => {
         owner: 'nonexistent-user-id',
       });
 
-      await expect(threadRepo.addThread(newThread))
-        .rejects.toThrow();
-      await expect(threadRepo.addThread(newThread))
-        .rejects.not.toThrow(ClientError);
+      const promise = threadRepo.addThread(newThread);
+      await assertDBError(promise);
     });
   });
 
