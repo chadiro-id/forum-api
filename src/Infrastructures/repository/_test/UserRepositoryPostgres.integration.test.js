@@ -2,7 +2,7 @@ const RegisterUser = require('../../../Domains/users/entities/RegisterUser');
 const RegisteredUser = require('../../../Domains/users/entities/RegisteredUser');
 const UserRepositoryPostgres = require('../UserRepositoryPostgres');
 const pgTest = require('../../../../tests/helper/postgres');
-const ClientError = require('../../../Commons/exceptions/ClientError');
+const { assertDBError } = require('../../../../tests/helper/assertionsHelper');
 
 beforeAll(async () => {
   await pgTest.truncate();
@@ -58,10 +58,8 @@ describe('[Integration] UserRepositoryPostgres', () => {
         fullname: 'John Doe',
       });
 
-      await expect(userRepo.addUser(registerUser))
-        .rejects.toThrow();
-      await expect(userRepo.addUser(registerUser))
-        .rejects.not.toThrow(ClientError);
+      const promise = userRepo.addUser(registerUser);
+      await assertDBError(promise);
     });
 
     it('should propagate error when username is exists', async () => {
@@ -72,10 +70,8 @@ describe('[Integration] UserRepositoryPostgres', () => {
         fullname: 'John Doe',
       });
 
-      await expect(userRepo.addUser(registerUser))
-        .rejects.toThrow();
-      await expect(userRepo.addUser(registerUser))
-        .rejects.not.toThrow(ClientError);
+      const promise = userRepo.addUser(registerUser);
+      await assertDBError(promise);
     });
   });
 
