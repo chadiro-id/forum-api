@@ -3,7 +3,7 @@ const NewComment = require('../../../Domains/comments/entities/NewComment');
 const AddedComment = require('../../../Domains/comments/entities/AddedComment');
 const pgTest = require('../../../../tests/helper/postgres');
 const { expectCommentFromRepository } = require('../../../../tests/helper/assertionsHelper');
-const ClientError = require('../../../Commons/exceptions/ClientError');
+const { assertDBError } = require('../../../../tests/helper/assertionsHelper');
 
 const FIXED_TIME = '2025-11-05T00:00:00.000Z';
 beforeAll(async () => {
@@ -36,13 +36,6 @@ describe('[Integration] CommentRepositoryPostgres', () => {
   });
 
   describe('addComment', () => {
-    const expectAddCommentFails = async (newComment) => {
-      await expect(commentRepo.addComment(newComment))
-        .rejects.toThrow();
-      await expect(commentRepo.addComment(newComment))
-        .rejects.not.toThrow(ClientError);
-    };
-
     it('should correctly persist the NewComment and return AddedComment', async () => {
       const newComment = new NewComment({
         threadId: thread.id,
@@ -78,7 +71,8 @@ describe('[Integration] CommentRepositoryPostgres', () => {
         content: 'Sebuah komentar',
       });
 
-      await expectAddCommentFails(newComment);
+      const promise = commentRepo.addComment(newComment);
+      await assertDBError(promise);
     });
 
     it('should propagate error when thread not exists', async () => {
@@ -88,7 +82,8 @@ describe('[Integration] CommentRepositoryPostgres', () => {
         content: 'Sebuah komentar',
       });
 
-      await expectAddCommentFails(newComment);
+      const promise = commentRepo.addComment(newComment);
+      await assertDBError(promise);
     });
 
     it('should propagate error when owner not exists', async () => {
@@ -98,7 +93,8 @@ describe('[Integration] CommentRepositoryPostgres', () => {
         content: 'Sebuah komentar',
       });
 
-      await expectAddCommentFails(newComment);
+      const promise = commentRepo.addComment(newComment);
+      await assertDBError(promise);
     });
   });
 
