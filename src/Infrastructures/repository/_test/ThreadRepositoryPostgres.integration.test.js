@@ -59,7 +59,7 @@ describe('[Integration] ThreadRepositoryPostgres', () => {
       }));
     });
 
-    it('should propagate error when id is exists', async () => {
+    it('should propagate error when id violate constraint', async () => {
       await pgTest.threads.add({ id: 'thread-123', owner_id: user.id });
       const newThread = new NewThread({
         title: 'Sebuah thread',
@@ -73,7 +73,7 @@ describe('[Integration] ThreadRepositoryPostgres', () => {
         .rejects.not.toThrow(ClientError);
     });
 
-    it('should propagate error when owner not exists', async () => {
+    it('should propagate error when owner violate constraint', async () => {
       const newThread = new NewThread({
         title: 'Sebuah thread',
         body: 'Isi thread',
@@ -88,7 +88,7 @@ describe('[Integration] ThreadRepositoryPostgres', () => {
   });
 
   describe('getThreadById', () => {
-    it('should correctly resolve and return the DetailThread', async () => {
+    it('should resolves and return the DetailThread', async () => {
       const insertedThread = await pgTest.threads.add({ owner_id: user.id });
 
       const thread = await threadRepo.getThreadById('thread-001');
@@ -103,7 +103,7 @@ describe('[Integration] ThreadRepositoryPostgres', () => {
       }));
     });
 
-    it('should return null when id not exists', async () => {
+    it('should return null when thread not exist', async () => {
       const thread = await threadRepo.getThreadById('nonexistent-thread-id');
       expect(thread).toBeNull();
     });
@@ -117,7 +117,7 @@ describe('[Integration] ThreadRepositoryPostgres', () => {
       expect(result).toBe(true);
     });
 
-    it('should throw NotFoundError when thread not exists', async () => {
+    it('should return false when thread not exist', async () => {
       const result = await threadRepo.isThreadExist('thread-001');
       expect(result).toBe(false);
     });
