@@ -2,8 +2,10 @@ const CommentRepositoryPostgres = require('../CommentRepositoryPostgres');
 const NewComment = require('../../../Domains/comments/entities/NewComment');
 const AddedComment = require('../../../Domains/comments/entities/AddedComment');
 const pgTest = require('../../../../tests/helper/postgres');
-const { expectCommentFromRepository } = require('../../../../tests/helper/assertionsHelper');
-const { assertDBError } = require('../../../../tests/helper/assertionsHelper');
+const {
+  assertDBError,
+  expectCommentFromRepository,
+} = require('../../../../tests/helper/assertionsHelper');
 
 const FIXED_TIME = '2025-11-05T00:00:00.000Z';
 beforeAll(async () => {
