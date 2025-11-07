@@ -2,8 +2,7 @@ const RegisteredUser = require('../../../Domains/users/entities/RegisteredUser')
 const RegisterUser = require('../../../Domains/users/entities/RegisterUser');
 const UserRepository = require('../../../Domains/users/UserRepository');
 const UserRepositoryPostgres = require('../UserRepositoryPostgres');
-const { assertQueryCalled } = require('../../../../tests/helper/assertionsHelper');
-const ClientError = require('../../../Commons/exceptions/ClientError');
+const { assertQueryCalled, assertDBError } = require('../../../../tests/helper/assertionsHelper');
 
 describe('[Mock-Base Integration] UserRepositoryPostgres', () => {
   it('must be an instance of UserRepository', () => {
@@ -62,8 +61,8 @@ describe('[Mock-Base Integration] UserRepositoryPostgres', () => {
       it('should propagate error when database fails', async () => {
         mockPool.query.mockRejectedValue(new Error('Database fails'));
 
-        await expect(userRepo.addUser({}))
-          .rejects.toThrow();
+        const promise = userRepo.addUser({});
+        await assertDBError(promise);
       });
     });
 
@@ -92,10 +91,8 @@ describe('[Mock-Base Integration] UserRepositoryPostgres', () => {
       it('should propagate error when database fails', async () => {
         mockPool.query.mockRejectedValue(new Error('Database fails'));
 
-        await expect(userRepo.getIdByUsername('username'))
-          .rejects.toThrow();
-        await expect(userRepo.getIdByUsername('username'))
-          .rejects.not.toThrow(ClientError);
+        const promise = userRepo.getIdByUsername('username');
+        await assertDBError(promise);
       });
     });
 
@@ -124,10 +121,8 @@ describe('[Mock-Base Integration] UserRepositoryPostgres', () => {
       it('should propagate error when database fails', async () => {
         mockPool.query.mockRejectedValue(new Error('Database fails'));
 
-        await expect(userRepo.getPasswordByUsername('username'))
-          .rejects.toThrow();
-        await expect(userRepo.getPasswordByUsername('username'))
-          .rejects.not.toThrow(ClientError);
+        const promise = userRepo.getPasswordByUsername('username');
+        await assertDBError(promise);
       });
     });
 
@@ -157,10 +152,8 @@ describe('[Mock-Base Integration] UserRepositoryPostgres', () => {
       it('should propagate error when database fails', async () => {
         mockPool.query.mockRejectedValue(new Error('Database fails'));
 
-        await expect(userRepo.isUsernameExist('username'))
-          .rejects.toThrow();
-        await expect(userRepo.isUsernameExist('username'))
-          .rejects.not.toThrow(ClientError);
+        const promise = userRepo.isUsernameExist('username');
+        await assertDBError(promise);
       });
     });
   });
