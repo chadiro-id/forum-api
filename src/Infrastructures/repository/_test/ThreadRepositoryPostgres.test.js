@@ -14,12 +14,14 @@ describe('[Mock-Based Integration] ThreadRepositoryPostgres', () => {
 
   describe('Postgres Interaction', () => {
     let mockPool;
+    let dbError;
     let threadRepo;
 
     beforeEach(() => {
       mockPool = {
         query: jest.fn(),
       };
+      dbError = new Error('Database fails');
       threadRepo = new ThreadRepositoryPostgres(mockPool, () => '123');
     });
 
@@ -57,7 +59,7 @@ describe('[Mock-Based Integration] ThreadRepositoryPostgres', () => {
       });
 
       it('should propagate error when database fails', async () => {
-        mockPool.query.mockRejectedValue(new Error('Database fails'));
+        mockPool.query.mockRejectedValue(dbError);
 
         const promise = threadRepo.addThread({});
         await assertDBError(promise);
@@ -90,7 +92,7 @@ describe('[Mock-Based Integration] ThreadRepositoryPostgres', () => {
       });
 
       it('should propagate error when database fails', async () => {
-        mockPool.query.mockRejectedValue(new Error('Database fails'));
+        mockPool.query.mockRejectedValue(dbError);
 
         const promise = threadRepo.getThreadById('id');
         await assertDBError(promise);
@@ -120,7 +122,7 @@ describe('[Mock-Based Integration] ThreadRepositoryPostgres', () => {
       });
 
       it('should propagate error when database fails', async () => {
-        mockPool.query.mockRejectedValue(new Error('Database fails'));
+        mockPool.query.mockRejectedValue(dbError);
 
         const promise = threadRepo.isThreadExist('thread-id');
         await assertDBError(promise);
