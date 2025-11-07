@@ -110,7 +110,7 @@ describe('[Integration] ReplyRepositoryPostgres', () => {
   });
 
   describe('getRepliesByCommentIds', () => {
-    it('should correctly resolve and return all replies including soft-deleted ones', async () => {
+    it('should return all replies including soft-deleted ones', async () => {
       const rawReply1 = await pgTest.replies.add({
         id: 'reply-001', comment_id: commentB.id, owner_id: userA.id
       });
@@ -136,48 +136,33 @@ describe('[Integration] ReplyRepositoryPostgres', () => {
     });
   });
 
+  describe('getReplyForDeletion', () => {
+    it('should return object when reply exist', async () => {
+      await pgTest.replies.add({
+        id: 'reply-001',
+        comment_id: commentB.id,
+        owner_id: userA.id,
+      });
+
+      const reply = await replyRepo.getReplyForDeletion('reply-001', commentB.id, thread.id);
+      expect(reply).toStrictEqual({ owner: userA.id });
+    });
+
+    it('should return null when reply not exist', async () => {
+      const reply = await replyRepo.getReplyForDeletion('reply-id', 'comment-id', 'thread-id');
+      expect(reply).toBeNull();
+    });
+  });
+
   describe('softDeleteReplyById', () => {
-    it('should correctly resolve and not throw error', async () => {
+    it('should resolves and update delete status correctly', async () => {
       await pgTest.replies.add({ comment_id: commentB.id, owner_id: userA.id });
 
       await expect(replyRepo.softDeleteReplyById('reply-001'))
-        .resolves
-        .not.toThrow();
+        .resolves.not.toThrow();
 
       const replies = await pgTest.replies.findById('reply-001');
       expect(replies[0].is_delete).toBe(true);
     });
   });
-
-  // describe('verifyDeleteReply', () => {
-  //   let replyId;
-
-  //   beforeEach(async () => {
-  //     const { id } = await pgTest.replies.add({
-  //       comment_id: commentA.id,
-  //       owner_id: userB.id,
-  //     });
-  //     replyId = id;
-  //   });
-
-  //   it('should correctly resolve and not throw error', async () => {
-  //     await expect(replyRepo.verifyDeleteReply(replyId, commentA.id, userB.id))
-  //       .resolves.not.toThrow();
-  //   });
-
-  //   it('should throw NotFoundError when reply not exists', async () => {
-  //     await expect(replyRepo.verifyDeleteReply('nonexistent-reply-id', commentA.id, userB.id))
-  //       .rejects.toThrow(NotFoundError);
-  //   });
-
-  //   it('should throw NotFoundError when reply not belong to comment', async () => {
-  //     await expect(replyRepo.verifyDeleteReply(replyId, commentB.id, userB.id))
-  //       .rejects.toThrow(NotFoundError);
-  //   });
-
-  //   it('should throw AuthorizationError when user is not the owner', async () => {
-  //     await expect(replyRepo.verifyDeleteReply(replyId, commentA.id, userA.id))
-  //       .rejects.toThrow(AuthorizationError);
-  //   });
-  // });
 });

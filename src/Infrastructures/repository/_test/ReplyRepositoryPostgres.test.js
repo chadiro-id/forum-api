@@ -109,6 +109,30 @@ describe('[Mock-Based Integration] ReplyRepositoryPostgres', () => {
       });
     });
 
+    describe('getReplyForDeletion', () => {
+      it('should correctly call pool.query', async () => {
+        mockPool.query.mockResolvedValue({
+          rows: [{ owner_id: 'user-001' }],
+          rowCount: 1,
+        });
+
+        await replyRepo.getReplyForDeletion('reply-001', 'comment-001', 'thread-001');
+        const query = {
+          text: 'SELECT',
+          values: ['reply-001', 'comment-001', 'thread-001'],
+        };
+
+        assertQueryCalled(mockPool.query, query.text, query.values);
+      });
+
+      it('should propagate error when database fails', async () => {
+        mockPool.query.mockRejectedValue(new Error('Database fails'));
+
+        const promise = replyRepo.getReplyForDeletion('reply-id', 'comment-id', 'thread-id');
+        await assertDBError(promise);
+      });
+    });
+
     describe('softDeleteReplyById', () => {
       it('should correctly resolve and not thrown error', async () => {
         mockPool.query.mockResolvedValue({
