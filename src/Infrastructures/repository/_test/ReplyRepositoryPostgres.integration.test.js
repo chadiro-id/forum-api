@@ -72,7 +72,7 @@ describe('[Integration] ReplyRepositoryPostgres', () => {
       }));
     });
 
-    it('should propagate error when id is exists', async () => {
+    it('should propagate error when id violate constraint', async () => {
       await pgTest.replies.add({ id: 'reply-123', comment_id: commentA.id, owner_id: userB.id });
       const newReply = new NewReply({
         commentId: commentA.id,
@@ -84,7 +84,7 @@ describe('[Integration] ReplyRepositoryPostgres', () => {
       await assertDBError(promise);
     });
 
-    it('should propagate error when comment not exists', async () => {
+    it('should propagate error when comment id violate constraint', async () => {
       const newReply = new NewReply({
         commentId: 'nonexistent-comment-id',
         content: 'Sebuah balasan',
@@ -95,7 +95,7 @@ describe('[Integration] ReplyRepositoryPostgres', () => {
       await assertDBError(promise);
     });
 
-    it('should propagate error when owner not exists', async () => {
+    it('should propagate error when owner id violate constraint', async () => {
       const newReply = new NewReply({
         commentId: commentA.id,
         content: 'Sebuah balasan',
