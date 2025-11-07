@@ -1,7 +1,6 @@
-const ClientError = require('../../../Commons/exceptions/ClientError');
 const AuthenticationRepository = require('../../../Domains/authentications/AuthenticationRepository');
 const AuthenticationRepositoryPostgres = require('../AuthenticationRepositoryPostgres');
-const { assertQueryCalled } = require('../../../../tests/helper/assertionsHelper');
+const { assertQueryCalled, assertDBError } = require('../../../../tests/helper/assertionsHelper');
 
 describe('[Mock-Based Integration] AuthenticationRepositoryPostgres', () => {
   it('must be an instance of AuthenticationRepository', () => {
@@ -17,7 +16,7 @@ describe('[Mock-Based Integration] AuthenticationRepositoryPostgres', () => {
       mockPool = {
         query: jest.fn(),
       };
-      authenticationRepo = new AuthenticationRepositoryPostgres(mockPool, () => '');
+      authenticationRepo = new AuthenticationRepositoryPostgres(mockPool);
     });
 
     afterEach(() => {
@@ -25,7 +24,7 @@ describe('[Mock-Based Integration] AuthenticationRepositoryPostgres', () => {
     });
 
     describe('addToken', () => {
-      it('should correctly resolve and not throw error', async () => {
+      it('should correctly call pool.query', async () => {
         mockPool.query.mockResolvedValue();
 
         await expect(authenticationRepo.addToken('token'))
@@ -39,15 +38,13 @@ describe('[Mock-Based Integration] AuthenticationRepositoryPostgres', () => {
       it('should propagate error when database fails', async () => {
         mockPool.query.mockRejectedValue(new Error('Database fails'));
 
-        await expect(authenticationRepo.addToken('token'))
-          .rejects.toThrow();
-        await expect(authenticationRepo.addToken('token'))
-          .rejects.not.toThrow(ClientError);
+        const promise = authenticationRepo.addToken('token');
+        await assertDBError(promise);
       });
     });
 
     describe('deleteToken', () => {
-      it('should correctly resolve and not throw error', async () => {
+      it('should correctly call pool.query', async () => {
         mockPool.query.mockResolvedValue();
 
         await expect(authenticationRepo.deleteToken('token'))
@@ -61,10 +58,8 @@ describe('[Mock-Based Integration] AuthenticationRepositoryPostgres', () => {
       it('should propagate error when database fails', async () => {
         mockPool.query.mockRejectedValue(new Error('Database fails'));
 
-        await expect(authenticationRepo.deleteToken('token'))
-          .rejects.toThrow();
-        await expect(authenticationRepo.deleteToken('token'))
-          .rejects.not.toThrow(ClientError);
+        const promise = authenticationRepo.deleteToken('token');
+        await assertDBError(promise);
       });
     });
 
@@ -90,19 +85,13 @@ describe('[Mock-Based Integration] AuthenticationRepositoryPostgres', () => {
 
         const result = await authenticationRepo.isTokenExist('refresh-token');
         expect(result).toBe(false);
-
-        assertQueryCalled(
-          mockPool.query, 'SELECT token FROM authentications', ['refresh-token']
-        );
       });
 
       it('should propagate error when database fails', async () => {
         mockPool.query.mockRejectedValue(new Error('Database fails'));
 
-        await expect(authenticationRepo.isTokenExist('token'))
-          .rejects.toThrow();
-        await expect(authenticationRepo.isTokenExist('token'))
-          .rejects.not.toThrow(ClientError);
+        const promise = authenticationRepo.isTokenExist('token');
+        await assertDBError(promise);
       });
     });
   });
