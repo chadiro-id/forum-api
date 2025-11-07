@@ -24,13 +24,17 @@ describe('[Integration] UserRepositoryPostgres', () => {
   });
 
   describe('addUser', () => {
-    it('should correctly persist the RegisterUser and return RegisteredUser', async () => {
-      const registerUser = new RegisterUser({
+    let registerUser;
+
+    beforeAll(() => {
+      registerUser = new RegisterUser({
         username: 'johndoe',
         password: 'secret_password',
         fullname: 'John Doe',
       });
+    });
 
+    it('should correctly persist the RegisterUser and return RegisteredUser', async () => {
       const registeredUser = await userRepo.addUser(registerUser);
 
       const users = await pgTest.users.findById('user-123');
@@ -52,11 +56,6 @@ describe('[Integration] UserRepositoryPostgres', () => {
 
     it('should propagate error when id is exists', async () => {
       await pgTest.users.add({ id: 'user-123', username: 'whoami' });
-      const registerUser = new RegisterUser({
-        username: 'johndoe',
-        password: 'secret_password',
-        fullname: 'John Doe',
-      });
 
       const promise = userRepo.addUser(registerUser);
       await assertDBError(promise);
@@ -64,11 +63,6 @@ describe('[Integration] UserRepositoryPostgres', () => {
 
     it('should propagate error when username is exists', async () => {
       await pgTest.users.add({ id: 'user-999', username: 'johndoe' });
-      const registerUser = new RegisterUser({
-        username: 'johndoe',
-        password: 'secret_password',
-        fullname: 'John Doe',
-      });
 
       const promise = userRepo.addUser(registerUser);
       await assertDBError(promise);
