@@ -140,13 +140,23 @@ describe('[Integration] CommentRepositoryPostgres', () => {
 
   describe('softDeleteCommentById', () => {
     it('should resolves and update delete status', async () => {
-      await pgTest.comments.add({ thread_id: thread.id, owner_id: user.id });
+      const insertedComment = await pgTest.comments.add({
+        thread_id: thread.id,
+        owner_id: user.id,
+      });
 
       await expect(commentRepo.softDeleteCommentById('comment-001'))
         .resolves.not.toThrow();
 
       const comments = await pgTest.comments.findById('comment-001');
-      expect(comments[0].is_delete).toBe(true);
+      expect(comments[0]).toStrictEqual({
+        id: insertedComment.id,
+        thread_id: insertedComment.thread_id,
+        owner_id: insertedComment.owner_id,
+        content: insertedComment.content,
+        is_delete: true,
+        created_at: insertedComment.created_at,
+      });
     });
   });
 
