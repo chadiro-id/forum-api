@@ -50,6 +50,13 @@ describe('AddReplyUseCase', () => {
       expect(mockReplyRepo.addReply).not.toHaveBeenCalled();
     });
 
+    it('should propagate error when isCommentExist fails', async () => {
+      mockCommentRepo.isCommentExist.mockRejectedValue(new Error('fails'));
+
+      await expect(addReplyUseCase.execute({ ...dummyPayload }))
+        .rejects.toThrow();
+    });
+
     it('should propagate error when addReply fails', async () => {
       mockCommentRepo.isCommentExist.mockResolvedValue(true);
       mockReplyRepo.addReply.mockRejectedValue(new Error('fails'));
