@@ -1,4 +1,4 @@
-const Comment = require('../../../comments/entities/Comment');
+const DetailComment = require('../../../comments/entities/DetailComment');
 const DetailThread = require('../DetailThread');
 
 describe('DetailThread Entity', () => {
@@ -95,7 +95,7 @@ describe('DetailThread Entity', () => {
 
   describe('Correct payload', () => {
     it('should correctly create the entity', () => {
-      const comment = new Comment({ ...dummyComment });
+      const comment = new DetailComment({ ...dummyComment });
       const payload = { ...dummyPayload, comments: [comment] };
 
       const { id, title, body, date, username, comments } = new DetailThread(payload);
@@ -149,7 +149,7 @@ describe('DetailThread Entity', () => {
     });
 
     it('should throw error when value contain invalid element', () => {
-      const comment = new Comment({ ...dummyComment });
+      const comment = new DetailComment({ ...dummyComment });
 
       const arrContainString = [comment, 'comment'];
       const arrContainObj = [{}, comment];
@@ -163,7 +163,7 @@ describe('DetailThread Entity', () => {
     });
 
     it('should correctly set comments', () => {
-      const comment = new Comment({ ...dummyComment });
+      const comment = new DetailComment({ ...dummyComment });
       const detailThread = new DetailThread(dummyPayload);
       detailThread.comments = [comment, comment];
 
@@ -176,7 +176,7 @@ describe('DetailThread Entity', () => {
 
   describe('JSON Serialization', () => {
     it('should correctly serialize to JSON', () => {
-      const comment = new Comment({ ...dummyComment });
+      const comment = new DetailComment({ ...dummyComment });
       const payload1 = { ...dummyPayload };
       const payload2 = { ...dummyPayload, date: '2025-10-15T02:08:54.384Z' };
 
@@ -193,7 +193,7 @@ describe('DetailThread Entity', () => {
       expect(json1.date).toEqual(payload1.date.toISOString());
       expect(json1.username).toEqual(payload1.username);
       expect(json1.comments).toHaveLength(1);
-      expect(json1.comments[0]).toBeInstanceOf(Comment);
+      expect(json1.comments[0]).toBeInstanceOf(DetailComment);
 
       expect(json2.date).toEqual(new Date(payload2.date).toISOString());
     });
