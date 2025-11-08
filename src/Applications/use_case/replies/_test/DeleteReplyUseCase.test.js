@@ -75,7 +75,7 @@ describe('DeleteReplyUseCase', () => {
     it('should correctly orchestrating the delete reply action', async () => {
       const { threadId, commentId, replyId, owner } = dummyPayload;
 
-      mockReplyRepo.getReplyForDeletion.mockResolvedValue({ owner });
+      mockReplyRepo.getReplyForDeletion.mockResolvedValue(new ReplyOwner({ owner }));
       mockReplyRepo.softDeleteReplyById.mockResolvedValue();
 
       await expect(deleteReplyUseCase.execute({ ...dummyPayload }))
@@ -84,7 +84,7 @@ describe('DeleteReplyUseCase', () => {
       expect(mockReplyRepo.getReplyForDeletion).toHaveBeenCalledTimes(1);
       expect(mockReplyRepo.getReplyForDeletion).toHaveBeenCalledWith(replyId, commentId, threadId);
       expect(mockReplyRepo.softDeleteReplyById).toHaveBeenCalledTimes(1);
-      expect(mockReplyRepo.softDeleteReplyById).toHaveBeenCalledWith(dummyPayload.replyId);
+      expect(mockReplyRepo.softDeleteReplyById).toHaveBeenCalledWith(replyId);
     });
   });
 });
