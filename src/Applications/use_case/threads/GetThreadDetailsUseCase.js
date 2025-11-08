@@ -28,10 +28,12 @@ class GetThreadDetailsUseCase {
       const replies = await this._replyRepository.getRepliesByCommentIds(commentIds);
       const repliesGrouped = ArrayGroupUtils.groupToObjectBy(replies, 'commentId');
 
-      thread.comments = comments.map((comment) => {
-        comment.replies = repliesGrouped[comment.id] || [];
-        return comment;
-      });
+      thread.comments = replies.length > 0
+        ? comments.map((comment) => {
+          comment.replies = repliesGrouped[comment.id] || [];
+          return comment;
+        })
+        : comments;
     }
 
     return thread;
