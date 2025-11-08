@@ -1,4 +1,5 @@
 const ThreadDetails = require('../../../Domains/threads/entities/ThreadDetails');
+const ArrayGroupUtils = require('../../utilities/ArrayGroupUtils');
 
 class GetThreadDetailsUseCase {
   constructor({
@@ -24,7 +25,7 @@ class GetThreadDetailsUseCase {
     const commentIds = comments.map(({ id }) => id);
 
     const replies = await this._replyRepository.getRepliesByCommentIds(commentIds);
-    const repliesGrouped = this._groupRepliesByCommentId(replies);
+    const repliesGrouped = ArrayGroupUtils.groupToObjectBy(replies, 'commentId');
 
     thread.comments = comments.map((entry) => {
       entry.replies = repliesGrouped[entry.id] || [];
@@ -32,14 +33,6 @@ class GetThreadDetailsUseCase {
     });
 
     return thread;
-  }
-
-  _groupRepliesByCommentId(repliesArray = []) {
-    return repliesArray.reduce((acc, reply) => {
-      const commentId = reply.commentId;
-      (acc[commentId] ||= []).push(reply);
-      return acc;
-    }, {});
   }
 }
 
