@@ -6,6 +6,7 @@ const {
   assertDBError,
   expectCommentFromRepository,
 } = require('../../../../tests/helper/assertionsHelper');
+const CommentOwner = require('../../../Domains/comments/entities/CommentOwner');
 
 const FIXED_TIME = '2025-11-05T00:00:00.000Z';
 beforeAll(async () => {
@@ -129,7 +130,7 @@ describe('[Integration] CommentRepositoryPostgres', () => {
       });
 
       const comment = await commentRepo.getCommentForDeletion('comment-001', thread.id);
-      expect(comment).toStrictEqual({ owner: user.id });
+      expect(comment).toStrictEqual(new CommentOwner({ owner: user.id }));
     });
 
     it('should return null when comment not exist', async () => {

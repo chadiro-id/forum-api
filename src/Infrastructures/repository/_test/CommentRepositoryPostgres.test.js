@@ -8,6 +8,7 @@ const {
   assertDBError,
   expectCommentFromRepository,
 }= require('../../../../tests/helper/assertionsHelper');
+const CommentOwner = require('../../../Domains/comments/entities/CommentOwner');
 
 describe('[Mock-Based Integration] CommentRepositoryPostgres', () => {
   it('must be an instance of CommentRepository', () => {
@@ -116,7 +117,7 @@ describe('[Mock-Based Integration] CommentRepositoryPostgres', () => {
         });
 
         const comment = await commentRepo.getCommentForDeletion('comment-001', 'thread-001');
-        expect(comment).toStrictEqual({ owner: 'user-123' });
+        expect(comment).toStrictEqual(new CommentOwner({ owner: 'user-123' }));
 
         assertQueryCalled(
           mockPool.query, 'SELECT owner_id FROM comments', ['comment-001', 'thread-001']
