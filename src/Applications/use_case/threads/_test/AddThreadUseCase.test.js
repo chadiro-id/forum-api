@@ -69,10 +69,9 @@ describe('AddThreadUseCase', () => {
       const addedThread = await addThreadUseCase.execute({ ...dummyPayload });
 
       expect(mockThreadRepo.addThread).toHaveBeenCalledTimes(1);
-      expect(mockThreadRepo.addThread).toHaveBeenCalledWith(expect.any(NewThread));
+      expect(mockThreadRepo.addThread).toHaveBeenCalledWith(new NewThread({ ...dummyPayload }));
 
-      expect(addedThread).toBeInstanceOf(AddedThread);
-      expect(addedThread).toEqual(expect.objectContaining({
+      expect(addedThread).toStrictEqual(new AddedThread({
         id: 'thread-123',
         title: dummyPayload.title,
         owner: dummyPayload.owner,
