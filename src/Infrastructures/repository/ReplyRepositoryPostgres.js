@@ -1,5 +1,4 @@
-const AddedReply = require('../../Domains/replies/entities/AddedReply');
-const Reply = require('../../Domains/replies/entities/Reply');
+const ReplyMapper = require('../../Commons/utils/ReplyMapper');
 const ReplyRepository = require('../../Domains/replies/ReplyRepository');
 
 class ReplyRepositoryPostgres extends ReplyRepository {
@@ -29,7 +28,7 @@ class ReplyRepositoryPostgres extends ReplyRepository {
     };
 
     const result = await this._pool.query(query);
-    return this._transformToAddedReply(result.rows[0]);
+    return ReplyMapper.mapAddedReplyToDomain(result.rows[0]);
   }
 
   async getRepliesByCommentIds(commentIds) {
@@ -52,7 +51,7 @@ class ReplyRepositoryPostgres extends ReplyRepository {
     };
 
     const result = await this._pool.query(query);
-    return result.rows.map((row) => this._transformToReply(row));
+    return ReplyMapper.mapReplyListToDomain(result.rows);
   }
 
   async getReplyForDeletion(id, commentId, threadId) {
@@ -83,27 +82,6 @@ class ReplyRepositoryPostgres extends ReplyRepository {
     };
 
     await this._pool.query(query);
-  }
-
-  _transformToAddedReply({
-    id, content, owner_id: owner
-  }) {
-    return new AddedReply({
-      id, content, owner
-    });
-  }
-
-  _transformToReply({
-    id,
-    comment_id: commentId,
-    username,
-    content,
-    created_at: date,
-    is_delete: isDelete,
-  }) {
-    return new Reply({
-      id, commentId, username, content, date, isDelete
-    });
   }
 }
 
