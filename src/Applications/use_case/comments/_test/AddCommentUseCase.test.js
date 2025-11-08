@@ -93,7 +93,7 @@ describe('AddCommentUseCase', () => {
       expect(mockThreadRepo.isThreadExist).toHaveBeenCalledTimes(1);
       expect(mockThreadRepo.isThreadExist).toHaveBeenCalledWith(dummyPayload.threadId);
       expect(mockCommentRepo.addComment).toHaveBeenCalledTimes(1);
-      expect(mockCommentRepo.addComment).toHaveBeenCalledWith(expect.any(NewComment));
+      expect(mockCommentRepo.addComment).toHaveBeenCalledWith(new NewComment({ ...dummyPayload }));
 
       expect(addedComment).toStrictEqual(new AddedComment({
         id: 'comment-123',
