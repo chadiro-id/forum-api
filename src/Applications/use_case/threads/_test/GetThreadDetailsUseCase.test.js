@@ -1,5 +1,5 @@
 const ThreadDetails = require('../../../../Domains/threads/entities/ThreadDetails');
-const GetDetailThreadUseCase = require('../GetDetailThreadUseCase');
+const GetThreadDetailsUseCase = require('../GetThreadDetailsUseCase');
 const Comment = require('../../../../Domains/comments/entities/Comment');
 const Reply = require('../../../../Domains/replies/entities/Reply');
 const ThreadRepository = require('../../../../Domains/threads/ThreadRepository');
@@ -64,7 +64,7 @@ const dummyReplies = [
   },
 ];
 
-describe('GetDetailThreadUseCase', () => {
+describe('GetThreadDetailsUseCase', () => {
   let mockThreadRepo;
   let mockCommentRepo;
   let mockReplyRepo;
@@ -80,7 +80,7 @@ describe('GetDetailThreadUseCase', () => {
     mockReplyRepo = new ReplyRepository();
     mockReplyRepo.getRepliesByCommentIds = jest.fn();
 
-    getThreadDetailsUseCase = new GetDetailThreadUseCase({
+    getThreadDetailsUseCase = new GetThreadDetailsUseCase({
       threadRepository: mockThreadRepo,
       commentRepository: mockCommentRepo,
       replyRepository: mockReplyRepo,
