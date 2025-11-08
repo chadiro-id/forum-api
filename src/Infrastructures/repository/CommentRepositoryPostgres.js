@@ -1,5 +1,4 @@
 const CommentRepository = require('../../Domains/comments/CommentRepository');
-const AddedCommentMapper = require('../../Commons/utils/AddedCommentMapper');
 const CommentMapper = require('../../Commons/utils/CommentMapper');
 
 class CommentRepositoryPostgres extends CommentRepository {
@@ -29,7 +28,7 @@ class CommentRepositoryPostgres extends CommentRepository {
     };
 
     const result = await this._pool.query(query);
-    return AddedCommentMapper.toEntity(result.rows[0]);
+    return CommentMapper.mapAddedCommentToDomain(result.rows[0]);
   }
 
   async getCommentsByThreadId(threadId) {
@@ -52,7 +51,7 @@ class CommentRepositoryPostgres extends CommentRepository {
     };
 
     const result = await this._pool.query(query);
-    return result.rows.map((row) => CommentMapper.toEntity(row));
+    return CommentMapper.mapCommentListToDomain(result.rows);
   }
 
   async getCommentForDeletion(id, threadId) {
@@ -66,7 +65,7 @@ class CommentRepositoryPostgres extends CommentRepository {
       return null;
     }
 
-    return { owner: result.rows[0].owner_id };
+    return CommentMapper.mapCommentOwnerToDomain(result.rows[0]);
   }
 
   async softDeleteCommentById(id) {
