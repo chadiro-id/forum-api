@@ -18,7 +18,7 @@ class GetThreadDetailsUseCase {
     ]);
 
     if (thread instanceof ThreadDetails === false) {
-      throw new Error('GET_DETAIL_THREAD_USE_CASE.DETAIL_THREAD_MUST_BE_INSTANCE_OF_DETAIL_THREAD_ENTITY');
+      throw new Error('GET_THREAD_DETAILS_USE_CASE.THREAD_MUST_BE_INSTANCE_OF_THREAD_DETAILS_ENTITY');
     }
 
     const commentIds = comments.map(({ id }) => id);

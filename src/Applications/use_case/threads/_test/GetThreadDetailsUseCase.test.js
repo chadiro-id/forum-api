@@ -118,7 +118,7 @@ describe('GetThreadDetailsUseCase', () => {
 
       await expect(getThreadDetailsUseCase.execute('thread-123'))
         .rejects
-        .toThrow('GET_DETAIL_THREAD_USE_CASE.DETAIL_THREAD_MUST_BE_INSTANCE_OF_DETAIL_THREAD_ENTITY');
+        .toThrow('GET_THREAD_DETAILS_USE_CASE.THREAD_MUST_BE_INSTANCE_OF_THREAD_DETAILS_ENTITY');
 
       expect(mockThreadRepo.getThreadById).toHaveBeenCalledWith('thread-123');
       expect(mockCommentRepo.getCommentsByThreadId).toHaveBeenCalledWith('thread-123');
