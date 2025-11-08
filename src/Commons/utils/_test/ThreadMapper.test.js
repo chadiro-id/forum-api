@@ -1,6 +1,7 @@
 const AddedThread = require('../../../Domains/threads/entities/AddedThread');
 const ThreadDetails = require('../../../Domains/threads/entities/ThreadDetails');
 const ThreadMapper = require('../ThreadMapper');
+const { createRawThread } = require('../../../../tests/util');
 
 describe('ThreadMapper', () => {
   describe('mapAddedThreadToDomain', () => {
@@ -22,14 +23,7 @@ describe('ThreadMapper', () => {
 
   describe('mapThreadDetailsToDomain', () => {
     it('should correctly map data to ThreadDetails domain entity', () => {
-      const timestamp = new Date();
-      const dbRow = {
-        id: 'thread-123',
-        title: 'Detail Thread',
-        body: 'Isi detail',
-        username: 'john_doe',
-        created_at: timestamp,
-      };
+      const dbRow = createRawThread();
 
       const result = ThreadMapper.mapThreadDetailsToDomain(dbRow);
       expect(result).toStrictEqual(new ThreadDetails({
