@@ -1,6 +1,6 @@
-const DetailThread = require('../../Domains/threads/entities/ThreadDetails');
+const ThreadDetails = require('../../Domains/threads/entities/ThreadDetails');
 
-class DetailThreadMapper {
+class ThreadDetailsMapper {
   /**
    * Menerjemahkan data hasil SELECT database
    * @param {{
@@ -10,12 +10,12 @@ class DetailThreadMapper {
    *   username: string,
    *   created_at: Date
    * }} row Persistence
-   * @returns {DetailThread} Domain Entity
+   * @returns {ThreadDetails} Domain Entity
    */
   static toEntity({
     id, title, body, username, created_at
   }) {
-    return new DetailThread({
+    return new ThreadDetails({
       id,
       title,
       body,
@@ -25,4 +25,4 @@ class DetailThreadMapper {
   }
 }
 
-module.exports = DetailThreadMapper;
+module.exports = ThreadDetailsMapper;
