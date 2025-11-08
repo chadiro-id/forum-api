@@ -1,6 +1,6 @@
 const DetailThread = require('../../../../Domains/threads/entities/ThreadDetails');
 const GetDetailThreadUseCase = require('../GetDetailThreadUseCase');
-const DetailComment = require('../../../../Domains/comments/entities/Comment');
+const Comment = require('../../../../Domains/comments/entities/Comment');
 const Reply = require('../../../../Domains/replies/entities/Reply');
 const ThreadRepository = require('../../../../Domains/threads/ThreadRepository');
 const CommentRepository = require('../../../../Domains/comments/CommentRepository');
@@ -126,8 +126,8 @@ describe('GetDetailThreadUseCase', () => {
     });
 
     it('should propagate error when reply repository fails', async () => {
-      const comment1 = new DetailComment({ ...dummyComments[0] });
-      const comment2 = new DetailComment({ ...dummyComments[1] });
+      const comment1 = new Comment({ ...dummyComments[0] });
+      const comment2 = new Comment({ ...dummyComments[1] });
 
       mockThreadRepo.getThreadById.mockResolvedValue(new DetailThread({ ...dummyThread }));
       mockCommentRepo.getCommentsByThreadId.mockResolvedValue([comment1, comment2]);
@@ -144,9 +144,9 @@ describe('GetDetailThreadUseCase', () => {
   describe('Successful executions', () => {
     it('should correctly orchestrating the get detail thread action', async () => {
       const comments = [
-        new DetailComment({ ...dummyComments[0] }),
-        new DetailComment({ ...dummyComments[1] }),
-        new DetailComment({ ...dummyComments[2] }),
+        new Comment({ ...dummyComments[0] }),
+        new Comment({ ...dummyComments[1] }),
+        new Comment({ ...dummyComments[2] }),
       ];
       const replies = [
         new Reply({ ...dummyReplies[0] }),
@@ -184,7 +184,7 @@ describe('GetDetailThreadUseCase', () => {
       expect(c3.replies).toHaveLength(0);
 
       const expectComment = (comment, source) => {
-        expect(comment).toBeInstanceOf(DetailComment);
+        expect(comment).toBeInstanceOf(Comment);
         expect(comment.id).toEqual(source.id);
         expect(comment.username).toEqual(source.username);
         expect(comment.date).toEqual(source.date);
