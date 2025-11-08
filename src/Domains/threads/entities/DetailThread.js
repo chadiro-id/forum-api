@@ -1,4 +1,4 @@
-const Comment = require('../../comments/entities/Comment');
+const DetailComment = require('../../comments/entities/DetailComment');
 
 class DetailThread {
   constructor(payload) {
@@ -65,7 +65,7 @@ class DetailThread {
       throw new Error('DETAIL_THREAD.COMMENTS_MUST_BE_AN_ARRAY');
     }
 
-    const hasInvalidElement = value.some((el) => el instanceof Comment === false);
+    const hasInvalidElement = value.some((el) => el instanceof DetailComment === false);
     if (hasInvalidElement) {
       throw new Error('DETAIL_THREAD.COMMENTS_INVALID_ELEMENT');
     }

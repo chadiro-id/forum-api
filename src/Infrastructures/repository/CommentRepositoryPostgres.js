@@ -1,5 +1,5 @@
 const CommentRepository = require('../../Domains/comments/CommentRepository');
-const Comment = require('../../Domains/comments/entities/Comment');
+const DetailComment = require('../../Domains/comments/entities/DetailComment');
 const AddedComment = require('../../Domains/comments/entities/AddedComment');
 
 class CommentRepositoryPostgres extends CommentRepository {
@@ -99,7 +99,7 @@ class CommentRepositoryPostgres extends CommentRepository {
   _transformToComment({
     id, username, content, created_at: date, is_delete: isDelete
   }) {
-    return new Comment({
+    return new DetailComment({
       id, username, content, date, isDelete
     });
   }

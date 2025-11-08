@@ -1,5 +1,5 @@
 const Reply = require('../../../replies/entities/Reply');
-const Comment = require('../Comment');
+const DetailComment = require('../DetailComment');
 
 describe('Comment Entity', () => {
   const dummyPayload = {
@@ -27,19 +27,19 @@ describe('Comment Entity', () => {
       const emptyContent = { ...dummyPayload, content: '' };
       const emptyUsername = { ...dummyPayload, username: '' };
 
-      expect(() => new Comment(missingId))
+      expect(() => new DetailComment(missingId))
         .toThrow('COMMENT.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
-      expect(() => new Comment(missingContent))
+      expect(() => new DetailComment(missingContent))
         .toThrow('COMMENT.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
-      expect(() => new Comment(missingDate))
+      expect(() => new DetailComment(missingDate))
         .toThrow('COMMENT.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
-      expect(() => new Comment(missingUsername))
+      expect(() => new DetailComment(missingUsername))
         .toThrow('COMMENT.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
-      expect(() => new Comment(emptyId))
+      expect(() => new DetailComment(emptyId))
         .toThrow('COMMENT.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
-      expect(() => new Comment(emptyContent))
+      expect(() => new DetailComment(emptyContent))
         .toThrow('COMMENT.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
-      expect(() => new Comment(emptyUsername))
+      expect(() => new DetailComment(emptyUsername))
         .toThrow('COMMENT.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
     });
 
@@ -50,15 +50,15 @@ describe('Comment Entity', () => {
       const usernameNotString = { ...dummyPayload, username: true };
       const isDeleteNotBoolean = { ...dummyPayload, isDelete: 'delete' };
 
-      expect(() => new Comment(idNotString))
+      expect(() => new DetailComment(idNotString))
         .toThrow('COMMENT.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
-      expect(() => new Comment(contentNotString))
+      expect(() => new DetailComment(contentNotString))
         .toThrow('COMMENT.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
-      expect(() => new Comment(dateNotStringOrObject))
+      expect(() => new DetailComment(dateNotStringOrObject))
         .toThrow('COMMENT.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
-      expect(() => new Comment(usernameNotString))
+      expect(() => new DetailComment(usernameNotString))
         .toThrow('COMMENT.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
-      expect(() => new Comment(isDeleteNotBoolean))
+      expect(() => new DetailComment(isDeleteNotBoolean))
         .toThrow('COMMENT.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
     });
 
@@ -66,9 +66,9 @@ describe('Comment Entity', () => {
       const dateString = { ...dummyPayload, date: 'date' };
       const dateObj = { ...dummyPayload, date: new Date('date') };
 
-      expect(() => new Comment(dateString))
+      expect(() => new DetailComment(dateString))
         .toThrow('COMMENT.DATE_INVALID');
-      expect(() => new Comment(dateObj))
+      expect(() => new DetailComment(dateObj))
         .toThrow('COMMENT.DATE_INVALID');
     });
 
@@ -87,9 +87,9 @@ describe('Comment Entity', () => {
       const payload1 = { ...dummyPayload, replies: arrContainString };
       const payload2 = { ...dummyPayload, replies: arrContainNum };
 
-      expect(() => new Comment(payload1))
+      expect(() => new DetailComment(payload1))
         .toThrow('COMMENT.REPLIES_INVALID_ELEMENT');
-      expect(() => new Comment(payload2))
+      expect(() => new DetailComment(payload2))
         .toThrow('COMMENT.REPLIES_INVALID_ELEMENT');
     });
   });
@@ -107,7 +107,7 @@ describe('Comment Entity', () => {
 
       const payload = { ...dummyPayload, replies: [reply] };
 
-      const { id, content, date, username, replies } = new Comment(payload);
+      const { id, content, date, username, replies } = new DetailComment(payload);
 
       expect(id).toEqual(payload.id);
       expect(content).toEqual(payload.content);
@@ -120,7 +120,7 @@ describe('Comment Entity', () => {
     it('should not reveal original content value when isDelete equal to TRUE', () => {
       const payload = { ...dummyPayload, isDelete: true };
 
-      const { content } = new Comment(payload);
+      const { content } = new DetailComment(payload);
 
       expect(content).toEqual('**komentar telah dihapus**');
     });
@@ -128,13 +128,12 @@ describe('Comment Entity', () => {
     it('should not contain extra property', () => {
       const extraPayload = { ...dummyPayload, extra: 'Something extra' };
 
-      const comment = new Comment(extraPayload);
+      const comment = new DetailComment(extraPayload);
 
       expect(comment.id).toEqual(extraPayload.id);
       expect(comment.content).toEqual(extraPayload.content);
       expect(comment.date).toEqual(extraPayload.date);
       expect(comment.username).toEqual(extraPayload.username);
-      expect(comment.replies).toBeInstanceOf(Array);
       expect(comment.replies).toHaveLength(0);
 
       expect(comment.extra).toBeUndefined();
@@ -143,7 +142,7 @@ describe('Comment Entity', () => {
 
   describe('Replies', () => {
     it('should return empty array as default value', () => {
-      const comment = new Comment(dummyPayload);
+      const comment = new DetailComment(dummyPayload);
 
       const replies = comment.replies;
 
@@ -156,7 +155,7 @@ describe('Comment Entity', () => {
       const stringVal = 'replies';
       const objVal = { replies: {} };
 
-      const comment = new Comment(dummyPayload);
+      const comment = new DetailComment(dummyPayload);
 
       expect(() => comment.replies = numVal)
         .toThrow('COMMENT.REPLIES_MUST_BE_AN_ARRAY');
@@ -171,7 +170,7 @@ describe('Comment Entity', () => {
       const arrContainString = [reply, '2'];
       const arrContainNum = [1, reply];
 
-      const comment = new Comment(dummyPayload);
+      const comment = new DetailComment(dummyPayload);
 
       expect(() => comment.replies = arrContainString)
         .toThrow('COMMENT.REPLIES_INVALID_ELEMENT');
@@ -180,7 +179,7 @@ describe('Comment Entity', () => {
     });
 
     it('should correctly set replies', () => {
-      const comment = new Comment(dummyPayload);
+      const comment = new DetailComment(dummyPayload);
       const reply = new Reply({ ...dummyPayload, id: 'reply-123', commentId: dummyPayload.id });
       comment.replies = [reply];
 
@@ -196,8 +195,8 @@ describe('Comment Entity', () => {
       const payload1 = { ...dummyPayload };
       const payload2 = { ...dummyPayload, date: '2025-10-15T02:08:54.384Z' };
 
-      const comment1 = new Comment(payload1);
-      const comment2 = new Comment(payload2);
+      const comment1 = new DetailComment(payload1);
+      const comment2 = new DetailComment(payload2);
 
       const json1 = comment1.toJSON();
       const json2 = comment2.toJSON();
