@@ -1,6 +1,6 @@
 /* istanbul ignore file */
 const ClientError = require('../../src/Commons/exceptions/ClientError');
-const DetailComment = require('../../src/Domains/comments/entities/Comment');
+const Comment = require('../../src/Domains/comments/entities/Comment');
 const Reply = require('../../src/Domains/replies/entities/Reply');
 
 const assertQueryCalled = (
@@ -69,7 +69,7 @@ const expectCommentFromRepository = (comment, expectedSource) => {
     ? '**komentar telah dihapus**'
     : expectedSource.content;
 
-  expect(comment).toBeInstanceOf(DetailComment);
+  expect(comment).toBeInstanceOf(Comment);
   expect(comment.id).toEqual(expectedSource.id);
   expect(comment.content).toEqual(expectedContent);
   expect(comment.username).toEqual(expectedSource.username);
