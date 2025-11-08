@@ -22,6 +22,6 @@ describe('ReplyOwner Entity', () => {
     const ownerNotString = { owner: 123 };
 
     expect(() => new ReplyOwner(ownerNotString))
-      .toThrow('REPLY_OWNER.PAYLOAD_PROPERTY_NOT_MEET_DATA_TYPE_SPECIFICATION');
+      .toThrow('REPLY_OWNER.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
   });
 });
