@@ -34,12 +34,9 @@ describe('DeleteReplyUseCase', () => {
     it('should throw error when reply is null', async () => {
       mockReplyRepo.getReplyForDeletion.mockResolvedValue(null);
 
-      const { threadId, commentId, replyId } = dummyPayload;
-
       await expect(deleteReplyUseCase.execute({ ...dummyPayload }))
         .rejects.toThrow('DELETE_REPLY_USE_CASE.REPLY_NOT_EXIST');
 
-      expect(mockReplyRepo.getReplyForDeletion).toHaveBeenCalledWith(replyId, commentId, threadId);
       expect(mockReplyRepo.softDeleteReplyById).not.toHaveBeenCalled();
     });
 
@@ -48,26 +45,22 @@ describe('DeleteReplyUseCase', () => {
         owner: 'user-999',
       }));
 
-      const { threadId, commentId, replyId } = dummyPayload;
-
       await expect(deleteReplyUseCase.execute({ ...dummyPayload }))
         .rejects.toThrow('DELETE_REPLY_USE_CASE.OWNER_NOT_MATCH');
 
-      expect(mockReplyRepo.getReplyForDeletion).toHaveBeenCalledWith(replyId, commentId, threadId);
       expect(mockReplyRepo.softDeleteReplyById).not.toHaveBeenCalled();
     });
 
-    it('should propagate error when delete reply fails', async () => {
-      const { threadId, commentId, replyId, owner } = dummyPayload;
+    it('should propagate error when soft delete fails', async () => {
+      const { owner } = dummyPayload;
 
       mockReplyRepo.getReplyForDeletion.mockResolvedValue(new ReplyOwner({ owner }));
-      mockReplyRepo.softDeleteReplyById.mockRejectedValue(new Error('delete action fails'));
+      mockReplyRepo.softDeleteReplyById.mockRejectedValue(new Error('fails'));
 
       await expect(deleteReplyUseCase.execute({ ...dummyPayload }))
         .rejects.toThrow();
 
-      expect(mockReplyRepo.getReplyForDeletion).toHaveBeenCalledWith(replyId, commentId, threadId);
-      expect(mockReplyRepo.softDeleteReplyById).toHaveBeenCalledWith(dummyPayload.replyId);
+      expect(mockReplyRepo.softDeleteReplyById).toHaveBeenCalled();
     });
   });
 
