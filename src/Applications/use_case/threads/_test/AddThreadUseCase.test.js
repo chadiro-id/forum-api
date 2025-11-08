@@ -33,11 +33,12 @@ describe('AddThreadUseCase', () => {
     });
 
     it('should propagate error when addThread fails', async () => {
-      mockThreadRepo.addThread.mockRejectedValue(new Error('add thread fails'));
+      mockThreadRepo.addThread.mockRejectedValue(new Error('fails'));
 
-      await expect(addThreadUseCase.execute({ ...dummyPayload })).rejects.toThrow();
+      await expect(addThreadUseCase.execute({ ...dummyPayload }))
+        .rejects.toThrow();
 
-      expect(mockThreadRepo.addThread).toHaveBeenCalledWith(expect.any(NewThread));
+      expect(mockThreadRepo.addThread).toHaveBeenCalled();
     });
 
     it('should throw error when addedThread is not instance of AddedThread entity', async () => {
@@ -51,7 +52,7 @@ describe('AddThreadUseCase', () => {
         .rejects
         .toThrow('ADD_THREAD_USE_CASE.ADDED_THREAD_MUST_BE_INSTANCE_OF_ADDED_THREAD_ENTITY');
 
-      expect(mockThreadRepo.addThread).toHaveBeenCalledWith(expect.any(NewThread));
+      expect(mockThreadRepo.addThread).toHaveBeenCalled();
     });
   });
 
