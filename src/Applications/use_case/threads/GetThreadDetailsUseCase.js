@@ -1,6 +1,6 @@
-const DetailThread = require('../../../Domains/threads/entities/ThreadDetails');
+const ThreadDetails = require('../../../Domains/threads/entities/ThreadDetails');
 
-class GetDetailThreadUseCase {
+class GetThreadDetailsUseCase {
   constructor({
     threadRepository,
     commentRepository,
@@ -17,7 +17,7 @@ class GetDetailThreadUseCase {
       this._commentRepository.getCommentsByThreadId(threadId)
     ]);
 
-    if (thread instanceof DetailThread === false) {
+    if (thread instanceof ThreadDetails === false) {
       throw new Error('GET_DETAIL_THREAD_USE_CASE.DETAIL_THREAD_MUST_BE_INSTANCE_OF_DETAIL_THREAD_ENTITY');
     }
 
@@ -43,4 +43,4 @@ class GetDetailThreadUseCase {
   }
 }
 
-module.exports = GetDetailThreadUseCase;
+module.exports = GetThreadDetailsUseCase;
