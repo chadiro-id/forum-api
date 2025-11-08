@@ -2,6 +2,7 @@ const AddedReply = require('../../../Domains/replies/entities/AddedReply');
 const ReplyMapper = require('../ReplyMapper');
 const { createRawReply } = require('../../../../tests/util');
 const Reply = require('../../../Domains/replies/entities/Reply');
+const ReplyOwner = require('../../../Domains/replies/entities/ReplyOwner');
 
 describe('ReplyMapper', () => {
   describe('mapAddedReplyToDomain', () => {
@@ -47,6 +48,17 @@ describe('ReplyMapper', () => {
 
       const result = ReplyMapper.mapReplyListToDomain([row1, row2]);
       expect(result).toStrictEqual([expectedReply1, expectedReply2]);
+    });
+  });
+
+  describe('mapReplyOwnerToDomain', () => {
+    it('should correctly map data to ReplyOwner domain entity', () => {
+      const dbRow = { owner_id: 'user-123' };
+
+      const result = ReplyMapper.mapReplyOwnerToDomain(dbRow);
+      expect(result).toStrictEqual(new ReplyOwner({
+        owner: dbRow.owner_id,
+      }));
     });
   });
 });
