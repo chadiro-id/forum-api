@@ -2,6 +2,7 @@ const Comment = require('../../../Domains/comments/entities/Comment');
 const CommentMapper = require('../CommentMapper');
 const { createRawComment } = require('../../../../tests/util');
 const AddedComment = require('../../../Domains/comments/entities/AddedComment');
+const CommentOwner = require('../../../Domains/comments/entities/CommentOwner');
 
 describe('CommentMapper', () => {
   describe('mapAddedCommentToDomain', () => {
@@ -45,6 +46,15 @@ describe('CommentMapper', () => {
 
       const result = CommentMapper.mapCommentListToDomain([row1, row2]);
       expect(result).toStrictEqual(expectedComments);
+    });
+  });
+
+  describe('mapCommentOwnerToDomain', () => {
+    it('should correctly map data to CommentOwner domain entity', () => {
+      const dbRow = { owner_id: 'user-123' };
+
+      const result = CommentMapper.mapCommentOwnerToDomain(dbRow);
+      expect(result).toStrictEqual(new CommentOwner({ owner: dbRow.owner_id }));
     });
   });
 });
