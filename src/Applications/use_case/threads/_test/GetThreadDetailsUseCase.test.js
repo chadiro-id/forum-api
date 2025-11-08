@@ -5,6 +5,7 @@ const Reply = require('../../../../Domains/replies/entities/Reply');
 const ThreadRepository = require('../../../../Domains/threads/ThreadRepository');
 const CommentRepository = require('../../../../Domains/comments/CommentRepository');
 const ReplyRepository = require('../../../../Domains/replies/ReplyRepository');
+const ArrayGroupUtils = require('../../../utilities/ArrayGroupUtils');
 
 const dummyThread = {
   id: 'thread-123',
@@ -147,11 +148,20 @@ describe('GetThreadDetailsUseCase', () => {
         new Reply({ ...dummyReplies[2] }),
       ];
 
+      const replyGroup = ArrayGroupUtils.groupToObjectBy(replies, 'commentId');
+      const expectedComments = [...comments].map((c) => {
+        c.replies = replyGroup[c.id] || [];
+        return c;
+      });
+      const expectedThread = new ThreadDetails({ ...dummyThread });
+      expectedThread.comments = expectedComments;
+
       mockThreadRepo.getThreadById.mockResolvedValue(new ThreadDetails({ ...dummyThread }));
       mockCommentRepo.getCommentsByThreadId.mockResolvedValue([...comments]);
       mockReplyRepo.getRepliesByCommentIds.mockResolvedValue([...replies]);
 
-      const detailThread = await getThreadDetailsUseCase.execute('thread-123');
+      const threadDetails = await getThreadDetailsUseCase.execute('thread-123');
+      expect(threadDetails).toStrictEqual(expectedThread);
 
       expect(mockThreadRepo.getThreadById).toHaveBeenCalledTimes(1);
       expect(mockThreadRepo.getThreadById).toHaveBeenCalledWith('thread-123');
@@ -159,48 +169,6 @@ describe('GetThreadDetailsUseCase', () => {
       expect(mockCommentRepo.getCommentsByThreadId).toHaveBeenCalledWith('thread-123');
       expect(mockReplyRepo.getRepliesByCommentIds).toHaveBeenCalledTimes(1);
       expect(mockReplyRepo.getRepliesByCommentIds).toHaveBeenCalledWith([...comments.map((c) => c.id)]);
-
-      expect(detailThread).toBeInstanceOf(ThreadDetails);
-      expect(detailThread).toMatchObject({
-        id: dummyThread.id,
-        title: dummyThread.title,
-        body: dummyThread.body,
-        username: dummyThread.username,
-        date: dummyThread.date,
-      });
-      expect(detailThread.comments).toHaveLength(3);
-
-      const [c1, c2, c3] = detailThread.comments;
-
-      expect(c1.replies).toHaveLength(2);
-      expect(c2.replies).toHaveLength(1);
-      expect(c3.replies).toHaveLength(0);
-
-      const expectComment = (comment, source) => {
-        expect(comment).toBeInstanceOf(Comment);
-        expect(comment.id).toEqual(source.id);
-        expect(comment.username).toEqual(source.username);
-        expect(comment.date).toEqual(source.date);
-        const expectedContent = source.isDelete ? '**komentar telah dihapus**' : source.content;
-        expect(comment.content).toEqual(expectedContent);
-      };
-
-      expectComment(c1, dummyComments[0]);
-      expectComment(c2, dummyComments[1]);
-      expectComment(c3, dummyComments[2]);
-
-      const expectReply = (reply, source) => {
-        expect(reply).toBeInstanceOf(Reply);
-        expect(reply.id).toEqual(source.id);
-        expect(reply.username).toEqual(source.username);
-        expect(reply.date).toEqual(source.date);
-        const expectedContent = source.isDelete ? '**balasan telah dihapus**' : source.content;
-        expect(reply.content).toEqual(expectedContent);
-      };
-
-      expectReply(c1.replies[0], dummyReplies[0]);
-      expectReply(c1.replies[1], dummyReplies[2]);
-      expectReply(c2.replies[0], dummyReplies[1]);
     });
   });
 });
