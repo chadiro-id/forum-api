@@ -10,7 +10,7 @@ class CommentMapper {
    *   created_at: Date,
    *   is_delete: boolean,
    * }} row Persistence
-   * @returns {ThreadDetails} Domain Entity
+   * @returns {Comment} Domain Entity
    */
   static toEntity({
     id, content, username, created_at, is_delete,
