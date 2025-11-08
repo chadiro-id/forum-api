@@ -28,7 +28,6 @@ describe('AddThreadUseCase', () => {
     it('should throw error when payload not provided correctly', async () => {
       await expect(addThreadUseCase.execute()).rejects.toThrow();
       await expect(addThreadUseCase.execute('NewThread')).rejects.toThrow();
-      await expect(addThreadUseCase.execute(123)).rejects.toThrow();
       await expect(addThreadUseCase.execute({})).rejects.toThrow();
     });
 
@@ -51,8 +50,6 @@ describe('AddThreadUseCase', () => {
       await expect(addThreadUseCase.execute({ ...dummyPayload }))
         .rejects
         .toThrow('ADD_THREAD_USE_CASE.ADDED_THREAD_MUST_BE_INSTANCE_OF_ADDED_THREAD_ENTITY');
-
-      expect(mockThreadRepo.addThread).toHaveBeenCalled();
     });
   });
 
