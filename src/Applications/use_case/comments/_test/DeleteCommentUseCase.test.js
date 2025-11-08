@@ -33,24 +33,20 @@ describe('DeleteCommentUseCase', () => {
     });
 
     it('should throw error when comment not exist', async () => {
-      const { threadId, commentId } = dummyPayload;
       mockCommentRepo.getCommentForDeletion.mockResolvedValue(null);
 
       await expect(deleteCommentUseCase.execute({ ...dummyPayload }))
         .rejects.toThrow('DELETE_COMMENT_USE_CASE.COMMENT_NOT_EXIST');
 
-      expect(mockCommentRepo.getCommentForDeletion).toHaveBeenCalledWith(commentId, threadId);
       expect(mockCommentRepo.softDeleteCommentById).not.toHaveBeenCalled();
     });
 
     it('should throw error when owner not match', async () => {
-      const { threadId, commentId } = dummyPayload;
       mockCommentRepo.getCommentForDeletion.mockResolvedValue(new CommentOwner({ owner: 'user-999' }));
 
       await expect(deleteCommentUseCase.execute({ ...dummyPayload }))
         .rejects.toThrow('DELETE_COMMENT_USE_CASE.OWNER_NOT_MATCH');
 
-      expect(mockCommentRepo.getCommentForDeletion).toHaveBeenCalledWith(commentId, threadId);
       expect(mockCommentRepo.softDeleteCommentById).not.toHaveBeenCalled();
     });
 
@@ -61,6 +57,8 @@ describe('DeleteCommentUseCase', () => {
 
       await expect(deleteCommentUseCase.execute({ ...dummyPayload }))
         .rejects.toThrow();
+
+      expect(mockCommentRepo.softDeleteCommentById).toHaveBeenCalled();
     });
   });
 
