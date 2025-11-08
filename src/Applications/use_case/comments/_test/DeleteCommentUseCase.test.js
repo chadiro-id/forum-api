@@ -50,7 +50,16 @@ describe('DeleteCommentUseCase', () => {
       expect(mockCommentRepo.softDeleteCommentById).not.toHaveBeenCalled();
     });
 
-    it('should propagate error when soft delete fails', async () => {
+    it('should propagate error when getCommentForDeletion fails', async () => {
+      mockCommentRepo.getCommentForDeletion.mockRejectedValue(new Error('fails'));
+
+      await expect(deleteCommentUseCase.execute({ ...dummyPayload }))
+        .rejects.toThrow();
+
+      expect(mockCommentRepo.softDeleteCommentById).not.toHaveBeenCalled();
+    });
+
+    it('should propagate error when softDeleteCommentById fails', async () => {
       const { owner } = dummyPayload;
       mockCommentRepo.getCommentForDeletion.mockResolvedValue(new CommentOwner({ owner }));
       mockCommentRepo.softDeleteCommentById.mockRejectedValue(new Error('fails'));
