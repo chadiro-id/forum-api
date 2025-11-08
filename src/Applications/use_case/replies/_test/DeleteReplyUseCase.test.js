@@ -51,6 +51,13 @@ describe('DeleteReplyUseCase', () => {
       expect(mockReplyRepo.softDeleteReplyById).not.toHaveBeenCalled();
     });
 
+    it('should propagate error when getReplyForDeletion fails', async () => {
+      mockReplyRepo.getReplyForDeletion.mockRejectedValue(new Error('fails'));
+
+      await expect(deleteReplyUseCase.execute({ ...dummyPayload }))
+        .rejects.toThrow();
+    });
+
     it('should propagate error when softDeleteReplyById fails', async () => {
       const { owner } = dummyPayload;
 
