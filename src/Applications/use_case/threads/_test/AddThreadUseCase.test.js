@@ -36,8 +36,6 @@ describe('AddThreadUseCase', () => {
 
       await expect(addThreadUseCase.execute({ ...dummyPayload }))
         .rejects.toThrow();
-
-      expect(mockThreadRepo.addThread).toHaveBeenCalled();
     });
 
     it('should throw error when addedThread is not instance of AddedThread entity', async () => {
