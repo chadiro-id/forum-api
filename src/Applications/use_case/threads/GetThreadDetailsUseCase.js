@@ -22,15 +22,17 @@ class GetThreadDetailsUseCase {
       throw new Error('GET_THREAD_DETAILS_USE_CASE.THREAD_MUST_BE_INSTANCE_OF_THREAD_DETAILS_ENTITY');
     }
 
-    const commentIds = comments.map(({ id }) => id);
+    if (comments.length > 0) {
+      const commentIds = comments.map(({ id }) => id);
 
-    const replies = await this._replyRepository.getRepliesByCommentIds(commentIds);
-    const repliesGrouped = ArrayGroupUtils.groupToObjectBy(replies, 'commentId');
+      const replies = await this._replyRepository.getRepliesByCommentIds(commentIds);
+      const repliesGrouped = ArrayGroupUtils.groupToObjectBy(replies, 'commentId');
 
-    thread.comments = comments.map((entry) => {
-      entry.replies = repliesGrouped[entry.id] || [];
-      return entry;
-    });
+      thread.comments = comments.map((comment) => {
+        comment.replies = repliesGrouped[comment.id] || [];
+        return comment;
+      });
+    }
 
     return thread;
   }
