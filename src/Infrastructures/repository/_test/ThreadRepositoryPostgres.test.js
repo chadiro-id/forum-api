@@ -1,5 +1,5 @@
 const AddedThread = require('../../../Domains/threads/entities/AddedThread');
-const DetailThread = require('../../../Domains/threads/entities/DetailThread');
+const ThreadDetails = require('../../../Domains/threads/entities/ThreadDetails');
 const NewThread = require('../../../Domains/threads/entities/NewThread');
 const ThreadRepository = require('../../../Domains/threads/ThreadRepository');
 const ThreadRepositoryPostgres = require('../ThreadRepositoryPostgres');
@@ -79,7 +79,7 @@ describe('[Mock-Based Integration] ThreadRepositoryPostgres', () => {
 
         assertQueryCalled(mockPool.query, 'SELECT', ['thread-123']);
 
-        expect(thread).toBeInstanceOf(DetailThread);
+        expect(thread).toBeInstanceOf(ThreadDetails);
       });
 
       it('should return null when thread not exist', async () => {

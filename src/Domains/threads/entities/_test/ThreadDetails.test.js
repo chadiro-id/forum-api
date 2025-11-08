@@ -111,23 +111,23 @@ describe('ThreadDetails Entity', () => {
     it('should not contain extra property', () => {
       const extraPayload = { ...dummyPayload, extra: 'Something extra' };
 
-      const ThreadDetails = new ThreadDetails(extraPayload);
+      const threadDetails = new ThreadDetails(extraPayload);
 
-      expect(ThreadDetails.id).toEqual(extraPayload.id);
-      expect(ThreadDetails.title).toEqual(extraPayload.title);
-      expect(ThreadDetails.body).toEqual(extraPayload.body);
-      expect(ThreadDetails.date).toEqual(extraPayload.date);
-      expect(ThreadDetails.username).toEqual(extraPayload.username);
+      expect(threadDetails.id).toEqual(extraPayload.id);
+      expect(threadDetails.title).toEqual(extraPayload.title);
+      expect(threadDetails.body).toEqual(extraPayload.body);
+      expect(threadDetails.date).toEqual(extraPayload.date);
+      expect(threadDetails.username).toEqual(extraPayload.username);
 
-      expect(ThreadDetails.extra).toBeUndefined();
+      expect(threadDetails.extra).toBeUndefined();
     });
   });
 
   describe('Comments', () => {
     it('should return empty array as default value', () => {
-      const ThreadDetails = new ThreadDetails(dummyPayload);
+      const thread = new ThreadDetails(dummyPayload);
 
-      const comments = ThreadDetails.comments;
+      const comments = thread.comments;
 
       expect(comments).toEqual(expect.any(Array));
       expect(comments).toHaveLength(0);
@@ -138,13 +138,13 @@ describe('ThreadDetails Entity', () => {
       const stringVal = 'comments';
       const objVal = { comments: {} };
 
-      const ThreadDetails = new ThreadDetails(dummyPayload);
+      const thread = new ThreadDetails(dummyPayload);
 
-      expect(() => ThreadDetails.comments = numVal)
+      expect(() => thread.comments = numVal)
         .toThrow('DETAIL_THREAD.COMMENTS_MUST_BE_AN_ARRAY');
-      expect(() => ThreadDetails.comments = stringVal)
+      expect(() => thread.comments = stringVal)
         .toThrow('DETAIL_THREAD.COMMENTS_MUST_BE_AN_ARRAY');
-      expect(() => ThreadDetails.comments = objVal)
+      expect(() => thread.comments = objVal)
         .toThrow('DETAIL_THREAD.COMMENTS_MUST_BE_AN_ARRAY');
     });
 
@@ -164,10 +164,10 @@ describe('ThreadDetails Entity', () => {
 
     it('should correctly set comments', () => {
       const comment = new DetailComment({ ...dummyComment });
-      const ThreadDetails = new ThreadDetails(dummyPayload);
-      ThreadDetails.comments = [comment, comment];
+      const thread = new ThreadDetails(dummyPayload);
+      thread.comments = [comment, comment];
 
-      const comments = ThreadDetails.comments;
+      const comments = thread.comments;
 
       expect(comments).toHaveLength(2);
       expect(comments).toEqual([comment, comment]);

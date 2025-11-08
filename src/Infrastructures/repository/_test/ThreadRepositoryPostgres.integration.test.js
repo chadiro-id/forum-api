@@ -1,7 +1,7 @@
 const ThreadRepositoryPostgres = require('../ThreadRepositoryPostgres');
 const NewThread = require('../../../Domains/threads/entities/NewThread');
 const AddedThread = require('../../../Domains/threads/entities/AddedThread');
-const DetailThread = require('../../../Domains/threads/entities/DetailThread');
+const ThreadDetails = require('../../../Domains/threads/entities/ThreadDetails');
 const pgTest = require('../../../../tests/helper/postgres');
 const { assertDBError } = require('../../../../tests/helper/assertionsHelper');
 
@@ -84,12 +84,12 @@ describe('[Integration] ThreadRepositoryPostgres', () => {
   });
 
   describe('getThreadById', () => {
-    it('should resolves and return the DetailThread', async () => {
+    it('should resolves and return the ThreadDetails', async () => {
       const insertedThread = await pgTest.threads.add({ owner_id: user.id });
 
       const thread = await threadRepo.getThreadById('thread-001');
 
-      expect(thread).toStrictEqual(new DetailThread({
+      expect(thread).toStrictEqual(new ThreadDetails({
         id: insertedThread.id,
         title: insertedThread.title,
         body: insertedThread.body,
