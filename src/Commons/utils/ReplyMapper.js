@@ -1,5 +1,6 @@
 const AddedReply = require('../../Domains/replies/entities/AddedReply');
 const Reply = require('../../Domains/replies/entities/Reply');
+const ReplyOwner = require('../../Domains/replies/entities/ReplyOwner');
 
 class ReplyMapper {
   /**
@@ -49,6 +50,19 @@ class ReplyMapper {
       date: created_at,
       isDelete: is_delete,
     }));
+  }
+
+  /**
+   * Translate result data from database SELECT
+   * @param {{ owner_id: string }} row Persistence Model
+   * @returns Domain Entity
+   */
+  static mapReplyOwnerToDomain({
+    owner_id
+  }) {
+    return new ReplyOwner({
+      owner: owner_id,
+    });
   }
 }
 
