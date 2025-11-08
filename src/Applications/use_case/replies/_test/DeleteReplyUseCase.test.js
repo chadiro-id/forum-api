@@ -1,5 +1,6 @@
 const DeleteReplyUseCase = require('../DeleteReplyUseCase');
 const ReplyRepository = require('../../../../Domains/replies/ReplyRepository');
+const ReplyOwner = require('../../../../Domains/replies/entities/ReplyOwner');
 
 const dummyPayload = {
   threadId: 'thread-123',
@@ -30,13 +31,27 @@ describe('DeleteReplyUseCase', () => {
       await expect(deleteReplyUseCase.execute({ replyId: 'reply-123' })).rejects.toThrow();
     });
 
-    it('should propagate error when delete reply verification fails', async () => {
+    it('should throw error when reply is null', async () => {
       mockReplyRepo.getReplyForDeletion.mockResolvedValue(null);
 
       const { threadId, commentId, replyId } = dummyPayload;
 
       await expect(deleteReplyUseCase.execute({ ...dummyPayload }))
-        .rejects.toThrow();
+        .rejects.toThrow('DELETE_REPLY_USE_CASE.REPLY_NOT_EXIST');
+
+      expect(mockReplyRepo.getReplyForDeletion).toHaveBeenCalledWith(replyId, commentId, threadId);
+      expect(mockReplyRepo.softDeleteReplyById).not.toHaveBeenCalled();
+    });
+
+    it('should throw error when reply owner verification fails', async () => {
+      mockReplyRepo.getReplyForDeletion.mockResolvedValue(new ReplyOwner({
+        owner: 'user-999',
+      }));
+
+      const { threadId, commentId, replyId } = dummyPayload;
+
+      await expect(deleteReplyUseCase.execute({ ...dummyPayload }))
+        .rejects.toThrow('DELETE_REPLY_USE_CASE.OWNER_NOT_MATCH');
 
       expect(mockReplyRepo.getReplyForDeletion).toHaveBeenCalledWith(replyId, commentId, threadId);
       expect(mockReplyRepo.softDeleteReplyById).not.toHaveBeenCalled();
@@ -45,7 +60,7 @@ describe('DeleteReplyUseCase', () => {
     it('should propagate error when delete reply fails', async () => {
       const { threadId, commentId, replyId, owner } = dummyPayload;
 
-      mockReplyRepo.getReplyForDeletion.mockResolvedValue({ owner });
+      mockReplyRepo.getReplyForDeletion.mockResolvedValue(new ReplyOwner({ owner }));
       mockReplyRepo.softDeleteReplyById.mockRejectedValue(new Error('delete action fails'));
 
       await expect(deleteReplyUseCase.execute({ ...dummyPayload }))
