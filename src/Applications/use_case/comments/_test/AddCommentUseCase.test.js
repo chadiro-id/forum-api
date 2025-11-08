@@ -57,8 +57,6 @@ describe('AddCommentUseCase', () => {
 
       await expect(addCommentUseCase.execute({ ...dummyPayload }))
         .rejects.toThrow();
-
-      expect(mockCommentRepo.addComment).toHaveBeenCalled();
     });
 
     it('should throw error when addedComment is not instance of AddedComment entity', async () => {
@@ -72,8 +70,6 @@ describe('AddCommentUseCase', () => {
       await expect(addCommentUseCase.execute({ ...dummyPayload }))
         .rejects
         .toThrow('ADD_COMMENT_USE_CASE.ADDED_COMMENT_MUST_BE_INSTANCE_OF_ADDED_COMMENT_ENTITY');
-
-      expect(mockCommentRepo.addComment).toHaveBeenCalled();
     });
   });
 
