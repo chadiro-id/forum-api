@@ -51,6 +51,15 @@ describe('AddCommentUseCase', () => {
       expect(mockCommentRepo.addComment).not.toHaveBeenCalled();
     });
 
+    it('should propagate error when isThreadExist fails', async () => {
+      mockThreadRepo.isThreadExist.mockRejectedValue(new Error('fails'));
+
+      await expect(addCommentUseCase.execute({ ...dummyPayload }))
+        .rejects.toThrow();
+
+      expect(mockCommentRepo.addComment).not.toHaveBeenCalled();
+    });
+
     it('should propagate error when addComment fails', async () => {
       mockThreadRepo.isThreadExist.mockResolvedValue(true);
       mockCommentRepo.addComment.mockRejectedValue(new Error('fails'));
