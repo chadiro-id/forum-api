@@ -5,7 +5,7 @@ const CommentRepository = require('../../../Domains/comments/CommentRepository')
 const ReplyRepository = require('../../../Domains/replies/ReplyRepository');
 const ThreadRepositoryPostgres = require('../../repository/ThreadRepositoryPostgres');
 const AddThreadUseCase = require('../../../Applications/use_case/threads/AddThreadUseCase');
-const GetDetailThreadUseCase = require('../../../Applications/use_case/threads/GetDetailThreadUseCase');
+const GetThreadDetailsUseCase = require('../../../Applications/use_case/threads/GetThreadDetailsUseCase');
 
 const options = [
   {
@@ -36,8 +36,8 @@ const options = [
     },
   },
   {
-    key: GetDetailThreadUseCase.name,
-    Class: GetDetailThreadUseCase,
+    key: GetThreadDetailsUseCase.name,
+    Class: GetThreadDetailsUseCase,
     parameter: {
       injectType: 'destructuring',
       dependencies: [
