@@ -1,5 +1,5 @@
-const AddedThread = require('../../Domains/threads/entities/AddedThread');
-const DetailThread = require('../../Domains/threads/entities/DetailThread');
+const AddedThreadMapper = require('../../Commons/utils/AddedThreadMapper');
+const DetailThreadMapper = require('../../Commons/utils/DetailThreadMapper');
 const ThreadRepository = require('../../Domains/threads/ThreadRepository');
 
 class ThreadRepositoryPostgres extends ThreadRepository {
@@ -29,7 +29,7 @@ class ThreadRepositoryPostgres extends ThreadRepository {
     };
 
     const result = await this._pool.query(query);
-    return this._transformToAddedThread(result.rows[0]);
+    return AddedThreadMapper.toEntity(result.rows[0]);
   }
 
   async getThreadById(id) {
@@ -54,7 +54,7 @@ class ThreadRepositoryPostgres extends ThreadRepository {
       return null;
     }
 
-    return this._transformToDetailThread(result.rows[0]);
+    return DetailThreadMapper.toEntity(result.rows[0]);
   }
 
   async isThreadExist(id) {
@@ -65,22 +65,6 @@ class ThreadRepositoryPostgres extends ThreadRepository {
 
     const result = await this._pool.query(query);
     return result.rows.length > 0;
-  }
-
-  _transformToAddedThread({
-    id, title, owner_id: owner
-  }) {
-    return new AddedThread({
-      id, title, owner
-    });
-  }
-
-  _transformToDetailThread({
-    id, title, body, username, created_at: date,
-  }) {
-    return new DetailThread({
-      id, title, body, username, date
-    });
   }
 }
 
