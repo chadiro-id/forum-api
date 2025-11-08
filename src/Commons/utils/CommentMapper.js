@@ -1,5 +1,6 @@
 const AddedComment = require('../../Domains/comments/entities/AddedComment');
 const Comment = require('../../Domains/comments/entities/Comment');
+const CommentOwner = require('../../Domains/comments/entities/CommentOwner');
 
 class CommentMapper {
   /**
@@ -42,6 +43,19 @@ class CommentMapper {
       date: created_at,
       isDelete: is_delete,
     }));
+  }
+
+  /**
+   * Translate result data from database SELECT
+   * @param {{ owner_id: string }} row Persistence Model
+   * @returns Domain Entity
+   */
+  static mapCommentOwnerToDomain({
+    owner_id
+  }) {
+    return new CommentOwner({
+      owner: owner_id,
+    });
   }
 }
 
