@@ -1,5 +1,5 @@
 const DetailComment = require('../../../comments/entities/DetailComment');
-const DetailThread = require('../ThreadDetails');
+const ThreadDetails = require('../ThreadDetails');
 
 describe('ThreadDetails Entity', () => {
   const dummyPayload = {
@@ -36,23 +36,23 @@ describe('ThreadDetails Entity', () => {
       const emptyBody = { ...dummyPayload, body: '' };
       const emptyUsername = { ...dummyPayload, username: '' };
 
-      expect(() => new DetailThread(missingId))
+      expect(() => new ThreadDetails(missingId))
         .toThrow('DETAIL_THREAD.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
-      expect(() => new DetailThread(missingTitle))
+      expect(() => new ThreadDetails(missingTitle))
         .toThrow('DETAIL_THREAD.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
-      expect(() => new DetailThread(missingBody))
+      expect(() => new ThreadDetails(missingBody))
         .toThrow('DETAIL_THREAD.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
-      expect(() => new DetailThread(missingDate))
+      expect(() => new ThreadDetails(missingDate))
         .toThrow('DETAIL_THREAD.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
-      expect(() => new DetailThread(missingUsername))
+      expect(() => new ThreadDetails(missingUsername))
         .toThrow('DETAIL_THREAD.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
-      expect(() => new DetailThread(emptyId))
+      expect(() => new ThreadDetails(emptyId))
         .toThrow('DETAIL_THREAD.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
-      expect(() => new DetailThread(emptyTitle))
+      expect(() => new ThreadDetails(emptyTitle))
         .toThrow('DETAIL_THREAD.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
-      expect(() => new DetailThread(emptyBody))
+      expect(() => new ThreadDetails(emptyBody))
         .toThrow('DETAIL_THREAD.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
-      expect(() => new DetailThread(emptyUsername))
+      expect(() => new ThreadDetails(emptyUsername))
         .toThrow('DETAIL_THREAD.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
     });
 
@@ -63,22 +63,22 @@ describe('ThreadDetails Entity', () => {
       const dateNotStringOrObject = { ...dummyPayload, date: true };
       const usernameNotString = { ...dummyPayload, username: 69 };
 
-      expect(() => new DetailThread(idNotString))
+      expect(() => new ThreadDetails(idNotString))
         .toThrow('DETAIL_THREAD.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
-      expect(() => new DetailThread(titleNotString))
+      expect(() => new ThreadDetails(titleNotString))
         .toThrow('DETAIL_THREAD.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
-      expect(() => new DetailThread(bodyNotString))
+      expect(() => new ThreadDetails(bodyNotString))
         .toThrow('DETAIL_THREAD.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
-      expect(() => new DetailThread(dateNotStringOrObject))
+      expect(() => new ThreadDetails(dateNotStringOrObject))
         .toThrow('DETAIL_THREAD.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
-      expect(() => new DetailThread(usernameNotString))
+      expect(() => new ThreadDetails(usernameNotString))
         .toThrow('DETAIL_THREAD.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
     });
 
     it('should throw error when title has char more than 255', () => {
       const payload = { ...dummyPayload, title: 'Sebuah thread'.repeat(25) };
 
-      expect(() => new DetailThread(payload))
+      expect(() => new ThreadDetails(payload))
         .toThrow('DETAIL_THREAD.TITLE_EXCEED_CHAR_LIMIT');
     });
 
@@ -86,9 +86,9 @@ describe('ThreadDetails Entity', () => {
       const dateString = { ...dummyPayload, date: 'Date' };
       const dateObj = { ...dummyPayload, date: new Date('date') };
 
-      expect(() => new DetailThread(dateString))
+      expect(() => new ThreadDetails(dateString))
         .toThrow('DETAIL_THREAD.DATE_INVALID');
-      expect(() => new DetailThread(dateObj))
+      expect(() => new ThreadDetails(dateObj))
         .toThrow('DETAIL_THREAD.DATE_INVALID');
     });
   });
@@ -98,7 +98,7 @@ describe('ThreadDetails Entity', () => {
       const comment = new DetailComment({ ...dummyComment });
       const payload = { ...dummyPayload, comments: [comment] };
 
-      const { id, title, body, date, username, comments } = new DetailThread(payload);
+      const { id, title, body, date, username, comments } = new ThreadDetails(payload);
 
       expect(id).toEqual(payload.id);
       expect(title).toEqual(payload.title);
@@ -111,23 +111,23 @@ describe('ThreadDetails Entity', () => {
     it('should not contain extra property', () => {
       const extraPayload = { ...dummyPayload, extra: 'Something extra' };
 
-      const detailThread = new DetailThread(extraPayload);
+      const ThreadDetails = new ThreadDetails(extraPayload);
 
-      expect(detailThread.id).toEqual(extraPayload.id);
-      expect(detailThread.title).toEqual(extraPayload.title);
-      expect(detailThread.body).toEqual(extraPayload.body);
-      expect(detailThread.date).toEqual(extraPayload.date);
-      expect(detailThread.username).toEqual(extraPayload.username);
+      expect(ThreadDetails.id).toEqual(extraPayload.id);
+      expect(ThreadDetails.title).toEqual(extraPayload.title);
+      expect(ThreadDetails.body).toEqual(extraPayload.body);
+      expect(ThreadDetails.date).toEqual(extraPayload.date);
+      expect(ThreadDetails.username).toEqual(extraPayload.username);
 
-      expect(detailThread.extra).toBeUndefined();
+      expect(ThreadDetails.extra).toBeUndefined();
     });
   });
 
   describe('Comments', () => {
     it('should return empty array as default value', () => {
-      const detailThread = new DetailThread(dummyPayload);
+      const ThreadDetails = new ThreadDetails(dummyPayload);
 
-      const comments = detailThread.comments;
+      const comments = ThreadDetails.comments;
 
       expect(comments).toEqual(expect.any(Array));
       expect(comments).toHaveLength(0);
@@ -138,13 +138,13 @@ describe('ThreadDetails Entity', () => {
       const stringVal = 'comments';
       const objVal = { comments: {} };
 
-      const detailThread = new DetailThread(dummyPayload);
+      const ThreadDetails = new ThreadDetails(dummyPayload);
 
-      expect(() => detailThread.comments = numVal)
+      expect(() => ThreadDetails.comments = numVal)
         .toThrow('DETAIL_THREAD.COMMENTS_MUST_BE_AN_ARRAY');
-      expect(() => detailThread.comments = stringVal)
+      expect(() => ThreadDetails.comments = stringVal)
         .toThrow('DETAIL_THREAD.COMMENTS_MUST_BE_AN_ARRAY');
-      expect(() => detailThread.comments = objVal)
+      expect(() => ThreadDetails.comments = objVal)
         .toThrow('DETAIL_THREAD.COMMENTS_MUST_BE_AN_ARRAY');
     });
 
@@ -154,7 +154,7 @@ describe('ThreadDetails Entity', () => {
       const arrContainString = [comment, 'comment'];
       const arrContainObj = [{}, comment];
 
-      const thread = new DetailThread({ ...dummyPayload });
+      const thread = new ThreadDetails({ ...dummyPayload });
 
       expect(() => thread.comments = arrContainString)
         .toThrow('DETAIL_THREAD.COMMENTS_INVALID_ELEMENT');
@@ -164,10 +164,10 @@ describe('ThreadDetails Entity', () => {
 
     it('should correctly set comments', () => {
       const comment = new DetailComment({ ...dummyComment });
-      const detailThread = new DetailThread(dummyPayload);
-      detailThread.comments = [comment, comment];
+      const ThreadDetails = new ThreadDetails(dummyPayload);
+      ThreadDetails.comments = [comment, comment];
 
-      const comments = detailThread.comments;
+      const comments = ThreadDetails.comments;
 
       expect(comments).toHaveLength(2);
       expect(comments).toEqual([comment, comment]);
@@ -180,9 +180,9 @@ describe('ThreadDetails Entity', () => {
       const payload1 = { ...dummyPayload };
       const payload2 = { ...dummyPayload, date: '2025-10-15T02:08:54.384Z' };
 
-      const thread1 = new DetailThread(payload1);
+      const thread1 = new ThreadDetails(payload1);
       thread1.comments = [comment];
-      const thread2 = new DetailThread(payload2);
+      const thread2 = new ThreadDetails(payload2);
 
       const json1 = thread1.toJSON();
       const json2 = thread2.toJSON();

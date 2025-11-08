@@ -1,6 +1,6 @@
 const DetailComment = require('../../comments/entities/DetailComment');
 
-class DetailThread {
+class ThreadDetails {
   constructor(payload) {
     this._verifyPayload(payload);
 
@@ -91,4 +91,4 @@ class DetailThread {
   }
 }
 
-module.exports = DetailThread;
+module.exports = ThreadDetails;
