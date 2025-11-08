@@ -1,6 +1,6 @@
 const CommentRepository = require('../../Domains/comments/CommentRepository');
-const DetailComment = require('../../Domains/comments/entities/Comment');
-const AddedComment = require('../../Domains/comments/entities/AddedComment');
+const AddedCommentMapper = require('../../Commons/utils/AddedCommentMapper');
+const CommentMapper = require('../../Commons/utils/CommentMapper');
 
 class CommentRepositoryPostgres extends CommentRepository {
   constructor(pool, idGenerator) {
@@ -29,7 +29,7 @@ class CommentRepositoryPostgres extends CommentRepository {
     };
 
     const result = await this._pool.query(query);
-    return this._transformToAddedComment(result.rows[0]);
+    return AddedCommentMapper.toEntity(result.rows[0]);
   }
 
   async getCommentsByThreadId(threadId) {
@@ -52,7 +52,7 @@ class CommentRepositoryPostgres extends CommentRepository {
     };
 
     const result = await this._pool.query(query);
-    return result.rows.map((row) => this._transformToComment(row));
+    return result.rows.map((row) => CommentMapper.toEntity(row));
   }
 
   async getCommentForDeletion(id, threadId) {
@@ -86,22 +86,6 @@ class CommentRepositoryPostgres extends CommentRepository {
 
     const result = await this._pool.query(query);
     return result.rows.length > 0;
-  }
-
-  _transformToAddedComment({
-    id, content, owner_id: owner
-  }) {
-    return new AddedComment({
-      id, content, owner
-    });
-  }
-
-  _transformToComment({
-    id, username, content, created_at: date, is_delete: isDelete
-  }) {
-    return new DetailComment({
-      id, username, content, date, isDelete
-    });
   }
 }
 
