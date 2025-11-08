@@ -1,4 +1,4 @@
-const DetailComment = require('../../../comments/entities/DetailComment');
+const DetailComment = require('../../../comments/entities/Comment');
 const ThreadDetails = require('../ThreadDetails');
 
 describe('ThreadDetails Entity', () => {

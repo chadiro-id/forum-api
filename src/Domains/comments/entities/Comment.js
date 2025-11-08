@@ -1,6 +1,6 @@
 const Reply = require('../../replies/entities/Reply');
 
-class DetailComment {
+class Comment {
   constructor(payload) {
     this._validatePayload(payload);
 
@@ -90,4 +90,4 @@ class DetailComment {
   }
 }
 
-module.exports = DetailComment;
+module.exports = Comment;

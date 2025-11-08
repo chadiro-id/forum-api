@@ -1,7 +1,7 @@
 const Reply = require('../../../replies/entities/Reply');
-const DetailComment = require('../DetailComment');
+const DetailComment = require('../Comment');
 
-describe('DetailComment Entity', () => {
+describe('Comment Entity', () => {
   const dummyPayload = {
     id: 'comment-123',
     content: 'Sebuah komentar',

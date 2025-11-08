@@ -1,4 +1,4 @@
-const DetailComment = require('../../comments/entities/DetailComment');
+const DetailComment = require('../../comments/entities/Comment');
 
 class ThreadDetails {
   constructor(payload) {

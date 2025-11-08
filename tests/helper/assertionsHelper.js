@@ -1,6 +1,6 @@
 /* istanbul ignore file */
 const ClientError = require('../../src/Commons/exceptions/ClientError');
-const DetailComment = require('../../src/Domains/comments/entities/DetailComment');
+const DetailComment = require('../../src/Domains/comments/entities/Comment');
 const Reply = require('../../src/Domains/replies/entities/Reply');
 
 const assertQueryCalled = (
