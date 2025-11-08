@@ -17,4 +17,11 @@ describe('ReplyOwner Entity', () => {
     expect(() => new ReplyOwner(emptyOwner))
       .toThrow('REPLY_OWNER.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
   });
+
+  it('should throw error when payload property does not meet data type specification', () => {
+    const ownerNotString = { owner: 123 };
+
+    expect(() => new ReplyOwner(ownerNotString))
+      .toThrow('REPLY_OWNER.PAYLOAD_PROPERTY_NOT_MEET_DATA_TYPE_SPECIFICATION');
+  });
 });
