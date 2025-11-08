@@ -72,7 +72,7 @@ class ReplyRepositoryPostgres extends ReplyRepository {
       return null;
     }
 
-    return { owner: result.rows[0].owner_id };
+    return ReplyMapper.mapReplyOwnerToDomain(result.rows[0]);
   }
 
   async softDeleteReplyById(id) {
