@@ -6,6 +6,7 @@ const {
   assertDBError,
   expectReplyFromRepository,
 } = require('../../../../tests/helper/assertionsHelper');
+const ReplyOwner = require('../../../Domains/replies/entities/ReplyOwner');
 
 const FIXED_TIME = '2025-11-05T00:00:00.000Z';
 beforeAll(async () => {
@@ -142,7 +143,7 @@ describe('[Integration] ReplyRepositoryPostgres', () => {
       });
 
       const reply = await replyRepo.getReplyForDeletion('reply-001', commentB.id, thread.id);
-      expect(reply).toStrictEqual({ owner: userA.id });
+      expect(reply).toStrictEqual(new ReplyOwner({ owner: userA.id }));
     });
 
     it('should return null when reply not exist', async () => {
