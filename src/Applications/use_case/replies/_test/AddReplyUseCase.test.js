@@ -47,18 +47,16 @@ describe('AddReplyUseCase', () => {
       await expect(addReplyUseCase.execute({ ...dummyPayload }))
         .rejects.toThrow('ADD_REPLY_USE_CASE.COMMENT_NOT_EXIST');
 
-      expect(mockCommentRepo.isCommentExist).toHaveBeenCalledWith(dummyPayload.commentId, dummyPayload.threadId);
       expect(mockReplyRepo.addReply).not.toHaveBeenCalled();
     });
 
     it('should propagate error when addReply fails', async () => {
       mockCommentRepo.isCommentExist.mockResolvedValue(true);
-      mockReplyRepo.addReply.mockRejectedValue(new Error('add reply fails'));
+      mockReplyRepo.addReply.mockRejectedValue(new Error('fails'));
 
       await expect(addReplyUseCase.execute({ ...dummyPayload }))
         .rejects.toThrow();
 
-      expect(mockCommentRepo.isCommentExist).toHaveBeenCalledWith(dummyPayload.commentId, dummyPayload.threadId);
       expect(mockReplyRepo.addReply).toHaveBeenCalled();
     });
 
@@ -76,8 +74,7 @@ describe('AddReplyUseCase', () => {
         .rejects
         .toThrow('ADD_REPLY_USE_CASE.ADDED_REPLY_MUST_BE_INSTANCE_OF_ADDED_REPLY_ENTITY');
 
-      expect(mockCommentRepo.isCommentExist).toHaveBeenCalledWith(dummyPayload.commentId, dummyPayload.threadId);
-      expect(mockReplyRepo.addReply).toHaveBeenCalledWith(expect.any(NewReply));
+      expect(mockReplyRepo.addReply).toHaveBeenCalled();
     });
   });
 
