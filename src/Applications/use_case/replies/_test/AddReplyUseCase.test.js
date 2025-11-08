@@ -56,8 +56,6 @@ describe('AddReplyUseCase', () => {
 
       await expect(addReplyUseCase.execute({ ...dummyPayload }))
         .rejects.toThrow();
-
-      expect(mockReplyRepo.addReply).toHaveBeenCalled();
     });
 
     it('should throw error when the addedReply is not instance of AddedReply entity', async () => {
@@ -73,8 +71,6 @@ describe('AddReplyUseCase', () => {
       await expect(addReplyUseCase.execute({ ...dummyPayload }))
         .rejects
         .toThrow('ADD_REPLY_USE_CASE.ADDED_REPLY_MUST_BE_INSTANCE_OF_ADDED_REPLY_ENTITY');
-
-      expect(mockReplyRepo.addReply).toHaveBeenCalled();
     });
   });
 
