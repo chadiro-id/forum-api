@@ -1,5 +1,5 @@
 const AddedThreadMapper = require('../../Commons/utils/AddedThreadMapper');
-const DetailThreadMapper = require('../../Commons/utils/DetailThreadMapper');
+const ThreadDetailsMapper = require('../../Commons/utils/ThreadDetailsMapper');
 const ThreadRepository = require('../../Domains/threads/ThreadRepository');
 
 class ThreadRepositoryPostgres extends ThreadRepository {
@@ -54,7 +54,7 @@ class ThreadRepositoryPostgres extends ThreadRepository {
       return null;
     }
 
-    return DetailThreadMapper.toEntity(result.rows[0]);
+    return ThreadDetailsMapper.toEntity(result.rows[0]);
   }
 
   async isThreadExist(id) {
