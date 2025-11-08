@@ -9,6 +9,10 @@ class ReplyOwner {
     if (!owner) {
       throw new Error('REPLY_OWNER.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
     }
+
+    if (typeof owner !== 'string') {
+      throw new Error('REPLY_OWNER.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
+    }
   }
 }
 
