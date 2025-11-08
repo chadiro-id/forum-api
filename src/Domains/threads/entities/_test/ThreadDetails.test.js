@@ -1,7 +1,7 @@
 const DetailComment = require('../../../comments/entities/DetailComment');
-const DetailThread = require('../DetailThread');
+const DetailThread = require('../ThreadDetails');
 
-describe('DetailThread Entity', () => {
+describe('ThreadDetails Entity', () => {
   const dummyPayload = {
     id: 'thread-123',
     title: 'Judul thread',

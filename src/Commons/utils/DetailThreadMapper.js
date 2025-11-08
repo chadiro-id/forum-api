@@ -1,4 +1,4 @@
-const DetailThread = require('../../Domains/threads/entities/DetailThread');
+const DetailThread = require('../../Domains/threads/entities/ThreadDetails');
 
 class DetailThreadMapper {
   /**

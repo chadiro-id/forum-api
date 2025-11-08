@@ -1,4 +1,4 @@
-const DetailThread = require('../../../../Domains/threads/entities/DetailThread');
+const DetailThread = require('../../../../Domains/threads/entities/ThreadDetails');
 const GetDetailThreadUseCase = require('../GetDetailThreadUseCase');
 const DetailComment = require('../../../../Domains/comments/entities/DetailComment');
 const Reply = require('../../../../Domains/replies/entities/Reply');
