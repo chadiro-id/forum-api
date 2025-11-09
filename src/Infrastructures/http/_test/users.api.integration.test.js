@@ -1,6 +1,5 @@
 const serverTest = require('../../../../tests/helper/ServerTestHelper');
 const pgTest = require('../../../../tests/helper/postgres');
-const { assertHttpResponseError } = require('../../../../tests/helper/assertionsHelper');
 
 beforeAll(async () => {
   await serverTest.init();
@@ -29,7 +28,7 @@ describe('[Integration] Users Endpoints', () => {
         status: 'success',
         data: {
           addedUser: {
-            id: expect.stringMatching(/^user-/),
+            id: expect.stringMatching(/^user-[A-Za-z0-9_-]{21}$/),
             username: dummyPayload.username,
             fullname: dummyPayload.fullname,
           }
@@ -37,11 +36,12 @@ describe('[Integration] Users Endpoints', () => {
       };
 
       const options = { payload: { ...dummyPayload } };
-      const response = await serverTest.post('/users', options);
 
-      const responseJson = JSON.parse(response.payload);
+      const response = await serverTest.post('/users', options);
       expect(response.statusCode).toEqual(201);
-      expect(responseJson).toStrictEqual(expectedResJson);
+
+      const resJson = JSON.parse(response.payload);
+      expect(resJson).toStrictEqual(expectedResJson);
     });
 
     it('should response 400 when payload not contain needed property', async () => {
@@ -49,40 +49,66 @@ describe('[Integration] Users Endpoints', () => {
       delete payload.fullname;
 
       const response = await serverTest.post('/users', { payload });
+      expect(response.statusCode).toBe(400);
 
-      assertHttpResponseError(response, 400);
+      const resJson = JSON.parse(response.payload);
+      expect(resJson).toStrictEqual({
+        status: 'fail',
+        message: '"fullname" wajib diisi',
+      });
     });
 
     it('should response 400 when payload not meet data type specification', async () => {
       const payload = { ...dummyPayload, fullname: ['John Doe'] };
-      const response = await serverTest.post('/users', { payload });
 
-      assertHttpResponseError(response, 400);
+      const response = await serverTest.post('/users', { payload });
+      expect(response.statusCode).toBe(400);
+
+      const resJson = JSON.parse(response.payload);
+      expect(resJson).toStrictEqual({
+        status: 'fail',
+        message: '"fullname" harus berupa teks',
+      });
     });
 
     it('should response 400 when username more than 50 character', async () => {
       const payload = { ...dummyPayload, username: 'a'.repeat(51) };
-      const response = await serverTest.post('/users', { payload });
 
-      assertHttpResponseError(response, 400, { message: 'username maksimal 50 karakter' });
+      const response = await serverTest.post('/users', { payload });
+      expect(response.statusCode).toBe(400);
+
+      const resJson = JSON.parse(response.payload);
+      expect(resJson).toStrictEqual({
+        status: 'fail',
+        message: 'username maksimal 50 karakter',
+      });
     });
 
     it('should response 400 when username contain restricted character', async () => {
       const payload = { ...dummyPayload, username: 'john doe' };
-      const response = await serverTest.post('/users', { payload });
 
-      assertHttpResponseError(
-        response, 400, { message: 'tidak dapat membuat user baru karena username mengandung karakter terlarang' }
-      );
+      const response = await serverTest.post('/users', { payload });
+      expect(response.statusCode).toBe(400);
+
+      const resJson = JSON.parse(response.payload);
+      expect(resJson).toStrictEqual({
+        status: 'fail',
+        message: 'tidak dapat membuat user baru karena username mengandung karakter terlarang',
+      });
     });
 
-    it('should response 400 when username unavailable', async () => {
+    it('should response 400 when username not available', async () => {
       await pgTest.users.add({ id: 'user-101', username: 'johndoe' });
 
       const payload = { ...dummyPayload, username: 'johndoe' };
       const response = await serverTest.post('/users', { payload });
+      expect(response.statusCode).toBe(400);
 
-      assertHttpResponseError(response, 400, { message: 'username tidak tersedia' });
+      const resJson = JSON.parse(response.payload);
+      expect(resJson).toStrictEqual({
+        status: 'fail',
+        message: 'username tidak tersedia',
+      });
     });
   });
 });
