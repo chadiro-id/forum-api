@@ -1,4 +1,4 @@
-class AuthenticationPayload {
+class AuthCredentialsPayload {
   constructor(payload) {
     this._verifyPayload(payload);
 
@@ -19,4 +19,4 @@ class AuthenticationPayload {
   }
 }
 
-module.exports = AuthenticationPayload;
+module.exports = AuthCredentialsPayload;
