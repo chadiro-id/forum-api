@@ -14,11 +14,11 @@ class RepliesHandler {
     this._validator.validatePostReply(request.payload);
 
     const { threadId, commentId } = request.params;
-    const { id: owner } = request.auth.credentials;
+    const { id: userId } = request.auth.credentials;
     const { content } = request.payload;
 
     const useCase = this._container.getInstance(AddReplyUseCase.name);
-    const addedReply = await useCase.execute({ threadId, commentId, owner, content });
+    const addedReply = await useCase.execute({ threadId, commentId, userId, content });
 
     const response = h.response({
       status: 'success',
