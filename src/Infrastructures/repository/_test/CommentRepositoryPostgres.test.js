@@ -50,7 +50,7 @@ describe('[Mock-Based Integration] CommentRepositoryPostgres', () => {
         const addedComment = await commentRepo.addComment(new NewComment({
           threadId: 'thread-123',
           content: 'Sebuah komentar',
-          owner: 'user-123',
+          userId: 'user-123',
         }));
 
         expect(addedComment).toStrictEqual(new AddedComment({

@@ -40,7 +40,7 @@ describe('[Integration] CommentRepositoryPostgres', () => {
     it('should correctly persist the NewComment and return AddedComment', async () => {
       const newComment = new NewComment({
         threadId: thread.id,
-        owner: user.id,
+        userId: user.id,
         content: 'Sebuah komentar',
       });
 
@@ -51,7 +51,7 @@ describe('[Integration] CommentRepositoryPostgres', () => {
         {
           id: 'comment-123',
           thread_id: newComment.threadId,
-          owner_id: newComment.owner,
+          owner_id: newComment.userId,
           content: newComment.content,
           is_delete: false,
           created_at: new Date(FIXED_TIME),
@@ -69,7 +69,7 @@ describe('[Integration] CommentRepositoryPostgres', () => {
       await pgTest.comments.add({ id: 'comment-123', thread_id: thread.id, owner_id: user.id });
       const newComment = new NewComment({
         threadId: thread.id,
-        owner: user.id,
+        userId: user.id,
         content: 'Sebuah komentar',
       });
 
@@ -80,7 +80,7 @@ describe('[Integration] CommentRepositoryPostgres', () => {
     it('should propagate error when thread id violate constraint', async () => {
       const newComment = new NewComment({
         threadId: 'nonexistent-thread-id',
-        owner: user.id,
+        userId: user.id,
         content: 'Sebuah komentar',
       });
 
@@ -91,7 +91,7 @@ describe('[Integration] CommentRepositoryPostgres', () => {
     it('should propagate error when owner id violate constraint', async () => {
       const newComment = new NewComment({
         threadId: thread.id,
-        owner: 'nonexistent-user-id',
+        userId: 'nonexistent-user-id',
         content: 'Sebuah komentar',
       });
 
