@@ -35,7 +35,7 @@ describe('DeleteReplyUseCase', () => {
       mockReplyRepo.getReplyForDeletion.mockResolvedValue(null);
 
       await expect(deleteReplyUseCase.execute({ ...dummyPayload }))
-        .rejects.toThrow('DELETE_REPLY_USE_CASE.REPLY_NOT_EXIST');
+        .rejects.toThrow('DELETE_REPLY_USE_CASE.REPLY_NOT_FOUND');
 
       expect(mockReplyRepo.softDeleteReplyById).not.toHaveBeenCalled();
     });

@@ -10,7 +10,7 @@ class DeleteReplyUseCase {
 
     const reply = await this._replyRepository.getReplyForDeletion(replyId, commentId, threadId);
     if (reply === null) {
-      throw new Error('DELETE_REPLY_USE_CASE.REPLY_NOT_EXIST');
+      throw new Error('DELETE_REPLY_USE_CASE.REPLY_NOT_FOUND');
     }
 
     if (reply.owner !== owner) {
