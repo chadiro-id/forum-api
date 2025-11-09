@@ -6,6 +6,7 @@ const CommentOwner = require('../../../Domains/comments/entities/CommentOwner');
 const CommentRepositoryPostgres = require('../CommentRepositoryPostgres');
 const { createRawComment } = require('../../../../tests/util');
 const { assertQueryCalled, assertDBError } = require('../../../../tests/helper/assertionsHelper');
+require('../../../../tests/matcher/queryMatcher');
 
 describe('[Mock-Based Integration] CommentRepositoryPostgres', () => {
   it('must be an instance of CommentRepository', () => {
@@ -31,7 +32,16 @@ describe('[Mock-Based Integration] CommentRepositoryPostgres', () => {
     });
 
     describe('addComment', () => {
-      it('should correctly resolves and call pool.query', async () => {
+      it('should resolves and call pool.query correctly', async () => {
+        const expectedQueryText =
+          `
+          INSERT INTO comments
+            (id, thread_id, owner_id, content, created_at)
+          VALUES
+            ($1, $2, $3, $4, $5)
+          RETURNING
+            id, content, owner_id
+          `;
         mockPool.query.mockResolvedValue({
           rows: [{ id: 'comment-123', content: 'Sebuah komentar', owner_id: 'user-123' }],
           rowCount: 1,
@@ -43,23 +53,19 @@ describe('[Mock-Based Integration] CommentRepositoryPostgres', () => {
           owner: 'user-123',
         }));
 
-        expect(mockPool.query).toHaveBeenCalledTimes(1);
-        expect(mockPool.query).toHaveBeenCalledWith(
-          expect.objectContaining({
-            text: expect.stringContaining('INSERT INTO comments'),
-          })
-        );
-        const calledValues = mockPool.query.mock.calls[0][0].values;
-        expect(calledValues[0]).toEqual('comment-123');
-        expect(calledValues[1]).toEqual('thread-123');
-        expect(calledValues[2]).toEqual('user-123');
-        expect(calledValues[3]).toEqual('Sebuah komentar');
-
         expect(addedComment).toStrictEqual(new AddedComment({
           id: 'comment-123',
           content: 'Sebuah komentar',
           owner: 'user-123',
         }));
+
+        expect(mockPool.query).toHaveBeenCalledTimes(1);
+        expect(mockPool.query).toHaveBeenCalledWith({
+          text: expect.toMatchQueryText(expectedQueryText),
+          values: [
+            'comment-123', 'thread-123', 'user-123', 'Sebuah komentar', expect.any(Date)
+          ],
+        });
       });
 
       it('should propagate error when database fails', async () => {
@@ -71,7 +77,22 @@ describe('[Mock-Based Integration] CommentRepositoryPostgres', () => {
     });
 
     describe('getCommentsByThreadId', () => {
-      it('should correctly call pool.query and return comments', async () => {
+      it('should return comments and call pool.query correctly', async () => {
+        const expectedQueryText =
+          `
+          SELECT
+            c.id, c.content, c.created_at, c.is_delete, u.username
+          FROM
+            comments c
+          LEFT JOIN
+            users u
+          ON
+            u.id = c.owner_id
+          WHERE
+            c.thread_id = $1
+          ORDER BY
+            c.created_at ASC
+          `;
         const comment1 = createRawComment({ id: 'comment-001' });
         const comment2 = createRawComment({ id: 'comment-002', username: 'dicoder', is_delete: true });
 
@@ -98,7 +119,11 @@ describe('[Mock-Based Integration] CommentRepositoryPostgres', () => {
           }),
         ]);
 
-        assertQueryCalled(mockPool.query, 'SELECT', ['thread-123']);
+        expect(mockPool.query).toHaveBeenCalledTimes(1);
+        expect(mockPool.query).toHaveBeenCalledWith({
+          text: expect.toMatchQueryText(expectedQueryText),
+          values: ['thread-123'],
+        });
       });
 
       it('should return an empty array when no comment found', async () => {
@@ -119,7 +144,11 @@ describe('[Mock-Based Integration] CommentRepositoryPostgres', () => {
     });
 
     describe('getCommentForDeletion', () => {
-      it('should correctly call pool.query and return comment object', async () => {
+      it('should resolves and call pool.query correctly', async () => {
+        const calledQuery = {
+          text: 'SELECT owner_id FROM comments WHERE id = $1 AND thread_id = $2',
+          values: ['comment-001', 'thread-001'],
+        };
         mockPool.query.mockResolvedValue({
           rows: [{ owner_id: 'user-123' }],
           rowCount: 1,
@@ -128,9 +157,7 @@ describe('[Mock-Based Integration] CommentRepositoryPostgres', () => {
         const comment = await commentRepo.getCommentForDeletion('comment-001', 'thread-001');
         expect(comment).toStrictEqual(new CommentOwner({ owner: 'user-123' }));
 
-        assertQueryCalled(
-          mockPool.query, 'SELECT owner_id FROM comments', ['comment-001', 'thread-001']
-        );
+        assertQueryCalled(mockPool.query, calledQuery);
       });
 
       it('should return null when comment not exist', async () => {
@@ -151,7 +178,11 @@ describe('[Mock-Based Integration] CommentRepositoryPostgres', () => {
     });
 
     describe('softDeleteCommentById', () => {
-      it('should correctly resolve and call pool.query', async () => {
+      it('should resolves and call pool.query correctly', async () => {
+        const calledQuery = {
+          text: 'UPDATE comments SET is_delete = TRUE WHERE id = $1',
+          values: ['comment-123'],
+        };
         mockPool.query.mockResolvedValue({
           rows: [{ id: 'comment-123' }],
           rowCount: 1
@@ -160,9 +191,7 @@ describe('[Mock-Based Integration] CommentRepositoryPostgres', () => {
         await expect(commentRepo.softDeleteCommentById('comment-123'))
           .resolves.not.toThrow();
 
-        assertQueryCalled(
-          mockPool.query, 'UPDATE comments SET is_delete = TRUE', ['comment-123']
-        );
+        assertQueryCalled(mockPool.query, calledQuery);
       });
 
       it('should propagate error when database fails', async () => {
@@ -175,6 +204,10 @@ describe('[Mock-Based Integration] CommentRepositoryPostgres', () => {
 
     describe('isCommentExist', () => {
       it('should return true when comment exist', async () => {
+        const calledQuery = {
+          text: 'SELECT id FROM comments WHERE id = $1 AND thread_id = $2',
+          values: ['comment-001', 'thread-001'],
+        };
         mockPool.query.mockResolvedValue({
           rows: [{ id: 'comment-001' }], rowCount: 1
         });
@@ -182,7 +215,7 @@ describe('[Mock-Based Integration] CommentRepositoryPostgres', () => {
         const isExist = await commentRepo.isCommentExist('comment-001', 'thread-001');
         expect(isExist).toBe(true);
 
-        assertQueryCalled(mockPool.query, 'SELECT', ['comment-001', 'thread-001']);
+        assertQueryCalled(mockPool.query, calledQuery);
       });
 
       it('should return false when comment not exist', async () => {
