@@ -49,18 +49,19 @@ describe('[Integration] Comments Endpoints', () => {
       };
 
       const response = await serverTest.post(endpoint, options);
-
-      const responseJson = JSON.parse(response.payload);
       expect(response.statusCode).toBe(201);
-      expect(responseJson.status).toEqual('success');
-      expect(responseJson.data).toEqual(expect.any(Object));
 
-      const addedComment = responseJson.data.addedComment;
-      expect(addedComment).toEqual(expect.objectContaining({
-        id: expect.stringContaining('comment-'),
-        content: 'Sebuah komentar',
-        owner: user.id,
-      }));
+      const resJson = JSON.parse(response.payload);
+      expect(resJson).toStrictEqual({
+        status: 'success',
+        data: {
+          addedComment: {
+            id: expect.stringMatching(/^comment-[A-Za-z0-9_-]{21}$/),
+            content: 'Sebuah komentar',
+            owner: user.id,
+          },
+        },
+      });
     });
 
     it('should response 401 when request with no authentications', async () => {
@@ -138,10 +139,12 @@ describe('[Integration] Comments Endpoints', () => {
       const options = { headers: { ...authorization } };
 
       const response = await serverTest.delete(endpoint, options);
-
-      const responseJson = JSON.parse(response.payload);
       expect(response.statusCode).toBe(200);
-      expect(responseJson.status).toEqual('success');
+
+      const resJson = JSON.parse(response.payload);
+      expect(resJson).toStrictEqual({
+        status: 'success',
+      });
     });
 
     it('should response 401 when request with no authentication', async () => {
