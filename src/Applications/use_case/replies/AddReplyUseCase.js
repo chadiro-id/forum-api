@@ -12,7 +12,7 @@ class AddReplyUseCase {
 
   async execute(payload) {
     const newReply = new NewReply(payload);
-    const { threadId, commentId } = payload;
+    const { threadId, commentId } = newReply;
 
     const isCommentExist = await this._commentRepository.isCommentExist(commentId, threadId);
     if (!isCommentExist) {

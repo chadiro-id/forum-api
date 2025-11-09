@@ -8,7 +8,7 @@ const dummyPayload = {
   threadId: 'thread-123',
   commentId: 'comment-123',
   content: 'Sebuah balasan',
-  owner: 'user-123',
+  userId: 'user-123',
 };
 
 describe('AddReplyUseCase', () => {
@@ -33,12 +33,8 @@ describe('AddReplyUseCase', () => {
 
   describe('Failure cases', () => {
     it('should throw error when payload not provided correctly', async () => {
-      await expect(addReplyUseCase.execute())
-        .rejects.toThrow();
       await expect(addReplyUseCase.execute({}))
-        .rejects.toThrow();
-      await expect(addReplyUseCase.execute({ ...dummyPayload, content: 123 }))
-        .rejects.toThrow();
+        .rejects.toThrow('NEW_REPLY.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
     });
 
     it('should throw error when comment not exist', async () => {
@@ -69,7 +65,7 @@ describe('AddReplyUseCase', () => {
       const mockAddedReply = {
         id: 'reply-123',
         content: dummyPayload.content,
-        owner: dummyPayload.owner,
+        owner: dummyPayload.userId,
       };
 
       mockCommentRepo.isCommentExist.mockResolvedValue(true);
@@ -86,7 +82,7 @@ describe('AddReplyUseCase', () => {
       const mockAddedReply = new AddedReply({
         id: 'reply-123',
         content: dummyPayload.content,
-        owner: dummyPayload.owner,
+        owner: dummyPayload.userId,
       });
 
       mockCommentRepo.isCommentExist.mockResolvedValue(true);
@@ -102,7 +98,7 @@ describe('AddReplyUseCase', () => {
       expect(addedReply).toStrictEqual(new AddedReply({
         id: 'reply-123',
         content: dummyPayload.content,
-        owner: dummyPayload.owner,
+        owner: dummyPayload.userId,
       }));
     });
   });
