@@ -41,6 +41,18 @@ describe('PutAuthenticationUseCase', () => {
       expect(mockTokenManager.createAccessToken).not.toHaveBeenCalled();
     });
 
+    it('should propagate error when isTokenExist fails', async () => {
+      const refreshToken = 'refresh_token';
+
+      mockTokenManager.verifyRefreshToken.mockResolvedValue({ isValid: true });
+      mockAuthRepo.isTokenExist.mockRejectedValue(new Error('fails'));
+
+      await expect(putAuthenticationUseCase.execute({ refreshToken }))
+        .rejects.toThrow();
+
+      expect(mockTokenManager.createAccessToken).not.toHaveBeenCalled();
+    });
+
     it('should throw error when refresh token not found', async () => {
       const refreshToken = 'refresh_token';
 
