@@ -16,7 +16,7 @@ class AddReplyUseCase {
 
     const isCommentExist = await this._commentRepository.isCommentExist(commentId, threadId);
     if (!isCommentExist) {
-      throw new Error('ADD_REPLY_USE_CASE.COMMENT_NOT_EXIST');
+      throw new Error('ADD_REPLY_USE_CASE.COMMENT_NOT_FOUND');
     }
 
     const addedReply = await this._replyRepository.addReply(newReply);

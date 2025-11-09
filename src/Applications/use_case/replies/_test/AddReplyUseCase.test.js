@@ -45,7 +45,7 @@ describe('AddReplyUseCase', () => {
       mockCommentRepo.isCommentExist.mockResolvedValue(false);
 
       await expect(addReplyUseCase.execute({ ...dummyPayload }))
-        .rejects.toThrow('ADD_REPLY_USE_CASE.COMMENT_NOT_EXIST');
+        .rejects.toThrow('ADD_REPLY_USE_CASE.COMMENT_NOT_FOUND');
 
       expect(mockReplyRepo.addReply).not.toHaveBeenCalled();
     });
