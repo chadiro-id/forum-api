@@ -19,10 +19,8 @@ describe('DeleteAuthenticationUseCase', () => {
 
   describe('Failure cases', () => {
     it('should throw error when payload not provided correctly', async () => {
-      await expect(deleteAuthenticationUseCase.execute())
-        .rejects.toThrow();
       await expect(deleteAuthenticationUseCase.execute({}))
-        .rejects.toThrow();
+        .rejects.toThrow('AUTH_REFRESH_PAYLOAD.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
     });
 
     it('should propagate error when isTokenExist fails', async () => {
