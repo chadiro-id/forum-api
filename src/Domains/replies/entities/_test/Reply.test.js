@@ -85,13 +85,16 @@ describe('Reply Entity', () => {
     it('should correctly create the entity', () => {
       const payload = { ...dummyPayload };
 
-      const { id, commentId, content, date, username } = new Reply(payload);
+      const {
+        id, commentId, content, date, username, isDelete
+      } = new Reply(payload);
 
       expect(id).toEqual(payload.id);
       expect(commentId).toEqual(payload.commentId);
       expect(content).toEqual(payload.content);
       expect(date).toEqual(payload.date);
       expect(username).toEqual(payload.username);
+      expect(isDelete).toBeUndefined();
     });
 
     it('should not reveal original content when isDelete equal to TRUE', () => {
@@ -105,13 +108,6 @@ describe('Reply Entity', () => {
       const extraPayload = { ...dummyPayload, extra: 'Something extra' };
 
       const reply = new Reply(extraPayload);
-
-      expect(reply.id).toEqual(extraPayload.id);
-      expect(reply.commentId).toEqual(extraPayload.commentId);
-      expect(reply.content).toEqual(extraPayload.content);
-      expect(reply.date).toEqual(extraPayload.date);
-      expect(reply.username).toEqual(extraPayload.username);
-
       expect(reply.extra).toBeUndefined();
     });
   });
