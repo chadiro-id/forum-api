@@ -36,7 +36,7 @@ describe('DeleteCommentUseCase', () => {
       mockCommentRepo.getCommentForDeletion.mockResolvedValue(null);
 
       await expect(deleteCommentUseCase.execute({ ...dummyPayload }))
-        .rejects.toThrow('DELETE_COMMENT_USE_CASE.COMMENT_NOT_EXIST');
+        .rejects.toThrow('DELETE_COMMENT_USE_CASE.COMMENT_NOT_FOUND');
 
       expect(mockCommentRepo.softDeleteCommentById).not.toHaveBeenCalled();
     });

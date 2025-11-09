@@ -10,7 +10,7 @@ class DeleteCommentUseCase {
 
     const comment = await this._commentRepository.getCommentForDeletion(commentId, threadId);
     if (comment === null) {
-      throw new Error('DELETE_COMMENT_USE_CASE.COMMENT_NOT_EXIST');
+      throw new Error('DELETE_COMMENT_USE_CASE.COMMENT_NOT_FOUND');
     }
     if (comment.owner !== owner) {
       throw new Error('DELETE_COMMENT_USE_CASE.OWNER_NOT_MATCH');
