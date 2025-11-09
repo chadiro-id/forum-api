@@ -14,11 +14,11 @@ class CommentsHandler {
     this._validator.validatePostComment(request.payload);
 
     const { threadId } = request.params;
-    const { id: owner } = request.auth.credentials;
+    const { id: userId } = request.auth.credentials;
     const { content } = request.payload;
 
     const useCase = this._container.getInstance(AddCommentUseCase.name);
-    const addedComment = await useCase.execute({ threadId, owner, content });
+    const addedComment = await useCase.execute({ threadId, userId, content });
 
     const response = h.response({
       status: 'success',
