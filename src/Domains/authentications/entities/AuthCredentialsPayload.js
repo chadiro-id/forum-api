@@ -1,4 +1,10 @@
 class AuthCredentialsPayload {
+  /**
+   * Auth Credentials Payload constructor
+   * @param {Object} payload
+   * @property {string} id
+   * @property {string} username
+   */
   constructor(payload) {
     this._verifyPayload(payload);
 
@@ -10,11 +16,11 @@ class AuthCredentialsPayload {
     const { id, username } = payload;
 
     if (!id || !username) {
-      throw new Error('AUTHENTICATION_PAYLOAD.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
+      throw new Error('AUTH_CREDENTIALS_PAYLOAD.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
     }
 
     if (typeof id !== 'string' || typeof username !== 'string') {
-      throw new Error('AUTHENTICATION_PAYLOAD.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
+      throw new Error('AUTH_CREDENTIALS_PAYLOAD.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
     }
   }
 }
