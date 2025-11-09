@@ -5,7 +5,6 @@ const Reply = require('../../../../Domains/replies/entities/Reply');
 const ThreadRepository = require('../../../../Domains/threads/ThreadRepository');
 const CommentRepository = require('../../../../Domains/comments/CommentRepository');
 const ReplyRepository = require('../../../../Domains/replies/ReplyRepository');
-const ArrayGroupUtils = require('../../../utilities/ArrayGroupUtils');
 
 const dummyThread = {
   id: 'thread-123',
@@ -148,8 +147,8 @@ describe('GetThreadDetailsUseCase', () => {
         new Reply({ ...dummyReplies[2] }),
       ];
 
-      const replyGroup = ArrayGroupUtils.groupToObjectBy(replies, 'commentId');
-      const expectedComments = [...comments].map((c) => {
+      const replyGroup = Object.groupBy(replies, ({ commentId }) => commentId);
+      const expectedComments = comments.map((c) => {
         c.replies = replyGroup[c.id] || [];
         return c;
       });
