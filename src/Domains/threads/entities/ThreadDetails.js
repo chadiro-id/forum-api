@@ -1,6 +1,15 @@
 const Comment = require('../../comments/entities/Comment');
 
 class ThreadDetails {
+  /**
+   * Thread Details Entity constructor
+   * @param {Object} payload
+   * @property {string} id
+   * @property {string} title maxLength 255
+   * @property {string} body
+   * @property {string} username
+   * @property {Date} date
+   */
   constructor(payload) {
     this._verifyPayload(payload);
 
@@ -26,7 +35,7 @@ class ThreadDetails {
       || typeof title !== 'string'
       || typeof body !== 'string'
       || typeof username !== 'string'
-      || ['string', 'object'].includes(typeof date) === false
+      || date instanceof Date === false
     ) {
       throw new Error('THREAD_DETAILS.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
     }
@@ -83,9 +92,7 @@ class ThreadDetails {
       title: this.title,
       body: this.body,
       username: this.username,
-      date: this.date instanceof Date
-        ? this.date.toISOString()
-        : this.date,
+      date: this.date.toISOString(),
       comments: this.comments,
     };
   }
