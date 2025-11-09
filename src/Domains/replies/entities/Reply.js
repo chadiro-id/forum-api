@@ -23,7 +23,7 @@ class Reply {
       || typeof username !== 'string'
       || typeof content !== 'string'
       || typeof isDelete !== 'boolean'
-      || ['string', 'object'].includes(typeof date) === false
+      || date instanceof Date === false
     ) {
       throw new Error('REPLY.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
     }
@@ -60,9 +60,7 @@ class Reply {
       id: this.id,
       username: this.username,
       content: this.content,
-      date: this.date instanceof Date
-        ? this.date.toISOString()
-        : this.date,
+      date: this.date.toISOString(),
     };
   }
 }
