@@ -73,7 +73,7 @@ describe('PutAuthenticationUseCase', () => {
       mockTokenManager.decodePayload.mockResolvedValue({ username: 'johndoe' });
 
       await expect(putAuthenticationUseCase.execute({ refreshToken }))
-        .rejects.toThrow();
+        .rejects.toThrow('AUTHENTICATION_PAYLOAD.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
 
       expect(mockTokenManager.createAccessToken).not.toHaveBeenCalled();
     });
