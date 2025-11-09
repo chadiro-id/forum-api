@@ -26,9 +26,7 @@ describe('[Integration] AuthenticationRepositoryPostgres', () => {
       await authenticationRepo.addToken(token);
 
       const tokens = await pgTest.authentications.findToken(token);
-
-      expect(tokens).toHaveLength(1);
-      expect(tokens[0]).toStrictEqual({ token });
+      expect(tokens).toStrictEqual([{ token }]);
     });
   });
 
