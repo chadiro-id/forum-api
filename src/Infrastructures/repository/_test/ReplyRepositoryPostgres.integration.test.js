@@ -59,7 +59,7 @@ describe('[Integration] ReplyRepositoryPostgres', () => {
         {
           id: 'reply-123',
           comment_id: newReply.commentId,
-          owner_id: newReply.owner,
+          owner_id: newReply.userId,
           content: newReply.content,
           is_delete: false,
           created_at: new Date(FIXED_TIME),
@@ -69,7 +69,7 @@ describe('[Integration] ReplyRepositoryPostgres', () => {
       expect(addedReply).toStrictEqual(new AddedReply({
         id: 'reply-123',
         content: newReply.content,
-        owner: newReply.owner,
+        owner: newReply.userId,
       }));
     });
 
