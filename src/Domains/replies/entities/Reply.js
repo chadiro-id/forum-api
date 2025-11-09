@@ -1,6 +1,6 @@
 class Reply {
   /**
-   * Reply Entity Constructor
+   * Reply Entity constructor
    * @param {Object} payload
    * @property {string} id
    * @property {string} commentId
