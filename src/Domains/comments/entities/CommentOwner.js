@@ -1,4 +1,9 @@
 class CommentOwner {
+  /**
+   * Comment Owner Entity constructor
+   * @param {Object} payload
+   * @property {string} owner
+   */
   constructor(payload) {
     this._verifyPayload(payload);
 

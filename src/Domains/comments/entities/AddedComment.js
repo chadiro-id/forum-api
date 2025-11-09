@@ -1,4 +1,11 @@
 class AddedComment {
+  /**
+   * Added Comment Entity constructor
+   * @param {Object} payload
+   * @property {string} id
+   * @property {string} content
+   * @property {string} owner
+   */
   constructor(payload) {
     this._verifyPayload(payload);
 
