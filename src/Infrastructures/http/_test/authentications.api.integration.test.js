@@ -43,13 +43,13 @@ describe('[Integration] Authentications Endpoints', () => {
       expect(responseJson.data.refreshToken).toBeDefined();
     });
 
-    it('should response 400 when username is unknown', async () => {
+    it('should response 400 when username is not found', async () => {
       const options = {
         payload: { ...loginUser, username: 'unknown-username' }
       };
       const response = await serverTest.post('/authentications', options);
 
-      assertHttpResponseError(response, 400, { message: 'username tidak ditemukan' });
+      assertHttpResponseError(response, 400, { message: 'pengguna tidak ditemukan' });
     });
 
     it('should response 401 when password is incorrect', async () => {
