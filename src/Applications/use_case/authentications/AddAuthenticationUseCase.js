@@ -1,6 +1,6 @@
 const UserLogin = require('../../../Domains/authentications/entities/UserLogin');
 const UserAuthentication = require('../../../Domains/authentications/entities/UserAuthentication');
-const AuthenticationPayload = require('../../../Domains/authentications/entities/AuthenticationPayload');
+const AuthenticationPayload = require('../../../Domains/authentications/entities/AuthCredentialsPayload');
 
 class AddAuthenticationUseCase {
   constructor({

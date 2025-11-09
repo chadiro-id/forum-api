@@ -1,4 +1,4 @@
-const AuthenticationPayload = require('../../../Domains/authentications/entities/AuthenticationPayload');
+const AuthenticationPayload = require('../../../Domains/authentications/entities/AuthCredentialsPayload');
 const AuthRefreshPayload = require('../../../Domains/authentications/entities/AuthRefreshPayload');
 
 class PutAuthenticationUseCase {
