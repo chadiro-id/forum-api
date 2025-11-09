@@ -5,7 +5,7 @@ const ArrayGroupUtils = {
    * @param {string} key Properti yang digunakan untuk pengelompokan
    * @returns {Object} Objek yang sudah dikelompokan
    */
-  groupToObjectBy(array = [], key) {
+  groupToObjectBy(array, key) {
     return array.reduce((acc, item) => {
       const groupKey = item[key];
       (acc[groupKey] ||= []).push(item);
