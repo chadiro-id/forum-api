@@ -1,23 +1,30 @@
 class NewThread {
+  /**
+   * New Thread Entity constructor
+   * @param {Object} payload
+   * @property {string} title
+   * @property {string} body
+   * @property {string} userId
+   */
   constructor(payload) {
     this._verifyPayload(payload);
 
     this.title = payload.title;
     this.body = payload.body;
-    this.owner = payload.owner;
+    this.userId = payload.userId;
   }
 
   _verifyPayload(payload) {
-    const { title, body, owner } = payload;
+    const { title, body, userId } = payload;
 
-    if (!title || !body || !owner) {
+    if (!title || !body || !userId) {
       throw new Error('NEW_THREAD.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
     }
 
     if (
       typeof title !== 'string'
       || typeof body !== 'string'
-      || typeof owner !== 'string'
+      || typeof userId !== 'string'
     ) {
       throw new Error('NEW_THREAD.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
     }
