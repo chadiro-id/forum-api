@@ -37,23 +37,23 @@ describe('ThreadDetails Entity', () => {
       const emptyUsername = { ...dummyPayload, username: '' };
 
       expect(() => new ThreadDetails(missingId))
-        .toThrow('DETAIL_THREAD.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
+        .toThrow('THREAD_DETAILS.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
       expect(() => new ThreadDetails(missingTitle))
-        .toThrow('DETAIL_THREAD.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
+        .toThrow('THREAD_DETAILS.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
       expect(() => new ThreadDetails(missingBody))
-        .toThrow('DETAIL_THREAD.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
+        .toThrow('THREAD_DETAILS.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
       expect(() => new ThreadDetails(missingDate))
-        .toThrow('DETAIL_THREAD.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
+        .toThrow('THREAD_DETAILS.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
       expect(() => new ThreadDetails(missingUsername))
-        .toThrow('DETAIL_THREAD.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
+        .toThrow('THREAD_DETAILS.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
       expect(() => new ThreadDetails(emptyId))
-        .toThrow('DETAIL_THREAD.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
+        .toThrow('THREAD_DETAILS.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
       expect(() => new ThreadDetails(emptyTitle))
-        .toThrow('DETAIL_THREAD.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
+        .toThrow('THREAD_DETAILS.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
       expect(() => new ThreadDetails(emptyBody))
-        .toThrow('DETAIL_THREAD.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
+        .toThrow('THREAD_DETAILS.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
       expect(() => new ThreadDetails(emptyUsername))
-        .toThrow('DETAIL_THREAD.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
+        .toThrow('THREAD_DETAILS.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
     });
 
     it('should throw error when payload property does not meet data type specification', () => {
@@ -64,22 +64,22 @@ describe('ThreadDetails Entity', () => {
       const usernameNotString = { ...dummyPayload, username: 69 };
 
       expect(() => new ThreadDetails(idNotString))
-        .toThrow('DETAIL_THREAD.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
+        .toThrow('THREAD_DETAILS.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
       expect(() => new ThreadDetails(titleNotString))
-        .toThrow('DETAIL_THREAD.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
+        .toThrow('THREAD_DETAILS.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
       expect(() => new ThreadDetails(bodyNotString))
-        .toThrow('DETAIL_THREAD.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
+        .toThrow('THREAD_DETAILS.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
       expect(() => new ThreadDetails(dateNotStringOrObject))
-        .toThrow('DETAIL_THREAD.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
+        .toThrow('THREAD_DETAILS.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
       expect(() => new ThreadDetails(usernameNotString))
-        .toThrow('DETAIL_THREAD.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
+        .toThrow('THREAD_DETAILS.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
     });
 
     it('should throw error when title has char more than 255', () => {
       const payload = { ...dummyPayload, title: 'Sebuah thread'.repeat(25) };
 
       expect(() => new ThreadDetails(payload))
-        .toThrow('DETAIL_THREAD.TITLE_EXCEED_CHAR_LIMIT');
+        .toThrow('THREAD_DETAILS.TITLE_EXCEED_CHAR_LIMIT');
     });
 
     it('should throw error when date is not valid', () => {
@@ -87,9 +87,9 @@ describe('ThreadDetails Entity', () => {
       const dateObj = { ...dummyPayload, date: new Date('date') };
 
       expect(() => new ThreadDetails(dateString))
-        .toThrow('DETAIL_THREAD.DATE_INVALID');
+        .toThrow('THREAD_DETAILS.DATE_INVALID');
       expect(() => new ThreadDetails(dateObj))
-        .toThrow('DETAIL_THREAD.DATE_INVALID');
+        .toThrow('THREAD_DETAILS.DATE_INVALID');
     });
   });
 
@@ -141,11 +141,11 @@ describe('ThreadDetails Entity', () => {
       const thread = new ThreadDetails(dummyPayload);
 
       expect(() => thread.comments = numVal)
-        .toThrow('DETAIL_THREAD.COMMENTS_MUST_BE_AN_ARRAY');
+        .toThrow('THREAD_DETAILS.COMMENTS_MUST_BE_AN_ARRAY');
       expect(() => thread.comments = stringVal)
-        .toThrow('DETAIL_THREAD.COMMENTS_MUST_BE_AN_ARRAY');
+        .toThrow('THREAD_DETAILS.COMMENTS_MUST_BE_AN_ARRAY');
       expect(() => thread.comments = objVal)
-        .toThrow('DETAIL_THREAD.COMMENTS_MUST_BE_AN_ARRAY');
+        .toThrow('THREAD_DETAILS.COMMENTS_MUST_BE_AN_ARRAY');
     });
 
     it('should throw error when value contain invalid element', () => {
@@ -157,9 +157,9 @@ describe('ThreadDetails Entity', () => {
       const thread = new ThreadDetails({ ...dummyPayload });
 
       expect(() => thread.comments = arrContainString)
-        .toThrow('DETAIL_THREAD.COMMENTS_INVALID_ELEMENT');
+        .toThrow('THREAD_DETAILS.COMMENTS_INVALID_ELEMENT');
       expect(() => thread.comments = arrContainObj)
-        .toThrow('DETAIL_THREAD.COMMENTS_INVALID_ELEMENT');
+        .toThrow('THREAD_DETAILS.COMMENTS_INVALID_ELEMENT');
     });
 
     it('should correctly set comments', () => {
