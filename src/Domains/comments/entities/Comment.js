@@ -1,6 +1,15 @@
 const Reply = require('../../replies/entities/Reply');
 
 class Comment {
+  /**
+   * Comment Entity constructor
+   * @param {Object} payload
+   * @property {string} id
+   * @property {string} username
+   * @property {string} content
+   * @property {Date} date
+   * @property {boolean} isDelete
+   */
   constructor(payload) {
     this._validatePayload(payload);
 
