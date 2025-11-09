@@ -8,16 +8,20 @@ class AddUserUseCase {
   }
 
   async execute(payload) {
-    const entity = new RegisterUser(payload);
+    const registerPayload = new RegisterUser(payload);
 
-    const isUsernameExist = await this._userRepository.isUsernameExist(entity.username);
+    const isUsernameExist = await this._userRepository.isUsernameExist(registerPayload.username);
     if (isUsernameExist) {
       throw new Error('ADD_USER_USE_CASE.USERNAME_NOT_AVAILABLE');
     }
 
-    entity.password = await this._passwordHash.hash(entity.password);
+    const hashedPassword = await this._passwordHash.hash(registerPayload.password);
+    const registerUser = new RegisterUser({
+      ...registerPayload,
+      password: hashedPassword,
+    });
 
-    const registeredUser = await this._userRepository.addUser(entity);
+    const registeredUser = await this._userRepository.addUser(registerUser);
     if (registeredUser instanceof RegisteredUser === false) {
       throw new Error('ADD_USER_USE_CASE.REGISTERED_USER_MUST_BE_INSTANCE_OF_REGISTERED_USER_ENTITY');
     }
