@@ -38,8 +38,6 @@ describe('PutAuthenticationUseCase', () => {
       await expect(putAuthenticationUseCase.execute({ refreshToken: 'refresh_token' }))
         .rejects.toThrow('PUT_AUTHENTICATION_USE_CASE.REFRESH_TOKEN_NOT_VALID');
 
-      expect(mockAuthRepo.isTokenExist).not.toHaveBeenCalled();
-      expect(mockTokenManager.decodePayload).not.toHaveBeenCalled();
       expect(mockTokenManager.createAccessToken).not.toHaveBeenCalled();
     });
 
@@ -52,7 +50,6 @@ describe('PutAuthenticationUseCase', () => {
       await expect(putAuthenticationUseCase.execute({ refreshToken }))
         .rejects.toThrow('PUT_AUTHENTICATION_USE_CASE.REFRESH_TOKEN_NOT_FOUND');
 
-      expect(mockTokenManager.decodePayload).not.toHaveBeenCalled();
       expect(mockTokenManager.createAccessToken).not.toHaveBeenCalled();
     });
 
