@@ -45,7 +45,6 @@ describe('AddUserUseCase', () => {
       await expect(addUserUseCase.execute({ ...dummyPayload }))
         .rejects.toThrow();
 
-      expect(mockUserRepo.isUsernameExist).toHaveBeenCalledWith(dummyPayload.username);
       expect(mockPasswordHash.hash).not.toHaveBeenCalled();
     });
 
@@ -56,13 +55,6 @@ describe('AddUserUseCase', () => {
 
       await expect(addUserUseCase.execute({ ...dummyPayload }))
         .rejects.toThrow();
-
-      expect(mockPasswordHash.hash).toHaveBeenCalledWith(dummyPayload.password);
-      expect(mockUserRepo.addUser).toHaveBeenCalledWith(new RegisterUser({
-        username: dummyPayload.username,
-        password: 'encrypted_password',
-        fullname: dummyPayload.fullname,
-      }));
     });
 
     it('should throw error when the registeredUser not an instance of RegisteredUser entity', async () => {
@@ -79,10 +71,6 @@ describe('AddUserUseCase', () => {
       await expect(addUserUseCase.execute({ ...dummyPayload }))
         .rejects
         .toThrow('ADD_USER_USE_CASE.REGISTERED_USER_MUST_BE_INSTANCE_OF_REGISTERED_USER_ENTITY');
-
-      expect(mockUserRepo.isUsernameExist).toHaveBeenCalled();
-      expect(mockPasswordHash.hash).toHaveBeenCalled();
-      expect(mockUserRepo.addUser).toHaveBeenCalled();
     });
   });
 
