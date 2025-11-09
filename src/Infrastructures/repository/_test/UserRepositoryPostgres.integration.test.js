@@ -51,8 +51,7 @@ describe('[Integration] UserRepositoryPostgres', () => {
       expect(registeredUser).toStrictEqual(expectedRegisteredUser);
 
       const users = await pgTest.users.findById('user-123');
-      expect(users).toHaveLength(1);
-      expect(users[0]).toStrictEqual(expectedPersistedUser);
+      expect(users).toStrictEqual([expectedPersistedUser]);
     });
 
     it('should propagate error when id violate constraint', async () => {
@@ -75,7 +74,7 @@ describe('[Integration] UserRepositoryPostgres', () => {
       await pgTest.users.add({ id: 'user-321', username: 'johndoe' });
 
       const userId = await userRepo.getIdByUsername('johndoe');
-      expect(userId).toEqual('user-321');
+      expect(userId).toStrictEqual('user-321');
     });
 
     it('should return null when username not exist', async () => {
