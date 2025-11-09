@@ -1,6 +1,6 @@
-const AuthenticationPayload = require('../AuthenticationPayload');
+const AuthCredentialsPayload = require('../AuthCredentialsPayload');
 
-describe('AuthenticationPayload Entity', () => {
+describe('AuthCredentialsPayload Entity', () => {
   const dummyPayload = {
     id: 'user-123',
     username: 'johndoe',
@@ -13,13 +13,13 @@ describe('AuthenticationPayload Entity', () => {
       const emptyId = { ...dummyPayload, id: '' };
       const emptyUsername = { ...dummyPayload, username: '' };
 
-      expect(() => new AuthenticationPayload(missingId))
+      expect(() => new AuthCredentialsPayload(missingId))
         .toThrow('AUTHENTICATION_PAYLOAD.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
-      expect(() => new AuthenticationPayload(missingUsername))
+      expect(() => new AuthCredentialsPayload(missingUsername))
         .toThrow('AUTHENTICATION_PAYLOAD.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
-      expect(() => new AuthenticationPayload(emptyId))
+      expect(() => new AuthCredentialsPayload(emptyId))
         .toThrow('AUTHENTICATION_PAYLOAD.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
-      expect(() => new AuthenticationPayload(emptyUsername))
+      expect(() => new AuthCredentialsPayload(emptyUsername))
         .toThrow('AUTHENTICATION_PAYLOAD.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
     });
 
@@ -27,9 +27,9 @@ describe('AuthenticationPayload Entity', () => {
       const idNotString = { ...dummyPayload, id: 123 };
       const usernameNotString = { ...dummyPayload, username: ['johndoe'] };
 
-      expect(() => new AuthenticationPayload(idNotString))
+      expect(() => new AuthCredentialsPayload(idNotString))
         .toThrow('AUTHENTICATION_PAYLOAD.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
-      expect(() => new AuthenticationPayload(usernameNotString))
+      expect(() => new AuthCredentialsPayload(usernameNotString))
         .toThrow('AUTHENTICATION_PAYLOAD.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
     });
   });
@@ -38,7 +38,7 @@ describe('AuthenticationPayload Entity', () => {
     it('should correctly create the entity', () => {
       const payload = { ...dummyPayload };
 
-      const { id, username } = new AuthenticationPayload(payload);
+      const { id, username } = new AuthCredentialsPayload(payload);
 
       expect(id).toEqual(payload.id);
       expect(username).toEqual(payload.username);
@@ -47,11 +47,7 @@ describe('AuthenticationPayload Entity', () => {
     it('should correctly create the entity and not contain extra property', () => {
       const payload = { ...dummyPayload, extra: 'ekstra' };
 
-      const { id, username, extra } = new AuthenticationPayload(payload);
-
-      expect(id).toEqual(payload.id);
-      expect(username).toEqual(payload.username);
-
+      const { extra } = new AuthCredentialsPayload(payload);
       expect(extra).toBeUndefined();
     });
   });
