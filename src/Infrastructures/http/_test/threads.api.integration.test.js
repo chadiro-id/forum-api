@@ -2,7 +2,6 @@ const serverTest = require('../../../../tests/helper/ServerTestHelper');
 const pgTest = require('../../../../tests/helper/postgres');
 const { createAuthToken } = require('../../../../tests/helper/authenticationHelper');
 const {
-  assertHttpResponseError,
   expectCommentFromResponse,
   expectReplyFromResponse,
 } = require('../../../../tests/helper/assertionsHelper');
@@ -64,11 +63,15 @@ describe('[Integration] Threads Endpoints', () => {
 
     it('should response 401 when request with no authentication', async () => {
       const options = { payload: { ...dummyPayload } };
-      const response = await serverTest.post('/threads', options);
 
-      assertHttpResponseError(response, 401, {
-        status: null,
-        message: 'Missing authentication',
+      const response = await serverTest.post('/threads', options);
+      expect(response.statusCode).toBe(401);
+
+      const resJson = JSON.parse(response.payload);
+      expect(resJson).toStrictEqual({
+        statusCode: 401,
+        error: 'Unauthorized',
+        message: 'Missing authentication'
       });
     });
 
@@ -79,8 +82,13 @@ describe('[Integration] Threads Endpoints', () => {
       };
 
       const response = await serverTest.post('/threads', options);
+      expect(response.statusCode).toBe(400);
 
-      assertHttpResponseError(response, 400);
+      const resJson = JSON.parse(response.payload);
+      expect(resJson).toStrictEqual({
+        status: 'fail',
+        message: '"Judul thread" wajib diisi',
+      });
     });
 
     it('should response 400 when payload does not meet data type specification', async () => {
@@ -90,8 +98,13 @@ describe('[Integration] Threads Endpoints', () => {
       };
 
       const response = await serverTest.post('/threads', options);
+      expect(response.statusCode).toBe(400);
 
-      assertHttpResponseError(response, 400);
+      const resJson = JSON.parse(response.payload);
+      expect(resJson).toStrictEqual({
+        status: 'fail',
+        message: '"Bodi thread" harus berupa teks',
+      });
     });
 
     it('should response 400 when thread title more than 255 character', async () => {
@@ -101,8 +114,13 @@ describe('[Integration] Threads Endpoints', () => {
       };
 
       const response = await serverTest.post('/threads', options);
+      expect(response.statusCode).toBe(400);
 
-      assertHttpResponseError(response, 400);
+      const resJson = JSON.parse(response.payload);
+      expect(resJson).toStrictEqual({
+        status: 'fail',
+        message: '"Judul thread" maksimal 255 karakter',
+      });
     });
   });
 
