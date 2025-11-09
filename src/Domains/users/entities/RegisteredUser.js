@@ -1,4 +1,11 @@
 class RegisteredUser {
+  /**
+   * Registered User Entity constructor
+   * @param {Object} payload
+   * @property {string} id
+   * @property {string} username
+   * @property {string} fullname
+   */
   constructor(payload) {
     this._verifyPayload(payload);
 
