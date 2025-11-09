@@ -1,13 +1,11 @@
 const AddedReply = require('../../../Domains/replies/entities/AddedReply');
 const NewReply = require('../../../Domains/replies/entities/NewReply');
+const Reply = require('../../../Domains/replies/entities/Reply');
+const ReplyOwner = require('../../../Domains/replies/entities/ReplyOwner');
 const ReplyRepository = require('../../../Domains/replies/ReplyRepository');
 const ReplyRepositoryPostgres = require('../ReplyRepositoryPostgres');
 const { createRawReply } = require('../../../../tests/util');
-const {
-  assertQueryCalled,
-  assertDBError,
-  expectReplyFromRepository,
-} = require('../../../../tests/helper/assertionsHelper');
+const { assertQueryCalled, assertDBError } = require('../../../../tests/helper/assertionsHelper');
 
 describe('[Mock-Based Integration] ReplyRepositoryPostgres', () => {
   it('must be an instance of ReplyRepository', () => {
@@ -71,24 +69,36 @@ describe('[Mock-Based Integration] ReplyRepositoryPostgres', () => {
     describe('getRepliesByCommentIds', () => {
       it('should correctly call pool.query', async () => {
         const reply1 = createRawReply({ id: 'reply-101', comment_id: 'comment-101', username: 'whoami' });
-        const reply2 = createRawReply({ id: 'reply-102', comment_id: 'comment-101', is_delete: true });
-        const reply3 = createRawReply({ id: 'reply-103', comment_id: 'comment-102', username: 'whoami' });
+        const reply2 = createRawReply({ id: 'reply-102', comment_id: 'comment-102', is_delete: true });
 
         mockPool.query.mockResolvedValue({
-          rows: [reply1, reply2, reply3],
-          rowCount: 3,
+          rows: [reply1, reply2],
+          rowCount: 2,
         });
 
         const replies = await replyRepo.getRepliesByCommentIds(['comment-101', 'comment-102']);
+        expect(replies).toStrictEqual([
+          new Reply({
+            id: reply1.id,
+            commentId: reply1.comment_id,
+            content: reply1.content,
+            username: reply1.username,
+            date: reply1.created_at,
+            isDelete: reply1.is_delete,
+          }),
+          new Reply({
+            id: reply2.id,
+            commentId: reply2.comment_id,
+            content: reply2.content,
+            username: reply2.username,
+            date: reply2.created_at,
+            isDelete: reply2.is_delete,
+          }),
+        ]);
 
         assertQueryCalled(
           mockPool.query, 'SELECT', [['comment-101', 'comment-102']]
         );
-
-        expect(replies).toHaveLength(3);
-        expectReplyFromRepository(replies[0], { ...reply1 });
-        expectReplyFromRepository(replies[1], { ...reply2 });
-        expectReplyFromRepository(replies[2], { ...reply3 });
       });
 
       it('should return an empty array when no reply found', async () => {
@@ -115,7 +125,8 @@ describe('[Mock-Based Integration] ReplyRepositoryPostgres', () => {
           rowCount: 1,
         });
 
-        await replyRepo.getReplyForDeletion('reply-001', 'comment-001', 'thread-001');
+        const reply = await replyRepo.getReplyForDeletion('reply-001', 'comment-001', 'thread-001');
+        expect(reply).toStrictEqual(new ReplyOwner({ owner: 'user-001' }));
         const query = {
           text: 'SELECT',
           values: ['reply-001', 'comment-001', 'thread-001'],
