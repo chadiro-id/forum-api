@@ -1,7 +1,6 @@
 const serverTest = require('../../../../tests/helper/ServerTestHelper');
-const { createAuthToken } = require('../../../../tests/helper/authenticationHelper');
-const { assertHttpResponseError } = require('../../../../tests/helper/assertionsHelper');
 const pgTest = require('../../../../tests/helper/postgres');
+const { createAuthToken } = require('../../../../tests/helper/authenticationHelper');
 
 beforeAll(async () => {
   await serverTest.init();
@@ -66,10 +65,14 @@ describe('[Integration] Comments Endpoints', () => {
 
     it('should response 401 when request with no authentications', async () => {
       const options = { payload: { content: 'Sebuah komentar' } };
-      const response = await serverTest.post(endpoint, options);
 
-      assertHttpResponseError(response, 401, {
-        status: null,
+      const response = await serverTest.post(endpoint, options);
+      expect(response.statusCode).toBe(401);
+
+      const resJson = JSON.parse(response.payload);
+      expect(resJson).toStrictEqual({
+        statusCode: 401,
+        error: 'Unauthorized',
         message: 'Missing authentication',
       });
     });
@@ -81,8 +84,13 @@ describe('[Integration] Comments Endpoints', () => {
       };
 
       const response = await serverTest.post('/threads/xxx/comments', options);
+      expect(response.statusCode).toBe(404);
 
-      assertHttpResponseError(response, 404);
+      const resJson = JSON.parse(response.payload);
+      expect(resJson).toStrictEqual({
+        status: 'fail',
+        message: 'Thread tidak ditemukan',
+      });
     });
 
     it('should response 400 when payload not contain needed property', async () => {
@@ -92,8 +100,13 @@ describe('[Integration] Comments Endpoints', () => {
       };
 
       const response = await serverTest.post(endpoint, options);
+      expect(response.statusCode).toBe(400);
 
-      assertHttpResponseError(response, 400);
+      const resJson = JSON.parse(response.payload);
+      expect(resJson).toStrictEqual({
+        status: 'fail',
+        message: '"Isi komentar" wajib diisi',
+      });
     });
 
     it('should response 400 when payload has wrong data type', async () => {
@@ -103,8 +116,13 @@ describe('[Integration] Comments Endpoints', () => {
       };
 
       const response = await serverTest.post(endpoint, options);
+      expect(response.statusCode).toBe(400);
 
-      assertHttpResponseError(response, 400);
+      const resJson = JSON.parse(response.payload);
+      expect(resJson).toStrictEqual({
+        status: 'fail',
+        message: '"Isi komentar" harus berupa teks',
+      });
     });
   });
 
@@ -128,10 +146,14 @@ describe('[Integration] Comments Endpoints', () => {
 
     it('should response 401 when request with no authentication', async () => {
       const endpoint = `/threads/${thread.id}/comments/${comment.id}`;
-      const response = await serverTest.delete(endpoint);
 
-      assertHttpResponseError(response, 401, {
-        status: null,
+      const response = await serverTest.delete(endpoint);
+      expect(response.statusCode).toBe(401);
+
+      const resJson = JSON.parse(response.payload);
+      expect(resJson).toStrictEqual({
+        statusCode: 401,
+        error: 'Unauthorized',
         message: 'Missing authentication',
       });
     });
@@ -141,8 +163,13 @@ describe('[Integration] Comments Endpoints', () => {
       const options = { headers: { ...authorization } };
 
       const response = await serverTest.delete(endpoint, options);
+      expect(response.statusCode).toBe(404);
 
-      assertHttpResponseError(response, 404);
+      const resJson = JSON.parse(response.payload);
+      expect(resJson).toStrictEqual({
+        status: 'fail',
+        message: 'Komentar tidak ditemukan',
+      });
     });
 
     it('should response 404 when comment not exists', async () => {
@@ -150,8 +177,13 @@ describe('[Integration] Comments Endpoints', () => {
       const options = { headers: { ...authorization } };
 
       const response = await serverTest.delete(endpoint, options);
+      expect(response.statusCode).toBe(404);
 
-      assertHttpResponseError(response, 404);
+      const resJson = JSON.parse(response.payload);
+      expect(resJson).toStrictEqual({
+        status: 'fail',
+        message: 'Komentar tidak ditemukan',
+      });
     });
 
     it('should response 404 when comment not belong to thread', async () => {
@@ -161,8 +193,13 @@ describe('[Integration] Comments Endpoints', () => {
       const options = { headers: { ...authorization } };
 
       const response = await serverTest.delete(endpoint, options);
+      expect(response.statusCode).toBe(404);
 
-      assertHttpResponseError(response, 404);
+      const resJson = JSON.parse(response.payload);
+      expect(resJson).toStrictEqual({
+        status: 'fail',
+        message: 'Komentar tidak ditemukan',
+      });
     });
 
     it('should response 403 when user not authorized', async () => {
@@ -174,8 +211,13 @@ describe('[Integration] Comments Endpoints', () => {
       const options = { headers: { Authorization: `Bearer ${otherAccessToken}` } };
 
       const response = await serverTest.delete(endpoint, options);
+      expect(response.statusCode).toBe(403);
 
-      assertHttpResponseError(response, 403);
+      const resJson = JSON.parse(response.payload);
+      expect(resJson).toStrictEqual({
+        status: 'fail',
+        message: 'Pengguna tidak memiliki hak akses',
+      });
     });
   });
 });
