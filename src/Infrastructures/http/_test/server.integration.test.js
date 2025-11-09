@@ -9,7 +9,7 @@ describe('[Integration] HTTP server', () => {
       url: '/unregisteredRoute',
     });
 
-    expect(response.statusCode).toEqual(404);
+    expect(response.statusCode).toBe(404);
   });
 
   it('should handle server error correctly', async () => {
@@ -28,10 +28,12 @@ describe('[Integration] HTTP server', () => {
       method: 'GET',
       url: '/error',
     });
+    expect(response.statusCode).toBe(500);
 
-    const responseJson = JSON.parse(response.payload);
-    expect(response.statusCode).toEqual(500);
-    expect(responseJson.status).toEqual('error');
-    expect(responseJson.message).toEqual('terjadi kegagalan pada server kami');
+    const resJson = JSON.parse(response.payload);
+    expect(resJson).toStrictEqual({
+      status: 'error',
+      message: 'terjadi kegagalan pada server kami',
+    });
   });
 });
