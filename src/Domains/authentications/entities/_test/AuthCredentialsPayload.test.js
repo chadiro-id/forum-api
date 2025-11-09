@@ -14,13 +14,13 @@ describe('AuthCredentialsPayload Entity', () => {
       const emptyUsername = { ...dummyPayload, username: '' };
 
       expect(() => new AuthCredentialsPayload(missingId))
-        .toThrow('AUTHENTICATION_PAYLOAD.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
+        .toThrow('AUTH_CREDENTIALS_PAYLOAD.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
       expect(() => new AuthCredentialsPayload(missingUsername))
-        .toThrow('AUTHENTICATION_PAYLOAD.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
+        .toThrow('AUTH_CREDENTIALS_PAYLOAD.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
       expect(() => new AuthCredentialsPayload(emptyId))
-        .toThrow('AUTHENTICATION_PAYLOAD.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
+        .toThrow('AUTH_CREDENTIALS_PAYLOAD.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
       expect(() => new AuthCredentialsPayload(emptyUsername))
-        .toThrow('AUTHENTICATION_PAYLOAD.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
+        .toThrow('AUTH_CREDENTIALS_PAYLOAD.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
     });
 
     it('should throw error when payload property does not meet data type specification', () => {
@@ -28,9 +28,9 @@ describe('AuthCredentialsPayload Entity', () => {
       const usernameNotString = { ...dummyPayload, username: ['johndoe'] };
 
       expect(() => new AuthCredentialsPayload(idNotString))
-        .toThrow('AUTHENTICATION_PAYLOAD.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
+        .toThrow('AUTH_CREDENTIALS_PAYLOAD.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
       expect(() => new AuthCredentialsPayload(usernameNotString))
-        .toThrow('AUTHENTICATION_PAYLOAD.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
+        .toThrow('AUTH_CREDENTIALS_PAYLOAD.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
     });
   });
 
