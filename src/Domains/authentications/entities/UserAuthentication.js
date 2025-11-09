@@ -1,4 +1,10 @@
 class UserAuthentication {
+  /**
+   * User Authentication constructor
+   * @param {Object} payload
+   * @property {string} accessToken
+   * @property {string} refreshToken
+   */
   constructor(payload) {
     this._verifyPayload(payload);
 

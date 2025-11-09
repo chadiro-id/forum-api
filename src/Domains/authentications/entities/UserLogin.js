@@ -1,4 +1,10 @@
 class UserLogin {
+  /**
+   * User Login Entity constructor
+   * @param {Object} payload
+   * @property {string} username
+   * @property {string} password
+   */
   constructor(payload) {
     this._verifyPayload(payload);
 

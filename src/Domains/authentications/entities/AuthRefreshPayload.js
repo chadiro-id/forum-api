@@ -1,4 +1,9 @@
 class AuthRefreshPayload {
+  /**
+   * Auth Refresh Payload constructor
+   * @param {Object} payload
+   * @property {string} refreshToken
+   */
   constructor(payload) {
     this._verifyPayload(payload);
 
