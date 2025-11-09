@@ -56,7 +56,7 @@ describe('AddAuthenticationUseCase', () => {
       mockUserRepo.getPasswordByUsername.mockResolvedValue('encrypted_password');
 
       await expect(addAuthenticationUseCase.execute({ ...dummyPayload }))
-        .rejects.toThrow('ADD_AUTHENTICATION_USE_CASE.USER_NOT_EXIST');
+        .rejects.toThrow('ADD_AUTHENTICATION_USE_CASE.USER_NOT_FOUND');
     });
 
     it('should throw error when password not valid', async () => {
@@ -64,7 +64,7 @@ describe('AddAuthenticationUseCase', () => {
       mockUserRepo.getPasswordByUsername.mockResolvedValue(null);
 
       await expect(addAuthenticationUseCase.execute({ ...dummyPayload }))
-        .rejects.toThrow('ADD_AUTHENTICATION_USE_CASE.USER_NOT_EXIST');
+        .rejects.toThrow('ADD_AUTHENTICATION_USE_CASE.USER_NOT_FOUND');
     });
 
     it('should throw error when password not match', async () => {

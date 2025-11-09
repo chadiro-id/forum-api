@@ -24,7 +24,7 @@ class AddAuthenticationUseCase {
     ]);
 
     if (!id || !encryptedPassword) {
-      throw new Error('ADD_AUTHENTICATION_USE_CASE.USER_NOT_EXIST');
+      throw new Error('ADD_AUTHENTICATION_USE_CASE.USER_NOT_FOUND');
     }
 
     const isPasswordMatch = await this._passwordHash.comparePassword(password, encryptedPassword);
