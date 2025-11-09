@@ -46,6 +46,16 @@ describe('AddedThread entity', () => {
       expect(() => new AddedThread(ownerNotString))
         .toThrow('ADDED_THREAD.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
     });
+
+    it('should throw error when title has char more than 255', () => {
+      const payload = {
+        ...dummyPayload,
+        title: 'a'.repeat(256),
+      };
+
+      expect(() => new AddedThread(payload))
+        .toThrow('ADDED_THREAD.TITLE_EXCEED_CHAR_LIMIT');
+    });
   });
 
   describe('Correct payload', () => {
@@ -59,15 +69,10 @@ describe('AddedThread entity', () => {
       expect(owner).toEqual(payload.owner);
     });
 
-    it('should correctly create the entity and not contain extra property', () => {
+    it('should not contain extra property', () => {
       const extraPayload = { ...dummyPayload, extra: 'Something extra' };
 
       const addedThread = new AddedThread(extraPayload);
-
-      expect(addedThread.id).toEqual(extraPayload.id);
-      expect(addedThread.title).toEqual(extraPayload.title);
-      expect(addedThread.owner).toEqual(extraPayload.owner);
-
       expect(addedThread.extra).toBeUndefined();
     });
   });
