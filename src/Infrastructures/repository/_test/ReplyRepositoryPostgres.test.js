@@ -51,9 +51,10 @@ describe('[Mock-Based Integration] ReplyRepositoryPostgres', () => {
         });
 
         const addedReply = await replyRepo.addReply(new NewReply({
+          threadId: 'thread-123',
           commentId: 'comment-123',
           content: 'Sebuah balasan',
-          owner: 'user-123',
+          userId: 'user-123',
         }));
 
         expect(mockPool.query).toHaveBeenCalledTimes(1);

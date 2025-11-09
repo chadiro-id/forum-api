@@ -46,9 +46,10 @@ describe('[Integration] ReplyRepositoryPostgres', () => {
   describe('addReply', () => {
     it('should correctly persist the NewReply and return AddedReply', async () => {
       const newReply = new NewReply({
+        threadId: thread.id,
         commentId: commentA.id,
         content: 'Sebuah balasan',
-        owner: userA.id,
+        userId: userA.id,
       });
 
       const addedReply = await replyRepo.addReply(newReply);
@@ -75,9 +76,10 @@ describe('[Integration] ReplyRepositoryPostgres', () => {
     it('should propagate error when id violate constraint', async () => {
       await pgTest.replies.add({ id: 'reply-123', comment_id: commentA.id, owner_id: userB.id });
       const newReply = new NewReply({
+        threadId: thread.id,
         commentId: commentA.id,
         content: 'Sebuah balasan',
-        owner: userA.id,
+        userId: userA.id,
       });
 
       const promise = replyRepo.addReply(newReply);
@@ -86,9 +88,10 @@ describe('[Integration] ReplyRepositoryPostgres', () => {
 
     it('should propagate error when comment id violate constraint', async () => {
       const newReply = new NewReply({
+        threadId: thread.id,
         commentId: 'nonexistent-comment-id',
         content: 'Sebuah balasan',
-        owner: userA.id,
+        userId: userA.id,
       });
 
       const promise = replyRepo.addReply(newReply);
@@ -97,9 +100,10 @@ describe('[Integration] ReplyRepositoryPostgres', () => {
 
     it('should propagate error when owner id violate constraint', async () => {
       const newReply = new NewReply({
+        threadId: thread.id,
         commentId: commentA.id,
         content: 'Sebuah balasan',
-        owner: 'nonexistent-user-id',
+        userId: 'nonexistent-user-id',
       });
 
       const promise = replyRepo.addReply(newReply);

@@ -10,7 +10,7 @@ class ReplyRepositoryPostgres extends ReplyRepository {
   }
 
   async addReply(newReply) {
-    const { commentId, content, owner } = newReply;
+    const { commentId, content, userId } = newReply;
 
     const id = `reply-${this._idGenerator()}`;
     const timestamp = new Date();
@@ -24,7 +24,7 @@ class ReplyRepositoryPostgres extends ReplyRepository {
       RETURNING
         id, content, owner_id
       `,
-      values: [id, commentId, owner, content, timestamp],
+      values: [id, commentId, userId, content, timestamp],
     };
 
     const result = await this._pool.query(query);
