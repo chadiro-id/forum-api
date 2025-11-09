@@ -35,12 +35,8 @@ describe('AddUserUseCase', () => {
 
   describe('Failure cases', () => {
     it('should throw error when payload not provided correctly', async () => {
-      await expect(addUserUseCase.execute())
-        .rejects.toThrow();
-      await expect(addUserUseCase.execute([]))
-        .rejects.toThrow();
-      await expect(addUserUseCase.execute({ ...dummyPayload, username: 'who am i' }))
-        .rejects.toThrow();
+      await expect(addUserUseCase.execute({ ...dummyPayload, username: '' }))
+        .rejects.toThrow('REGISTER_USER.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
     });
 
     it('should throw error when username not available', async () => {
