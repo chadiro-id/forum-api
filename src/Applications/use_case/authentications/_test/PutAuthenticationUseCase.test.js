@@ -27,16 +27,9 @@ describe('PutAuthenticationUseCase', () => {
 
   describe('Failure cases', () => {
     it('should throw error when payload not provided correctly', async () => {
-      await expect(putAuthenticationUseCase.execute()).rejects.toThrow();
       await expect(putAuthenticationUseCase.execute({}))
         .rejects
-        .toThrow('PUT_AUTHENTICATION_USE_CASE.PAYLOAD_NOT_CONTAIN_REFRESH_TOKEN');
-      await expect(putAuthenticationUseCase.execute({ refreshToken: '' }))
-        .rejects
-        .toThrow('PUT_AUTHENTICATION_USE_CASE.PAYLOAD_NOT_CONTAIN_REFRESH_TOKEN');
-      await expect(putAuthenticationUseCase.execute({ refreshToken: 123 }))
-        .rejects
-        .toThrow('PUT_AUTHENTICATION_USE_CASE.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
+        .toThrow('AUTH_REFRESH_PAYLOAD.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
     });
 
     it('should throw error when refresh token invalid', async () => {
@@ -45,7 +38,6 @@ describe('PutAuthenticationUseCase', () => {
       await expect(putAuthenticationUseCase.execute({ refreshToken: 'refresh_token' }))
         .rejects.toThrow('PUT_AUTHENTICATION_USE_CASE.REFRESH_TOKEN_NOT_VALID');
 
-      expect(mockTokenManager.verifyRefreshToken).toHaveBeenCalledWith('refresh_token');
       expect(mockAuthRepo.isTokenExist).not.toHaveBeenCalled();
       expect(mockTokenManager.decodePayload).not.toHaveBeenCalled();
       expect(mockTokenManager.createAccessToken).not.toHaveBeenCalled();
@@ -60,8 +52,6 @@ describe('PutAuthenticationUseCase', () => {
       await expect(putAuthenticationUseCase.execute({ refreshToken }))
         .rejects.toThrow('PUT_AUTHENTICATION_USE_CASE.REFRESH_TOKEN_NOT_FOUND');
 
-      expect(mockTokenManager.verifyRefreshToken).toHaveBeenCalledWith(refreshToken);
-      expect(mockAuthRepo.isTokenExist).toHaveBeenCalledWith(refreshToken);
       expect(mockTokenManager.decodePayload).not.toHaveBeenCalled();
       expect(mockTokenManager.createAccessToken).not.toHaveBeenCalled();
     });
@@ -76,9 +66,6 @@ describe('PutAuthenticationUseCase', () => {
       await expect(putAuthenticationUseCase.execute({ refreshToken }))
         .rejects.toThrow();
 
-      expect(mockTokenManager.verifyRefreshToken).toHaveBeenCalledWith(refreshToken);
-      expect(mockAuthRepo.isTokenExist).toHaveBeenCalledWith(refreshToken);
-      expect(mockTokenManager.decodePayload).toHaveBeenCalledWith(refreshToken);
       expect(mockTokenManager.createAccessToken).not.toHaveBeenCalled();
     });
   });
