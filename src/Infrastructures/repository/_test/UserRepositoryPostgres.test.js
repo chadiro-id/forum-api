@@ -28,7 +28,12 @@ describe('[Mock-Based Integration] UserRepositoryPostgres', () => {
     });
 
     describe('addUser', () => {
-      it('should correctly resolves and call pool.query', async () => {
+      it('should resolves and call pool.query correctly', async () => {
+        const calledQuery = {
+          text: 'INSERT INTO users VALUES($1, $2, $3, $4) RETURNING id, username, fullname',
+          values: ['user-123', 'johndoe', 'supersecret', 'John Doe'],
+        };
+
         mockPool.query.mockResolvedValue({
           rows: [{ id: 'user-123', username: 'johndoe', fullname: 'John Doe' }],
           rowCount: 1,
@@ -39,20 +44,9 @@ describe('[Mock-Based Integration] UserRepositoryPostgres', () => {
           password: 'supersecret',
           fullname: 'John Doe',
         }));
-
-        expect(mockPool.query).toHaveBeenCalledTimes(1);
-        expect(mockPool.query).toHaveBeenCalledWith(
-          expect.objectContaining({
-            text: expect.stringContaining('INSERT INTO users')
-          })
-        );
-        const calledValues = mockPool.query.mock.calls[0][0].values;
-        expect(calledValues[0]).toEqual('user-123');
-        expect(calledValues[1]).toEqual('johndoe');
-        expect(calledValues[2]).toEqual('supersecret');
-        expect(calledValues[3]).toEqual('John Doe');
-
         expect(registeredUser).toBeInstanceOf(RegisteredUser);
+
+        assertQueryCalled(mockPool.query, calledQuery);
       });
 
       it('should propagate error when database fails', async () => {
@@ -64,7 +58,12 @@ describe('[Mock-Based Integration] UserRepositoryPostgres', () => {
     });
 
     describe('getIdByUsername', () => {
-      it('should correctly call pool.query and return the id', async () => {
+      it('should resolves and call pool.query correctly', async () => {
+        const calledQuery = {
+          text: 'SELECT id FROM users WHERE username = $1',
+          values: ['johndoe'],
+        };
+
         mockPool.query.mockResolvedValue({
           rows: [{ id: 'user-123' }],
           rowCount: 1,
@@ -73,7 +72,7 @@ describe('[Mock-Based Integration] UserRepositoryPostgres', () => {
         const id = await userRepo.getIdByUsername('johndoe');
         expect(id).toEqual('user-123');
 
-        assertQueryCalled(mockPool.query, 'SELECT id FROM users', ['johndoe']);
+        assertQueryCalled(mockPool.query, calledQuery);
       });
 
       it('should return null when username not exist', async () => {
@@ -94,7 +93,12 @@ describe('[Mock-Based Integration] UserRepositoryPostgres', () => {
     });
 
     describe('getPasswordByUsername', () => {
-      it('should correctly call pool.query and return the password', async () => {
+      it('should resolves and call pool.query correctly', async () => {
+        const calledQuery = {
+          text: 'SELECT password FROM users WHERE username = $1',
+          values: ['johndoe'],
+        };
+
         mockPool.query.mockResolvedValue({
           rows: [{ password: 'supersecret' }],
           rowCount: 1,
@@ -103,7 +107,7 @@ describe('[Mock-Based Integration] UserRepositoryPostgres', () => {
         const password = await userRepo.getPasswordByUsername('johndoe');
         expect(password).toEqual('supersecret');
 
-        assertQueryCalled(mockPool.query, 'SELECT password FROM users', ['johndoe']);
+        assertQueryCalled(mockPool.query, calledQuery);
       });
 
       it('should return null when username not exist', async () => {
@@ -125,6 +129,11 @@ describe('[Mock-Based Integration] UserRepositoryPostgres', () => {
 
     describe('isUsernameExist', () => {
       it('should return true when username exist', async () => {
+        const calledQuery = {
+          text: 'SELECT username FROM users WHERE username = $1',
+          values: ['johndoe'],
+        };
+
         mockPool.query.mockResolvedValue({
           rows: [{ username: 'johndoe' }],
           rowCount: 1,
@@ -133,7 +142,7 @@ describe('[Mock-Based Integration] UserRepositoryPostgres', () => {
         const result = await userRepo.isUsernameExist('johndoe');
         expect(result).toBe(true);
 
-        assertQueryCalled(mockPool.query, 'SELECT username FROM users', ['johndoe']);
+        assertQueryCalled(mockPool.query, calledQuery);
       });
 
       it('should return false when username not exist', async () => {
