@@ -1,16 +1,9 @@
 /* istanbul ignore file */
 const ClientError = require('../../src/Commons/exceptions/ClientError');
 
-const assertQueryCalled = (
-  query, queryTextPart, queryValues
-) => {
-  expect(query).toHaveBeenCalledTimes(1);
-  expect(query).toHaveBeenCalledWith(
-    expect.objectContaining({
-      text: expect.stringContaining(queryTextPart),
-      values: queryValues,
-    })
-  );
+const assertQueryCalled = (poolQuery, expectedQueryCalled) => {
+  expect(poolQuery).toHaveBeenCalledTimes(1);
+  expect(poolQuery).toHaveBeenCalledWith(expectedQueryCalled);
 };
 
 const assertDBError = async (promise) => {
