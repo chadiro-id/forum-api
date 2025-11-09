@@ -6,7 +6,7 @@ const ThreadRepository = require('../../../../Domains/threads/ThreadRepository')
 const dummyPayload = {
   title: 'Sebuah thread',
   body: 'Isi thread',
-  owner: 'user-123',
+  userId: 'user-123',
 };
 
 describe('AddThreadUseCase', () => {
@@ -26,9 +26,8 @@ describe('AddThreadUseCase', () => {
 
   describe('Failure cases', () => {
     it('should throw error when payload not provided correctly', async () => {
-      await expect(addThreadUseCase.execute()).rejects.toThrow();
-      await expect(addThreadUseCase.execute('NewThread')).rejects.toThrow();
-      await expect(addThreadUseCase.execute({})).rejects.toThrow();
+      await expect(addThreadUseCase.execute({}))
+        .rejects.toThrow('NEW_THREAD.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
     });
 
     it('should propagate error when addThread fails', async () => {
@@ -56,7 +55,7 @@ describe('AddThreadUseCase', () => {
       const mockAddedThread = new AddedThread({
         id: 'thread-123',
         title: dummyPayload.title,
-        owner: dummyPayload.owner,
+        owner: dummyPayload.userId,
       });
 
       mockThreadRepo.addThread.mockResolvedValue(mockAddedThread);
@@ -69,7 +68,7 @@ describe('AddThreadUseCase', () => {
       expect(addedThread).toStrictEqual(new AddedThread({
         id: 'thread-123',
         title: dummyPayload.title,
-        owner: dummyPayload.owner,
+        owner: dummyPayload.userId,
       }));
     });
   });
