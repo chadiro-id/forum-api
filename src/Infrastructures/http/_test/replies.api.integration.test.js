@@ -50,18 +50,19 @@ describe('[Integration] Replies Endpoints', () => {
       };
 
       const response = await serverTest.post(endpoint, options);
-
-      const responseJson = JSON.parse(response.payload);
       expect(response.statusCode).toBe(201);
-      expect(responseJson.status).toBe('success');
-      expect(responseJson.data).toEqual(expect.any(Object));
 
-      const addedReply = responseJson.data.addedReply;
-      expect(addedReply).toEqual(expect.objectContaining({
-        id: expect.stringContaining('reply-'),
-        content: 'Sebuah balasan',
-        owner: user.id,
-      }));
+      const resJson = JSON.parse(response.payload);
+      expect(resJson).toStrictEqual({
+        status: 'success',
+        data: {
+          addedReply: {
+            id: expect.stringMatching(/^reply-[A-Za-z0-9_-]{21}$/),
+            content: 'Sebuah balasan',
+            owner: user.id,
+          },
+        },
+      });
     });
 
     it('should response 401 when request with no authentication', async () => {
@@ -177,10 +178,12 @@ describe('[Integration] Replies Endpoints', () => {
       };
 
       const response = await serverTest.delete(endpoint, options);
-
-      const responseJson = JSON.parse(response.payload);
       expect(response.statusCode).toBe(200);
-      expect(responseJson.status).toEqual('success');
+
+      const resJson = JSON.parse(response.payload);
+      expect(resJson).toStrictEqual({
+        status: 'success',
+      });
     });
 
     it('should response 401 when request with no authentication', async () => {
