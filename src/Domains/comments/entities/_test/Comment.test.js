@@ -102,9 +102,7 @@ describe('Comment Entity', () => {
       const comment = new Comment(dummyPayload);
 
       const replies = comment.replies;
-
-      expect(replies).toEqual(expect.any(Array));
-      expect(replies).toHaveLength(0);
+      expect(replies).toStrictEqual([]);
     });
 
     it('should throw error when set non-array value', () => {
@@ -141,9 +139,7 @@ describe('Comment Entity', () => {
       comment.replies = [reply];
 
       const replies = comment.replies;
-
-      expect(replies).toHaveLength(1);
-      expect(replies[0]).toBeInstanceOf(Reply);
+      expect(replies).toStrictEqual([reply]);
     });
   });
 
