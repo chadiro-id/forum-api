@@ -9,11 +9,11 @@ class Comment {
     this._content = payload.content;
     this._isDelete = payload.isDelete;
     this._date = payload.date;
-    this._replies = payload.replies || [];
+    this._replies = [];
   }
 
   _validatePayload(payload) {
-    const { id, username, content, date, isDelete, replies } = payload;
+    const { id, username, content, date, isDelete } = payload;
 
     if (!id || !username || !content || !date || isDelete === undefined) {
       throw new Error('COMMENT.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
@@ -24,20 +24,13 @@ class Comment {
       || typeof username !== 'string'
       || typeof content !== 'string'
       || typeof isDelete !== 'boolean'
-      || ['string', 'object'].includes(typeof date) === false
+      || date instanceof Date === false
     ) {
       throw new Error('COMMENT.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
     }
 
     if (Number.isNaN(Date.parse(date))) {
       throw new Error('COMMENT.DATE_INVALID');
-    }
-
-    if (Array.isArray(replies)) {
-      const hasInvalidElement = replies.some((el) => el instanceof Reply === false);
-      if (hasInvalidElement) {
-        throw new Error('COMMENT.REPLIES_INVALID_ELEMENT');
-      }
     }
   }
 
@@ -65,7 +58,6 @@ class Comment {
     }
 
     const hasInvalidElement = value.some((el) => el instanceof Reply === false);
-
     if (hasInvalidElement) {
       throw new Error('COMMENT.REPLIES_INVALID_ELEMENT');
     }
@@ -82,9 +74,7 @@ class Comment {
       id: this.id,
       content: this.content,
       username: this.username,
-      date: this.date instanceof Date
-        ? this.date.toISOString()
-        : this.date,
+      date: this.date.toISOString(),
       replies: this.replies,
     };
   }
