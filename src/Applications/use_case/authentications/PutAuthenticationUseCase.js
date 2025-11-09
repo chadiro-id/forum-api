@@ -1,4 +1,5 @@
 const AuthenticationPayload = require('../../../Domains/authentications/entities/AuthenticationPayload');
+const AuthRefreshPayload = require('../../../Domains/authentications/entities/AuthRefreshPayload');
 
 class PutAuthenticationUseCase {
   constructor({
@@ -10,9 +11,7 @@ class PutAuthenticationUseCase {
   }
 
   async execute(payload) {
-    this._verifyPayload(payload);
-
-    const { refreshToken } = payload;
+    const { refreshToken } = new AuthRefreshPayload(payload);
 
     const { isValid } = await this._authenticationTokenManager.verifyRefreshToken(refreshToken);
     if (!isValid) {
@@ -28,18 +27,6 @@ class PutAuthenticationUseCase {
 
     const authenticationPayload = new AuthenticationPayload(decodedPayload);
     return this._authenticationTokenManager.createAccessToken(authenticationPayload);
-  }
-
-  _verifyPayload(payload) {
-    const { refreshToken } = payload;
-
-    if (!refreshToken) {
-      throw new Error('PUT_AUTHENTICATION_USE_CASE.PAYLOAD_NOT_CONTAIN_REFRESH_TOKEN');
-    }
-
-    if (typeof refreshToken !== 'string') {
-      throw new Error('PUT_AUTHENTICATION_USE_CASE.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
-    }
   }
 }
 
