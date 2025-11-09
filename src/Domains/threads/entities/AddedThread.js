@@ -1,4 +1,11 @@
 class AddedThread {
+  /**
+   * Added Thread Entity constructor
+   * @param {Object} payload
+   * @property {string} id
+   * @property {string} title
+   * @property {string} owner
+   */
   constructor(payload) {
     this._verifyPayload(payload);
 
