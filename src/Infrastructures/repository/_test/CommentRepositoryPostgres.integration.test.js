@@ -1,12 +1,10 @@
 const CommentRepositoryPostgres = require('../CommentRepositoryPostgres');
 const NewComment = require('../../../Domains/comments/entities/NewComment');
 const AddedComment = require('../../../Domains/comments/entities/AddedComment');
-const pgTest = require('../../../../tests/helper/postgres');
-const {
-  assertDBError,
-  expectCommentFromRepository,
-} = require('../../../../tests/helper/assertionsHelper');
+const Comment = require('../../../Domains/comments/entities/Comment');
 const CommentOwner = require('../../../Domains/comments/entities/CommentOwner');
+const pgTest = require('../../../../tests/helper/postgres');
+const { assertDBError } = require('../../../../tests/helper/assertionsHelper');
 
 const FIXED_TIME = '2025-11-05T00:00:00.000Z';
 beforeAll(async () => {
@@ -49,15 +47,16 @@ describe('[Integration] CommentRepositoryPostgres', () => {
       const addedComment = await commentRepo.addComment(newComment);
 
       const comments = await pgTest.comments.findById('comment-123');
-      expect(comments).toHaveLength(1);
-      expect(comments[0]).toStrictEqual({
-        id: 'comment-123',
-        thread_id: newComment.threadId,
-        owner_id: newComment.owner,
-        content: newComment.content,
-        is_delete: false,
-        created_at: new Date(FIXED_TIME),
-      });
+      expect(comments).toStrictEqual([
+        {
+          id: 'comment-123',
+          thread_id: newComment.threadId,
+          owner_id: newComment.owner,
+          content: newComment.content,
+          is_delete: false,
+          created_at: new Date(FIXED_TIME),
+        },
+      ]);
 
       expect(addedComment).toStrictEqual(new AddedComment({
         id: 'comment-123',
@@ -111,10 +110,22 @@ describe('[Integration] CommentRepositoryPostgres', () => {
       });
 
       const comments = await commentRepo.getCommentsByThreadId(thread.id);
-
-      expect(comments).toHaveLength(2);
-      expectCommentFromRepository(comments[0], { ...rawComment1, username: user.username });
-      expectCommentFromRepository(comments[1], { ...rawComment2, username: user.username });
+      expect(comments).toStrictEqual([
+        new Comment({
+          id: rawComment1.id,
+          content: rawComment1.content,
+          username: user.username,
+          date: rawComment1.created_at,
+          isDelete: rawComment1.is_delete,
+        }),
+        new Comment({
+          id: rawComment2.id,
+          content: rawComment2.content,
+          username: user.username,
+          date: rawComment2.created_at,
+          isDelete: rawComment2.is_delete,
+        }),
+      ]);
     });
 
     it('should return an empty array when no comment found', async () => {
@@ -150,15 +161,16 @@ describe('[Integration] CommentRepositoryPostgres', () => {
         .resolves.not.toThrow();
 
       const comments = await pgTest.comments.findById('comment-001');
-      expect(comments).toHaveLength(1);
-      expect(comments[0]).toStrictEqual({
-        id: insertedComment.id,
-        thread_id: insertedComment.thread_id,
-        owner_id: insertedComment.owner_id,
-        content: insertedComment.content,
-        is_delete: true,
-        created_at: insertedComment.created_at,
-      });
+      expect(comments).toStrictEqual([
+        {
+          id: insertedComment.id,
+          thread_id: insertedComment.thread_id,
+          owner_id: insertedComment.owner_id,
+          content: insertedComment.content,
+          is_delete: true,
+          created_at: insertedComment.created_at,
+        }
+      ]);
     });
   });
 
