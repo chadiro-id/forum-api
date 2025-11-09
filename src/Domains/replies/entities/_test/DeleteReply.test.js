@@ -5,7 +5,7 @@ describe('DeleteReply Entity', () => {
     threadId: 'thread-123',
     commentId: 'comment-123',
     replyId: 'reply-123',
-    owner: 'user-123',
+    userId: 'user-123',
   };
 
   describe('Bad payload', () => {
@@ -16,13 +16,13 @@ describe('DeleteReply Entity', () => {
       delete missingCommentId.commentId;
       const missingReplyId = { ...dummyPayload };
       delete missingReplyId.replyId;
-      const missingOwner = { ...dummyPayload };
-      delete missingOwner.owner;
+      const missingUserId = { ...dummyPayload };
+      delete missingUserId.userId;
 
       const emptyThreadId = { ...dummyPayload, threadId: '' };
       const emptyCommentId = { ...dummyPayload, commentId: '' };
       const emptyReplyId = { ...dummyPayload, replyId: '' };
-      const emptyOwner = { ...dummyPayload, owner: '' };
+      const emptyUserId = { ...dummyPayload, userId: '' };
 
       expect(() => new DeleteReply(missingThreadId))
         .toThrow('DELETE_REPLY.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
@@ -30,7 +30,7 @@ describe('DeleteReply Entity', () => {
         .toThrow('DELETE_REPLY.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
       expect(() => new DeleteReply(missingReplyId))
         .toThrow('DELETE_REPLY.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
-      expect(() => new DeleteReply(missingOwner))
+      expect(() => new DeleteReply(missingUserId))
         .toThrow('DELETE_REPLY.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
       expect(() => new DeleteReply(emptyThreadId))
         .toThrow('DELETE_REPLY.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
@@ -38,7 +38,7 @@ describe('DeleteReply Entity', () => {
         .toThrow('DELETE_REPLY.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
       expect(() => new DeleteReply(emptyReplyId))
         .toThrow('DELETE_REPLY.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
-      expect(() => new DeleteReply(emptyOwner))
+      expect(() => new DeleteReply(emptyUserId))
         .toThrow('DELETE_REPLY.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
     });
 
@@ -46,7 +46,7 @@ describe('DeleteReply Entity', () => {
       const threadIdNotString = { ...dummyPayload, threadId: 123 };
       const commentIdNotString = { ...dummyPayload, commentId: [1, 2, 3] };
       const replyIdNotString = { ...dummyPayload, replyId: {} };
-      const ownerNotString = { ...dummyPayload, owner: true };
+      const userIdNotString = { ...dummyPayload, userId: true };
 
       expect(() => new DeleteReply(threadIdNotString))
         .toThrow('DELETE_REPLY.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
@@ -54,7 +54,7 @@ describe('DeleteReply Entity', () => {
         .toThrow('DELETE_REPLY.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
       expect(() => new DeleteReply(replyIdNotString))
         .toThrow('DELETE_REPLY.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
-      expect(() => new DeleteReply(ownerNotString))
+      expect(() => new DeleteReply(userIdNotString))
         .toThrow('DELETE_REPLY.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
     });
   });
@@ -68,7 +68,7 @@ describe('DeleteReply Entity', () => {
       expect(deleteReply.threadId).toEqual(payload.threadId);
       expect(deleteReply.commentId).toEqual(payload.commentId);
       expect(deleteReply.replyId).toEqual(payload.replyId);
-      expect(deleteReply.owner).toEqual(payload.owner);
+      expect(deleteReply.userId).toEqual(payload.userId);
     });
   });
 });
