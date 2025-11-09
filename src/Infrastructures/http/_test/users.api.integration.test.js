@@ -25,20 +25,23 @@ describe('[Integration] Users Endpoints', () => {
 
   describe('POST /users', () => {
     it('should response 201 and persisted user', async () => {
-      const options = { payload: { ...dummyPayload } };
+      const expectedResJson = {
+        status: 'success',
+        data: {
+          addedUser: {
+            id: expect.stringMatching(/^user-/),
+            username: dummyPayload.username,
+            fullname: dummyPayload.fullname,
+          }
+        }
+      };
 
+      const options = { payload: { ...dummyPayload } };
       const response = await serverTest.post('/users', options);
 
       const responseJson = JSON.parse(response.payload);
       expect(response.statusCode).toEqual(201);
-      expect(responseJson.status).toEqual('success');
-      expect(responseJson.data.addedUser).toEqual(
-        expect.objectContaining({
-          id: expect.stringContaining('user-'),
-          username: dummyPayload.username,
-          fullname: dummyPayload.fullname,
-        })
-      );
+      expect(responseJson).toStrictEqual(expectedResJson);
     });
 
     it('should response 400 when payload not contain needed property', async () => {
