@@ -5,10 +5,9 @@ const Comment = require('../../../Domains/comments/entities/Comment');
 const CommentOwner = require('../../../Domains/comments/entities/CommentOwner');
 const pgTest = require('../../../../tests/helper/postgres');
 const { assertDBError } = require('../../../../tests/helper/assertionsHelper');
+require('../../../../tests/matcher/dateMatcher');
 
-const FIXED_TIME = '2025-11-05T00:00:00.000Z';
 beforeAll(async () => {
-  jest.setSystemTime(new Date(FIXED_TIME));
   await pgTest.truncate();
 });
 
@@ -54,7 +53,7 @@ describe('[Integration] CommentRepositoryPostgres', () => {
           owner_id: newComment.userId,
           content: newComment.content,
           is_delete: false,
-          created_at: new Date(FIXED_TIME),
+          created_at: expect.toBeRecentDate(),
         },
       ]);
 

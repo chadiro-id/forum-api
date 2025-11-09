@@ -5,10 +5,9 @@ const Reply = require('../../../Domains/replies/entities/Reply');
 const ReplyOwner = require('../../../Domains/replies/entities/ReplyOwner');
 const pgTest = require('../../../../tests/helper/postgres');
 const { assertDBError } = require('../../../../tests/helper/assertionsHelper');
+require('../../../../tests/matcher/dateMatcher');
 
-const FIXED_TIME = '2025-11-05T00:00:00.000Z';
 beforeAll(async () => {
-  jest.setSystemTime(new Date(FIXED_TIME));
   await pgTest.truncate();
 });
 
@@ -62,7 +61,7 @@ describe('[Integration] ReplyRepositoryPostgres', () => {
           owner_id: newReply.userId,
           content: newReply.content,
           is_delete: false,
-          created_at: new Date(FIXED_TIME),
+          created_at: expect.toBeRecentDate(),
         },
       ]);
 

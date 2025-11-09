@@ -4,10 +4,9 @@ const AddedThread = require('../../../Domains/threads/entities/AddedThread');
 const ThreadDetails = require('../../../Domains/threads/entities/ThreadDetails');
 const pgTest = require('../../../../tests/helper/postgres');
 const { assertDBError } = require('../../../../tests/helper/assertionsHelper');
+require('../../../../tests/matcher/dateMatcher');
 
-const FIXED_TIME = '2025-11-05T00:00:00.000Z';
 beforeAll(async () => {
-  jest.setSystemTime(new Date(FIXED_TIME));
   await pgTest.truncate();
 });
 
@@ -49,8 +48,8 @@ describe('[Integration] ThreadRepositoryPostgres', () => {
           title: newThread.title,
           body: newThread.body,
           owner_id: newThread.userId,
-          created_at: new Date(FIXED_TIME),
-        }
+          created_at: expect.toBeRecentDate(),
+        },
       ]);
 
       expect(addedThread).toStrictEqual(new AddedThread({
