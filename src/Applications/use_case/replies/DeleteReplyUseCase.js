@@ -6,14 +6,14 @@ class DeleteReplyUseCase {
   }
 
   async execute(payload) {
-    const { threadId, commentId, replyId, owner } = new DeleteReply(payload);
+    const { threadId, commentId, replyId, userId } = new DeleteReply(payload);
 
     const reply = await this._replyRepository.getReplyForDeletion(replyId, commentId, threadId);
     if (reply === null) {
       throw new Error('DELETE_REPLY_USE_CASE.REPLY_NOT_FOUND');
     }
 
-    if (reply.owner !== owner) {
+    if (reply.owner !== userId) {
       throw new Error('DELETE_REPLY_USE_CASE.OWNER_NOT_MATCH');
     }
 

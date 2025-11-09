@@ -6,7 +6,7 @@ const dummyPayload = {
   threadId: 'thread-123',
   commentId: 'comment-123',
   replyId: 'reply-123',
-  owner: 'user-123',
+  userId: 'user-123',
 };
 
 describe('DeleteReplyUseCase', () => {
@@ -27,8 +27,8 @@ describe('DeleteReplyUseCase', () => {
 
   describe('Failure cases', () => {
     it('should throw error when payload not provided correctly', async () => {
-      await expect(deleteReplyUseCase.execute()).rejects.toThrow();
-      await expect(deleteReplyUseCase.execute({ replyId: 'reply-123' })).rejects.toThrow();
+      await expect(deleteReplyUseCase.execute({ replyId: 'reply-123' }))
+        .rejects.toThrow('DELETE_REPLY.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
     });
 
     it('should throw error when reply not exist', async () => {
@@ -59,9 +59,9 @@ describe('DeleteReplyUseCase', () => {
     });
 
     it('should propagate error when softDeleteReplyById fails', async () => {
-      const { owner } = dummyPayload;
+      const { userId } = dummyPayload;
 
-      mockReplyRepo.getReplyForDeletion.mockResolvedValue(new ReplyOwner({ owner }));
+      mockReplyRepo.getReplyForDeletion.mockResolvedValue(new ReplyOwner({ owner: userId }));
       mockReplyRepo.softDeleteReplyById.mockRejectedValue(new Error('fails'));
 
       await expect(deleteReplyUseCase.execute({ ...dummyPayload }))
@@ -71,9 +71,9 @@ describe('DeleteReplyUseCase', () => {
 
   describe('Successfull executions', () => {
     it('should correctly orchestrating the delete reply action', async () => {
-      const { threadId, commentId, replyId, owner } = dummyPayload;
+      const { threadId, commentId, replyId, userId } = dummyPayload;
 
-      mockReplyRepo.getReplyForDeletion.mockResolvedValue(new ReplyOwner({ owner }));
+      mockReplyRepo.getReplyForDeletion.mockResolvedValue(new ReplyOwner({ owner: userId }));
       mockReplyRepo.softDeleteReplyById.mockResolvedValue();
 
       await expect(deleteReplyUseCase.execute({ ...dummyPayload }))
