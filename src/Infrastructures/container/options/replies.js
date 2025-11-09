@@ -1,6 +1,5 @@
 const { nanoid } = require('nanoid');
 const pool = require('../../database/postgres/pool');
-const ThreadRepository = require('../../../Domains/threads/ThreadRepository');
 const CommentRepository = require('../../../Domains/comments/CommentRepository');
 const ReplyRepository = require('../../../Domains/replies/ReplyRepository');
 const ReplyRepositoryPostgres = require('../../repository/ReplyRepositoryPostgres');
@@ -28,10 +27,6 @@ const options = [
     parameter: {
       injectType: 'destructuring',
       dependencies: [
-        {
-          name: 'threadRepository',
-          internal: ThreadRepository.name,
-        },
         {
           name: 'commentRepository',
           internal: CommentRepository.name,
