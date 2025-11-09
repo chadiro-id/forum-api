@@ -4,7 +4,7 @@ describe('NewComment Entity', () => {
   const dummyPayload = {
     threadId: 'thread-123',
     content: 'Something comment',
-    owner: 'user-123',
+    userId: 'user-123',
   };
 
   describe('Bad payload', () => {
@@ -13,37 +13,37 @@ describe('NewComment Entity', () => {
       delete missingThreadId.threadId;
       const missingContent = { ...dummyPayload };
       delete missingContent.content;
-      const missingOwner = { ...dummyPayload };
-      delete missingOwner.owner;
+      const missingUserId = { ...dummyPayload };
+      delete missingUserId.userId;
 
       const emptyThreadId = { ...dummyPayload, threadId: '' };
       const emptyContent = { ...dummyPayload, content: '' };
-      const emptyOwner = { ...dummyPayload, owner: '' };
+      const emptyUserId = { ...dummyPayload, userId: '' };
 
       expect(() => new NewComment(missingThreadId))
         .toThrow('NEW_COMMENT.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
       expect(() => new NewComment(missingContent))
         .toThrow('NEW_COMMENT.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
-      expect(() => new NewComment(missingOwner))
+      expect(() => new NewComment(missingUserId))
         .toThrow('NEW_COMMENT.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
       expect(() => new NewComment(emptyThreadId))
         .toThrow('NEW_COMMENT.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
       expect(() => new NewComment(emptyContent))
         .toThrow('NEW_COMMENT.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
-      expect(() => new NewComment(emptyOwner))
+      expect(() => new NewComment(emptyUserId))
         .toThrow('NEW_COMMENT.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
     });
 
     it('should throw error when payload property does not meet data type specification', () => {
       const threadIdNotString = { ...dummyPayload, threadId: 123 };
       const contentNotString = { ...dummyPayload, content: true };
-      const ownerNotString = { ...dummyPayload, owner: {} };
+      const userIdNotString = { ...dummyPayload, userId: {} };
 
       expect(() => new NewComment(threadIdNotString))
         .toThrow('NEW_COMMENT.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
       expect(() => new NewComment(contentNotString))
         .toThrow('NEW_COMMENT.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
-      expect(() => new NewComment(ownerNotString))
+      expect(() => new NewComment(userIdNotString))
         .toThrow('NEW_COMMENT.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
     });
   });
@@ -52,11 +52,11 @@ describe('NewComment Entity', () => {
     it('should correctly create the entity', () => {
       const payload = { ...dummyPayload };
 
-      const { threadId, content, owner } = new NewComment(payload);
+      const { threadId, content, userId } = new NewComment(payload);
 
       expect(threadId).toEqual(payload.threadId);
       expect(content).toEqual(payload.content);
-      expect(owner).toEqual(payload.owner);
+      expect(userId).toEqual(payload.userId);
     });
   });
 });
