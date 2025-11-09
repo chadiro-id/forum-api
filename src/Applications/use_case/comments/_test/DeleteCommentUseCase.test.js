@@ -5,7 +5,7 @@ const CommentOwner = require('../../../../Domains/comments/entities/CommentOwner
 const dummyPayload = {
   threadId: 'thread-123',
   commentId: 'comment-123',
-  owner: 'user-123',
+  userId: 'user-123',
 };
 
 describe('DeleteCommentUseCase', () => {
@@ -28,8 +28,8 @@ describe('DeleteCommentUseCase', () => {
 
   describe('Failure cases', () => {
     it('should throw error when payload not provided correctly', async () => {
-      await expect(deleteCommentUseCase.execute()).rejects.toThrow();
-      await expect(deleteCommentUseCase.execute({})).rejects.toThrow();
+      await expect(deleteCommentUseCase.execute({}))
+        .rejects.toThrow('DELETE_COMMENT.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
     });
 
     it('should throw error when comment not exist', async () => {
@@ -60,8 +60,8 @@ describe('DeleteCommentUseCase', () => {
     });
 
     it('should propagate error when softDeleteCommentById fails', async () => {
-      const { owner } = dummyPayload;
-      mockCommentRepo.getCommentForDeletion.mockResolvedValue(new CommentOwner({ owner }));
+      const { userId } = dummyPayload;
+      mockCommentRepo.getCommentForDeletion.mockResolvedValue(new CommentOwner({ owner: userId }));
       mockCommentRepo.softDeleteCommentById.mockRejectedValue(new Error('fails'));
 
       await expect(deleteCommentUseCase.execute({ ...dummyPayload }))
@@ -73,9 +73,9 @@ describe('DeleteCommentUseCase', () => {
 
   describe('Successful executions', () => {
     it('should correctly orchestracting the delete comment action', async () => {
-      const { threadId, commentId, owner } = dummyPayload;
+      const { threadId, commentId, userId } = dummyPayload;
 
-      mockCommentRepo.getCommentForDeletion.mockResolvedValue(new CommentOwner({ owner }));
+      mockCommentRepo.getCommentForDeletion.mockResolvedValue(new CommentOwner({ owner: userId }));
       mockCommentRepo.softDeleteCommentById.mockResolvedValue();
 
       await expect(deleteCommentUseCase.execute({ ...dummyPayload }))

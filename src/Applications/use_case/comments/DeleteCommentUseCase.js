@@ -6,13 +6,13 @@ class DeleteCommentUseCase {
   }
 
   async execute(payload) {
-    const { threadId, commentId, owner } = new DeleteComment(payload);
+    const { threadId, commentId, userId } = new DeleteComment(payload);
 
     const comment = await this._commentRepository.getCommentForDeletion(commentId, threadId);
     if (comment === null) {
       throw new Error('DELETE_COMMENT_USE_CASE.COMMENT_NOT_FOUND');
     }
-    if (comment.owner !== owner) {
+    if (comment.owner !== userId) {
       throw new Error('DELETE_COMMENT_USE_CASE.OWNER_NOT_MATCH');
     }
 
