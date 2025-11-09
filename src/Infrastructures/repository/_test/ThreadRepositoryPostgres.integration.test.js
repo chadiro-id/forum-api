@@ -37,7 +37,7 @@ describe('[Integration] ThreadRepositoryPostgres', () => {
       const newThread = new NewThread({
         title: 'Sebuah thread',
         body: 'Isi thread',
-        owner: user.id,
+        userId: user.id,
       });
 
       const addedThread = await threadRepo.addThread(newThread);
@@ -48,7 +48,7 @@ describe('[Integration] ThreadRepositoryPostgres', () => {
           id: 'thread-123',
           title: newThread.title,
           body: newThread.body,
-          owner_id: newThread.owner,
+          owner_id: newThread.userId,
           created_at: new Date(FIXED_TIME),
         }
       ]);
@@ -56,7 +56,7 @@ describe('[Integration] ThreadRepositoryPostgres', () => {
       expect(addedThread).toStrictEqual(new AddedThread({
         id: 'thread-123',
         title: newThread.title,
-        owner: newThread.owner,
+        owner: newThread.userId,
       }));
     });
 
@@ -65,7 +65,7 @@ describe('[Integration] ThreadRepositoryPostgres', () => {
       const newThread = new NewThread({
         title: 'Sebuah thread',
         body: 'Isi thread',
-        owner: user.id,
+        userId: user.id,
       });
 
       const promise = threadRepo.addThread(newThread);
@@ -76,7 +76,7 @@ describe('[Integration] ThreadRepositoryPostgres', () => {
       const newThread = new NewThread({
         title: 'Sebuah thread',
         body: 'Isi thread',
-        owner: 'nonexistent-user-id',
+        userId: 'nonexistent-user-id',
       });
 
       const promise = threadRepo.addThread(newThread);

@@ -59,7 +59,7 @@ describe('[Mock-Based Integration] ThreadRepositoryPostgres', () => {
         const addedThread = await threadRepo.addThread(new NewThread({
           title: 'Sebuah thread',
           body: 'Isi thread',
-          owner: 'user-123',
+          userId: 'user-123',
         }));
         expect(addedThread).toBeInstanceOf(AddedThread);
 
