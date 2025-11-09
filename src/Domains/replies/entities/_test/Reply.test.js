@@ -57,7 +57,7 @@ describe('Reply Entity', () => {
       const commentIdNotString = { ...dummyPayload, commentId: {} };
       const contentNotString = { ...dummyPayload, content: ['Balasan'] };
       const usernameNotString = { ...dummyPayload, username: true };
-      const dateNotStringOrObject = { ...dummyPayload, date: 2025 };
+      const dateNotInstanceOfDate = { ...dummyPayload, date: 2025 };
       const isDeleteNotBoolean = { ...dummyPayload, isDelete: 'delete' };
 
       expect(() => new Reply(idNotString))
@@ -68,20 +68,16 @@ describe('Reply Entity', () => {
         .toThrow('REPLY.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
       expect(() => new Reply(usernameNotString))
         .toThrow('REPLY.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
-      expect(() => new Reply(dateNotStringOrObject))
+      expect(() => new Reply(dateNotInstanceOfDate))
         .toThrow('REPLY.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
       expect(() => new Reply(isDeleteNotBoolean))
         .toThrow('REPLY.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
     });
 
     it('should throw error when date is not valid', () => {
-      const dateString = { ...dummyPayload, date: 'date' };
-      const dateObj = { ...dummyPayload, date: new Date('date') };
+      const invalidDate = { ...dummyPayload, date: new Date('date') };
 
-      expect(() => new Reply(dateString))
-        .toThrow('REPLY.DATE_INVALID');
-      expect(() => new Reply(dateObj))
-        .toThrow('REPLY.DATE_INVALID');
+      expect(() => new Reply(invalidDate)).toThrow('REPLY.DATE_INVALID');
     });
   });
 
@@ -98,11 +94,10 @@ describe('Reply Entity', () => {
       expect(username).toEqual(payload.username);
     });
 
-    it('should not reveal original content value when isDelete equal to TRUE', () => {
+    it('should not reveal original content when isDelete equal to TRUE', () => {
       const payload = { ...dummyPayload, isDelete: true };
 
       const { content } = new Reply(payload);
-
       expect(content).toEqual('**balasan telah dihapus**');
     });
 
@@ -123,24 +118,16 @@ describe('Reply Entity', () => {
 
   describe('JSON Serialization', () => {
     it('should serialize to JSON correctly', () => {
-      const payload1 = { ...dummyPayload };
-      const payload2 = { ...dummyPayload, date: '2025-10-15T02:08:54.384Z' };
+      const reply = new Reply({ ...dummyPayload });
 
-      const reply1 = new Reply(payload1);
-      const reply2 = new Reply(payload2);
-
-      const json1 = reply1.toJSON();
-      const json2 = reply2.toJSON();
-
-      expect(json1.isDelete).toBeUndefined();
-      expect(json1.commentId).toBeUndefined();
-
-      expect(json1.id).toEqual(payload1.id);
-      expect(json1.content).toEqual(payload1.content);
-      expect(json1.date).toEqual(payload1.date.toISOString());
-      expect(json1.username).toEqual(payload1.username);
-
-      expect(json2.date).toEqual(new Date(payload2.date).toISOString());
+      const jsonString = JSON.stringify(reply);
+      const json = JSON.parse(jsonString);
+      expect(json).toStrictEqual({
+        id: dummyPayload.id,
+        content: dummyPayload.content,
+        username: dummyPayload.username,
+        date: dummyPayload.date.toISOString(),
+      });
     });
   });
 });
