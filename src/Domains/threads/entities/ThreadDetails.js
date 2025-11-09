@@ -18,7 +18,7 @@ class ThreadDetails {
     } = payload;
 
     if (!id || !title || !body || !date || !username) {
-      throw new Error('DETAIL_THREAD.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
+      throw new Error('THREAD_DETAILS.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
     }
 
     if (
@@ -28,15 +28,15 @@ class ThreadDetails {
       || typeof username !== 'string'
       || ['string', 'object'].includes(typeof date) === false
     ) {
-      throw new Error('DETAIL_THREAD.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
+      throw new Error('THREAD_DETAILS.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
     }
 
     if (title.length > 255) {
-      throw new Error('DETAIL_THREAD.TITLE_EXCEED_CHAR_LIMIT');
+      throw new Error('THREAD_DETAILS.TITLE_EXCEED_CHAR_LIMIT');
     }
 
     if (Number.isNaN(Date.parse(date))) {
-      throw new Error('DETAIL_THREAD.DATE_INVALID');
+      throw new Error('THREAD_DETAILS.DATE_INVALID');
     }
   }
 
@@ -62,12 +62,12 @@ class ThreadDetails {
 
   set comments(value) {
     if (!value || !Array.isArray(value)) {
-      throw new Error('DETAIL_THREAD.COMMENTS_MUST_BE_AN_ARRAY');
+      throw new Error('THREAD_DETAILS.COMMENTS_MUST_BE_AN_ARRAY');
     }
 
     const hasInvalidElement = value.some((el) => el instanceof Comment === false);
     if (hasInvalidElement) {
-      throw new Error('DETAIL_THREAD.COMMENTS_INVALID_ELEMENT');
+      throw new Error('THREAD_DETAILS.COMMENTS_INVALID_ELEMENT');
     }
 
     this._comments = value;
