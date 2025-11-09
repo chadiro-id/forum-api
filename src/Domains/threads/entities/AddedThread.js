@@ -30,7 +30,7 @@ class AddedThread {
     }
 
     if (title.length > 255) {
-      throw new Error('THREAD_DETAILS.TITLE_EXCEED_CHAR_LIMIT');
+      throw new Error('ADDED_THREAD.TITLE_EXCEED_CHAR_LIMIT');
     }
   }
 }
