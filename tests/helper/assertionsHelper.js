@@ -1,7 +1,5 @@
 /* istanbul ignore file */
 const ClientError = require('../../src/Commons/exceptions/ClientError');
-const Comment = require('../../src/Domains/comments/entities/Comment');
-const Reply = require('../../src/Domains/replies/entities/Reply');
 
 const assertQueryCalled = (
   query, queryTextPart, queryValues
@@ -20,33 +18,7 @@ const assertDBError = async (promise) => {
   await expect(promise).rejects.not.toThrow(ClientError);
 };
 
-const expectCommentFromRepository = (comment, expectedSource) => {
-  const expectedContent = expectedSource.is_delete
-    ? '**komentar telah dihapus**'
-    : expectedSource.content;
-
-  expect(comment).toBeInstanceOf(Comment);
-  expect(comment.id).toEqual(expectedSource.id);
-  expect(comment.content).toEqual(expectedContent);
-  expect(comment.username).toEqual(expectedSource.username);
-  expect(comment.date).toEqual(expectedSource.created_at);
-};
-
-const expectReplyFromRepository = (reply, expectedSource) => {
-  const expectedContent = expectedSource.is_delete
-    ? '**balasan telah dihapus**'
-    : expectedSource.content;
-
-  expect(reply).toBeInstanceOf(Reply);
-  expect(reply.id).toEqual(expectedSource.id);
-  expect(reply.content).toEqual(expectedContent);
-  expect(reply.username).toEqual(expectedSource.username);
-  expect(reply.date).toEqual(expectedSource.created_at);
-};
-
 module.exports = {
   assertQueryCalled,
   assertDBError,
-  expectCommentFromRepository,
-  expectReplyFromRepository,
 };
