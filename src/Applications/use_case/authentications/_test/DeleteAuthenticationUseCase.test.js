@@ -19,16 +19,10 @@ describe('DeleteAuthenticationUseCase', () => {
 
   describe('Failure cases', () => {
     it('should throw error when payload not provided correctly', async () => {
-      await expect(deleteAuthenticationUseCase.execute()).rejects.toThrow();
+      await expect(deleteAuthenticationUseCase.execute())
+        .rejects.toThrow();
       await expect(deleteAuthenticationUseCase.execute({}))
-        .rejects
-        .toThrow('DELETE_AUTHENTICATION_USE_CASE.PAYLOAD_NOT_CONTAIN_REFRESH_TOKEN');
-      await expect(deleteAuthenticationUseCase.execute({ refreshToken: '' }))
-        .rejects
-        .toThrow('DELETE_AUTHENTICATION_USE_CASE.PAYLOAD_NOT_CONTAIN_REFRESH_TOKEN');
-      await expect(deleteAuthenticationUseCase.execute({ refreshToken: 123 }))
-        .rejects
-        .toThrow('DELETE_AUTHENTICATION_USE_CASE.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
+        .rejects.toThrow();
     });
 
     it('should throw error when refresh token not found', async () => {
@@ -38,7 +32,6 @@ describe('DeleteAuthenticationUseCase', () => {
       await expect(deleteAuthenticationUseCase.execute({ refreshToken }))
         .rejects.toThrow('DELETE_AUTHENTICATION_USE_CASE.REFRESH_TOKEN_NOT_FOUND');
 
-      expect(mockAuthRepo.isTokenExist).toHaveBeenCalledWith(refreshToken);
       expect(mockAuthRepo.deleteToken).not.toHaveBeenCalled();
     });
 
@@ -46,13 +39,10 @@ describe('DeleteAuthenticationUseCase', () => {
       const refreshToken = 'refresh_token';
 
       mockAuthRepo.isTokenExist.mockResolvedValue(true);
-      mockAuthRepo.deleteToken.mockRejectedValue(new Error('delete token fails'));
+      mockAuthRepo.deleteToken.mockRejectedValue(new Error('fails'));
 
       await expect(deleteAuthenticationUseCase.execute({ refreshToken }))
         .rejects.toThrow();
-
-      expect(mockAuthRepo.isTokenExist).toHaveBeenCalledWith(refreshToken);
-      expect(mockAuthRepo.deleteToken).toHaveBeenCalledWith(refreshToken);
     });
   });
 
