@@ -48,6 +48,13 @@ describe('AddUserUseCase', () => {
       expect(mockPasswordHash.hash).not.toHaveBeenCalled();
     });
 
+    it('should propagate error when isUsernameExist fails', async () => {
+      mockUserRepo.isUsernameExist.mockRejectedValue(new Error('fails'));
+
+      await expect(addUserUseCase.execute({ ...dummyPayload }))
+        .rejects.toThrow();
+    });
+
     it('should propagate error when addUser fails', async () => {
       mockUserRepo.isUsernameExist.mockResolvedValue(false);
       mockPasswordHash.hash.mockResolvedValue('encrypted_password');
