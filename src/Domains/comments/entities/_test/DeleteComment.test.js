@@ -4,7 +4,7 @@ describe('DeleteComment Entity', () => {
   const dummyPayload = {
     threadId: 'thread-123',
     commentId: 'comment-123',
-    owner: 'user-123',
+    userId: 'user-123',
   };
 
   describe('Bad payload', () => {
@@ -13,37 +13,37 @@ describe('DeleteComment Entity', () => {
       delete missingThreadId.threadId;
       const missingCommentId = { ...dummyPayload };
       delete missingCommentId.commentId;
-      const missingOwner = { ...dummyPayload };
-      delete missingOwner.owner;
+      const missingUserId = { ...dummyPayload };
+      delete missingUserId.userId;
 
       const emptyThreadId = { ...dummyPayload, threadId: '' };
       const emptyCommentId = { ...dummyPayload, commentId: '' };
-      const emptyOwner = { ...dummyPayload, owner: '' };
+      const emptyUserId = { ...dummyPayload, userId: '' };
 
       expect(() => new DeleteComment(missingThreadId))
         .toThrow('DELETE_COMMENT.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
       expect(() => new DeleteComment(missingCommentId))
         .toThrow('DELETE_COMMENT.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
-      expect(() => new DeleteComment(missingOwner))
+      expect(() => new DeleteComment(missingUserId))
         .toThrow('DELETE_COMMENT.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
       expect(() => new DeleteComment(emptyThreadId))
         .toThrow('DELETE_COMMENT.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
       expect(() => new DeleteComment(emptyCommentId))
         .toThrow('DELETE_COMMENT.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
-      expect(() => new DeleteComment(emptyOwner))
+      expect(() => new DeleteComment(emptyUserId))
         .toThrow('DELETE_COMMENT.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
     });
 
     it('should throw error when payload property does not meet data type specification', () => {
       const threadIdNotString = { ...dummyPayload, threadId: 123 };
       const commentIdNotString = { ...dummyPayload, commentId: [1, 2, 3] };
-      const ownerNotString = { ...dummyPayload, owner: true };
+      const userIdNotString = { ...dummyPayload, userId: true };
 
       expect(() => new DeleteComment(threadIdNotString))
         .toThrow('DELETE_COMMENT.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
       expect(() => new DeleteComment(commentIdNotString))
         .toThrow('DELETE_COMMENT.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
-      expect(() => new DeleteComment(ownerNotString))
+      expect(() => new DeleteComment(userIdNotString))
         .toThrow('DELETE_COMMENT.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
     });
   });
@@ -56,7 +56,7 @@ describe('DeleteComment Entity', () => {
 
       expect(deleteComment.threadId).toEqual(payload.threadId);
       expect(deleteComment.commentId).toEqual(payload.commentId);
-      expect(deleteComment.owner).toEqual(payload.owner);
+      expect(deleteComment.userId).toEqual(payload.userId);
     });
   });
 });
