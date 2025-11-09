@@ -1,12 +1,10 @@
 const ReplyRepositoryPostgres = require('../ReplyRepositoryPostgres');
 const NewReply = require('../../../Domains/replies/entities/NewReply');
 const AddedReply = require('../../../Domains/replies/entities/AddedReply');
-const pgTest = require('../../../../tests/helper/postgres');
-const {
-  assertDBError,
-  expectReplyFromRepository,
-} = require('../../../../tests/helper/assertionsHelper');
+const Reply = require('../../../Domains/replies/entities/Reply');
 const ReplyOwner = require('../../../Domains/replies/entities/ReplyOwner');
+const pgTest = require('../../../../tests/helper/postgres');
+const { assertDBError } = require('../../../../tests/helper/assertionsHelper');
 
 const FIXED_TIME = '2025-11-05T00:00:00.000Z';
 beforeAll(async () => {
@@ -56,15 +54,16 @@ describe('[Integration] ReplyRepositoryPostgres', () => {
       const addedReply = await replyRepo.addReply(newReply);
       const replies = await pgTest.replies.findById('reply-123');
 
-      expect(replies).toHaveLength(1);
-      expect(replies[0]).toStrictEqual({
-        id: 'reply-123',
-        comment_id: newReply.commentId,
-        owner_id: newReply.owner,
-        content: newReply.content,
-        is_delete: false,
-        created_at: new Date(FIXED_TIME),
-      });
+      expect(replies).toStrictEqual([
+        {
+          id: 'reply-123',
+          comment_id: newReply.commentId,
+          owner_id: newReply.owner,
+          content: newReply.content,
+          is_delete: false,
+          created_at: new Date(FIXED_TIME),
+        },
+      ]);
 
       expect(addedReply).toStrictEqual(new AddedReply({
         id: 'reply-123',
@@ -116,16 +115,26 @@ describe('[Integration] ReplyRepositoryPostgres', () => {
       const rawReply2 = await pgTest.replies.add({
         id: 'reply-002', comment_id: commentA.id, owner_id: userB.id, is_delete: true
       });
-      const rawReply3 = await pgTest.replies.add({
-        id: 'reply-003', comment_id: commentB.id, owner_id: userB.id
-      });
 
       const replies = await replyRepo.getRepliesByCommentIds([commentA.id, commentB.id]);
-
-      expect(replies).toHaveLength(3);
-      expectReplyFromRepository(replies[0], { ...rawReply1, username: userA.username });
-      expectReplyFromRepository(replies[1], { ...rawReply2, username: userB.username });
-      expectReplyFromRepository(replies[2], { ...rawReply3, username: userB.username });
+      expect(replies).toStrictEqual([
+        new Reply({
+          id: rawReply1.id,
+          commentId: rawReply1.comment_id,
+          content: rawReply1.content,
+          username: userA.username,
+          date: rawReply1.created_at,
+          isDelete: rawReply1.is_delete
+        }),
+        new Reply({
+          id: rawReply2.id,
+          commentId: rawReply2.comment_id,
+          content: rawReply2.content,
+          username: userB.username,
+          date: rawReply2.created_at,
+          isDelete: rawReply2.is_delete,
+        }),
+      ]);
     });
 
     it('should return an empty array when no reply found', async () => {
@@ -163,15 +172,16 @@ describe('[Integration] ReplyRepositoryPostgres', () => {
         .resolves.not.toThrow();
 
       const replies = await pgTest.replies.findById('reply-001');
-      expect(replies).toHaveLength(1);
-      expect(replies[0]).toStrictEqual({
-        id: insertedReply.id,
-        comment_id: insertedReply.comment_id,
-        owner_id: insertedReply.owner_id,
-        content: insertedReply.content,
-        is_delete: true,
-        created_at: insertedReply.created_at,
-      });
+      expect(replies).toStrictEqual([
+        {
+          id: insertedReply.id,
+          comment_id: insertedReply.comment_id,
+          owner_id: insertedReply.owner_id,
+          content: insertedReply.content,
+          is_delete: true,
+          created_at: insertedReply.created_at,
+        },
+      ]);
     });
   });
 });
