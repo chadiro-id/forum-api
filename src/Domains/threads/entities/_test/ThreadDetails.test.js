@@ -6,7 +6,7 @@ describe('ThreadDetails Entity', () => {
     id: 'thread-123',
     title: 'Judul thread',
     body: 'Sebuah thread',
-    date: new Date('2025-10-15T02:08:54.384Z'),
+    date: new Date('2025-10-15T01:00:00.000Z'),
     username: 'superuser',
   };
 
@@ -14,7 +14,7 @@ describe('ThreadDetails Entity', () => {
     id: 'comment-123',
     content: 'Sebuah komentar',
     username: 'johndoe',
-    date: new Date(2017, 10, 16),
+    date: new Date('2025-10-15T02:00:00.000Z'),
     isDelete: false,
   };
 
