@@ -43,14 +43,15 @@ describe('[Integration] ThreadRepositoryPostgres', () => {
       const addedThread = await threadRepo.addThread(newThread);
       const threads = await pgTest.threads.findById('thread-123');
 
-      expect(threads).toHaveLength(1);
-      expect(threads[0]).toStrictEqual({
-        id: 'thread-123',
-        title: newThread.title,
-        body: newThread.body,
-        owner_id: newThread.owner,
-        created_at: new Date(FIXED_TIME),
-      });
+      expect(threads).toStrictEqual([
+        {
+          id: 'thread-123',
+          title: newThread.title,
+          body: newThread.body,
+          owner_id: newThread.owner,
+          created_at: new Date(FIXED_TIME),
+        }
+      ]);
 
       expect(addedThread).toStrictEqual(new AddedThread({
         id: 'thread-123',
@@ -88,14 +89,12 @@ describe('[Integration] ThreadRepositoryPostgres', () => {
       const insertedThread = await pgTest.threads.add({ owner_id: user.id });
 
       const thread = await threadRepo.getThreadById('thread-001');
-
       expect(thread).toStrictEqual(new ThreadDetails({
         id: insertedThread.id,
         title: insertedThread.title,
         body: insertedThread.body,
         date: insertedThread.created_at,
         username: user.username,
-        comments: [],
       }));
     });
 
