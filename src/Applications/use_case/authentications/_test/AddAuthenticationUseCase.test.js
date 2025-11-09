@@ -73,7 +73,7 @@ describe('AddAuthenticationUseCase', () => {
       mockPasswordHash.comparePassword.mockResolvedValue(false);
 
       await expect(addAuthenticationUseCase.execute({ ...dummyPayload }))
-        .rejects.toThrow();
+        .rejects.toThrow('ADD_AUTHENTICATION_USE_CASE.PASSWORD_NOT_MATCH');
     });
 
     it('should propagate error when addToken fails', async () => {
