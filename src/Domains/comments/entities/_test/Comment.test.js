@@ -46,7 +46,7 @@ describe('Comment Entity', () => {
     it('should throw error when payload property does not meet data type specification', () => {
       const idNotString = { ...dummyPayload, id: 123 };
       const contentNotString = { ...dummyPayload, content: ['Komentar'] };
-      const dateNotStringOrObject = { ...dummyPayload, date: 2025 };
+      const dateNotInstanceOfDate = { ...dummyPayload, date: 2025 };
       const usernameNotString = { ...dummyPayload, username: true };
       const isDeleteNotBoolean = { ...dummyPayload, isDelete: 'delete' };
 
@@ -54,7 +54,7 @@ describe('Comment Entity', () => {
         .toThrow('COMMENT.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
       expect(() => new Comment(contentNotString))
         .toThrow('COMMENT.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
-      expect(() => new Comment(dateNotStringOrObject))
+      expect(() => new Comment(dateNotInstanceOfDate))
         .toThrow('COMMENT.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
       expect(() => new Comment(usernameNotString))
         .toThrow('COMMENT.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
@@ -63,65 +63,29 @@ describe('Comment Entity', () => {
     });
 
     it('should throw error when date is not valid', () => {
-      const dateString = { ...dummyPayload, date: 'date' };
       const dateObj = { ...dummyPayload, date: new Date('date') };
 
-      expect(() => new Comment(dateString))
-        .toThrow('COMMENT.DATE_INVALID');
-      expect(() => new Comment(dateObj))
-        .toThrow('COMMENT.DATE_INVALID');
-    });
-
-    it('should throw error when replies contain invalid element', () => {
-      const reply = new Reply({
-        id: 'reply-123',
-        commentId: 'comment-123',
-        content: 'Sebuah balasan',
-        username: 'johndoe',
-        date: new Date(2025, 10, 17),
-        isDelete: false
-      });
-      const arrContainString = [reply, '0'];
-      const arrContainNum = [1, reply];
-
-      const payload1 = { ...dummyPayload, replies: arrContainString };
-      const payload2 = { ...dummyPayload, replies: arrContainNum };
-
-      expect(() => new Comment(payload1))
-        .toThrow('COMMENT.REPLIES_INVALID_ELEMENT');
-      expect(() => new Comment(payload2))
-        .toThrow('COMMENT.REPLIES_INVALID_ELEMENT');
+      expect(() => new Comment(dateObj)).toThrow('COMMENT.DATE_INVALID');
     });
   });
 
   describe('Correct payload', () => {
     it('should correctly create the entity', () => {
-      const reply = new Reply({
-        id: 'reply-123',
-        commentId: 'comment-123',
-        content: 'Sebuah balasan',
-        username: 'johndoe',
-        date: new Date(2025, 10, 17),
-        isDelete: false,
-      });
+      const {
+        id, username, content, date, isDelete
+      } = new Comment({ ...dummyPayload });
 
-      const payload = { ...dummyPayload, replies: [reply] };
-
-      const { id, content, date, username, replies } = new Comment(payload);
-
-      expect(id).toEqual(payload.id);
-      expect(content).toEqual(payload.content);
-      expect(date).toEqual(payload.date);
-      expect(username).toEqual(payload.username);
-      expect(replies).toHaveLength(1);
-      expect(replies[0]).toBeInstanceOf(Reply);
+      expect(id).toEqual(dummyPayload.id);
+      expect(username).toEqual(dummyPayload.username);
+      expect(content).toEqual(dummyPayload.content);
+      expect(date).toEqual(dummyPayload.date);
+      expect(isDelete).toBeUndefined();
     });
 
-    it('should not reveal original content value when isDelete equal to TRUE', () => {
+    it('should not reveal original content when isDelete equal to TRUE', () => {
       const payload = { ...dummyPayload, isDelete: true };
 
       const { content } = new Comment(payload);
-
       expect(content).toEqual('**komentar telah dihapus**');
     });
 
@@ -129,13 +93,6 @@ describe('Comment Entity', () => {
       const extraPayload = { ...dummyPayload, extra: 'Something extra' };
 
       const comment = new Comment(extraPayload);
-
-      expect(comment.id).toEqual(extraPayload.id);
-      expect(comment.content).toEqual(extraPayload.content);
-      expect(comment.date).toEqual(extraPayload.date);
-      expect(comment.username).toEqual(extraPayload.username);
-      expect(comment.replies).toHaveLength(0);
-
       expect(comment.extra).toBeUndefined();
     });
   });
