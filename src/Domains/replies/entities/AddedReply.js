@@ -1,4 +1,11 @@
 class AddedReply {
+  /**
+   * Added Reply Entity constructor
+   * @param {Object} payload
+   * @property {string} id
+   * @property {string} content
+   * @property {string} owner
+   */
   constructor(payload) {
     this._verifyPayload(payload);
 
