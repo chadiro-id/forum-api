@@ -43,7 +43,7 @@ describe('AddUserUseCase', () => {
       mockUserRepo.isUsernameExist.mockResolvedValue(true);
 
       await expect(addUserUseCase.execute({ ...dummyPayload }))
-        .rejects.toThrow();
+        .rejects.toThrow('ADD_USER_USE_CASE.USERNAME_NOT_AVAILABLE');
 
       expect(mockPasswordHash.hash).not.toHaveBeenCalled();
     });
