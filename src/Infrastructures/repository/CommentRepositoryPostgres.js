@@ -10,7 +10,7 @@ class CommentRepositoryPostgres extends CommentRepository {
   }
 
   async addComment(newComment) {
-    const { threadId, content, owner } = newComment;
+    const { threadId, content, userId } = newComment;
 
     const id = `comment-${this._idGenerator()}`;
     const timestamp = new Date();
@@ -24,7 +24,7 @@ class CommentRepositoryPostgres extends CommentRepository {
       RETURNING
         id, content, owner_id
       `,
-      values: [id, threadId, owner, content, timestamp],
+      values: [id, threadId, userId, content, timestamp],
     };
 
     const result = await this._pool.query(query);
