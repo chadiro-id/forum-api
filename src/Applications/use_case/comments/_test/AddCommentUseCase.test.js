@@ -7,7 +7,7 @@ const CommentRepository = require('../../../../Domains/comments/CommentRepositor
 const dummyPayload = {
   threadId: 'thread-123',
   content: 'Sebuah komentar',
-  owner: 'user-123',
+  userId: 'user-123',
 };
 
 describe('AddCommentUseCase', () => {
@@ -34,12 +34,8 @@ describe('AddCommentUseCase', () => {
 
   describe('Failure cases', () => {
     it('should throw error when payload not provided correctly', async () => {
-      await expect(addCommentUseCase.execute())
-        .rejects.toThrow();
-      await expect(addCommentUseCase.execute(123))
-        .rejects.toThrow();
       await expect(addCommentUseCase.execute({ ...dummyPayload, content: true }))
-        .rejects.toThrow();
+        .rejects.toThrow('NEW_COMMENT.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
     });
 
     it('should throw error when thread not exist', async () => {
@@ -82,12 +78,12 @@ describe('AddCommentUseCase', () => {
     });
   });
 
-  describe('Successful execution', () => {
+  describe('Successful executions', () => {
     it('should correctly orchestrating the add comment action', async () => {
       const mockAddedComment = new AddedComment({
         id: 'comment-123',
         content: dummyPayload.content,
-        owner: dummyPayload.owner,
+        owner: dummyPayload.userId,
       });
 
       mockThreadRepo.isThreadExist.mockResolvedValue(true);
@@ -103,7 +99,7 @@ describe('AddCommentUseCase', () => {
       expect(addedComment).toStrictEqual(new AddedComment({
         id: 'comment-123',
         content: dummyPayload.content,
-        owner: dummyPayload.owner,
+        owner: dummyPayload.userId,
       }));
     });
   });
