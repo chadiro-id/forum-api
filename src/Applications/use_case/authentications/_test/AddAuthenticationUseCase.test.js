@@ -108,8 +108,12 @@ describe('AddAuthenticationUseCase', () => {
       expect(mockUserRepo.getIdByUsername).toHaveBeenCalledWith(dummyPayload.username);
       expect(mockUserRepo.getPasswordByUsername).toHaveBeenCalledWith(dummyPayload.username);
       expect(mockPasswordHash.comparePassword).toHaveBeenCalledWith(dummyPayload.password, 'encrypted_password');
-      expect(mockTokenManager.createAccessToken).toHaveBeenCalledWith(expect.any(AuthenticationPayload));
-      expect(mockTokenManager.createRefreshToken).toHaveBeenCalledWith(expect.any(AuthenticationPayload));
+      expect(mockTokenManager.createAccessToken).toHaveBeenCalledWith(new AuthenticationPayload({
+        id: 'user-123', username: dummyPayload.username
+      }));
+      expect(mockTokenManager.createRefreshToken).toHaveBeenCalledWith(new AuthenticationPayload({
+        id: 'user-123', username: dummyPayload.username
+      }));
       expect(mockAuthRepo.addToken).toHaveBeenCalledWith('refresh_token');
     });
   });
