@@ -1,23 +1,33 @@
 class NewReply {
+  /**
+   * New Reply Entity constructor
+   * @param {Object} payload
+   * @property {string} threadId
+   * @property {string} commentId
+   * @property {string} content
+   * @property {string} userId
+   */
   constructor(payload) {
     this._verifyPayload(payload);
 
+    this.threadId = payload.threadId;
     this.commentId = payload.commentId;
     this.content = payload.content;
-    this.owner = payload.owner;
+    this.userId = payload.userId;
   }
 
   _verifyPayload(payload) {
-    const { commentId, content, owner } = payload;
+    const { threadId, commentId, content, userId } = payload;
 
-    if (!commentId || !content || !owner) {
+    if (!threadId || !commentId || !content || !userId) {
       throw new Error('NEW_REPLY.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
     }
 
     if (
-      typeof commentId !== 'string'
+      typeof threadId !== 'string'
+      || typeof commentId !== 'string'
       || typeof content !== 'string'
-      || typeof owner !== 'string'
+      || typeof userId !== 'string'
     ) {
       throw new Error('NEW_REPLY.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
     }
