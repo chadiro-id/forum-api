@@ -1,4 +1,4 @@
-const AuthenticationPayload = require('../../../Domains/authentications/entities/AuthCredentialsPayload');
+const AuthCredentialsPayload = require('../../../Domains/authentications/entities/AuthCredentialsPayload');
 const AuthRefreshPayload = require('../../../Domains/authentications/entities/AuthRefreshPayload');
 
 class PutAuthenticationUseCase {
@@ -25,8 +25,8 @@ class PutAuthenticationUseCase {
 
     const decodedPayload = await this._authenticationTokenManager.decodePayload(refreshToken);
 
-    const authenticationPayload = new AuthenticationPayload(decodedPayload);
-    return this._authenticationTokenManager.createAccessToken(authenticationPayload);
+    const authCredentials = new AuthCredentialsPayload(decodedPayload);
+    return this._authenticationTokenManager.createAccessToken(authCredentials);
   }
 }
 

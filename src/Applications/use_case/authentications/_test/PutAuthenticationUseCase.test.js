@@ -1,4 +1,4 @@
-const AuthenticationPayload = require('../../../../Domains/authentications/entities/AuthenticationPayload');
+const AuthCredentialsPayload = require('../../../../Domains/authentications/entities/AuthCredentialsPayload');
 const PutAuthenticationUseCase = require('../PutAuthenticationUseCase');
 const AuthenticationRepository = require('../../../../Domains/authentications/AuthenticationRepository');
 const AuthenticationTokenManager = require('../../../security/AuthenticationTokenManager');
@@ -73,7 +73,7 @@ describe('PutAuthenticationUseCase', () => {
       mockTokenManager.decodePayload.mockResolvedValue({ username: 'johndoe' });
 
       await expect(putAuthenticationUseCase.execute({ refreshToken }))
-        .rejects.toThrow('AUTHENTICATION_PAYLOAD.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
+        .rejects.toThrow('AUTH_CREDENTIALS_PAYLOAD.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
 
       expect(mockTokenManager.createAccessToken).not.toHaveBeenCalled();
     });
@@ -97,7 +97,7 @@ describe('PutAuthenticationUseCase', () => {
       expect(mockTokenManager.decodePayload).toHaveBeenCalledTimes(1);
       expect(mockTokenManager.decodePayload).toHaveBeenCalledWith(payload.refreshToken);
       expect(mockTokenManager.createAccessToken).toHaveBeenCalledTimes(1);
-      expect(mockTokenManager.createAccessToken).toHaveBeenCalledWith(new AuthenticationPayload({
+      expect(mockTokenManager.createAccessToken).toHaveBeenCalledWith(new AuthCredentialsPayload({
         id: 'user-123',
         username: 'johndoe',
       }));

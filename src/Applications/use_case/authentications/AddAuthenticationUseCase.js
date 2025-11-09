@@ -1,6 +1,6 @@
 const UserLogin = require('../../../Domains/authentications/entities/UserLogin');
 const UserAuthentication = require('../../../Domains/authentications/entities/UserAuthentication');
-const AuthenticationPayload = require('../../../Domains/authentications/entities/AuthCredentialsPayload');
+const AuthCredentialsPayload = require('../../../Domains/authentications/entities/AuthCredentialsPayload');
 
 class AddAuthenticationUseCase {
   constructor({
@@ -32,9 +32,9 @@ class AddAuthenticationUseCase {
       throw new Error('ADD_AUTHENTICATION_USE_CASE.PASSWORD_NOT_MATCH');
     }
 
-    const authenticationPayload = new AuthenticationPayload({ id, username });
-    const accessToken = await this._authenticationTokenManager.createAccessToken(authenticationPayload);
-    const refreshToken = await this._authenticationTokenManager.createRefreshToken(authenticationPayload);
+    const authCredentials = new AuthCredentialsPayload({ id, username });
+    const accessToken = await this._authenticationTokenManager.createAccessToken(authCredentials);
+    const refreshToken = await this._authenticationTokenManager.createRefreshToken(authCredentials);
 
     const userAuthentication = new UserAuthentication({ accessToken, refreshToken });
     await this._authenticationRepository.addToken(userAuthentication.refreshToken);

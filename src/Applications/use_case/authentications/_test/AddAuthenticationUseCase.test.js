@@ -1,4 +1,4 @@
-const AuthenticationPayload = require('../../../../Domains/authentications/entities/AuthenticationPayload');
+const AuthCredentialsPayload = require('../../../../Domains/authentications/entities/AuthCredentialsPayload');
 const UserAuthentication = require('../../../../Domains/authentications/entities/UserAuthentication');
 const AddAuthenticationUseCase = require('../AddAuthenticationUseCase');
 const UserRepository = require('../../../../Domains/users/UserRepository');
@@ -108,10 +108,10 @@ describe('AddAuthenticationUseCase', () => {
       expect(mockUserRepo.getIdByUsername).toHaveBeenCalledWith(dummyPayload.username);
       expect(mockUserRepo.getPasswordByUsername).toHaveBeenCalledWith(dummyPayload.username);
       expect(mockPasswordHash.comparePassword).toHaveBeenCalledWith(dummyPayload.password, 'encrypted_password');
-      expect(mockTokenManager.createAccessToken).toHaveBeenCalledWith(new AuthenticationPayload({
+      expect(mockTokenManager.createAccessToken).toHaveBeenCalledWith(new AuthCredentialsPayload({
         id: 'user-123', username: dummyPayload.username
       }));
-      expect(mockTokenManager.createRefreshToken).toHaveBeenCalledWith(new AuthenticationPayload({
+      expect(mockTokenManager.createRefreshToken).toHaveBeenCalledWith(new AuthCredentialsPayload({
         id: 'user-123', username: dummyPayload.username
       }));
       expect(mockAuthRepo.addToken).toHaveBeenCalledWith('refresh_token');
