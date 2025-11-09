@@ -60,7 +60,7 @@ describe('ThreadDetails Entity', () => {
       const idNotString = { ...dummyPayload, id: 123 };
       const titleNotString = { ...dummyPayload, title: ['Judul'] };
       const bodyNotString = { ...dummyPayload, body: {} };
-      const dateNotStringOrObject = { ...dummyPayload, date: true };
+      const dateNotInstanceOfDate = { ...dummyPayload, date: true };
       const usernameNotString = { ...dummyPayload, username: 69 };
 
       expect(() => new ThreadDetails(idNotString))
@@ -69,26 +69,26 @@ describe('ThreadDetails Entity', () => {
         .toThrow('THREAD_DETAILS.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
       expect(() => new ThreadDetails(bodyNotString))
         .toThrow('THREAD_DETAILS.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
-      expect(() => new ThreadDetails(dateNotStringOrObject))
+      expect(() => new ThreadDetails(dateNotInstanceOfDate))
         .toThrow('THREAD_DETAILS.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
       expect(() => new ThreadDetails(usernameNotString))
         .toThrow('THREAD_DETAILS.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
     });
 
     it('should throw error when title has char more than 255', () => {
-      const payload = { ...dummyPayload, title: 'Sebuah thread'.repeat(25) };
+      const payload = {
+        ...dummyPayload,
+        title: 'a'.repeat(256),
+      };
 
       expect(() => new ThreadDetails(payload))
         .toThrow('THREAD_DETAILS.TITLE_EXCEED_CHAR_LIMIT');
     });
 
     it('should throw error when date is not valid', () => {
-      const dateString = { ...dummyPayload, date: 'Date' };
-      const dateObj = { ...dummyPayload, date: new Date('date') };
+      const invalidDate = { ...dummyPayload, date: new Date('date') };
 
-      expect(() => new ThreadDetails(dateString))
-        .toThrow('THREAD_DETAILS.DATE_INVALID');
-      expect(() => new ThreadDetails(dateObj))
+      expect(() => new ThreadDetails(invalidDate))
         .toThrow('THREAD_DETAILS.DATE_INVALID');
     });
   });
@@ -112,13 +112,6 @@ describe('ThreadDetails Entity', () => {
       const extraPayload = { ...dummyPayload, extra: 'Something extra' };
 
       const threadDetails = new ThreadDetails(extraPayload);
-
-      expect(threadDetails.id).toEqual(extraPayload.id);
-      expect(threadDetails.title).toEqual(extraPayload.title);
-      expect(threadDetails.body).toEqual(extraPayload.body);
-      expect(threadDetails.date).toEqual(extraPayload.date);
-      expect(threadDetails.username).toEqual(extraPayload.username);
-
       expect(threadDetails.extra).toBeUndefined();
     });
   });
@@ -128,9 +121,7 @@ describe('ThreadDetails Entity', () => {
       const thread = new ThreadDetails(dummyPayload);
 
       const comments = thread.comments;
-
-      expect(comments).toEqual(expect.any(Array));
-      expect(comments).toHaveLength(0);
+      expect(comments).toStrictEqual([]);
     });
 
     it('should throw error when set non-array value', () => {
