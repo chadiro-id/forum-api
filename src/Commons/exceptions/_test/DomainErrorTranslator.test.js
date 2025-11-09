@@ -20,7 +20,9 @@ describe('DomainErrorTranslator', () => {
       },
     ];
 
-    it.each(errorArray)('should translate "$errorMessage" to $expectedError', ({ errorMessage, expectedError }) => {
+    it.each(errorArray)('should translate "$errorMessage" to $expectedError', ({
+      errorMessage, expectedError
+    }) => {
       expect(DomainErrorTranslator.translate(new Error(errorMessage)))
         .toStrictEqual(expectedError);
     });
@@ -50,7 +52,9 @@ describe('DomainErrorTranslator', () => {
       }
     ];
 
-    it.each(errorArray)('should translate "$errorMessage" to $expectedError', ({ errorMessage, expectedError }) => {
+    it.each(errorArray)('should translate "$errorMessage" to $expectedError', ({
+      errorMessage, expectedError
+    }) => {
       expect(DomainErrorTranslator.translate(new Error(errorMessage)))
         .toStrictEqual(expectedError);
     });
@@ -72,7 +76,9 @@ describe('DomainErrorTranslator', () => {
       }
     ];
 
-    it.each(errorArray)('should translate "$errorMessage" to $expectedError', ({ errorMessage, expectedError }) => {
+    it.each(errorArray)('should translate "$errorMessage" to $expectedError', ({
+      errorMessage, expectedError
+    }) => {
       expect(DomainErrorTranslator.translate(new Error(errorMessage)))
         .toStrictEqual(expectedError);
     });
@@ -94,7 +100,9 @@ describe('DomainErrorTranslator', () => {
       }
     ];
 
-    it.each(errorArray)('should translate "$errorMessage" to $expectedError correctly', ({ errorMessage, expectedError }) => {
+    it.each(errorArray)('should translate "$errorMessage" to $expectedError', ({
+      errorMessage, expectedError
+    }) => {
       expect(DomainErrorTranslator.translate(new Error(errorMessage)))
         .toStrictEqual(expectedError);
     });
