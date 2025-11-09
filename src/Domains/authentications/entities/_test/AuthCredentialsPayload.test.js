@@ -44,7 +44,7 @@ describe('AuthCredentialsPayload Entity', () => {
       expect(username).toEqual(payload.username);
     });
 
-    it('should correctly create the entity and not contain extra property', () => {
+    it('should not contain extra property', () => {
       const payload = { ...dummyPayload, extra: 'ekstra' };
 
       const { extra } = new AuthCredentialsPayload(payload);
