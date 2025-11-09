@@ -53,7 +53,6 @@ describe('[Integration] UserRepositoryPostgres', () => {
       const users = await pgTest.users.findById('user-123');
       expect(users).toHaveLength(1);
       expect(users[0]).toStrictEqual(expectedPersistedUser);
-
     });
 
     it('should propagate error when id violate constraint', async () => {
