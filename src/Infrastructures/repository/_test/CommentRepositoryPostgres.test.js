@@ -1,14 +1,11 @@
 const CommentRepository = require('../../../Domains/comments/CommentRepository');
 const AddedComment = require('../../../Domains/comments/entities/AddedComment');
 const NewComment = require('../../../Domains/comments/entities/NewComment');
+const Comment = require('../../../Domains/comments/entities/Comment');
+const CommentOwner = require('../../../Domains/comments/entities/CommentOwner');
 const CommentRepositoryPostgres = require('../CommentRepositoryPostgres');
 const { createRawComment } = require('../../../../tests/util');
-const {
-  assertQueryCalled,
-  assertDBError,
-  expectCommentFromRepository,
-}= require('../../../../tests/helper/assertionsHelper');
-const CommentOwner = require('../../../Domains/comments/entities/CommentOwner');
+const { assertQueryCalled, assertDBError } = require('../../../../tests/helper/assertionsHelper');
 
 describe('[Mock-Based Integration] CommentRepositoryPostgres', () => {
   it('must be an instance of CommentRepository', () => {
@@ -84,12 +81,24 @@ describe('[Mock-Based Integration] CommentRepositoryPostgres', () => {
         });
 
         const comments = await commentRepo.getCommentsByThreadId('thread-123');
+        expect(comments).toStrictEqual([
+          new Comment({
+            id: comment1.id,
+            content: comment1.content,
+            username: comment1.username,
+            date: comment1.created_at,
+            isDelete: comment1.is_delete,
+          }),
+          new Comment({
+            id: comment2.id,
+            content: comment2.content,
+            username: comment2.username,
+            date: comment2.created_at,
+            isDelete: comment2.is_delete,
+          }),
+        ]);
 
         assertQueryCalled(mockPool.query, 'SELECT', ['thread-123']);
-
-        expect(comments).toHaveLength(2);
-        expectCommentFromRepository(comments[0], { ...comment1 });
-        expectCommentFromRepository(comments[1], { ...comment2 });
       });
 
       it('should return an empty array when no comment found', async () => {
