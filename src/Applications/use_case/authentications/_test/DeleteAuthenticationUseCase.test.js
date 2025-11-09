@@ -25,6 +25,16 @@ describe('DeleteAuthenticationUseCase', () => {
         .rejects.toThrow();
     });
 
+    it('should propagate error when isTokenExist fails', async () => {
+      const refreshToken = 'refresh_token';
+      mockAuthRepo.isTokenExist.mockRejectedValue(new Error('fails'));
+
+      await expect(deleteAuthenticationUseCase.execute({ refreshToken }))
+        .rejects.toThrow();
+
+      expect(mockAuthRepo.deleteToken).not.toHaveBeenCalled();
+    });
+
     it('should throw error when refresh token not found', async () => {
       const refreshToken = 'refresh_token';
       mockAuthRepo.isTokenExist.mockResolvedValue(false);
