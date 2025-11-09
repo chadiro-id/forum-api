@@ -26,7 +26,7 @@ export default defineConfig([
     },
   },
   {
-    files: ['**/*.test.js', './jest.setup.js', '**/assertionsHelper.js'],
+    files: ['**/*.test.js', './jest.setup.js', 'tests/**/*.js'],
     plugins: { jest: pluginJest },
     languageOptions: { globals: pluginJest.environments.globals.globals },
   },
