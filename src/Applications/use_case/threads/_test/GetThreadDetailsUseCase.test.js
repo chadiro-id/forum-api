@@ -66,7 +66,7 @@ const dummyReplies = [
 
 describe('GetThreadDetailsUseCase', () => {
   const mockThreadRepo = new ThreadRepository();
-  mockThreadRepo.getThreadById = jest.fn();
+  mockThreadRepo.getThreadDetails = jest.fn();
 
   const mockCommentRepo = new CommentRepository();
   mockCommentRepo.getCommentsByThreadId = jest.fn();
@@ -86,7 +86,7 @@ describe('GetThreadDetailsUseCase', () => {
 
   describe('Failure cases', () => {
     it('should propagate error when thread repository fails', async () => {
-      mockThreadRepo.getThreadById.mockRejectedValue(new Error('fails'));
+      mockThreadRepo.getThreadDetails.mockRejectedValue(new Error('fails'));
       mockCommentRepo.getCommentsByThreadId.mockResolvedValue([]);
 
       await expect(getThreadDetailsUseCase.execute('thread-123'))
@@ -96,7 +96,7 @@ describe('GetThreadDetailsUseCase', () => {
     });
 
     it('should propagate error when comment repository fails', async () => {
-      mockThreadRepo.getThreadById.mockResolvedValue(new ThreadDetails({ ...dummyThread }));
+      mockThreadRepo.getThreadDetails.mockResolvedValue(new ThreadDetails({ ...dummyThread }));
       mockCommentRepo.getCommentsByThreadId.mockRejectedValue(new Error('fails'));
 
       await expect(getThreadDetailsUseCase.execute('thread-123'))
@@ -109,7 +109,7 @@ describe('GetThreadDetailsUseCase', () => {
       const comment1 = new Comment({ ...dummyComments[0] });
       const comment2 = new Comment({ ...dummyComments[1] });
 
-      mockThreadRepo.getThreadById.mockResolvedValue(new ThreadDetails({ ...dummyThread }));
+      mockThreadRepo.getThreadDetails.mockResolvedValue(new ThreadDetails({ ...dummyThread }));
       mockCommentRepo.getCommentsByThreadId.mockResolvedValue([comment1, comment2]);
       mockReplyRepo.getRepliesByCommentIds.mockRejectedValue(new Error('fails'));
 
@@ -118,7 +118,7 @@ describe('GetThreadDetailsUseCase', () => {
     });
 
     it('should throw error when thread not instance of ThreadDetails entity', async () => {
-      mockThreadRepo.getThreadById.mockResolvedValue({ ...dummyThread });
+      mockThreadRepo.getThreadDetails.mockResolvedValue({ ...dummyThread });
       mockCommentRepo.getCommentsByThreadId.mockResolvedValue([]);
 
       await expect(getThreadDetailsUseCase.execute('thread-123'))
@@ -150,15 +150,15 @@ describe('GetThreadDetailsUseCase', () => {
       const expectedThread = new ThreadDetails({ ...dummyThread });
       expectedThread.comments = expectedComments;
 
-      mockThreadRepo.getThreadById.mockResolvedValue(new ThreadDetails({ ...dummyThread }));
+      mockThreadRepo.getThreadDetails.mockResolvedValue(new ThreadDetails({ ...dummyThread }));
       mockCommentRepo.getCommentsByThreadId.mockResolvedValue([...comments]);
       mockReplyRepo.getRepliesByCommentIds.mockResolvedValue([...replies]);
 
       const threadDetails = await getThreadDetailsUseCase.execute('thread-123');
       expect(threadDetails).toStrictEqual(expectedThread);
 
-      expect(mockThreadRepo.getThreadById).toHaveBeenCalledTimes(1);
-      expect(mockThreadRepo.getThreadById).toHaveBeenCalledWith('thread-123');
+      expect(mockThreadRepo.getThreadDetails).toHaveBeenCalledTimes(1);
+      expect(mockThreadRepo.getThreadDetails).toHaveBeenCalledWith('thread-123');
       expect(mockCommentRepo.getCommentsByThreadId).toHaveBeenCalledTimes(1);
       expect(mockCommentRepo.getCommentsByThreadId).toHaveBeenCalledWith('thread-123');
       expect(mockReplyRepo.getRepliesByCommentIds).toHaveBeenCalledTimes(1);
