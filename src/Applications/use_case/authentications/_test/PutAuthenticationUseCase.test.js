@@ -85,6 +85,7 @@ describe('PutAuthenticationUseCase', () => {
       mockTokenManager.createAccessToken.mockResolvedValue('new_access_token');
 
       const accessToken = await putAuthenticationUseCase.execute(payload);
+      expect(accessToken).toEqual('new_access_token');
 
       expect(mockTokenManager.verifyRefreshToken).toHaveBeenCalledTimes(1);
       expect(mockTokenManager.verifyRefreshToken).toHaveBeenCalledWith(payload.refreshToken);
@@ -97,8 +98,6 @@ describe('PutAuthenticationUseCase', () => {
         id: 'user-123',
         username: 'johndoe',
       }));
-
-      expect(accessToken).toEqual('new_access_token');
     });
   });
 });
