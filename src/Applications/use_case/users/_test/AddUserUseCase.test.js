@@ -57,30 +57,17 @@ describe('AddUserUseCase', () => {
       await expect(addUserUseCase.execute({ ...dummyPayload }))
         .rejects.toThrow();
     });
-
-    it('should throw error when the registeredUser not an instance of RegisteredUser entity', async () => {
-      const mockRegisteredUser = {
-        id: 'user-123',
-        username: dummyPayload.username,
-        fullname: dummyPayload.fullname,
-      };
-
-      mockUserRepo.isUsernameExist.mockResolvedValue(false);
-      mockPasswordHash.hash.mockResolvedValue('encrypted_password');
-      mockUserRepo.addUser.mockResolvedValue(mockRegisteredUser);
-
-      await expect(addUserUseCase.execute({ ...dummyPayload }))
-        .rejects
-        .toThrow('ADD_USER_USE_CASE.REGISTERED_USER_MUST_BE_INSTANCE_OF_REGISTERED_USER_ENTITY');
-    });
   });
 
   describe('Successful execution', () => {
     it('should correctly orchestrating the add user action', async () => {
+      const { username, password, fullname } = dummyPayload;
+
       const mockRegisteredUser = new RegisteredUser({
-        id: 'user-123',
-        username: dummyPayload.username,
-        fullname: dummyPayload.fullname,
+        id: 'user-123', username, fullname
+      });
+      const calledRegisterUser = new RegisterUser({
+        username, password: 'encrypted_password', fullname
       });
 
       mockUserRepo.isUsernameExist.mockResolvedValue(false);
@@ -88,20 +75,13 @@ describe('AddUserUseCase', () => {
       mockUserRepo.addUser.mockResolvedValue(mockRegisteredUser);
 
       const registeredUser = await addUserUseCase.execute({ ...dummyPayload });
-
-      expect(mockUserRepo.isUsernameExist).toHaveBeenCalledWith(dummyPayload.username);
-      expect(mockPasswordHash.hash).toHaveBeenCalledWith(dummyPayload.password);
-      expect(mockUserRepo.addUser).toHaveBeenCalledWith(new RegisterUser({
-        username: dummyPayload.username,
-        password: 'encrypted_password',
-        fullname: dummyPayload.fullname,
-      }));
-
       expect(registeredUser).toStrictEqual(new RegisteredUser({
-        id: 'user-123',
-        username: dummyPayload.username,
-        fullname: dummyPayload.fullname,
+        id: 'user-123', username, fullname
       }));
+
+      expect(mockUserRepo.isUsernameExist).toHaveBeenCalledWith(username);
+      expect(mockPasswordHash.hash).toHaveBeenCalledWith(password);
+      expect(mockUserRepo.addUser).toHaveBeenCalledWith(calledRegisterUser);
     });
   });
 });
