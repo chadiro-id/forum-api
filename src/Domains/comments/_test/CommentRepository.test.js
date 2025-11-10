@@ -1,23 +1,17 @@
 const CommentRepository = require('../CommentRepository');
 
 describe('CommentRepository', () => {
-  it('should throw error with properly message when abstract method invoked', async () => {
-    const commentRepository = new CommentRepository();
+  const commentRepository = new CommentRepository();
+  const methods = [
+    commentRepository.addComment,
+    commentRepository.getCommentsByThreadId,
+    commentRepository.getCommentForDeletion,
+    commentRepository.softDeleteCommentById,
+    commentRepository.isCommentExist,
+  ];
 
-    await expect(commentRepository.addComment())
-      .rejects
-      .toThrow('COMMENT_REPOSITORY.METHOD_NOT_IMPLEMENTED');
-    await expect(commentRepository.getCommentsByThreadId())
-      .rejects
-      .toThrow('COMMENT_REPOSITORY.METHOD_NOT_IMPLEMENTED');
-    await expect(commentRepository.getCommentForDeletion())
-      .rejects
-      .toThrow('COMMENT_REPOSITORY.METHOD_NOT_IMPLEMENTED');
-    await expect(commentRepository.softDeleteCommentById())
-      .rejects
-      .toThrow('COMMENT_REPOSITORY.METHOD_NOT_IMPLEMENTED');
-    await expect(commentRepository.isCommentExist())
-      .rejects
-      .toThrow('COMMENT_REPOSITORY.METHOD_NOT_IMPLEMENTED');
+  test.each(methods)('should throw error when abstract behavior invoked %p', async (fn) => {
+    await expect(fn())
+      .rejects.toThrow('COMMENT_REPOSITORY.METHOD_NOT_IMPLEMENTED');
   });
 });
