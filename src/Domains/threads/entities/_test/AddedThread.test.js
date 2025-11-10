@@ -47,7 +47,7 @@ describe('AddedThread entity', () => {
         .toThrow('ADDED_THREAD.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION');
     });
 
-    it('should throw error when title has char more than 255', () => {
+    it('should throw error when title exceed char limit', () => {
       const payload = {
         ...dummyPayload,
         title: 'a'.repeat(256),
