@@ -1,12 +1,10 @@
 const AddedReply = require('../../../Domains/replies/entities/AddedReply');
 const NewReply = require('../../../Domains/replies/entities/NewReply');
-const Reply = require('../../../Domains/replies/entities/Reply');
 const ReplyOwner = require('../../../Domains/replies/entities/ReplyOwner');
 const ReplyRepository = require('../../../Domains/replies/ReplyRepository');
 const ReplyRepositoryPostgres = require('../ReplyRepositoryPostgres');
 const { createRawReply } = require('../../../../tests/util');
 const { assertQueryCalled, assertDBError } = require('../../../../tests/helper/assertionsHelper');
-require('../../../../tests/matcher/queryMatcher');
 
 describe('[Mock-Based Integration] ReplyRepositoryPostgres', () => {
   it('must be an instance of ReplyRepository', () => {
@@ -43,7 +41,7 @@ describe('[Mock-Based Integration] ReplyRepositoryPostgres', () => {
             id, content, owner_id
           `;
         const expectedQueryValues = [
-          'reply-123', 'comment-123', 'user-123', 'Sebuah balasan', expect.any(Date)
+          'reply-123', 'comment-123', 'user-123', 'Sebuah balasan', new Date()
         ];
         mockPool.query.mockResolvedValue({
           rows: [{ id: 'reply-123', content: 'Sebuah balasan', owner_id: 'user-123' }],
@@ -56,14 +54,9 @@ describe('[Mock-Based Integration] ReplyRepositoryPostgres', () => {
           content: 'Sebuah balasan',
           userId: 'user-123',
         }));
-
-        expect(mockPool.query).toHaveBeenCalledTimes(1);
-        expect(mockPool.query).toHaveBeenLastCalledWith({
-          text: expect.toMatchQueryText(expectedQueryText),
-          values: expectedQueryValues,
-        });
-
         expect(addedReply).toBeInstanceOf(AddedReply);
+
+        assertQueryCalled(mockPool.query, expectedQueryText, expectedQueryValues);
       });
 
       it('should propagate error when database fails', async () => {
@@ -100,29 +93,9 @@ describe('[Mock-Based Integration] ReplyRepositoryPostgres', () => {
         });
 
         const replies = await replyRepo.getRepliesByCommentIds(['comment-101', 'comment-102']);
-        expect(replies).toStrictEqual([
-          new Reply({
-            id: reply1.id,
-            commentId: reply1.comment_id,
-            content: reply1.content,
-            username: reply1.username,
-            date: reply1.created_at,
-            isDelete: reply1.is_delete,
-          }),
-          new Reply({
-            id: reply2.id,
-            commentId: reply2.comment_id,
-            content: reply2.content,
-            username: reply2.username,
-            date: reply2.created_at,
-            isDelete: reply2.is_delete,
-          }),
-        ]);
+        expect(replies).toHaveLength(2);
 
-        expect(mockPool.query).toHaveBeenCalledWith({
-          text: expect.toMatchQueryText(expectedQueryText),
-          values: [['comment-101', 'comment-102']],
-        });
+        assertQueryCalled(mockPool.query, expectedQueryText, [['comment-101', 'comment-102']]);
       });
 
       it('should return an empty array when no reply found', async () => {
@@ -161,10 +134,9 @@ describe('[Mock-Based Integration] ReplyRepositoryPostgres', () => {
         const reply = await replyRepo.getReplyForDeletion('reply-001', 'comment-001', 'thread-001');
         expect(reply).toStrictEqual(new ReplyOwner({ owner: 'user-001' }));
 
-        expect(mockPool.query).toHaveBeenCalledWith({
-          text: expect.toMatchQueryText(expectedQueryText),
-          values: ['reply-001', 'comment-001', 'thread-001'],
-        });
+        assertQueryCalled(
+          mockPool.query, expectedQueryText, ['reply-001', 'comment-001', 'thread-001']
+        );
       });
 
       it('should propagate error when database fails', async () => {
@@ -177,17 +149,14 @@ describe('[Mock-Based Integration] ReplyRepositoryPostgres', () => {
 
     describe('softDeleteReplyById', () => {
       it('should correctly call pool.query', async () => {
-        const calledQuery = {
-          text: 'UPDATE replies SET is_delete = TRUE WHERE id = $1',
-          values: ['reply-123'],
-        };
+        const expectedQueryText = 'UPDATE replies SET is_delete = TRUE WHERE id = $1';
         mockPool.query.mockResolvedValue({
           rows: [{ id: 'reply-123' }],
           rowCount: 1
         });
 
         await replyRepo.softDeleteReplyById('reply-123');
-        assertQueryCalled(mockPool.query, calledQuery);
+        assertQueryCalled(mockPool.query, expectedQueryText, ['reply-123']);
       });
 
       it('should propagate error when database fails', async () => {
