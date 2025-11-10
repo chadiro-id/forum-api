@@ -103,7 +103,6 @@ describe('AddAuthenticationUseCase', () => {
       mockAuthRepo.addToken.mockResolvedValue();
 
       const actualUserAuthentication = await addAuthenticationUseCase.execute({ ...dummyPayload });
-
       expect(actualUserAuthentication).toStrictEqual(new UserAuthentication({
         accessToken: 'access_token',
         refreshToken: 'refresh_token',
