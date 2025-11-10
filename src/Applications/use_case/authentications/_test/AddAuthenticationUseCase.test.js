@@ -12,33 +12,25 @@ const dummyPayload = {
 };
 
 describe('AddAuthenticationUseCase', () => {
-  let mockUserRepo;
-  let mockAuthRepo;
-  let mockTokenManager;
-  let mockPasswordHash;
-  let addAuthenticationUseCase;
+  const mockUserRepo = new UserRepository();
+  mockUserRepo.getPasswordByUsername = jest.fn();
+  mockUserRepo.getIdByUsername = jest.fn();
 
-  beforeEach(() => {
-    mockUserRepo = new UserRepository();
-    mockUserRepo.getPasswordByUsername = jest.fn();
-    mockUserRepo.getIdByUsername = jest.fn();
+  const mockAuthRepo = new AuthenticationRepository();
+  mockAuthRepo.addToken = jest.fn();
 
-    mockAuthRepo = new AuthenticationRepository();
-    mockAuthRepo.addToken = jest.fn();
+  const mockTokenManager = new AuthenticationTokenManager();
+  mockTokenManager.createAccessToken = jest.fn();
+  mockTokenManager.createRefreshToken = jest.fn();
 
-    mockTokenManager = new AuthenticationTokenManager();
-    mockTokenManager.createAccessToken = jest.fn();
-    mockTokenManager.createRefreshToken = jest.fn();
+  const mockPasswordHash = new PaswordHash();
+  mockPasswordHash.comparePassword = jest.fn();
 
-    mockPasswordHash = new PaswordHash();
-    mockPasswordHash.comparePassword = jest.fn();
-
-    addAuthenticationUseCase = new AddAuthenticationUseCase({
-      userRepository: mockUserRepo,
-      authenticationRepository: mockAuthRepo,
-      authenticationTokenManager: mockTokenManager,
-      passwordHash: mockPasswordHash,
-    });
+  const addAuthenticationUseCase = new AddAuthenticationUseCase({
+    userRepository: mockUserRepo,
+    authenticationRepository: mockAuthRepo,
+    authenticationTokenManager: mockTokenManager,
+    passwordHash: mockPasswordHash,
   });
 
   afterEach(() => {
