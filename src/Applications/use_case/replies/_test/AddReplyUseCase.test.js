@@ -70,17 +70,16 @@ describe('AddReplyUseCase', () => {
       mockReplyRepo.addReply.mockResolvedValue(mockAddedReply);
 
       const addedReply = await addReplyUseCase.execute({ ...dummyPayload });
-
-      expect(mockCommentRepo.isCommentExist).toHaveBeenCalledTimes(1);
-      expect(mockCommentRepo.isCommentExist).toHaveBeenCalledWith(dummyPayload.commentId, dummyPayload.threadId);
-      expect(mockReplyRepo.addReply).toHaveBeenCalledTimes(1);
-      expect(mockReplyRepo.addReply).toHaveBeenCalledWith(new NewReply({ ...dummyPayload }));
-
       expect(addedReply).toStrictEqual(new AddedReply({
         id: 'reply-123',
         content: dummyPayload.content,
         owner: dummyPayload.userId,
       }));
+
+      expect(mockCommentRepo.isCommentExist).toHaveBeenCalledTimes(1);
+      expect(mockCommentRepo.isCommentExist).toHaveBeenCalledWith(dummyPayload.commentId, dummyPayload.threadId);
+      expect(mockReplyRepo.addReply).toHaveBeenCalledTimes(1);
+      expect(mockReplyRepo.addReply).toHaveBeenCalledWith(new NewReply({ ...dummyPayload }));
     });
   });
 });
