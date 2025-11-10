@@ -5,6 +5,8 @@ const UserRepository = require('../../../../Domains/users/UserRepository');
 const AuthenticationRepository = require('../../../../Domains/authentications/AuthenticationRepository');
 const AuthenticationTokenManager = require('../../../security/AuthenticationTokenManager');
 const PaswordHash = require('../../../security/PasswordHash');
+const UserId = require('../../../../Domains/users/entities/UserId');
+const UserPassword = require('../../../../Domains/users/entities/UserPassword');
 
 const dummyPayload = {
   username: 'johndoe',
@@ -52,7 +54,8 @@ describe('AddAuthenticationUseCase', () => {
     });
 
     it('should throw error when password not valid', async () => {
-      mockUserRepo.getIdByUsername.mockResolvedValue('user-123');
+      const mockUserId = new UserId({ id: 'user-123' });
+      mockUserRepo.getIdByUsername.mockResolvedValue(mockUserId);
       mockUserRepo.getPasswordByUsername.mockResolvedValue(null);
 
       await expect(addAuthenticationUseCase.execute({ ...dummyPayload }))
@@ -60,8 +63,11 @@ describe('AddAuthenticationUseCase', () => {
     });
 
     it('should throw error when password not match', async () => {
-      mockUserRepo.getIdByUsername.mockResolvedValue('user-123');
-      mockUserRepo.getPasswordByUsername.mockResolvedValue('encrypted_password');
+      const mockUserId = new UserId({ id: 'user-123' });
+      const mockUserPassword = new UserPassword({ password: 'encrypted_password' });
+
+      mockUserRepo.getIdByUsername.mockResolvedValue(mockUserId);
+      mockUserRepo.getPasswordByUsername.mockResolvedValue(mockUserPassword);
       mockPasswordHash.comparePassword.mockResolvedValue(false);
 
       await expect(addAuthenticationUseCase.execute({ ...dummyPayload }))
@@ -69,8 +75,11 @@ describe('AddAuthenticationUseCase', () => {
     });
 
     it('should propagate error when addToken fails', async () => {
-      mockUserRepo.getIdByUsername.mockResolvedValue('user-123');
-      mockUserRepo.getPasswordByUsername.mockResolvedValue('encrypted_password');
+      const mockUserId = new UserId({ id: 'user-123' });
+      const mockUserPassword = new UserPassword({ password: 'encrypted_password' });
+
+      mockUserRepo.getIdByUsername.mockResolvedValue(mockUserId);
+      mockUserRepo.getPasswordByUsername.mockResolvedValue(mockUserPassword);
       mockPasswordHash.comparePassword.mockResolvedValue(true);
       mockTokenManager.createAccessToken.mockResolvedValue('access_token');
       mockTokenManager.createRefreshToken.mockResolvedValue('refresh_token');
@@ -83,8 +92,11 @@ describe('AddAuthenticationUseCase', () => {
 
   describe('Successful executions', () => {
     it('should correctly orchestrating the add authentication action', async () => {
-      mockUserRepo.getIdByUsername.mockResolvedValue('user-123');
-      mockUserRepo.getPasswordByUsername.mockResolvedValue('encrypted_password');
+      const mockUserId = new UserId({ id: 'user-123' });
+      const mockUserPassword = new UserPassword({ password: 'encrypted_password' });
+
+      mockUserRepo.getIdByUsername.mockResolvedValue(mockUserId);
+      mockUserRepo.getPasswordByUsername.mockResolvedValue(mockUserPassword);
       mockPasswordHash.comparePassword.mockResolvedValue(true);
       mockTokenManager.createAccessToken.mockResolvedValue('access_token');
       mockTokenManager.createRefreshToken.mockResolvedValue('refresh_token');
