@@ -4,26 +4,22 @@ const AuthenticationRepository = require('../../../../Domains/authentications/Au
 const AuthenticationTokenManager = require('../../../security/AuthenticationTokenManager');
 
 describe('PutAuthenticationUseCase', () => {
-  let mockAuthRepo;
-  let mockTokenManager;
-  let putAuthenticationUseCase;
+  const mockAuthRepo = new AuthenticationRepository();
+  mockAuthRepo.isTokenExist = jest.fn();
 
-  beforeEach(() => {
-    mockAuthRepo = new AuthenticationRepository();
-    mockAuthRepo.isTokenExist = jest.fn();
+  const mockTokenManager = new AuthenticationTokenManager();
+  mockTokenManager.verifyRefreshToken = jest.fn();
+  mockTokenManager.createAccessToken = jest.fn();
+  mockTokenManager.decodePayload = jest.fn();
 
-    mockTokenManager = new AuthenticationTokenManager();
-    mockTokenManager.verifyRefreshToken = jest.fn();
-    mockTokenManager.createAccessToken = jest.fn();
-    mockTokenManager.decodePayload = jest.fn();
-
-    putAuthenticationUseCase = new PutAuthenticationUseCase({
-      authenticationRepository: mockAuthRepo,
-      authenticationTokenManager: mockTokenManager,
-    });
+  const putAuthenticationUseCase = new PutAuthenticationUseCase({
+    authenticationRepository: mockAuthRepo,
+    authenticationTokenManager: mockTokenManager,
   });
 
-  afterEach(() => jest.clearAllMocks());
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
 
   describe('Failure cases', () => {
     it('should throw error when payload not provided correctly', async () => {
