@@ -5,12 +5,21 @@ const NotFoundError = require('../NotFoundError');
 const AuthorizationError = require('../AuthorizationError');
 
 describe('DomainErrorTranslator', () => {
-  it('should return original when error is not needed to translate', () => {
+  it('should return original error when error is not needed to translate', () => {
     const error = new Error('some error message');
 
     const translatedError = DomainErrorTranslator.translate(error);
     expect(translatedError).toStrictEqual(error);
   });
+
+  const testTranslator = (errorArray) => {
+    test.each(errorArray)('should translate "$errorMessage" to $expectedError', ({
+      errorMessage, expectedError
+    }) => {
+      expect(DomainErrorTranslator.translate(new Error(errorMessage)))
+        .toStrictEqual(expectedError);
+    });
+  };
 
   describe('Users Use Case', () => {
     const errorArray = [
@@ -20,12 +29,7 @@ describe('DomainErrorTranslator', () => {
       },
     ];
 
-    it.each(errorArray)('should translate "$errorMessage" to $expectedError', ({
-      errorMessage, expectedError
-    }) => {
-      expect(DomainErrorTranslator.translate(new Error(errorMessage)))
-        .toStrictEqual(expectedError);
-    });
+    testTranslator(errorArray);
   });
 
   describe('Authentications Use Case', () => {
@@ -52,12 +56,7 @@ describe('DomainErrorTranslator', () => {
       }
     ];
 
-    it.each(errorArray)('should translate "$errorMessage" to $expectedError', ({
-      errorMessage, expectedError
-    }) => {
-      expect(DomainErrorTranslator.translate(new Error(errorMessage)))
-        .toStrictEqual(expectedError);
-    });
+    testTranslator(errorArray);
   });
 
   describe('Comments Use Case', () => {
@@ -76,12 +75,7 @@ describe('DomainErrorTranslator', () => {
       }
     ];
 
-    it.each(errorArray)('should translate "$errorMessage" to $expectedError', ({
-      errorMessage, expectedError
-    }) => {
-      expect(DomainErrorTranslator.translate(new Error(errorMessage)))
-        .toStrictEqual(expectedError);
-    });
+    testTranslator(errorArray);
   });
 
   describe('Replies Use Case', () => {
@@ -100,11 +94,6 @@ describe('DomainErrorTranslator', () => {
       }
     ];
 
-    it.each(errorArray)('should translate "$errorMessage" to $expectedError', ({
-      errorMessage, expectedError
-    }) => {
-      expect(DomainErrorTranslator.translate(new Error(errorMessage)))
-        .toStrictEqual(expectedError);
-    });
+    testTranslator(errorArray);
   });
 });
