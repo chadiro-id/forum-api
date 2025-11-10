@@ -59,15 +59,10 @@ describe('RegisteredUser Entity', () => {
       expect(fullname).toEqual(payload.fullname);
     });
 
-    it('should correctly create the entity and not contain extra properties', () => {
+    it('should not contain extra properties', () => {
       const extraPayload = { ...dummyPayload, extra: 'extra property' };
 
       const registeredUser = new RegisteredUser(extraPayload);
-
-      expect(registeredUser.id).toEqual(extraPayload.id);
-      expect(registeredUser.username).toEqual(extraPayload.username);
-      expect(registeredUser.fullname).toEqual(extraPayload.fullname);
-
       expect(registeredUser.extra).toBeUndefined();
     });
   });
