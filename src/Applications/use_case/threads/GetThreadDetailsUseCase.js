@@ -1,5 +1,3 @@
-const ThreadDetails = require('../../../Domains/threads/entities/ThreadDetails');
-
 class GetThreadDetailsUseCase {
   constructor({
     threadRepository,
@@ -15,10 +13,6 @@ class GetThreadDetailsUseCase {
     const thread = await this._threadRepository.getThreadDetails(threadId);
     if (thread === null) {
       throw new Error('GET_THREAD_DETAILS_USE_CASE.THREAD_NOT_FOUND');
-    }
-
-    if (thread instanceof ThreadDetails === false) {
-      throw new Error('GET_THREAD_DETAILS_USE_CASE.THREAD_MUST_BE_INSTANCE_OF_THREAD_DETAILS_ENTITY');
     }
 
     const comments = await this._commentRepository.getCommentsByThreadId(threadId);
