@@ -9,17 +9,12 @@ const dummyPayload = {
 };
 
 describe('DeleteCommentUseCase', () => {
-  let mockCommentRepo;
-  let deleteCommentUseCase;
+  const mockCommentRepo = new CommentRepository();
+  mockCommentRepo.getCommentForDeletion = jest.fn();
+  mockCommentRepo.softDeleteCommentById = jest.fn();
 
-  beforeEach(() => {
-    mockCommentRepo = new CommentRepository();
-    mockCommentRepo.getCommentForDeletion = jest.fn();
-    mockCommentRepo.softDeleteCommentById = jest.fn();
-
-    deleteCommentUseCase = new DeleteCommentUseCase({
-      commentRepository: mockCommentRepo,
-    });
+  const deleteCommentUseCase = new DeleteCommentUseCase({
+    commentRepository: mockCommentRepo,
   });
 
   afterEach(() => {
@@ -42,7 +37,8 @@ describe('DeleteCommentUseCase', () => {
     });
 
     it('should throw error when owner not match', async () => {
-      mockCommentRepo.getCommentForDeletion.mockResolvedValue(new CommentOwner({ owner: 'user-999' }));
+      mockCommentRepo.getCommentForDeletion
+        .mockResolvedValue(new CommentOwner({ owner: 'user-999' }));
 
       await expect(deleteCommentUseCase.execute({ ...dummyPayload }))
         .rejects.toThrow('DELETE_COMMENT_USE_CASE.OWNER_NOT_MATCH');
