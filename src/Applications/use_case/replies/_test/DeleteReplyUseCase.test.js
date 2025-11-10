@@ -10,20 +10,17 @@ const dummyPayload = {
 };
 
 describe('DeleteReplyUseCase', () => {
-  let mockReplyRepo;
-  let deleteReplyUseCase;
+  const mockReplyRepo = new ReplyRepository();
+  mockReplyRepo.getReplyForDeletion = jest.fn();
+  mockReplyRepo.softDeleteReplyById = jest.fn();
 
-  beforeEach(() => {
-    mockReplyRepo = new ReplyRepository();
-    mockReplyRepo.getReplyForDeletion = jest.fn();
-    mockReplyRepo.softDeleteReplyById = jest.fn();
-
-    deleteReplyUseCase = new DeleteReplyUseCase({
-      replyRepository: mockReplyRepo,
-    });
+  const deleteReplyUseCase = new DeleteReplyUseCase({
+    replyRepository: mockReplyRepo,
   });
 
-  afterEach(() => jest.clearAllMocks());
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
 
   describe('Failure cases', () => {
     it('should throw error when payload not provided correctly', async () => {
