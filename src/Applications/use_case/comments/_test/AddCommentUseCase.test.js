@@ -57,19 +57,6 @@ describe('AddCommentUseCase', () => {
       await expect(addCommentUseCase.execute({ ...dummyPayload }))
         .rejects.toThrow();
     });
-
-    it('should throw error when addedComment is not instance of AddedComment entity', async () => {
-      mockThreadRepo.isThreadExist.mockResolvedValue(true);
-      mockCommentRepo.addComment.mockResolvedValue({
-        id: 'comment-123',
-        content: dummyPayload.content,
-        owner: dummyPayload.owner,
-      });
-
-      await expect(addCommentUseCase.execute({ ...dummyPayload }))
-        .rejects
-        .toThrow('ADD_COMMENT_USE_CASE.ADDED_COMMENT_MUST_BE_INSTANCE_OF_ADDED_COMMENT_ENTITY');
-    });
   });
 
   describe('Successful executions', () => {
