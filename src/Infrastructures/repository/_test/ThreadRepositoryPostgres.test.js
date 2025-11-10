@@ -77,8 +77,8 @@ describe('[Mock-Based Integration] ThreadRepositoryPostgres', () => {
       });
     });
 
-    describe('getThreadById', () => {
-      it('should correctly resolves and call pool.query', async () => {
+    describe('getThreadDetails', () => {
+      it('should resolves and call pool.query correctly', async () => {
         const expectedQueryText =
           `
           SELECT
@@ -100,7 +100,7 @@ describe('[Mock-Based Integration] ThreadRepositoryPostgres', () => {
           rowCount: 1,
         });
 
-        const thread = await threadRepo.getThreadById('thread-123');
+        const thread = await threadRepo.getThreadDetails('thread-123');
         expect(thread).toBeInstanceOf(ThreadDetails);
 
         expect(mockPool.query).toHaveBeenCalledWith({
@@ -114,14 +114,14 @@ describe('[Mock-Based Integration] ThreadRepositoryPostgres', () => {
           rows: [], rowCount: 0
         });
 
-        const thread = await threadRepo.getThreadById('thread-123');
+        const thread = await threadRepo.getThreadDetails('thread-123');
         expect(thread).toBeNull();
       });
 
       it('should propagate error when database fails', async () => {
         mockPool.query.mockRejectedValue(dbError);
 
-        const promise = threadRepo.getThreadById('id');
+        const promise = threadRepo.getThreadDetails('id');
         await assertDBError(promise);
       });
     });

@@ -83,11 +83,11 @@ describe('[Integration] ThreadRepositoryPostgres', () => {
     });
   });
 
-  describe('getThreadById', () => {
-    it('should resolves and return the ThreadDetails', async () => {
+  describe('getThreadDetails', () => {
+    it('should return ThreadDetails when thread exist', async () => {
       const insertedThread = await pgTest.threads.add({ owner_id: user.id });
 
-      const thread = await threadRepo.getThreadById('thread-001');
+      const thread = await threadRepo.getThreadDetails('thread-001');
       expect(thread).toStrictEqual(new ThreadDetails({
         id: insertedThread.id,
         title: insertedThread.title,
@@ -98,7 +98,7 @@ describe('[Integration] ThreadRepositoryPostgres', () => {
     });
 
     it('should return null when thread not exist', async () => {
-      const thread = await threadRepo.getThreadById('nonexistent-thread-id');
+      const thread = await threadRepo.getThreadDetails('nonexistent-thread-id');
       expect(thread).toBeNull();
     });
   });
