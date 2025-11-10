@@ -10,7 +10,7 @@ describe('UserId Entity', () => {
 
   it('should throw error when payload not contain needed property', () => {
     const missingId = {};
-    const emptyId = {};
+    const emptyId = { id: '' };
 
     expect(() => new UserId(missingId))
       .toThrow('USER_ID.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
