@@ -17,6 +17,10 @@ class GetThreadDetailsUseCase {
       this._commentRepository.getCommentsByThreadId(threadId)
     ]);
 
+    if (thread === null) {
+      throw new Error('GET_THREAD_DETAILS_USE_CASE.THREAD_NOT_FOUND');
+    }
+
     if (thread instanceof ThreadDetails === false) {
       throw new Error('GET_THREAD_DETAILS_USE_CASE.THREAD_MUST_BE_INSTANCE_OF_THREAD_DETAILS_ENTITY');
     }
