@@ -13,7 +13,7 @@ class GetThreadDetailsUseCase {
 
   async execute(threadId) {
     const [thread, comments] = await Promise.all([
-      this._threadRepository.getThreadById(threadId),
+      this._threadRepository.getThreadDetails(threadId),
       this._commentRepository.getCommentsByThreadId(threadId)
     ]);
 
