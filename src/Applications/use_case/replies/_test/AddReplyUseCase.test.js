@@ -12,24 +12,20 @@ const dummyPayload = {
 };
 
 describe('AddReplyUseCase', () => {
-  let mockCommentRepo;
-  let mockReplyRepo;
-  let addReplyUseCase;
+  const mockCommentRepo = new CommentRepository();
+  mockCommentRepo.isCommentExist = jest.fn();
 
-  beforeEach(() => {
-    mockCommentRepo = new CommentRepository();
-    mockCommentRepo.isCommentExist = jest.fn();
+  const mockReplyRepo = new ReplyRepository();
+  mockReplyRepo.addReply = jest.fn();
 
-    mockReplyRepo = new ReplyRepository();
-    mockReplyRepo.addReply = jest.fn();
-
-    addReplyUseCase = new AddReplyUseCase({
-      commentRepository: mockCommentRepo,
-      replyRepository: mockReplyRepo,
-    });
+  const addReplyUseCase = new AddReplyUseCase({
+    commentRepository: mockCommentRepo,
+    replyRepository: mockReplyRepo,
   });
 
-  afterEach(() => jest.clearAllMocks());
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
 
   describe('Failure cases', () => {
     it('should throw error when payload not provided correctly', async () => {
