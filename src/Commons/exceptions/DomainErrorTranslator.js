@@ -13,6 +13,9 @@ const authenticationsUseCaseError = {
   'PUT_AUTHENTICATION_USE_CASE.REFRESH_TOKEN_NOT_VALID': new InvariantError('refresh token tidak valid'),
   'DELETE_AUTHENTICATION_USE_CASE.REFRESH_TOKEN_NOT_FOUND': new InvariantError('refresh token tidak ditemukan di database'),
 };
+const threadsUseCaseError = {
+  'GET_THREAD_DETAILS_USE_CASE.THREAD_NOT_FOUND': new NotFoundError('Thread tidak ditemukan'),
+};
 const commentsUseCaseError = {
   'ADD_COMMENT_USE_CASE.THREAD_NOT_FOUND': new NotFoundError('Thread tidak ditemukan'),
   'DELETE_COMMENT_USE_CASE.COMMENT_NOT_FOUND': new NotFoundError('Komentar tidak ditemukan'),
@@ -28,6 +31,7 @@ const directories = Object.assign(
   {},
   usersUseCaseError,
   authenticationsUseCaseError,
+  threadsUseCaseError,
   commentsUseCaseError,
   repliesUseCaseError
 );

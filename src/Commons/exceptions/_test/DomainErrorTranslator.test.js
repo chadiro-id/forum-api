@@ -59,6 +59,17 @@ describe('DomainErrorTranslator', () => {
     testTranslator(errorArray);
   });
 
+  describe('Threads Use Case', () => {
+    const errorArray = [
+      {
+        errorMessage: 'GET_THREAD_DETAILS_USE_CASE.THREAD_NOT_FOUND',
+        expectedError: new NotFoundError('Thread tidak ditemukan'),
+      },
+    ];
+
+    testTranslator(errorArray);
+  });
+
   describe('Comments Use Case', () => {
     const errorArray = [
       {
