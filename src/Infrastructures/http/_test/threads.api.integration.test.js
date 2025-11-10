@@ -216,5 +216,18 @@ describe('[Integration] Threads Endpoints', () => {
         },
       ]);
     });
+
+    it('should response 404 when thread not exist', async () => {
+      const expectedResJson = {
+        status: 'fail',
+        message: 'Thread tidak ditemukan'
+      };
+
+      const response = await serverTest.get('/threads/xxx');
+      expect(response.statusCode).toBe(404);
+
+      const resJson = JSON.parse(response.payload);
+      expect(resJson).toStrictEqual(expectedResJson);
+    });
   });
 });
