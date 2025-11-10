@@ -11,21 +11,15 @@ const dummyPayload = {
 };
 
 describe('AddCommentUseCase', () => {
-  let mockThreadRepo;
-  let mockCommentRepo;
-  let addCommentUseCase;
+  const mockThreadRepo = new ThreadRepository();
+  mockThreadRepo.isThreadExist = jest.fn();
 
-  beforeEach(() => {
-    mockThreadRepo = new ThreadRepository();
-    mockThreadRepo.isThreadExist = jest.fn();
+  const mockCommentRepo = new CommentRepository();
+  mockCommentRepo.addComment = jest.fn();
 
-    mockCommentRepo = new CommentRepository();
-    mockCommentRepo.addComment = jest.fn();
-
-    addCommentUseCase = new AddCommentUseCase({
-      commentRepository: mockCommentRepo,
-      threadRepository: mockThreadRepo,
-    });
+  const addCommentUseCase = new AddCommentUseCase({
+    commentRepository: mockCommentRepo,
+    threadRepository: mockThreadRepo,
   });
 
   afterEach(() => {
