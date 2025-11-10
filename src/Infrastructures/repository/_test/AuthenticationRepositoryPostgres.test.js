@@ -9,17 +9,11 @@ describe('[Mock-Based Integration] AuthenticationRepositoryPostgres', () => {
   });
 
   describe('Postgres Interaction', () => {
-    let mockPool;
-    let dbError;
-    let authenticationRepo;
-
-    beforeEach(() => {
-      mockPool = {
-        query: jest.fn(),
-      };
-      dbError = new Error('Database fails');
-      authenticationRepo = new AuthenticationRepositoryPostgres(mockPool);
-    });
+    const mockPool = {
+      query: jest.fn(),
+    };
+    const dbError = new Error('Database fails');
+    const authenticationRepo = new AuthenticationRepositoryPostgres(mockPool);
 
     afterEach(() => {
       jest.clearAllMocks();
@@ -27,17 +21,13 @@ describe('[Mock-Based Integration] AuthenticationRepositoryPostgres', () => {
 
     describe('addToken', () => {
       it('should resolves and call pool.query correctly', async () => {
-        const calledQuery = {
-          text: 'INSERT INTO authentications VALUES ($1)',
-          values: ['token'],
-        };
-
+        const expectedQueryText = 'INSERT INTO authentications VALUES ($1)';
         mockPool.query.mockResolvedValue();
 
         await expect(authenticationRepo.addToken('token'))
           .resolves.not.toThrow();
 
-        assertQueryCalled(mockPool.query, calledQuery);
+        assertQueryCalled(mockPool.query, expectedQueryText, ['token']);
       });
 
       it('should propagate error when database fails', async () => {
@@ -50,17 +40,13 @@ describe('[Mock-Based Integration] AuthenticationRepositoryPostgres', () => {
 
     describe('deleteToken', () => {
       it('should resolves and call pool.query correctly', async () => {
-        const calledQuery = {
-          text: 'DELETE FROM authentications WHERE token = $1',
-          values: ['token'],
-        };
-
+        const expectedQueryText = 'DELETE FROM authentications WHERE token = $1';
         mockPool.query.mockResolvedValue();
 
         await expect(authenticationRepo.deleteToken('token'))
           .resolves.not.toThrow();
 
-        assertQueryCalled(mockPool.query, calledQuery);
+        assertQueryCalled(mockPool.query, expectedQueryText, ['token']);
       });
 
       it('should propagate error when database fails', async () => {
@@ -73,11 +59,7 @@ describe('[Mock-Based Integration] AuthenticationRepositoryPostgres', () => {
 
     describe('isTokenExist', () => {
       it('should return true when token exist', async () => {
-        const calledQuery = {
-          text: 'SELECT token FROM authentications WHERE token = $1',
-          values: ['refresh-token'],
-        };
-
+        const expectedQueryText = 'SELECT token FROM authentications WHERE token = $1';
         mockPool.query.mockResolvedValue({
           rows: [{ token: 'refresh-token' }],
           rowCount: 1,
@@ -86,7 +68,7 @@ describe('[Mock-Based Integration] AuthenticationRepositoryPostgres', () => {
         const result = await authenticationRepo.isTokenExist('refresh-token');
         expect(result).toBe(true);
 
-        assertQueryCalled(mockPool.query, calledQuery);
+        assertQueryCalled(mockPool.query, expectedQueryText, ['refresh-token']);
       });
 
       it('should return false when token not exist', async () => {
