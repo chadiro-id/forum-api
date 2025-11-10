@@ -87,12 +87,11 @@ describe('GetThreadDetailsUseCase', () => {
   describe('Failure cases', () => {
     it('should propagate error when getThreadDetails fails', async () => {
       mockThreadRepo.getThreadDetails.mockRejectedValue(new Error('fails'));
-      mockCommentRepo.getCommentsByThreadId.mockResolvedValue([]);
 
       await expect(getThreadDetailsUseCase.execute('thread-123'))
         .rejects.toThrow();
 
-      expect(mockReplyRepo.getRepliesByCommentIds).not.toHaveBeenCalled();
+      expect(mockCommentRepo.getCommentsByThreadId).not.toHaveBeenCalled();
     });
 
     it('should throw error when thread not exist', async () => {
@@ -100,6 +99,8 @@ describe('GetThreadDetailsUseCase', () => {
 
       await expect(getThreadDetailsUseCase.execute('thread-123'))
         .rejects.toThrow('GET_THREAD_DETAILS_USE_CASE.THREAD_NOT_FOUND');
+
+      expect(mockCommentRepo.getCommentsByThreadId).not.toHaveBeenCalled();
     });
 
     it('should throw error when thread not instance of ThreadDetails entity', async () => {
@@ -110,7 +111,7 @@ describe('GetThreadDetailsUseCase', () => {
         .rejects
         .toThrow('GET_THREAD_DETAILS_USE_CASE.THREAD_MUST_BE_INSTANCE_OF_THREAD_DETAILS_ENTITY');
 
-      expect(mockReplyRepo.getRepliesByCommentIds).not.toHaveBeenCalled();
+      expect(mockCommentRepo.getCommentsByThreadId).not.toHaveBeenCalled();
     });
 
     it('should propagate error when getCommentsByThreadId fails', async () => {
