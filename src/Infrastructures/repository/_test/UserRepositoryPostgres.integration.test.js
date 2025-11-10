@@ -3,6 +3,8 @@ const RegisteredUser = require('../../../Domains/users/entities/RegisteredUser')
 const UserRepositoryPostgres = require('../UserRepositoryPostgres');
 const pgTest = require('../../../../tests/helper/postgres');
 const { assertDBError } = require('../../../../tests/helper/assertionsHelper');
+const UserId = require('../../../Domains/users/entities/UserId');
+const UserPassword = require('../../../Domains/users/entities/UserPassword');
 
 beforeAll(async () => {
   await pgTest.truncate();
@@ -74,7 +76,7 @@ describe('[Integration] UserRepositoryPostgres', () => {
       await pgTest.users.add({ id: 'user-321', username: 'johndoe' });
 
       const userId = await userRepo.getIdByUsername('johndoe');
-      expect(userId).toStrictEqual('user-321');
+      expect(userId).toStrictEqual(new UserId({ id: 'user-321' }));
     });
 
     it('should return null when username not exist', async () => {
@@ -91,7 +93,7 @@ describe('[Integration] UserRepositoryPostgres', () => {
       });
 
       const password = await userRepo.getPasswordByUsername('johndoe');
-      expect(password).toBe('secret_password');
+      expect(password).toStrictEqual(new UserPassword({ password: 'secret_password' }));
     });
 
     it('should return null when username not exist', async () => {

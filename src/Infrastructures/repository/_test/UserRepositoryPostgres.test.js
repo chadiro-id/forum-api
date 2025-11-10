@@ -3,6 +3,8 @@ const RegisterUser = require('../../../Domains/users/entities/RegisterUser');
 const UserRepository = require('../../../Domains/users/UserRepository');
 const UserRepositoryPostgres = require('../UserRepositoryPostgres');
 const { assertQueryCalled, assertDBError } = require('../../../../tests/helper/assertionsHelper');
+const UserId = require('../../../Domains/users/entities/UserId');
+const UserPassword = require('../../../Domains/users/entities/UserPassword');
 
 describe('[Mock-Based Integration] UserRepositoryPostgres', () => {
   it('must be an instance of UserRepository', () => {
@@ -66,8 +68,8 @@ describe('[Mock-Based Integration] UserRepositoryPostgres', () => {
           rowCount: 1,
         });
 
-        const id = await userRepo.getIdByUsername('johndoe');
-        expect(id).toEqual('user-123');
+        const userId = await userRepo.getIdByUsername('johndoe');
+        expect(userId).toEqual(new UserId({ id: 'user-123' }));
 
         assertQueryCalled(mockPool.query, queryText, ['johndoe']);
       });
@@ -98,7 +100,7 @@ describe('[Mock-Based Integration] UserRepositoryPostgres', () => {
         });
 
         const password = await userRepo.getPasswordByUsername('johndoe');
-        expect(password).toEqual('supersecret');
+        expect(password).toEqual(new UserPassword({ password: 'supersecret' }));
 
         assertQueryCalled(mockPool.query, queryText, ['johndoe']);
       });
