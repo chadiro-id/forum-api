@@ -11,22 +11,16 @@ const dummyPayload = {
 };
 
 describe('AddUserUseCase', () => {
-  let mockUserRepo;
-  let mockPasswordHash;
-  let addUserUseCase;
+  const mockUserRepo = new UserRepository();
+  mockUserRepo.addUser = jest.fn();
+  mockUserRepo.isUsernameExist = jest.fn();
 
-  beforeEach(() => {
-    mockUserRepo = new UserRepository();
-    mockUserRepo.addUser = jest.fn();
-    mockUserRepo.isUsernameExist = jest.fn();
+  const mockPasswordHash = new PasswordHash();
+  mockPasswordHash.hash = jest.fn();
 
-    mockPasswordHash = new PasswordHash();
-    mockPasswordHash.hash = jest.fn();
-
-    addUserUseCase = new AddUserUseCase({
-      userRepository: mockUserRepo,
-      passwordHash: mockPasswordHash,
-    });
+  const addUserUseCase = new AddUserUseCase({
+    userRepository: mockUserRepo,
+    passwordHash: mockPasswordHash,
   });
 
   afterEach(() => {
