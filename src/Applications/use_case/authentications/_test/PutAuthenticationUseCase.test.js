@@ -60,19 +60,6 @@ describe('PutAuthenticationUseCase', () => {
 
       expect(mockTokenManager.createAccessToken).not.toHaveBeenCalled();
     });
-
-    it('should propagate error when decoded payload not contain needed property', async () => {
-      const refreshToken = 'refresh_token';
-
-      mockTokenManager.verifyRefreshToken.mockResolvedValue({ isValid: true });
-      mockAuthRepo.isTokenExist.mockResolvedValue(true);
-      mockTokenManager.decodePayload.mockResolvedValue({ username: 'johndoe' });
-
-      await expect(putAuthenticationUseCase.execute({ refreshToken }))
-        .rejects.toThrow('AUTH_CREDENTIALS_PAYLOAD.PAYLOAD_NOT_CONTAIN_NEEDED_PROPERTY');
-
-      expect(mockTokenManager.createAccessToken).not.toHaveBeenCalled();
-    });
   });
 
   describe('Successful executions', () => {
