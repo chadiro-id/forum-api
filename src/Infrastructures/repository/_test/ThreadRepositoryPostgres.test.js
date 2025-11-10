@@ -5,13 +5,6 @@ const ThreadRepository = require('../../../Domains/threads/ThreadRepository');
 const ThreadRepositoryPostgres = require('../ThreadRepositoryPostgres');
 const { assertQueryCalled, assertDBError } = require('../../../../tests/helper/assertionsHelper');
 const { createRawThread } = require('../../../../tests/util');
-require('../../../../tests/matcher/queryMatcher');
-
-let fixedTime;
-beforeAll(() => {
-  fixedTime = new Date();
-  jest.setSystemTime(fixedTime);
-});
 
 describe('[Mock-Based Integration] ThreadRepositoryPostgres', () => {
   it('must be an instance of ThreadRepository', () => {
@@ -48,7 +41,7 @@ describe('[Mock-Based Integration] ThreadRepositoryPostgres', () => {
             id, title, owner_id
           `;
         const expectedQueryValues = [
-          'thread-123', 'Sebuah thread', 'Isi thread', 'user-123', fixedTime
+          'thread-123', 'Sebuah thread', 'Isi thread', 'user-123', new Date()
         ];
 
         mockPool.query.mockResolvedValue({
@@ -63,10 +56,7 @@ describe('[Mock-Based Integration] ThreadRepositoryPostgres', () => {
         }));
         expect(addedThread).toBeInstanceOf(AddedThread);
 
-        expect(mockPool.query).toHaveBeenCalledWith({
-          text: expect.toMatchQueryText(expectedQueryText),
-          values: expectedQueryValues,
-        });
+        assertQueryCalled(mockPool.query, expectedQueryText, expectedQueryValues);
       });
 
       it('should propagate error when database fails', async () => {
@@ -103,10 +93,7 @@ describe('[Mock-Based Integration] ThreadRepositoryPostgres', () => {
         const thread = await threadRepo.getThreadDetails('thread-123');
         expect(thread).toBeInstanceOf(ThreadDetails);
 
-        expect(mockPool.query).toHaveBeenCalledWith({
-          text: expect.toMatchQueryText(expectedQueryText),
-          values: ['thread-123'],
-        });
+        assertQueryCalled(mockPool.query, expectedQueryText, ['thread-123']);
       });
 
       it('should return null when thread not exist', async () => {
@@ -128,10 +115,7 @@ describe('[Mock-Based Integration] ThreadRepositoryPostgres', () => {
 
     describe('isThreadExist', () => {
       it('should return true when thread exist', async () => {
-        const calledQuery = {
-          text: 'SELECT id FROM threads WHERE id = $1',
-          values: ['thread-123'],
-        };
+        const expectedQueryText = 'SELECT id FROM threads WHERE id = $1';
         mockPool.query.mockResolvedValue({
           rows: [{ id: 'thread-123' }],
           rowCount: 1,
@@ -140,7 +124,7 @@ describe('[Mock-Based Integration] ThreadRepositoryPostgres', () => {
         const result = await threadRepo.isThreadExist('thread-123');
         expect(result).toBe(true);
 
-        assertQueryCalled(mockPool.query, calledQuery);
+        assertQueryCalled(mockPool.query, expectedQueryText, ['thread-123']);
       });
 
       it('should return false when thread not exist', async () => {
