@@ -31,7 +31,7 @@ class ThreadRepositoryPostgres extends ThreadRepository {
     return ThreadMapper.mapAddedThreadToDomain(result.rows[0]);
   }
 
-  async getThreadById(id) {
+  async getThreadDetails(id) {
     const query = {
       text: `
       SELECT
