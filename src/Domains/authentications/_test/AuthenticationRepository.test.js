@@ -1,17 +1,15 @@
 const AuthenticationRepository = require('../AuthenticationRepository');
 
 describe('AuthenticationRepository', () => {
-  it('should throw error with properly message when abstract method invoked', async () => {
-    const authenticationRepository = new AuthenticationRepository();
+  const authenticationRepository = new AuthenticationRepository();
+  const methods = [
+    authenticationRepository.addToken,
+    authenticationRepository.deleteToken,
+    authenticationRepository.isTokenExist,
+  ];
 
-    await expect(authenticationRepository.addToken())
-      .rejects
-      .toThrow('AUTHENTICATION_REPOSITORY.METHOD_NOT_IMPLEMENTED');
-    await expect(authenticationRepository.deleteToken())
-      .rejects
-      .toThrow('AUTHENTICATION_REPOSITORY.METHOD_NOT_IMPLEMENTED');
-    await expect(authenticationRepository.isTokenExist())
-      .rejects
-      .toThrow('AUTHENTICATION_REPOSITORY.METHOD_NOT_IMPLEMENTED');
+  test.each(methods)('should throw error when abstract behavior invoked %p', async (fn) => {
+    await expect(fn())
+      .rejects.toThrow('AUTHENTICATION_REPOSITORY.METHOD_NOT_IMPLEMENTED');
   });
 });
