@@ -10,19 +10,16 @@ const dummyPayload = {
 };
 
 describe('AddThreadUseCase', () => {
-  let mockThreadRepo;
-  let addThreadUseCase;
+  const mockThreadRepo = new ThreadRepository();
+  mockThreadRepo.addThread = jest.fn();
 
-  beforeEach(() => {
-    mockThreadRepo = new ThreadRepository();
-    mockThreadRepo.addThread = jest.fn();
-
-    addThreadUseCase = new AddThreadUseCase({
-      threadRepository: mockThreadRepo,
-    });
+  const addThreadUseCase = new AddThreadUseCase({
+    threadRepository: mockThreadRepo,
   });
 
-  afterEach(() => jest.clearAllMocks());
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
 
   describe('Failure cases', () => {
     it('should throw error when payload not provided correctly', async () => {

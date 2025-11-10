@@ -65,29 +65,24 @@ const dummyReplies = [
 ];
 
 describe('GetThreadDetailsUseCase', () => {
-  let mockThreadRepo;
-  let mockCommentRepo;
-  let mockReplyRepo;
-  let getThreadDetailsUseCase;
+  const mockThreadRepo = new ThreadRepository();
+  mockThreadRepo.getThreadById = jest.fn();
 
-  beforeEach(() => {
-    mockThreadRepo = new ThreadRepository();
-    mockThreadRepo.getThreadById = jest.fn();
+  const mockCommentRepo = new CommentRepository();
+  mockCommentRepo.getCommentsByThreadId = jest.fn();
 
-    mockCommentRepo = new CommentRepository();
-    mockCommentRepo.getCommentsByThreadId = jest.fn();
+  const mockReplyRepo = new ReplyRepository();
+  mockReplyRepo.getRepliesByCommentIds = jest.fn();
 
-    mockReplyRepo = new ReplyRepository();
-    mockReplyRepo.getRepliesByCommentIds = jest.fn();
-
-    getThreadDetailsUseCase = new GetThreadDetailsUseCase({
-      threadRepository: mockThreadRepo,
-      commentRepository: mockCommentRepo,
-      replyRepository: mockReplyRepo,
-    });
+  const getThreadDetailsUseCase = new GetThreadDetailsUseCase({
+    threadRepository: mockThreadRepo,
+    commentRepository: mockCommentRepo,
+    replyRepository: mockReplyRepo,
   });
 
-  afterEach(() => jest.clearAllMocks());
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
 
   describe('Failure cases', () => {
     it('should propagate error when thread repository fails', async () => {
