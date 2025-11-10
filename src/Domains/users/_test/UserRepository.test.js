@@ -1,20 +1,16 @@
 const UserRepository = require('../UserRepository');
 
 describe('UserRepository', () => {
-  it('should throw error with properly message when abstract method invoked', async () => {
-    const userRepository = new UserRepository();
+  const userRepository = new UserRepository();
+  const methods = [
+    userRepository.addUser,
+    userRepository.getIdByUsername,
+    userRepository.getPasswordByUsername,
+    userRepository.isUsernameExist,
+  ];
 
-    await expect(userRepository.addUser())
-      .rejects
-      .toThrow('USER_REPOSITORY.METHOD_NOT_IMPLEMENTED');
-    await expect(userRepository.getPasswordByUsername())
-      .rejects
-      .toThrow('USER_REPOSITORY.METHOD_NOT_IMPLEMENTED');
-    await expect(userRepository.getIdByUsername())
-      .rejects
-      .toThrow('USER_REPOSITORY.METHOD_NOT_IMPLEMENTED');
-    await expect(userRepository.isUsernameExist())
-      .rejects
-      .toThrow('USER_REPOSITORY.METHOD_NOT_IMPLEMENTED');
+  test.each(methods)('should throw error when abstract behavior invoked %p', async (fn) => {
+    await expect(fn())
+      .rejects.toThrow('USER_REPOSITORY.METHOD_NOT_IMPLEMENTED');
   });
 });
