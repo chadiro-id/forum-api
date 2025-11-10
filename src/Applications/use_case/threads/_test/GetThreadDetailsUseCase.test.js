@@ -172,5 +172,33 @@ describe('GetThreadDetailsUseCase', () => {
       expect(mockReplyRepo.getRepliesByCommentIds).toHaveBeenCalledTimes(1);
       expect(mockReplyRepo.getRepliesByCommentIds).toHaveBeenCalledWith([...comments.map((c) => c.id)]);
     });
+
+    it('should correctly handle empty comments', async () => {
+      const expectedThread = new ThreadDetails({ ...dummyThread });
+
+      mockThreadRepo.getThreadDetails.mockResolvedValue(new ThreadDetails({ ...dummyThread }));
+      mockCommentRepo.getCommentsByThreadId.mockResolvedValue([]);
+
+      const threadDetails = await getThreadDetailsUseCase.execute('thread-123');
+      expect(threadDetails).toStrictEqual(expectedThread);
+
+      expect(mockReplyRepo.getRepliesByCommentIds).not.toHaveBeenCalled();
+    });
+
+    it('should correctly handle empty replies', async () => {
+      const comments = [
+        new Comment({ ...dummyComments[0] }),
+      ];
+
+      const expectedThread = new ThreadDetails({ ...dummyThread });
+      expectedThread.comments = comments;
+
+      mockThreadRepo.getThreadDetails.mockResolvedValue(new ThreadDetails({ ...dummyThread }));
+      mockCommentRepo.getCommentsByThreadId.mockResolvedValue([...comments]);
+      mockReplyRepo.getRepliesByCommentIds.mockResolvedValue([]);
+
+      const threadDetails = await getThreadDetailsUseCase.execute('thread-123');
+      expect(threadDetails).toStrictEqual(expectedThread);
+    });
   });
 });
