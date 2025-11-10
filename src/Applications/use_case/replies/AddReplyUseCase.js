@@ -1,4 +1,3 @@
-const AddedReply = require('../../../Domains/replies/entities/AddedReply');
 const NewReply = require('../../../Domains/replies/entities/NewReply');
 
 class AddReplyUseCase {
@@ -19,12 +18,7 @@ class AddReplyUseCase {
       throw new Error('ADD_REPLY_USE_CASE.COMMENT_NOT_FOUND');
     }
 
-    const addedReply = await this._replyRepository.addReply(newReply);
-    if (addedReply instanceof AddedReply === false) {
-      throw new Error('ADD_REPLY_USE_CASE.ADDED_REPLY_MUST_BE_INSTANCE_OF_ADDED_REPLY_ENTITY');
-    }
-
-    return addedReply;
+    return this._replyRepository.addReply(newReply);
   }
 }
 
