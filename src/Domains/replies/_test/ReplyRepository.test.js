@@ -1,20 +1,16 @@
 const ReplyRepository = require('../ReplyRepository');
 
 describe('ReplyRepository', () => {
-  it('should throw error with properly message when abstract method invoked', async () => {
-    const replyRepository = new ReplyRepository();
+  const replyRepository = new ReplyRepository();
+  const methods = [
+    replyRepository.addReply,
+    replyRepository.getRepliesByCommentIds,
+    replyRepository.getReplyForDeletion,
+    replyRepository.softDeleteReplyById,
+  ];
 
-    await expect(replyRepository.addReply())
-      .rejects
-      .toThrow('REPLY_REPOSITORY.METHOD_NOT_IMPLEMENTED');
-    await expect(replyRepository.getRepliesByCommentIds())
-      .rejects
-      .toThrow('REPLY_REPOSITORY.METHOD_NOT_IMPLEMENTED');
-    await expect(replyRepository.getReplyForDeletion())
-      .rejects
-      .toThrow('REPLY_REPOSITORY.METHOD_NOT_IMPLEMENTED');
-    await expect(replyRepository.softDeleteReplyById())
-      .rejects
-      .toThrow('REPLY_REPOSITORY.METHOD_NOT_IMPLEMENTED');
+  test.each(methods)('should throw error when abstract behavior invoked %p', async (fn) => {
+    await expect(fn())
+      .rejects.toThrow('REPLY_REPOSITORY.METHOD_NOT_IMPLEMENTED');
   });
 });
