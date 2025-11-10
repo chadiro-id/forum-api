@@ -1,16 +1,16 @@
 const AuthenticationTokenManager = require('../AuthenticationTokenManager');
 
 describe('AuthenticationTokenManager', () => {
-  it('should throw error with properly message when abstract method invoked', async () => {
-    const tokenManager = new AuthenticationTokenManager();
+  const authTokenManager = new AuthenticationTokenManager();
+  const methods = [
+    authTokenManager.createAccessToken,
+    authTokenManager.createRefreshToken,
+    authTokenManager.verifyRefreshToken,
+    authTokenManager.decodePayload,
+  ];
 
-    await expect(tokenManager.createAccessToken({}))
-      .rejects.toThrow('AUTHENTICATION_TOKEN_MANAGER.METHOD_NOT_IMPLEMENTED');
-    await expect(tokenManager.createRefreshToken({}))
-      .rejects.toThrow('AUTHENTICATION_TOKEN_MANAGER.METHOD_NOT_IMPLEMENTED');
-    await expect(tokenManager.verifyRefreshToken('token'))
-      .rejects.toThrow('AUTHENTICATION_TOKEN_MANAGER.METHOD_NOT_IMPLEMENTED');
-    await expect(tokenManager.decodePayload('token'))
+  test.each(methods)('should throw error when abstract behavior invoked %p', async (fn) => {
+    await expect(fn())
       .rejects.toThrow('AUTHENTICATION_TOKEN_MANAGER.METHOD_NOT_IMPLEMENTED');
   });
 });
