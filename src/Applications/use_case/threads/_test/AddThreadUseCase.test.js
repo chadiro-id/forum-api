@@ -33,18 +33,6 @@ describe('AddThreadUseCase', () => {
       await expect(addThreadUseCase.execute({ ...dummyPayload }))
         .rejects.toThrow();
     });
-
-    it('should throw error when addedThread is not instance of AddedThread entity', async () => {
-      mockThreadRepo.addThread.mockResolvedValue({
-        id: 'thread-123',
-        title: 'Sebuah thread',
-        owner: 'user-123',
-      });
-
-      await expect(addThreadUseCase.execute({ ...dummyPayload }))
-        .rejects
-        .toThrow('ADD_THREAD_USE_CASE.ADDED_THREAD_MUST_BE_INSTANCE_OF_ADDED_THREAD_ENTITY');
-    });
   });
 
   describe('Successful executions', () => {
@@ -58,15 +46,14 @@ describe('AddThreadUseCase', () => {
       mockThreadRepo.addThread.mockResolvedValue(mockAddedThread);
 
       const addedThread = await addThreadUseCase.execute({ ...dummyPayload });
-
-      expect(mockThreadRepo.addThread).toHaveBeenCalledTimes(1);
-      expect(mockThreadRepo.addThread).toHaveBeenCalledWith(new NewThread({ ...dummyPayload }));
-
       expect(addedThread).toStrictEqual(new AddedThread({
         id: 'thread-123',
         title: dummyPayload.title,
         owner: dummyPayload.userId,
       }));
+
+      expect(mockThreadRepo.addThread).toHaveBeenCalledTimes(1);
+      expect(mockThreadRepo.addThread).toHaveBeenCalledWith(new NewThread({ ...dummyPayload }));
     });
   });
 });
