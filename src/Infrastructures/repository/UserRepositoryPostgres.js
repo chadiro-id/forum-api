@@ -1,4 +1,6 @@
 const RegisteredUser = require('../../Domains/users/entities/RegisteredUser');
+const UserId = require('../../Domains/users/entities/UserId');
+const UserPassword = require('../../Domains/users/entities/UserPassword');
 const UserRepository = require('../../Domains/users/UserRepository');
 
 class UserRepositoryPostgres extends UserRepository {
@@ -33,7 +35,7 @@ class UserRepositoryPostgres extends UserRepository {
       return null;
     }
 
-    return result.rows[0].id;
+    return new UserId({ ...result.rows[0] });
   }
 
   async getPasswordByUsername(username) {
@@ -47,7 +49,7 @@ class UserRepositoryPostgres extends UserRepository {
       return null;
     }
 
-    return result.rows[0].password;
+    return new UserPassword({ ...result.rows[0] });
   }
 
   async isUsernameExist(username) {
