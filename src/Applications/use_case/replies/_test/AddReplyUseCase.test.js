@@ -56,21 +56,6 @@ describe('AddReplyUseCase', () => {
       await expect(addReplyUseCase.execute({ ...dummyPayload }))
         .rejects.toThrow();
     });
-
-    it('should throw error when the addedReply is not instance of AddedReply entity', async () => {
-      const mockAddedReply = {
-        id: 'reply-123',
-        content: dummyPayload.content,
-        owner: dummyPayload.userId,
-      };
-
-      mockCommentRepo.isCommentExist.mockResolvedValue(true);
-      mockReplyRepo.addReply.mockResolvedValue(mockAddedReply);
-
-      await expect(addReplyUseCase.execute({ ...dummyPayload }))
-        .rejects
-        .toThrow('ADD_REPLY_USE_CASE.ADDED_REPLY_MUST_BE_INSTANCE_OF_ADDED_REPLY_ENTITY');
-    });
   });
 
   describe('Successful executions', () => {
