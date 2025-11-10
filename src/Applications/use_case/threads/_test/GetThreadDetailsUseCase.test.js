@@ -85,7 +85,7 @@ describe('GetThreadDetailsUseCase', () => {
   });
 
   describe('Failure cases', () => {
-    it('should propagate error when thread repository fails', async () => {
+    it('should propagate error when getThreadDetails fails', async () => {
       mockThreadRepo.getThreadDetails.mockRejectedValue(new Error('fails'));
       mockCommentRepo.getCommentsByThreadId.mockResolvedValue([]);
 
@@ -95,7 +95,7 @@ describe('GetThreadDetailsUseCase', () => {
       expect(mockReplyRepo.getRepliesByCommentIds).not.toHaveBeenCalled();
     });
 
-    it('should propagate error when comment repository fails', async () => {
+    it('should propagate error when getCommentsByThreadId fails', async () => {
       mockThreadRepo.getThreadDetails.mockResolvedValue(new ThreadDetails({ ...dummyThread }));
       mockCommentRepo.getCommentsByThreadId.mockRejectedValue(new Error('fails'));
 
@@ -105,7 +105,7 @@ describe('GetThreadDetailsUseCase', () => {
       expect(mockReplyRepo.getRepliesByCommentIds).not.toHaveBeenCalled();
     });
 
-    it('should propagate error when reply repository fails', async () => {
+    it('should propagate error when getRepliesByCommentIds fails', async () => {
       const comment1 = new Comment({ ...dummyComments[0] });
       const comment2 = new Comment({ ...dummyComments[1] });
 
@@ -130,7 +130,7 @@ describe('GetThreadDetailsUseCase', () => {
   });
 
   describe('Successful executions', () => {
-    it('should correctly orchestrating the get detail thread action', async () => {
+    it('should correctly orchestrating the get thread details action', async () => {
       const comments = [
         new Comment({ ...dummyComments[0] }),
         new Comment({ ...dummyComments[1] }),
