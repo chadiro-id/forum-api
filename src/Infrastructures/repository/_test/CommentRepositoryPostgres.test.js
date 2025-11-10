@@ -6,7 +6,6 @@ const CommentOwner = require('../../../Domains/comments/entities/CommentOwner');
 const CommentRepositoryPostgres = require('../CommentRepositoryPostgres');
 const { createRawComment } = require('../../../../tests/util');
 const { assertQueryCalled, assertDBError } = require('../../../../tests/helper/assertionsHelper');
-require('../../../../tests/matcher/queryMatcher');
 
 describe('[Mock-Based Integration] CommentRepositoryPostgres', () => {
   it('must be an instance of CommentRepository', () => {
