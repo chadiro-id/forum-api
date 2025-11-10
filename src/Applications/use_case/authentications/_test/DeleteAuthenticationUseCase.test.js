@@ -2,20 +2,17 @@ const DeleteAuthenticationUseCase = require('../DeleteAuthenticationUseCase');
 const AuthenticationRepository = require('../../../../Domains/authentications/AuthenticationRepository');
 
 describe('DeleteAuthenticationUseCase', () => {
-  let mockAuthRepo;
-  let deleteAuthenticationUseCase;
+  const mockAuthRepo = new AuthenticationRepository();
+  mockAuthRepo.isTokenExist = jest.fn();
+  mockAuthRepo.deleteToken = jest.fn();
 
-  beforeEach(() => {
-    mockAuthRepo = new AuthenticationRepository();
-    mockAuthRepo.isTokenExist = jest.fn();
-    mockAuthRepo.deleteToken = jest.fn();
-
-    deleteAuthenticationUseCase = new DeleteAuthenticationUseCase({
-      authenticationRepository: mockAuthRepo,
-    });
+  const deleteAuthenticationUseCase = new DeleteAuthenticationUseCase({
+    authenticationRepository: mockAuthRepo,
   });
 
-  afterEach(() => jest.clearAllMocks());
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
 
   describe('Failure cases', () => {
     it('should throw error when payload not provided correctly', async () => {
