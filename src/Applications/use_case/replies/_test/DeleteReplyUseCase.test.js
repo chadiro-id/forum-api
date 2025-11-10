@@ -67,7 +67,7 @@ describe('DeleteReplyUseCase', () => {
   });
 
   describe('Successfull executions', () => {
-    it('should correctly orchestrating the delete reply action', async () => {
+    it('should correctly orchestrating the delete action', async () => {
       const { threadId, commentId, replyId, userId } = dummyPayload;
 
       mockReplyRepo.getReplyForDeletion.mockResolvedValue(new ReplyOwner({ owner: userId }));
