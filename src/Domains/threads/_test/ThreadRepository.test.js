@@ -1,17 +1,14 @@
 const ThreadRepository = require('../ThreadRepository');
 
 describe('ThreadRepository', () => {
-  it('should throw error with properly message when abstract method invoked', async () => {
-    const threadRepository = new ThreadRepository();
+  const threadRepository = new ThreadRepository();
+  const methods = [
+    threadRepository.addThread,
+    threadRepository.getThreadDetails,
+    threadRepository.isThreadExist,
+  ];
 
-    await expect(threadRepository.addThread())
-      .rejects
-      .toThrow('THREAD_REPOSITORY.METHOD_NOT_IMPLEMENTED');
-    await expect(threadRepository.getThreadById())
-      .rejects
-      .toThrow('THREAD_REPOSITORY.METHOD_NOT_IMPLEMENTED');
-    await expect(threadRepository.isThreadExist())
-      .rejects
-      .toThrow('THREAD_REPOSITORY.METHOD_NOT_IMPLEMENTED');
+  test.each(methods)('should throw error when abstract behavior invoked %p', async (fn) => {
+    await expect(fn()).rejects.toThrow('THREAD_REPOSITORY.METHOD_NOT_IMPLEMENTED');
   });
 });
