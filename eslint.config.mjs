@@ -21,7 +21,7 @@ export default defineConfig([
         'caughtErrorsIgnorePattern': '^ignore',
       }],
       'camelcase': ['error', {
-        allow: ['owner_id', 'thread_id', 'comment_id', 'created_at', 'is_delete']
+        allow: ['user_id', 'owner_id', 'thread_id', 'comment_id', 'created_at', 'is_delete']
       }],
     },
   },
