@@ -19,6 +19,7 @@ class Comment {
     this._isDelete = payload.isDelete;
     this._date = payload.date;
     this._replies = [];
+    this._likeCount = 0;
   }
 
   _validatePayload(payload) {
@@ -78,6 +79,17 @@ class Comment {
     return this._replies;
   }
 
+  set likeCount(value) {
+    if (typeof value !== 'number') {
+      value = parseInt(value);
+    }
+    this._likeCount = value;
+  }
+
+  get likeCount() {
+    return this._likeCount;
+  }
+
   toJSON() {
     return {
       id: this.id,
@@ -85,6 +97,7 @@ class Comment {
       username: this.username,
       date: this.date.toISOString(),
       replies: this.replies,
+      likeCount: this.likeCount,
     };
   }
 }

@@ -20,6 +20,7 @@ const commentsUseCaseError = {
   'ADD_COMMENT_USE_CASE.THREAD_NOT_FOUND': new NotFoundError('Thread tidak ditemukan'),
   'DELETE_COMMENT_USE_CASE.COMMENT_NOT_FOUND': new NotFoundError('Komentar tidak ditemukan'),
   'DELETE_COMMENT_USE_CASE.OWNER_NOT_MATCH': new AuthorizationError('Pengguna tidak memiliki hak akses'),
+  'COMMENT_LIKE_USE_CASE.COMMENT_NOT_FOUND': new NotFoundError('Komentar tidak ditemukan'),
 };
 const repliesUseCaseError = {
   'ADD_REPLY_USE_CASE.COMMENT_NOT_FOUND': new NotFoundError('Komentar tidak ditemukan'),

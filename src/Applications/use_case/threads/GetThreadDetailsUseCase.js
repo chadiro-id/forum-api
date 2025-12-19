@@ -2,10 +2,12 @@ class GetThreadDetailsUseCase {
   constructor({
     threadRepository,
     commentRepository,
+    commentLikeRepository,
     replyRepository,
   }) {
     this._threadRepository = threadRepository;
     this._commentRepository = commentRepository;
+    this._commentLikeRepository = commentLikeRepository;
     this._replyRepository = replyRepository;
   }
 
@@ -22,12 +24,21 @@ class GetThreadDetailsUseCase {
       const replies = await this._replyRepository.getRepliesByCommentIds(commentIds);
       const replyGroup = Object.groupBy(replies, ({ commentId }) => commentId);
 
-      thread.comments = replies.length > 0
-        ? comments.map((comment) => {
-          comment.replies = replyGroup[comment.id] || [];
-          return comment;
-        })
-        : comments;
+      const commentLikes = await this._commentLikeRepository.getCommentsLikeCount(commentIds);
+      console.dir(commentLikes);
+
+      thread.comments = comments.map((cmt) => {
+        cmt.replies = replyGroup[cmt.id] || [];
+        cmt.likeCount = commentLikes.find((x) => x.commentId === cmt.id).likeCount;
+        return cmt;
+      });
+
+      // thread.comments = replies.length > 0
+      //   ? comments.map((comment) => {
+      //     comment.replies = replyGroup[comment.id] || [];
+      //     return comment;
+      //   })
+      //   : comments;
     }
 
     return thread;

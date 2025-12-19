@@ -6,6 +6,7 @@ const ReplyRepository = require('../../../Domains/replies/ReplyRepository');
 const ThreadRepositoryPostgres = require('../../repository/ThreadRepositoryPostgres');
 const AddThreadUseCase = require('../../../Applications/use_case/threads/AddThreadUseCase');
 const GetThreadDetailsUseCase = require('../../../Applications/use_case/threads/GetThreadDetailsUseCase');
+const CommentLikeRepository = require('../../../Domains/comments/CommentLikeRepository');
 
 const options = [
   {
@@ -48,6 +49,10 @@ const options = [
         {
           name: 'commentRepository',
           internal: CommentRepository.name,
+        },
+        {
+          name: 'commentLikeRepository',
+          internal: CommentLikeRepository.name,
         },
         {
           name: 'replyRepository',
