@@ -25,10 +25,11 @@ class GetThreadDetailsUseCase {
       const replyGroup = Object.groupBy(replies, ({ commentId }) => commentId);
 
       const commentLikes = await this._commentLikeRepository.getCommentsLikeCount(commentIds);
+      console.dir(commentLikes);
 
       thread.comments = comments.map((cmt) => {
         cmt.replies = replyGroup[cmt.id] || [];
-        cmt.likeCount = commentLikes.find((x) => x.commentId === cmt.id).likeCount;
+        cmt.likeCount = commentLikes.find((x) => x.commentId === cmt.id)?.likeCount;
         return cmt;
       });
     }

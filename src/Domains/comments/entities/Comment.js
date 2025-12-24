@@ -80,6 +80,7 @@ class Comment {
   }
 
   set likeCount(value) {
+    console.log('like count:', value, typeof value);
     if (typeof value !== 'number') {
       value = parseInt(value);
     }
